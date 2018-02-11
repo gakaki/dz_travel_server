@@ -5,7 +5,11 @@
   "private": true,
   "dependencies": {
     "egg": "^2.2.1",
-    "egg-scripts": "^2.5.0"
+    "egg-logger": "^1.6.1",
+    "egg-mongoose": "^2.1.1",
+    "egg-redis": "^1.0.2",
+    "egg-scripts": "^2.5.0",
+    "ioredis": "^3.2.2"
   },
   "devDependencies": {
     "autod": "^3.0.1",
@@ -21,7 +25,7 @@
     "node": ">=8.9.0"
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-server",
+    "start": "egg-scripts start --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem",
     "stop": "egg-scripts stop --title=egg-server-server",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",

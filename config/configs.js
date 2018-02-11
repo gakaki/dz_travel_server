@@ -1,5 +1,4 @@
-export var configs;
-(function (configs) {
+exports.configs=function (configs={}) {
     let t;
     class Guessstart {
         constructor(d) { this.cfg = d; }
@@ -196,4 +195,5 @@ export var configs;
     let _shareMap = {
         1: t[0], 2: t[1], 3: t[2], 4: t[3], 5: t[4]
     };
-})(configs || (configs = {}));
+    return configs;
+};
