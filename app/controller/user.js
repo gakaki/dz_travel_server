@@ -9,14 +9,19 @@ const configs=require('./../../config/configs');
 class UserController extends Controller {
     async auth(ctx){
         this.logger.info("我要授权");
-        console.log(constant.LoginMethod.WECHAT_MINI_APP);
+        let result={
+            data:{}
+        };
+        if(!ctx.query.payload){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let sdkAuth={
             payload:ctx.query.payload,
             method:constant.LoginMethod.WECHAT_MINI_APP
         };
-        let result={
-            data:{}
-        };
+
         let resultS = await this.service.user.auth(sdkAuth);
         if(resultS!=null){
             result.code=0;
@@ -52,6 +57,11 @@ class UserController extends Controller {
     async minapppay(ctx){
         this.logger.info("我要付款");
         let result={};
+        if(!ctx.query._sid||!ctx.query.payCount||!ctx.query.title){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -65,6 +75,11 @@ class UserController extends Controller {
     async minappwithdraw(ctx){
         this.logger.info("我要提现");
         let result={};
+        if(!ctx.query._sid||!ctx.query.money){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;

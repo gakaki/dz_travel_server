@@ -7,7 +7,8 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://mongouser:'+encodeURIComponent("Mandao#@dzhy@2018")+'@172.17.16.5:27017/wxsrv?authSource=admin',
+        url: 'mongodb://mongouser:'+encodeURIComponent("Mandao#dzhy@2018")+'@172.17.16.5:27017/wxsrv?authSource=admin',
+
     };
 
     config.env="prod";

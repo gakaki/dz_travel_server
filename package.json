@@ -27,7 +27,7 @@
     "node": ">=8.9.0"
   },
   "scripts": {
-    "start": "egg-scripts start --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem",
+    "start": "egg-scripts start --port=443 --daemon  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem",
     "stop": "egg-scripts stop --title=egg-server-server",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",

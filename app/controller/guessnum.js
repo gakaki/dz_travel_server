@@ -11,6 +11,12 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
+        if(!ctx.query._sid||!ctx.query.money||!ctx.query.title||!ctx.query.useTicket){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
+
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -43,6 +49,11 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
+        if(!ctx.query._sid||!ctx.query.pid||!ctx.query.guessNum){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -64,6 +75,11 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
+        if(!ctx.query._sid||!ctx.query.pid){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -84,6 +100,11 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
+        if(!ctx.query._sid||!ctx.query.pid){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -102,6 +123,11 @@ class GuessnumController extends Controller {
     async getpackrankinglist(ctx){
         ctx.logger.info("我要获取红包竞猜排行榜");
         let result={};
+        if(!ctx.query._sid||!ctx.query.pid){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -120,6 +146,11 @@ class GuessnumController extends Controller {
     async getuserpackrecords(ctx){
         ctx.logger.info("获取用户收发红包记录");
         let result={};
+        if(!ctx.query._sid){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
@@ -137,6 +168,11 @@ class GuessnumController extends Controller {
     async getacceleration(ctx){
         ctx.logger.info("获取加速卡");
         let result={};
+        if(!ctx.query._sid){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
