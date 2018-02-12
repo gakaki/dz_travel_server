@@ -104,6 +104,7 @@ module.exports =app =>{
              return result;
         }
 
+
         async minAppPay(ui,payCount,title){
             let result={
                 data:{}

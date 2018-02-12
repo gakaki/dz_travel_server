@@ -54,6 +54,28 @@ class UserController extends Controller {
         ctx.body=result;
     }
 
+    async getiteminfo(ctx){
+        this.logger.info("我要查询道具");
+        let result={
+            data:{}
+        };
+        if(!ctx.query._sid||!ctx.query.itemId){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
+        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        if(ui==null){
+            result.code=constant.Code.USER_NOT_FOUND;
+            ctx.body=result;
+            return;
+        }
+        result.code=constant.Code.OK;
+        result.data.stock=ui.items[ctx.query.itemId];
+        ctx.body=result;
+
+    }
+
     async minapppay(ctx){
         this.logger.info("我要付款");
         let result={};
