@@ -2,6 +2,7 @@
 
 const Controller = require('egg').Controller;
 const utils=require("./../utils/utils");
+const constant=require("./../utils/constant");
 
 
 class GuessnumController extends Controller {
@@ -12,7 +13,7 @@ class GuessnumController extends Controller {
         };
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
@@ -20,15 +21,15 @@ class GuessnumController extends Controller {
             let pack=await ctx.model.PackInfo.findOne({"orderId":ctx.query.orderId});
             if(pack !=null){
                 pack.userInfo=ui;
-               result.code=0;
+               result.code=constant.Code.OK;
                result.data=pack;
             }else{
-                result.code=utils.Code.PACK_EMPTY;
+                result.code=constant.Code.PACK_EMPTY;
             }
         }else{
             let resultP = await this.service.guessnum.sendPack(ui,ctx.query.money,ctx.query.title,ctx.query.useTicket);
             if(resultP.packInfo!=null){
-                result.code=0;
+                result.code=constant.Code.OK;
                 result.data=resultP.packInfo;
             }else{
                 result.code=resultP.status;
@@ -44,13 +45,13 @@ class GuessnumController extends Controller {
         };
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
         let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
         if(pack==null){
-            result.code=utils.Code.PACK_EMPTY;
+            result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
@@ -65,13 +66,13 @@ class GuessnumController extends Controller {
         };
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
         let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
         if(pack==null){
-            result.code=utils.Code.PACK_EMPTY;
+            result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
@@ -85,13 +86,13 @@ class GuessnumController extends Controller {
         };
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
         let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
         if(pack==null){
-            result.code=utils.Code.PACK_EMPTY;
+            result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
@@ -103,13 +104,13 @@ class GuessnumController extends Controller {
         let result={};
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
         let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
         if(pack==null){
-            result.code=utils.Code.PACK_EMPTY;
+            result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
@@ -121,7 +122,7 @@ class GuessnumController extends Controller {
         let result={};
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
@@ -138,7 +139,7 @@ class GuessnumController extends Controller {
         let result={};
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }

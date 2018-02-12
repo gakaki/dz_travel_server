@@ -1,8 +1,14 @@
 const Service = require('egg').Service;
 const utils = require('./../utils/utils');
+const constant = require('./../utils/constant');
+const nonce = require('./../utils/nonce');
 const configs=require('./../../config/configs');
 const crypto = require("crypto");
 const moment = require("moment");
+const xml2js = require('xml2js');
+const parseString = require('xml2js').parseString;
+const fs=require("fs");
+const tenpay=require("tenpay");
 const  PID_INIT = 160000;
 module.exports =app =>{
     return class UserService extends Service {
@@ -84,11 +90,11 @@ module.exports =app =>{
             // 日志
             this.ctx.model.UserActionRecord.create({
                 pid :ui.pid,
-                type:utils.UserActionRecordType.LOGIN,
+                type:constant.UserActionRecordType.LOGIN,
                 data:{
                     agent:this.ctx.request.header['user-agent'],
                     host:this.ctx.request.header.host,
-                    addr:this.ctx.request.socket.remoteAddress
+                    addr:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
                 }
             });
 
@@ -99,8 +105,11 @@ module.exports =app =>{
         }
 
         async minAppPay(ui,payCount,title){
+            let result={
+                data:{}
+            };
             // 规则，year/month/day 000000000
-            let orderid=moment().format('YYYYMMDDhhmmssSS')+this.ctx.model.WechatUnifiedOrder.count();
+            let orderid=moment().format('YYYYMMDDhhmmssSS')+await this.ctx.model.WechatUnifiedOrder.count();
             let payInfo={
                 price:Math.floor(payCount*100),
                 title:title,
@@ -110,9 +119,198 @@ module.exports =app =>{
                 desc:"豆子网络-游戏",
             };
             this.logger.info("我准备入库的金额 ："+payInfo.price);
+
+
+
+            let rcd = await this.ctx.model.SdkUser.findOne({userid:ui.uid});
+            if (!rcd) {
+                result.status = constant.Code.TARGET_NOT_FOUND;
+                return result;
+            }
+
+
+
             await this.ctx.model.RechargeRecord.create(payInfo);
+            let wuo={
+                nonce_str : nonce.NonceAlDig(10),
+                body:payInfo.desc,
+                out_trade_no : payInfo.orderid,
+                total_fee : payInfo.price,// 正式的价格
+                time_start:moment(new Date()).format("YYYYMMDDHHMMSS"),
+                spbill_create_ip:(this.ctx.request.socket.remoteAddress).replace("::ffff:",""),
+                notify_url:this.config.noticeurl,
+                appid:this.config.appid,
+                mch_id:this.config.pubmchid,
+                openid :ui.userid,
+                trade_type:"JSAPI"
+            };
+            console.log(wuo);
+            let fields = utils.ToMap(wuo);
+            wuo.sign = this.doSignaturePay(fields, this.config.pubkey);
+            let builder = new xml2js.Builder();
+            let xmlwxParam = builder.buildObject(wuo);
+            try {
+                let body=await this.ctx.curl("https://api.mch.weixin.qq.com/pay/unifiedorder",{
+                    method:"POST",
+                    data:xmlwxParam,
+                    headers: {
+                        'Content-Type': 'text/xml',
+                        'charset': 'UTF-8'
+                    },
+                    dataType:"xml",
+                });
+                //console.log(body);
+                let that =this;
+                parseString(body.data, function (err, wxresult) {
+                    if(err){
+                        this.logger.error("请求失败："+err);
+                        result.code=constant.Code.THIRD_FAILED;
+                        wuo.success = false;
+                    }
+                     let realResult = wxresult["xml"];
+                    let returnCode = realResult["return_code"][0];
+                    if (returnCode === "SUCCESS") {
+                        let prepay_id = realResult["prepay_id"][0];
+                        let returnParam =
+                            {
+                                appid: that.config.appid,
+                                noncestr: nonce.NonceAlDig(10),
+                                package: "prepay_id=" + prepay_id,
+                                timestamp: parseInt(new Date().getTime() / 1000).toString(),
+                                signType: "MD5",
+                            };
+                        let field = utils.ToMap(returnParam);
+                        returnParam.sign = that.doSignaturePay(field, that.config.pubkey);
+                        returnParam.orderId=orderid;
+                        result.data.payload=returnParam;
+                        result.code=constant.Code.OK;
+                        wuo.success=true;
+                    }
+
+                })
+
+            }catch (err){
+                this.logger.error("请求失败："+err);
+                result.code=constant.Code.THIRD_FAILED;
+                wuo.success = false;
+
+            }
+
+            this.ctx.model.WechatUnifiedOrder.create(wuo);
+
+            return result;
+
+        }
+
+        async minAppWithdraw(ui,money){
+            let wtd={};
+            wtd.nonce_str = nonce.NonceAlDig(10);
+
+            //sign
+            wtd.partner_trade_no = "withdraw"+new Date().getTime()/1000>>0;
+            wtd.amount = money; // 正式的价格
+            wtd.spbill_create_ip = (this.ctx.request.socket.remoteAddress).replace("::ffff:","");
+            wtd.mch_appid = this.config.appid;
+            wtd.mchid = this.config.pubmchid;
+            wtd.partnerKey = this.config.pubkey;
+            wtd.check_name="NO_CHECK";
+            wtd.desc="'奖励金提现'";
+            wtd.openid = ui.uid;
+            //wtd.openid = "oQq-J5XuO2NawkxByfpkMrOAPmLg";
+            wtd.created = new Date().toLocaleDateString();
+            wtd.createTime=new Date().toLocaleTimeString();
+            let res = await this.ReqPaytoUser(wtd);
+            if (!res) {
+                wtd.success = false;
+                this.ctx.model.WechatPaytoUser.create(wtd);
+                return false;
+            }else{
+                wtd.success=true;
+                this.ctx.model.WechatPaytoUser.create(wtd);
+                return true
+            }
+
+        }
 
 
+
+        async shopDone(){
+            let that =this;
+            let result={};
+            let resultParam={};
+            this.ctx.request.on("data", function (chunk) {
+                parseString(chunk, async function (err, wxresult) {
+                    let xml=wxresult.xml;
+                    console.log(xml);
+                    let return_code=xml.return_code;
+                    console.log(return_code);
+                    if (return_code != "SUCCESS") {
+                        resultParam.status = constant.Code.FAILED;
+                        resultParam.return_code=return_code;
+                        that.ctx.model.WechatPayResults.create(resultParam);
+                        result.code=false;
+                        return result;
+                    }else{
+                        let signkey =that.config.pubkey;
+                        resultParam={
+                            "appid":xml.appid[0],
+                            "bank_type": xml.bank_type[0],
+                            "cash_fee":  xml.cash_fee[0],
+                            "fee_type":  xml.fee_type[0],
+                            "is_subscribe":  xml.is_subscribe[0],
+                            "mch_id":  xml.mch_id[0],
+                            "nonce_str":  xml.nonce_str[0],
+                            "openid":  xml.openid[0],
+                            "out_trade_no":  xml.out_trade_no[0],
+                            "result_code":  xml.result_code[0],
+                            "return_code":  xml.return_code[0],
+                            "sign":  xml.sign[0],
+                            "time_end":  xml.time_end[0],
+                            "total_fee":  xml.total_fee[0],
+                            "trade_type":  xml.trade_type[0],
+                            "transaction_id":  xml.transaction_id[0],
+                        };
+                        let fields = utils.ToMap(resultParam);
+                        let sign = this.doSignaturePay(fields, signkey);
+                        console.log("验证签名");
+                        console.log(sign);
+                        console.log(resultParam.sign);
+                        resultParam.status = constant.Code.OK;
+                        that.ctx.model.WechatPayResults.create(resultParam);
+
+                        // 查询该订单的价格是否一致
+                        let rcd = await that.ctx.model.RechargeRecord.findOne({orderid: resultParam.out_trade_no});
+
+                        if (!rcd) {
+                            this.logger.log("没有查找到该微信订单 " + resultParam.out_trade_no);
+                            result.code=false;
+                            return result;
+                        }
+
+                        if (resultParam.cash_fee != rcd.price) {
+                            this.logger.log("支付的金额和下单的金额不一致 " + resultParam.cash_fee+":"+rcd.price);
+                            result.code=false;
+                            return result;
+                        }
+                        result.code=true;
+                        result.orderid=resultParam.out_trade_no;
+                       return result;
+                    }
+
+                })
+            });
+        }
+        async doComplete(orderid){
+            await this.ctx.model.RechargeRecord.update({
+                orderid: orderid,
+                close: {$ne: true}
+            }, {$set: {close: true}});
+            let rcd = await this.ctx.model.RechargeRecord.findOne({  orderid: orderid, close:true});
+            if(rcd == null){
+                return;
+            }
+            let ui = await this.ctx.model.User.findOne({pid:rcd.pid});
+            this.ctx.service.guessnum.sendPack(ui,rcd.price,rcd.title,false);
         }
 
 
@@ -160,7 +358,7 @@ module.exports =app =>{
 
 
             // 日志
-            this.ctx.model.UserActionRecord.create({ pid :pid,type:utils.UserActionRecordType.REGISTER});
+            this.ctx.model.UserActionRecord.create({ pid :pid,type:constant.UserActionRecordType.REGISTER});
 
             return ui;
         }
@@ -209,6 +407,43 @@ module.exports =app =>{
             return crypto.createHash('md5').update(Math.random().toString()).digest('hex');
         };
 
+         doSignaturePay(fields, key) {
+            let argus = new Array();
+            fields.forEach((v, k) => {
+                argus.push(k + "=" + v);
+            });
+            argus.push("key=" + key);
+            let plain = argus.join("&");
+
+            let sign = utils.MD5(plain,constant.Format.HEX).toUpperCase();
+            return sign;
+        }
+
+        async ReqPaytoUser(w){
+            const config = {
+                appid: w.mch_appid,
+                mchid: w.mchid,
+                partnerKey: w.partnerKey,
+                pfx: fs.readFileSync("./../../config/apiclient_cert.p12"),
+                spbill_create_ip:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
+            };
+            const api = new tenpay(config);
+
+            try{
+                let result = await api.transfers({
+                    partner_trade_no: w.partner_trade_no,
+                    openid: w.openid,
+                    amount: Math.floor(w.amount*100*0.98)/100,
+                    desc: w.desc,
+                    check_name: w.check_name
+                });
+                return true;
+            }catch (err){
+                this.logger.error("提现失败"+err);
+                return false;
+            }
+
+        }
 
     }
 };

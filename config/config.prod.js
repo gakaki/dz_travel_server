@@ -7,14 +7,14 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://mongouser:'+encodeURIComponent("Douzi#Xx@2017")+'@172.17.16.3:27017/wxsrv?authSource=admin',
+        url: 'mongodb://mongouser:'+encodeURIComponent("Mandao#@dzhy@2018")+'@172.17.16.5:27017/wxsrv?authSource=admin',
     };
 
     config.env="prod";
 
     config.redis = {
         client: {
-            host: '10.1.70.106',
+            host: '127.0.0.1',
             port: '6379',
             password: 'redis',
             db: '0',
@@ -32,7 +32,7 @@ module.exports = appInfo => {
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
-    config.noticeurl = "https://h5.ddz2018.com/action/shop.done";
+    config.noticeurl = "https://h5.ddz2018.com/user/shopdone";
 
     return config;
 };

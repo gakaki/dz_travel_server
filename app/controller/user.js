@@ -2,15 +2,17 @@
 
 const Controller = require('egg').Controller;
 const utils=require("./../utils/utils");
+const constant=require("./../utils/constant");
+const configs=require('./../../config/configs');
 
 
 class UserController extends Controller {
     async auth(ctx){
         this.logger.info("我要授权");
-        console.log(utils.LoginMethod.WECHAT_MINI_APP);
+        console.log(constant.LoginMethod.WECHAT_MINI_APP);
         let sdkAuth={
             payload:ctx.query.payload,
-            method:utils.LoginMethod.WECHAT_MINI_APP
+            method:constant.LoginMethod.WECHAT_MINI_APP
         };
         let result={
             data:{}
@@ -20,7 +22,7 @@ class UserController extends Controller {
             result.code=0;
             result.data.uid=resultS.openid;
         }else{
-            result.code=utils.Code.AUTH_FAILED;
+            result.code=constant.Code.AUTH_FAILED;
         }
         ctx.body=result;
     }
@@ -32,7 +34,7 @@ class UserController extends Controller {
             data:{}
         };
         if(!sid && !uid){
-            result.code = utils.Code.LOGIN_FAILED;
+            result.code = constant.Code.LOGIN_FAILED;
             ctx.body=result;
             return;
         }
@@ -42,7 +44,7 @@ class UserController extends Controller {
             result.data.info=rs.info;
             result.data.sid=rs.sid;
         }else{
-            result.code=utils.Code.LOGIN_FAILED;
+            result.code=constant.Code.LOGIN_FAILED;
         }
         ctx.body=result;
     }
@@ -52,15 +54,56 @@ class UserController extends Controller {
         let result={};
         let ui=await this.service.user.findUserBySid(ctx.query._sid);
         if(ui==null){
-            result.code=utils.Code.USER_NOT_FOUND;
+            result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
+
         this.logger.info("我拿到的钱数:"+ctx.query.payCount);
         ctx.body=await this.service.user.minAppPay(ui,ctx.query.payCount,ctx.query.title);
     }
     async minappwithdraw(ctx){
         this.logger.info("我要提现");
+        let result={};
+        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        if(ui==null){
+            result.code=constant.Code.USER_NOT_FOUND;
+            ctx.body=result;
+            return;
+        }
+        if(ctx.query.money<Number(configs.configs().Parameter.Get("withdrawalsmin").value)){
+            result.code=constant.Code.LESS_MONEY;
+            ctx.body=result;
+            return;
+        }
+        let count=await ctx.model.WechatPaytoUser.count({"openid":ui.uid,"created":new Date().toLocaleDateString(),"success":true});
+        if(count>=Number(configs.configs().Parameter.Get("withdrawalsnum").value)){
+            result.code=constant.Code.EXCEED_COUNT;
+            ctx.body=result;
+            return;
+        }
+        let res=await this.service.user.minAppWithdraw(ui,ctx.query.money);
+        if(res){
+            result.code=constant.Code.OK
+        }else{
+            result.code=constant.Code.NO_MONEY;
+        }
+        ctx.body=result;
+
+    }
+
+    async shopdone(ctx){
+        this.logger.info("支付成功回调");
+        let result=await this.service.user.shopDone();
+            let xmlreturn = "<xml><return_code><![CDATA[SUCCESS]]>"
+                + "</return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
+
+        if(result.code){
+            this.service.user.doComplete(result.orderid);
+        }
+
+        ctx.response.header('Content-Type','text/xml').send(xmlreturn);
+
 
     }
 

@@ -19,7 +19,7 @@ module.exports = app => {
         time_expire: { type: String},//订单失效时间，格式为yyyyMMddHHmmss，如2009年12月27日9点10分10秒表示为20091227091010
         goods_tag: { type: String},//订单优惠标记，代金券或立减优惠功能的参数"
         notify_url: { type: String},//接收微信支付异步通知回调地址，通知url必须为直接可访问的url，不能携带参数。"
-        trade_type: { type: String,default:"JSAPI"},//"支付类型 JSAPI，NATIVE，APP"
+        trade_type: { type: String},//"支付类型 JSAPI，NATIVE，APP"
         limit_pay: { type: String},//"no_credit--指定不能使用信用卡支付
         scene_info: { type: String},//"该字段用于统一下单时上报场景信息，目前支持上报实际门店信息。 {"store_id": "", //门店唯一标识，选填，String(32)"store_name":"”//门店名称，选填，String(64) }
         prepay_id: { type: String},//"微信生成的预支付回话标识，用于后续接口调用中使用，该值有效期为2小时

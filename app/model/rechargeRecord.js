@@ -4,6 +4,7 @@ module.exports = app => {
     const RechargeRecordSchema = new mongoose.Schema({
         orderid: { type: String  },
         pid: { type: String  },
+        title: { type: String  },
         time: { type: String  ,default:new Date().toLocaleString()},
         price:{type:Number},
         desc:{type:String},
