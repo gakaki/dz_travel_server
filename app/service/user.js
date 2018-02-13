@@ -129,8 +129,8 @@ module.exports =app =>{
             // 规则，year/month/day 000000000
             let orderid=moment().format('YYYYMMDDhhmmssSS')+await this.ctx.model.WechatUnifiedOrder.count();
             let payInfo={
-               // price:Math.floor(payCount*100),
-                price:1,
+                price:Math.floor(payCount*100),
+              //  price:1,
                 title:title,
                 pid:ui.pid,
                 type:"recharge",
@@ -266,8 +266,8 @@ module.exports =app =>{
                 this.logger.info("接收数据");
                 buf += chunk
             });
-            this.ctx.req.on('end', () => {
-                parseString(buf, async function (err, wxresult) {
+            this.ctx.req.on('end',async () => {
+                await parseString(buf, async function (err, wxresult) {
                     let xml=wxresult.xml;
                     that.logger.info("支付微信回调结果 ："+JSON.stringify(xml));
                     let return_code=xml.return_code[0];
@@ -318,10 +318,16 @@ module.exports =app =>{
                         }
                         result.code=true;
                         result.orderid=resultParam.out_trade_no;
+
+                        that.logger.info("准备更改订单状态 ："+resultParam.out_trade_no);
+                        that.service.user.doComplete(resultParam.out_trade_no);
+
                         return result;
                     }
 
                 })
+
+
             });
 
         }
@@ -332,12 +338,14 @@ module.exports =app =>{
                 close: {$ne: true}
             }, {$set: {close: true}});
             let rcd = await this.ctx.model.RechargeRecord.findOne({  orderid: orderid, close:true});
-            this.logger.info("支付成功 ："+JSON.stringify(rcd));
+            this.logger.info("修改预下单状态 ："+JSON.stringify(rcd));
             if(rcd == null){
-                return;
+                return false;
             }
             let ui = await this.ctx.model.User.findOne({pid:rcd.pid});
-            this.ctx.service.guessnum.sendPack(ui,rcd.price,rcd.title,false);
+            this.logger.info("准备生成红包");
+            await this.ctx.service.guessnum.sendPack(ui,rcd.price,rcd.title,false,orderid);
+            return true;
         }
 
 

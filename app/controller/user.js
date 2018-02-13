@@ -127,13 +127,10 @@ class UserController extends Controller {
 
     async shopdone(ctx){
         this.logger.info("支付成功回调");
-        let result=await this.service.user.shopDone();
+        this.service.user.shopDone();
             let xmlreturn = "<xml><return_code><![CDATA[SUCCESS]]>"
                 + "</return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
 
-        if(result.code){
-            this.service.user.doComplete(result.orderid);
-        }
         ctx.res.setHeader('Content-Type', 'application/xml');
         ctx.res.end(xmlreturn);
 

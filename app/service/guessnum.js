@@ -9,7 +9,7 @@ const tenpay=require("tenpay");
 
 module.exports =app =>{
     return class GuessNumService extends Service {
-        async sendPack(ui,money,title,useTicket){
+        async sendPack(ui,money,title,useTicket,orderid=null){
             this.logger.info("发红包的参数 :"+money+" "+title+" "+useTicket);
             let result={};
 
@@ -43,13 +43,16 @@ module.exports =app =>{
              title:title,
              useTicket:useTicket
          };
+         if(orderid != null){
+             pack.orderId=orderid;
+         }
          let packInfo=await this.ctx.model.PackInfo.create(pack);
          this.logger.info("生成的红包信息 "+JSON.stringify(packInfo));
          packInfo.userInfo=ui;
          let that =this;
             setTimeout(async function () {
-                that.logger.info("红包要过期了");
                 let p = await that.ctx.model.PackInfo.findOne({pid:packInfo.pid});
+                that.logger.info("红包要过期了 :"+JSON.stringify(p));
                 p.status=constant.Code.PACK_EXPIRED;
                 await that.ctx.model.PackInfo.update({pid:p.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
                 if(!useTicket){
@@ -65,12 +68,12 @@ module.exports =app =>{
 
                     }else{
                         that.logger.info("没有竞猜记录");
-                        await that.refund(ui.pid,packInfo.orderId);
+                        await that.refund(ui.pid,p.orderId);
                     }
                 }
 
 
-            },Number(configs.configs().Parameter.Get("expire").value)*1000);
+            },Number(configs.configs().Parameter.Get("expire").value)*3600*1000);
             result.packInfo=packInfo;
         return result;
         }
