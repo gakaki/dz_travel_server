@@ -6,7 +6,7 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-       url: 'mongodb://mongouser:'+encodeURIComponent("Mandao#dzhy@2018")+'@172.17.16.5:27017/wxsrv?authSource=admin',
+        url: 'mongodb://mongouser:'+encodeURIComponent("Mandao#dzhy@2018")+'@172.17.16.5:27017/wxsrv?authSource=admin',
     };
 
     config.env="prod";
@@ -15,15 +15,15 @@ module.exports = appInfo => {
         client: {
             host: '127.0.0.1',
             port: '6379',
-            password: 'redis',
+            password: 'Douzihuyu2018',
             db: '0',
         },
     };
 
-
-    config.logger={
+     config.logger={
         dir:"/root/server/appsrv/logs/server/"
     };
+
 
     config.appid = "wx1c721a2e355de9ba";
     config.appsecret = "66de48a97a8959491ac4f16dfa10e45b";
@@ -33,7 +33,7 @@ module.exports = appInfo => {
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
-    config.noticeurl = "https://h5.ddz2018.com/user/shopdone";
+    config.noticeurl = "https://h5t.ddz2018.com/user/shopdone";
 
     return config;
 };

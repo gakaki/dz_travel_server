@@ -10,6 +10,7 @@ const tenpay=require("tenpay");
 module.exports =app =>{
     return class GuessNumService extends Service {
         async sendPack(ui,money,title,useTicket){
+            this.logger.info("发红包的参数 :"+money+" "+title+" "+useTicket);
             let result={};
 
             let cost={
@@ -17,19 +18,21 @@ module.exports =app =>{
             };
             if(useTicket){
                 cost  ["items."+configs.configs().Item.CASHCOUPON]=-1;
+                money =1;
+                if(ui.items[configs.configs().Item.CASHCOUPON] <= 0){
+                    result.status=constant.Code.NEED_COUPON;
+                    result.packInfo=null;
+                    return result;
+                }
             }
             //计算扣除
-            if(ui.items[configs.configs().Item.CASHCOUPON]<0){
-                result.status=constant.Code.NEED_COUPON;
-                result.packInfo=null;
-                return result;
-            }
+
             //扣代金券
             //获得加速卡
 
          await this.ctx.model.User.update({uid:ui.uid},{$inc:cost});
          ui=await this.ctx.model.User.findOne({uid:ui.uid});
-         this.ctx.service.item.itemChange(ui,cost);
+         await this.ctx.service.item.itemChange(ui,cost);
          let pack={
              pid:new Date().getTime(),
              uid:ui.uid,
@@ -41,6 +44,7 @@ module.exports =app =>{
              useTicket:useTicket
          };
          let packInfo=await this.ctx.model.PackInfo.create(pack);
+         this.logger.info("生成的红包信息 "+JSON.stringify(packInfo));
          packInfo.userInfo=ui;
          let that =this;
             setTimeout(async function () {
@@ -49,11 +53,11 @@ module.exports =app =>{
                 p.status=constant.Code.PACK_EXPIRED;
                 await that.ctx.model.PackInfo.update({pid:p.pid},p);
                 if(!useTicket){
-                    let recordsCount=await  that.ctx.model.PackGuessRecord.count({pid:packInfo.pid});
+                    let recordsCount=await  that.ctx.model.PackGuessRecord.count({pid:p.pid});
                     if(recordsCount>0){
                         that.logger.info("有竞猜记录");
                         let cost={
-                            ["items."+configs.configs().Item.MONEY]:packInfo.remain,
+                            ["items."+configs.configs().Item.MONEY]:p.remain,
                         };
                         that.ctx.model.User.update({uid:ui.uid},{$inc:cost});
                         ui=await this.ctx.model.User.findOne({uid:ui.uid});
@@ -166,7 +170,7 @@ module.exports =app =>{
             this.logger.info("剩余金额："+pack.remain);
 
             let get = Math.floor(pack.money*probability);
-            m.moneyGeted =get;
+            result.data.moneyGeted =get;
             this.logger.info("获取的金额："+get);
             if(A == 4){
                 pack.status=constant.Code.PACK_FINSH;
@@ -209,15 +213,14 @@ module.exports =app =>{
                 uid:ui.uid,
                 pid:pack.pid,
                 userAnswerWord:guessNum,
-                userGetMoney:result.data.userGetMoney,
+                userGetMoney:moneyGeted,
                 userMark:result.data.userMark,
                 commit:result.data.commit
             };
             await this.ctx.model.PackGuessRecord.create(packGuessRecord);
 
-
             let delta = {
-                ["items."+configs.configs().Item.MONEY]:result.data.userGetMoney,
+                ["items."+configs.configs().Item.MONEY]:moneyGeted,
             };
             await this.ctx.model.User.update({uid:ui.uid},{$inc:delta});
 
@@ -225,16 +228,18 @@ module.exports =app =>{
 
             await this.ctx.service.item.itemChange(ui,delta);
             pack.userInfo=await this.ctx.model.User.findOne({uid:pack.uid});
+
             result.data.userAnswerWord=guessNum;
             result.data.packInfo=pack;
             result.data.userInfo=ui;
             result.code=constant.Code.OK;
+            this.logger.info("准备返回的信息： "+JSON.stringify(result));
            return result
         }
 
         async clearCD(ui,pack,sid){
             let result={};
-            if(pack.status != Code.PACK_Fighing){
+            if(pack.status != constant.Code.PACK_Fighing){
                 result.code = pack.status;
                 return result;
             }
@@ -250,12 +255,14 @@ module.exports =app =>{
 
             await this.ctx.model.User.update({uid:ui.uid},{$inc:delta});
             ui=await this.ctx.model.User.findOne({uid:ui.uid});
+            this.logger.info("需要更新的用户信息 ："+JSON.stringify(ui));
             await this.ctx.service.item.itemChange(ui,delta);
 
 
             if(pack.CDList[sid]){
                 if(pack.CDList[sid]+Number(configs.configs().Parameter.Get("waitcd").value)*1000 >= new Date().getTime()){
                     delete pack.CDList[sid];
+                    this.logger.info("红包状况："+JSON.stringify(pack));
                     await this.ctx.model.PackInfo.update(pack);
                     result.code=constant.Code.OK;
                 }else{
@@ -274,12 +281,12 @@ module.exports =app =>{
             result.data.originator=await this.ctx.model.User.findOne({uid:pack.uid});
             result.data.packPassword=pack.password;
             result.data.packInfo=pack;
-            let records=await await this.ctx.model.PackGuessRecord.find({pid:pack.pid});
-            for(let record of records){
-                record.userInfo = await this.ctx.model.User.findOne({uid:record.uid});
-            }
-            result.data.records=records;
+            let records=await this.ctx.model.PackGuessRecord.find({pid:pack.pid});
+            let rcs=await this.getRecords(records);
+
+            result.data.records=rcs;
             result.code=constant.Code.OK;
+            this.logger.info("红包猜题记录 ："+JSON.stringify(result));
             return result;
         }
         async getPackRankingList(ui,pack){
@@ -290,11 +297,7 @@ module.exports =app =>{
             result.data.packInfo=pack;
             result.data.answer=pack.password;
 
-            let r = await this.ctx.model.PackGuessRecord.aggregate( {
-                $match: {pid: pack.pid,},
-                $group:{_id:"$uid",moneyGot:{$sum:"$userGetMoney"}},
-                $sort:{moneyGot: -1},
-            });
+            let r = await this.ctx.model.PackGuessRecord.aggregate( [{$match: {pid: pack.pid,}}]).group({_id:"$uid",moneyGot:{$sum:"$userGetMoney"}}).sort({moneyGot: -1});
 
             let rankInfos= [];
             for(let record of r){
@@ -424,11 +427,8 @@ module.exports =app =>{
             return recordsSort[0];
         }
        async getPackSumByUid(uid){
-            let r = await this.ctx.model.PackInfo.aggregate({
-                $match: {uid: uid,},
-                $group:{_id:"$uid",sum:{$sum:"$money"}},
-                $limit:1,
-            });
+            let r = await this.ctx.model.PackInfo.aggregate([{$match: {uid: uid,}}]).group({_id:"$uid",sum:{$sum:"$money"}}).limit(1);
+
 
             if(r &&r.length>0){
                 return  r[0]
@@ -439,11 +439,9 @@ module.exports =app =>{
         }
 
         async getReceivePackageRecordsMoneyByUid(uid){
-            let r = await this.ctx.model.PackGuessRecord.aggregate({
-                $match: {uid: uid,},
-                $group:{_id:"$uid",moneyGot:{$sum:"$userGetMoney"}},
-                $limit:1,
-            });
+            let r = await this.ctx.model.PackGuessRecord.aggregate([{
+                $match: {uid: uid,}}]).group({_id:"$uid",moneyGot:{$sum:"$userGetMoney"}}).limit(1);
+
             if(r && r.length>0){
                 return r[0];
             }else{
@@ -470,6 +468,7 @@ module.exports =app =>{
 
         async refund(pid,orderId){
             let rechargeRecord =await this.ctx.model.RechargeRecord.findOne({"orderid":orderId});
+            this.logger.info("查询下单记录 ："+JSON.stringify(rechargeRecord));
             if(rechargeRecord == null){
                 return false;
             }
@@ -490,7 +489,7 @@ module.exports =app =>{
             }else{
                 refund.success=true;
                 refund.status=res.return_code;
-                this.logger.info("退款人："+m.pid+"退款金额："+m.total_fee+"退款状态："+res.return_code);
+                this.logger.info("退款人："+pid+"退款金额："+refund.total_fee+"退款状态："+res.return_code);
             }
 
             this.ctx.model.WechatRefundRecord.create(refund);
@@ -500,9 +499,9 @@ module.exports =app =>{
 
         async ReqUserRefund(m){
             const config = {
-                appid: this.appid,
-                mchid: this.pubmchid,
-                partnerKey: this.pubkey,
+                appid: this.config.appid,
+                mchid: this.config.pubmchid,
+                partnerKey: this.config.pubkey,
                 pfx: fs.readFileSync("./../../config/apiclient_cert.p12"),
                 spbill_create_ip:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
             };
@@ -515,12 +514,26 @@ module.exports =app =>{
                     total_fee: m.total_fee,
                     refund_fee: m.refund_fee,
                 });
+                this.logger.info("退款结果 ："+JSON.stringify(result));
                 return result;
             }catch (err){
                 this.logger.error("退款失败:"+err);
                 return null;
             }
 
+        }
+
+        async getRecords(records){
+            let rcs=[];
+            for(let record of records){
+                let rc={};
+                rc.userInfo=await this.ctx.model.User.findOne({uid:record.uid});
+                rc.commit=record.commit;
+                rc.userGetMoney=record.userGetMoney;
+                rc.userAnswerWord=record.userAnswerWord;
+                rcs.push(rc);
+            }
+            return rcs;
         }
 
     }

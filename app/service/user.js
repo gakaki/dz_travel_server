@@ -14,20 +14,22 @@ module.exports =app =>{
     return class UserService extends Service {
         async auth(param) {
             this.logger.info("我要进行微信授权登陆");
-            let appid = this.config.appid;
-            let appsec = this.config.appsecret;
-            let authcode = param.payload.code;
+            let appid = (this.config.appid).trim();
+            let appsec = (this.config.appsecret).trim();
+            let authcode = JSON.parse(param.payload).code;
+
             let auResult= await this.doReqToken(appid,appsec,authcode);
 
             // let authtype = AuthType.MINI;
-            if (auResult !=null) {
+            this.logger.info("授权信息:"+JSON.stringify(auResult.data));
+            if (auResult.data !=null) {
                 //暂时用空信息，后面根据客户端汇报的信息再更新进来
                 // 插入到数据库中
-                await this.ctx.model.SdkUser.update( {userid: auResult.openid},
-                    {$set: {deviceid: auResult.unionid,userid:auResult.openid}},
+                let r= await this.ctx.model.SdkUser.update( {userid: auResult.data.openid},
+                    {$set: {userid:auResult.data.openid}},
                     {upsert: true});
-
-                return auResult;
+                this.logger.info("sdk用户入库更新:"+JSON.stringify(r));
+                return auResult.data;
             }
             // 否则走重新授权的流程
             return null;
@@ -37,10 +39,25 @@ module.exports =app =>{
         async login(param){
             let uid=param.uid;
             let sid=param._sid;
+            this.logger.info("登陆时的参数 ："+uid+" "+sid );
             let result ={};
             //老用户登陆
             if(sid){
                 let authUi=await this.collect(sid);
+                this.logger.info("老用户登陆 ："+JSON.stringify(authUi));
+                if(authUi == null){
+                    let loginUser=await this.ctx.model.User.findOne({uid:uid});
+                    this.logger.info("通过openid查库 ："+JSON.stringify(loginUser));
+                    if(loginUser !=null){
+                        let sid = this.GEN_SID();
+                        this.recruitSid(sid,loginUser.pid);
+                        this.logger.info("老用户刷新SID ："+sid);
+                        result.sid=sid;
+                        result.info=loginUser;
+                        return result;
+                    }
+
+                }
                 result.sid=sid;
                 result.info=authUi;
                 return result;
@@ -49,6 +66,7 @@ module.exports =app =>{
             let ui =null;
             if(uid){
                 let sdkui = await this.ctx.model.SdkUser.findOne({userid:uid});
+                this.logger.info("第三方登陆 ："+JSON.stringify(sdkui));
                 if (!sdkui) {
                     this.logger.error("尝试无效的第三方登陆");
                     result.info=null;
@@ -63,29 +81,28 @@ module.exports =app =>{
 
                 if (!ui) {
                     // 自动注册
-                    ui = await this.register(uid, param.info.nickName, param.info.avatarUrl, true);
-                    this.logger.info("使用第三方凭据注册账号 " + ui.pid);
+                    ui = await this.register(uid, JSON.parse(param.info).nickName, JSON.parse(param.info).avatarUrl, true);
+                    let sid = this.GEN_SID();
+                    this.logger.info("使用第三方凭据注册账号 " + ui.pid+ " sid : "+sid);
+                    this.recruitSid(sid,ui.pid);
                 }else{
                     //更新一次userInfo
-                    await this.ctx.model.User.update({pid: ui.pid}, {$set: {nickName: param.info.nickName, avatarUrl: param.info.avatarUrl}});
+                    await this.ctx.model.User.update({pid: ui.pid}, {$set: {nickName:  JSON.parse(param.info).nickName, avatarUrl:  JSON.parse(param.info).avatarUrl}});
                 }
             }
-            let ses = await app.redis.get(ui.pid);
+
+            let ses = JSON.parse(await app.redis.get(ui.pid));
+
             if (ses) {
                 let now = new Date().getTime();
                 if (ses.expire < now){
                     ses.sid = this.GEN_SID(); // 过期重新生成
+                    this.recruitSid(ses.sid,ui.pid);
                 }
-
-            } else {
-                // 首次登陆
-                ses = {
-                    sid:this.GEN_SID(),
-                };
             }
-            this.recruitSid(ses.sid,ui.pid);
 
-            this.logger.log("{{=it.user}}@{{=it.sid}} 登陆成功", {user: ui.pid, sid: ses.sid});
+
+            this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", {user: ui.pid, sid: ses.sid});
 
             // 日志
             this.ctx.model.UserActionRecord.create({
@@ -112,7 +129,8 @@ module.exports =app =>{
             // 规则，year/month/day 000000000
             let orderid=moment().format('YYYYMMDDhhmmssSS')+await this.ctx.model.WechatUnifiedOrder.count();
             let payInfo={
-                price:Math.floor(payCount*100),
+               // price:Math.floor(payCount*100),
+                price:1,
                 title:title,
                 pid:ui.pid,
                 type:"recharge",
@@ -142,14 +160,14 @@ module.exports =app =>{
                 notify_url:this.config.noticeurl,
                 appid:this.config.appid,
                 mch_id:this.config.pubmchid,
-                openid :ui.userid,
+                openid :ui.uid,
                 trade_type:"JSAPI"
             };
-            console.log(wuo);
             let fields = utils.ToMap(wuo);
             wuo.sign = this.doSignaturePay(fields, this.config.pubkey);
             let builder = new xml2js.Builder();
             let xmlwxParam = builder.buildObject(wuo);
+            this.logger.info("下单发送的数据 ："+xmlwxParam);
             try {
                 let body=await this.ctx.curl("https://api.mch.weixin.qq.com/pay/unifiedorder",{
                     method:"POST",
@@ -164,24 +182,27 @@ module.exports =app =>{
                 let that =this;
                 parseString(body.data, function (err, wxresult) {
                     if(err){
-                        this.logger.error("请求失败："+err);
+                        that.logger.error("请求失败："+err);
                         result.code=constant.Code.THIRD_FAILED;
                         wuo.success = false;
                     }
                      let realResult = wxresult["xml"];
+
                     let returnCode = realResult["return_code"][0];
+                    that.logger.info("微信返回的数据 ："+returnCode);
                     if (returnCode === "SUCCESS") {
                         let prepay_id = realResult["prepay_id"][0];
                         let returnParam =
                             {
-                                appid: that.config.appid,
-                                noncestr: nonce.NonceAlDig(10),
+                                appId: that.config.appid,
+                                nonceStr: nonce.NonceAlDig(10),
                                 package: "prepay_id=" + prepay_id,
-                                timestamp: parseInt(new Date().getTime() / 1000).toString(),
                                 signType: "MD5",
+                                timeStamp: parseInt(new Date().getTime() / 1000).toString()
                             };
                         let field = utils.ToMap(returnParam);
-                        returnParam.sign = that.doSignaturePay(field, that.config.pubkey);
+                        that.logger.info("准备返回给客户端的数据 ："+JSON.stringify(returnParam));
+                        returnParam.paySign = that.doSignaturePay(field, that.config.pubkey);
                         returnParam.orderId=orderid;
                         result.data.payload=returnParam;
                         result.code=constant.Code.OK;
@@ -239,12 +260,14 @@ module.exports =app =>{
             let that =this;
             let result={};
             let resultParam={};
+            this.logger.info(this.ctx.data);
+            this.logger.info("---------------------------------");
+            this.logger.info(this.ctx.request);
             this.ctx.request.on("data", function (chunk) {
                 parseString(chunk, async function (err, wxresult) {
                     let xml=wxresult.xml;
-                    console.log(xml);
+                    that.logger.info("支付微信回调结果 ："+JSON.stringify(xml));
                     let return_code=xml.return_code;
-                    console.log(return_code);
                     if (return_code != "SUCCESS") {
                         resultParam.status = constant.Code.FAILED;
                         resultParam.return_code=return_code;
@@ -272,7 +295,7 @@ module.exports =app =>{
                             "transaction_id":  xml.transaction_id[0],
                         };
                         let fields = utils.ToMap(resultParam);
-                        let sign = this.doSignaturePay(fields, signkey);
+                        let sign = that.doSignaturePay(fields, signkey);
                         console.log("验证签名");
                         console.log(sign);
                         console.log(resultParam.sign);
@@ -283,13 +306,13 @@ module.exports =app =>{
                         let rcd = await that.ctx.model.RechargeRecord.findOne({orderid: resultParam.out_trade_no});
 
                         if (!rcd) {
-                            this.logger.log("没有查找到该微信订单 " + resultParam.out_trade_no);
+                            that.logger.log("没有查找到该微信订单 " + resultParam.out_trade_no);
                             result.code=false;
                             return result;
                         }
 
                         if (resultParam.cash_fee != rcd.price) {
-                            this.logger.log("支付的金额和下单的金额不一致 " + resultParam.cash_fee+":"+rcd.price);
+                            that.logger.log("支付的金额和下单的金额不一致 " + resultParam.cash_fee+":"+rcd.price);
                             result.code=false;
                             return result;
                         }
@@ -307,6 +330,7 @@ module.exports =app =>{
                 close: {$ne: true}
             }, {$set: {close: true}});
             let rcd = await this.ctx.model.RechargeRecord.findOne({  orderid: orderid, close:true});
+            this.logger.info("支付成功 ："+JSON.stringify(rcd));
             if(rcd == null){
                 return;
             }
@@ -319,15 +343,17 @@ module.exports =app =>{
             let ui = await this.findUserBySid(sid);
             if (ui) {
                 // 续约
-                this.recruitSid(this.sid, ui.pid);
+                this.recruitSid(sid, ui.pid);
                 // 纪录访问
-              /*  this.ctx.model.UserAction.update({
-                        pid: ui.pid,
-                        router: this.action,
-                        time: new Date()
-                    },
-                    {$inc: {count: 1}},
-                    {upsert: true});*/
+                await this.ctx.model.UserActionRecord.create({
+                    pid :ui.pid,
+                    type:constant.UserActionRecordType.LOGIN,
+                    data:{
+                        agent:this.ctx.request.header['user-agent'],
+                        host:this.ctx.request.header.host,
+                        addr:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
+                    }
+                });
                 return ui;
             }
             else {
@@ -351,9 +377,9 @@ module.exports =app =>{
                 third: third,
                 pid:(PID_INIT + pid).toString(),
                 items:{
-                    [configs.configs().Item.MONEY]: 0,
-                    [configs.configs().Item.ACCELERATION]: 0,
-                    [configs.configs().Item.CASHCOUPON]: 0,
+                    [configs.configs().Item.MONEY]: 100,
+                    [configs.configs().Item.ACCELERATION]: 100,
+                    [configs.configs().Item.CASHCOUPON]: 100,
                 }
             });
 
@@ -364,39 +390,44 @@ module.exports =app =>{
             return ui;
         }
 
-         recruitSid(sid, pid) {
+          recruitSid(sid, pid) {
             let session={
               pid : pid,
                sid : sid,
               expire : new Date().getTime() + this.config.session.maxAge
             };
-          app.redis.set(pid,session);
-          app.redis.set(sid,session);
+            this.logger.info("存储session : "+JSON.stringify(session));
+           app.redis.set(pid,JSON.stringify(session));
+           app.redis.set(sid,JSON.stringify(session));
         }
 
 
          async findUserBySid(sid) {
             // 通过sid查找pid，再通过pid查找info
-            let ses = await app.redis.get(sid);
+            let ses = JSON.parse(await app.redis.get(sid));
             if (ses == null){
                 return null;
             }
-            return await this.ctx.model.User.findOne({sid:sid});
+            return await this.ctx.model.User.findOne({pid:ses.pid});
         }
 
 
 
          async doReqToken(appid,appsecret,authcode){
-            this.logger.info("微信小程序：用户授权通过，获取 token");
+            this.logger.info("微信小程序：用户授权通过，获取 token,参数：appid:"+appid+" 密钥："+appsecret+" CODE:"+authcode);
 
-            let m = new WxminiappToken();
+            let m = {};
             m.authcode = authcode;
             m.appid = appid;
             m.appsecret = appsecret;
 
+
             try {
-                let result= await this.ctx.curl("https://api.weixin.qq.com/sns/jscode2session?appid="+appid + "secret="+appsecret + "js_code="+authcode+ "grant_type=authorization_code");
-                console.log(result);
+                let result= await this.ctx.curl("https://api.weixin.qq.com/sns/jscode2session?appid="+appid + "&secret="+appsecret + "&js_code="+authcode+ "&grant_type=authorization_code",{
+                    method:"GET",
+                    dataType:"json"
+                });
+               this.logger.info("微信返回的数据 :"+JSON.stringify(result));
                 return result;
 
             }catch (err){
@@ -438,6 +469,7 @@ module.exports =app =>{
                     desc: w.desc,
                     check_name: w.check_name
                 });
+                this.logger.info("提现结果 ："+JSON.stringify(result));
                 return true;
             }catch (err){
                 this.logger.error("提现失败"+err);

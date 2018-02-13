@@ -26,7 +26,7 @@ module.exports = appInfo => {
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
-    config.noticeurl = "https://h5.ddz2018.com/user/shopdone";
+    config.noticeurl = "https://h5t.ddz2018.com/user/shopdone";
 
     return config;
 };

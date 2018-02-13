@@ -7,9 +7,11 @@ module.exports = app => {
   const { router, controller } = app;
   router.get('/user/login', controller.user.login);
   router.get('/user/auth', controller.user.auth);
+  router.get('/user/getiteminfo', controller.user.getiteminfo);
   router.get('/user/minapppay', controller.user.minapppay);
   router.get('/user/minappwithdraw', controller.user.minappwithdraw);
   router.get('/user/shopdone', controller.user.shopdone);
+  router.post('/user/shopdone', controller.user.shopdone);
   router.get('/guessnum/sendpack', controller.guessnum.sendpack);
   router.get('/guessnum/guesspack', controller.guessnum.guesspack);
   router.get('/guessnum/clearcd', controller.guessnum.clearcd);
