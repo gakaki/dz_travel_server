@@ -157,6 +157,9 @@ class GuessnumController extends Controller {
             ctx.body=result;
             return;
         }
+        let ui={
+            uid:"123"
+        }
 
         let sendPage = ctx.query.sendPage || 1;
         let sendLimit = ctx.query.sendLimit || 20;

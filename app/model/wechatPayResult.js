@@ -11,12 +11,12 @@ module.exports = app => {
         is_subscribe: { type: String  },//"is_subscribe
         trade_type: { type: String  },//"APP
         bank_type: { type: String  },//"银行类型，采用字符串类型的银行标识
-        total_fee: { type: Number  },//"订单总金额，单位为分"
+        total_fee: { type: String  },//"订单总金额，单位为分"
         fee_type: { type: String  },//货币类型，符合ISO4217标准的三位字母代码"
-        cash_fee: { type: Number  },//现金支付金额
+        cash_fee: { type: String  },//现金支付金额
         cash_fee_type: { type: String  },//货币类型，符合ISO4217标准的三位字母代码
-        coupon_fee: { type: Number  },//"代金券或立减优惠金额<=订单总金额，订单总金额-代金券或立减优惠金额=现金支付金额
-        coupon_count: { type: Number  },//""代金券或立减优惠使用数量
+        coupon_fee: { type: String  },//"代金券或立减优惠金额<=订单总金额，订单总金额-代金券或立减优惠金额=现金支付金额
+        coupon_count: { type: String  },//""代金券或立减优惠使用数量
         coupon_id_$n: { type: String  },//"""代金券或立减优惠ID,$n为下标，从0开始编号
         coupon_fee_$n: { type: String  },//""单个代金券或立减优惠支付金额,$n为下标，从0开始编号"
         transaction_id: { type: String  },//"微信支付订单号
@@ -32,7 +32,7 @@ module.exports = app => {
 
     });
 
-    return mongoose.model('WechatPayResults', WechatPayResultsSchema);
+    return mongoose.model('WechatPayResult', WechatPayResultsSchema);
 };
 
 

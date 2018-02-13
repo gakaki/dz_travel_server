@@ -49,9 +49,9 @@ module.exports =app =>{
          let that =this;
             setTimeout(async function () {
                 that.logger.info("红包要过期了");
-                let p = await that.ctx.model.PackInfo.findOne(packInfo.pid);
+                let p = await that.ctx.model.PackInfo.findOne({pid:packInfo.pid});
                 p.status=constant.Code.PACK_EXPIRED;
-                await that.ctx.model.PackInfo.update({pid:p.pid},p);
+                await that.ctx.model.PackInfo.update({pid:p.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
                 if(!useTicket){
                     let recordsCount=await  that.ctx.model.PackGuessRecord.count({pid:p.pid});
                     if(recordsCount>0){
@@ -70,7 +70,7 @@ module.exports =app =>{
                 }
 
 
-            },Number(configs.configs().Parameter.Get("expire").value)*60*60*1000);
+            },Number(configs.configs().Parameter.Get("expire").value)*1000);
             result.packInfo=packInfo;
         return result;
         }
@@ -84,7 +84,7 @@ module.exports =app =>{
             if(time.getTime() +Number(configs.configs().Parameter.Get("expire").value)*60*60*1000 <= new Date().getTime()){
                 result.code =constant.Code.PACK_EXPIRED;
                 pack.status=constant.Code.PACK_EXPIRED;
-                this.ctx.model.update({pid:pack.pid},pack);
+                this.ctx.model.update({pid:pack.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
                 return result;
             }
 
@@ -96,7 +96,7 @@ module.exports =app =>{
             if(pack.guessCount<=0){
                 result.code = constant.Code.COUNT_OVER;
                 pack.status =constant.Code.COUNT_OVER;
-                this.ctx.model.update({pid:pack.pid},pack);
+                this.ctx.model.update({pid:pack.pid},{$set:{status:constant.Code.COUNT_OVER}});
                 return result;
             }
 
@@ -204,7 +204,7 @@ module.exports =app =>{
             pack.CDList[sid] = new Date().getTime();
             pack.guessCount -= 1;
             if(pack.guessCount == 0){
-                pack.status=Code.COUNT_OVER;
+                pack.status=constant.Code.COUNT_OVER;
             }
             await this.ctx.model.PackInfo.update({pid:pack.pid},pack);
 
@@ -255,15 +255,12 @@ module.exports =app =>{
 
             await this.ctx.model.User.update({uid:ui.uid},{$inc:delta});
             ui=await this.ctx.model.User.findOne({uid:ui.uid});
-            this.logger.info("需要更新的用户信息 ："+JSON.stringify(ui));
             await this.ctx.service.item.itemChange(ui,delta);
 
 
             if(pack.CDList[sid]){
                 if(pack.CDList[sid]+Number(configs.configs().Parameter.Get("waitcd").value)*1000 >= new Date().getTime()){
-                    delete pack.CDList[sid];
-                    this.logger.info("红包状况："+JSON.stringify(pack));
-                    await this.ctx.model.PackInfo.update(pack);
+                    await this.ctx.model.PackInfo.update({pid:pack.pid},{$unset:{["CDList."+sid]:1}});
                     result.code=constant.Code.OK;
                 }else{
                     result.code = constant.Code.PACK_Fighing;
@@ -286,7 +283,6 @@ module.exports =app =>{
 
             result.data.records=rcs;
             result.code=constant.Code.OK;
-            this.logger.info("红包猜题记录 ："+JSON.stringify(result));
             return result;
         }
         async getPackRankingList(ui,pack){
@@ -314,7 +310,7 @@ module.exports =app =>{
             result.code=constant.Code.OK;
             return result;
         }
-        async getUserPackRecords(ui,pack,sendPage,sendLimit,receivePage,receiveLimit){
+        async getUserPackRecords(ui,sendPage,sendLimit,receivePage,receiveLimit){
             let result={
                 data:{}
             };
@@ -330,7 +326,6 @@ module.exports =app =>{
 
             sendPackage.num=await this.ctx.model.PackInfo.count({uid:ui.uid});
             sendPackage.record=await this.ctx.model.PackInfo.find({uid:ui.uid}).limit(sendLimit).skip((sendPage-1)*sendLimit).sort({"createTime":-1});
-
             let r =await this.getReceivePackageRecordsMoneyByUid(ui.uid);
             if(r == null){
                 receivePackage.sum=0;
@@ -339,7 +334,8 @@ module.exports =app =>{
             }
 
             receivePackage.num=await this.ctx.model.PackGuessRecord.count({uid:ui.uid});
-            receivePackage.record=await this.getReceivePackageRecordsByUid(ui.uid,receiveLimit,(receivePage-1)*receiveLimit,{"createTime":-1});
+            receivePackage.record=await this.getReceivePackageRecordsByUid(ui.uid,receiveLimit,((receivePage-1)*receiveLimit),{"createTime":-1});
+
             result.data.sendPackages=sendPackage;
             result.data.receivePackages=receivePackage;
             result.code=constant.Code.OK;
@@ -450,13 +446,13 @@ module.exports =app =>{
         }
 
         async getReceivePackageRecordsByUid(uid,limit,skip,sort){
-            let ps= await this.ctx.model.PackGuessRecord.find({uid:uid},limit,skip,sort).limit(limit).skip(skip).sort(sort);
+            let ps= await this.ctx.model.PackGuessRecord.find({uid:uid}).limit(limit).skip(skip).sort(sort);
             let getPacks=[];
             for(let p of ps){
                 let getPack={};
-                let pack=await this.ctx.model.PackInfo.findOne(p.pid);
+                let pack=await this.ctx.model.PackInfo.findOne({pid:p.pid});
                 if(pack!=null){
-                    getPack.userInfo=await this.ctx.model.User.findOne(pack.uid);
+                    getPack.userInfo=await this.ctx.model.User.findOne({uid:pack.uid});
                     getPack.guessInfo = p;
                     p.packInfo=pack;
                     getPacks.push(getPack);
@@ -502,7 +498,7 @@ module.exports =app =>{
                 appid: this.config.appid,
                 mchid: this.config.pubmchid,
                 partnerKey: this.config.pubkey,
-                pfx: fs.readFileSync("./../../config/apiclient_cert.p12"),
+                pfx: this.config.file,
                 spbill_create_ip:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
             };
             const api = new tenpay(config);

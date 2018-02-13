@@ -136,7 +136,7 @@ exports.configs=function (configs={}) {
         [1, 1.68], [2, 8.8], [3, 28.8]
     ];
     configs.parameters = [
-        ["timeslimit", "20"], ["waitcd", "180"], ["expire", "24"], ["rewardmax", "50000"], ["withdrawalsmax", "50000"], ["withdrawalsnum", "3"]
+        ["timeslimit", "20"], ["waitcd", "180"], ["expire", "24"], ["rewardmax", "50000"], ["withdrawalsmax", "50000"], ["withdrawalsnum", "3"],["withdrawalsmin","2"]
     ];
     configs.messages = [
         [1, "竞猜pk已过期"], [2, "赏金至少1元"], [3, "赏金上限50000元"], [4, "赏金已领取完毕"], [5, "竞猜次数达到上限"], [6, "每天最多提现3次"], [7, "提现金额上限50000元"], [8, "您目前没有加速卡，每日首次分享可获得加速卡"], [9, "提现成功，1-5个工作日到账。"]

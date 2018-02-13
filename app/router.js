@@ -11,6 +11,7 @@ module.exports = app => {
   router.get('/user/minapppay', controller.user.minapppay);
   router.get('/user/minappwithdraw', controller.user.minappwithdraw);
   router.get('/user/shopdone', controller.user.shopdone);
+  router.get('/user/changeitem', controller.user.changeitem);
   router.post('/user/shopdone', controller.user.shopdone);
   router.get('/guessnum/sendpack', controller.guessnum.sendpack);
   router.get('/guessnum/guesspack', controller.guessnum.guesspack);

@@ -1,4 +1,5 @@
 'use strict';
+const fs=require("fs");
 
 module.exports = appInfo => {
   const config  = {};
@@ -7,8 +8,6 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1518087334696_5975';
 
   // add your config here
-
-
     config.session={
         key: 'EGG_SESS',
         maxAge: 24 * 3600 * 1000, // 1 天
@@ -23,6 +22,8 @@ module.exports = appInfo => {
             ignore:"/user/shopdone",
         },
     };
+    config.file=fs.readFileSync(__dirname+"/apiclient_cert.p12");
+
 
     config.middleware = ["routerControl"];
   return config;

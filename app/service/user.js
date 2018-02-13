@@ -229,8 +229,8 @@ module.exports =app =>{
             wtd.nonce_str = nonce.NonceAlDig(10);
 
             //sign
-            wtd.partner_trade_no = "withdraw"+new Date().getTime()/1000>>0;
-            wtd.amount = money; // 正式的价格
+            wtd.partner_trade_no = "withdraw"+((new Date().getTime())/1000>>0);
+            wtd.amount = Number(money); // 正式的价格
             wtd.spbill_create_ip = (this.ctx.request.socket.remoteAddress).replace("::ffff:","");
             wtd.mch_appid = this.config.appid;
             wtd.mchid = this.config.pubmchid;
@@ -257,25 +257,29 @@ module.exports =app =>{
 
 
         async shopDone(){
+            this.ctx.req.setEncoding('utf8');
             let that =this;
             let result={};
             let resultParam={};
-            this.logger.info(this.ctx.data);
-            this.logger.info("---------------------------------");
-            this.logger.info(this.ctx.request);
-            this.ctx.request.on("data", function (chunk) {
-                parseString(chunk, async function (err, wxresult) {
+            let buf="";
+            this.ctx.req.on('data', (chunk) => {
+                this.logger.info("接收数据");
+                buf += chunk
+            });
+            this.ctx.req.on('end', () => {
+                parseString(buf, async function (err, wxresult) {
                     let xml=wxresult.xml;
                     that.logger.info("支付微信回调结果 ："+JSON.stringify(xml));
-                    let return_code=xml.return_code;
+                    let return_code=xml.return_code[0];
                     if (return_code != "SUCCESS") {
+                        that.logger.info("支付失败！！");
                         resultParam.status = constant.Code.FAILED;
                         resultParam.return_code=return_code;
-                        that.ctx.model.WechatPayResults.create(resultParam);
+                        that.payCheck(resultParam);
                         result.code=false;
                         return result;
                     }else{
-                        let signkey =that.config.pubkey;
+                      //  let signkey =that.config.pubkey;
                         resultParam={
                             "appid":xml.appid[0],
                             "bank_type": xml.bank_type[0],
@@ -294,16 +298,12 @@ module.exports =app =>{
                             "trade_type":  xml.trade_type[0],
                             "transaction_id":  xml.transaction_id[0],
                         };
-                        let fields = utils.ToMap(resultParam);
-                        let sign = that.doSignaturePay(fields, signkey);
-                        console.log("验证签名");
-                        console.log(sign);
-                        console.log(resultParam.sign);
+                        that.logger.info("支付成功："+JSON.stringify(resultParam));
                         resultParam.status = constant.Code.OK;
-                        that.ctx.model.WechatPayResults.create(resultParam);
-
+                        that.payCheck(resultParam);
                         // 查询该订单的价格是否一致
                         let rcd = await that.ctx.model.RechargeRecord.findOne({orderid: resultParam.out_trade_no});
+                        that.logger.info("查询到的微信订单 ："+JSON.stringify(rcd));
 
                         if (!rcd) {
                             that.logger.log("没有查找到该微信订单 " + resultParam.out_trade_no);
@@ -318,12 +318,14 @@ module.exports =app =>{
                         }
                         result.code=true;
                         result.orderid=resultParam.out_trade_no;
-                       return result;
+                        return result;
                     }
 
                 })
             });
+
         }
+
         async doComplete(orderid){
             await this.ctx.model.RechargeRecord.update({
                 orderid: orderid,
@@ -456,16 +458,19 @@ module.exports =app =>{
                 appid: w.mch_appid,
                 mchid: w.mchid,
                 partnerKey: w.partnerKey,
-                pfx: fs.readFileSync("./../../config/apiclient_cert.p12"),
+                pfx: this.config.file,
                 spbill_create_ip:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
             };
             const api = new tenpay(config);
 
+            let amount =Math.floor(w.amount*100*0.98);
+            let money = amount/100;
+            this.logger.info("准备提现 ："+amount+" 实际到账"+money);
             try{
                 let result = await api.transfers({
                     partner_trade_no: w.partner_trade_no,
                     openid: w.openid,
-                    amount: Math.floor(w.amount*100*0.98)/100,
+                    amount: amount,
                     desc: w.desc,
                     check_name: w.check_name
                 });
@@ -476,6 +481,11 @@ module.exports =app =>{
                 return false;
             }
 
+        }
+
+        async payCheck(WechatPayResults){
+             await this.ctx.model.WechatPayResult.create(WechatPayResults);
+             return true;
         }
 
     }

@@ -108,11 +108,7 @@ class UserController extends Controller {
             ctx.body=result;
             return;
         }
-        if(ctx.query.money<Number(configs.configs().Parameter.Get("withdrawalsmin").value)){
-            result.code=constant.Code.LESS_MONEY;
-            ctx.body=result;
-            return;
-        }
+
         let count=await ctx.model.WechatPaytoUser.count({"openid":ui.uid,"created":new Date().toLocaleDateString(),"success":true});
         if(count>=Number(configs.configs().Parameter.Get("withdrawalsnum").value)){
             result.code=constant.Code.EXCEED_COUNT;
@@ -138,10 +134,28 @@ class UserController extends Controller {
         if(result.code){
             this.service.user.doComplete(result.orderid);
         }
+        ctx.res.setHeader('Content-Type', 'application/xml');
+        ctx.res.end(xmlreturn);
 
-        ctx.response.header('Content-Type','text/xml').send(xmlreturn);
 
+    }
 
+    async changeitem(ctx){
+        let uid=ctx.query.uid;
+        let itemId=ctx.query.itemId;
+        let count=ctx.query.count;
+        let result={};
+        if(!uid||!itemId||!count){
+            result.code=constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body=result;
+            return;
+        }
+        let cost={
+            ["items."+itemId]:Number(count)
+        };
+        await this.ctx.model.User.update({uid:uid},{$inc:cost});
+        let ui=await this.ctx.model.User.findOne({uid:uid});
+        await this.ctx.service.item.itemChange(ui,cost);
     }
 
 }
