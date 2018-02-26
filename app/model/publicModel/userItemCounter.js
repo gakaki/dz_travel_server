@@ -9,6 +9,7 @@ module.exports = app => {
         delta: { type: Number  },//最近一次操作
         index: { type: Number  },//道具索引
         pid: { type: String  },
+        appName: { type: String  },
 
     });
 

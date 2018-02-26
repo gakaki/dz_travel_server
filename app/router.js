@@ -4,20 +4,28 @@
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
-  const { router, controller } = app;
-  router.get('/user/login', controller.user.login);
-  router.get('/user/auth', controller.user.auth);
-  router.get('/user/getiteminfo', controller.user.getiteminfo);
-  router.get('/user/minapppay', controller.user.minapppay);
-  router.get('/user/minappwithdraw', controller.user.minappwithdraw);
-  router.get('/user/shopdone', controller.user.shopdone);
-  router.get('/user/changeitem', controller.user.changeitem);
-  router.post('/user/shopdone', controller.user.shopdone);
-  router.get('/guessnum/sendpack', controller.guessnum.sendpack);
-  router.get('/guessnum/guesspack', controller.guessnum.guesspack);
-  router.get('/guessnum/clearcd', controller.guessnum.clearcd);
-  router.get('/guessnum/getpackrecords', controller.guessnum.getpackrecords);
-  router.get('/guessnum/getpackrankinglist', controller.guessnum.getpackrankinglist);
-  router.get('/guessnum/getuserpackrecords', controller.guessnum.getuserpackrecords);
-  router.get('/guessnum/getacceleration', controller.guessnum.getacceleration);
+  const { router, controller,io } = app;
+  router.get('/user/login', controller.publicController.user.login);
+  router.get('/user/changeitem', controller.publicController.user.changeitem);
+  router.get('/user/getiteminfo', controller.publicController.user.getiteminfo);
+
+  router.get('/weChat/auth', controller.weChatController.weChat.auth);
+  router.get('/weChat/minapppay', controller.weChatController.weChat.minapppay);
+  router.get('/weChat/minappwithdraw', controller.weChatController.weChat.minappwithdraw);
+  router.get('/weChat/shopdone/:appName', controller.weChatController.weChat.shopdone);
+  router.post('/weChat/shopdone/:appName', controller.weChatController.weChat.shopdone);
+
+  router.get('/guessnum/sendpack', controller.weSrvController.weSrv.sendpack);
+  router.get('/guessnum/guesspack', controller.weSrvController.weSrv.guesspack);
+  router.get('/guessnum/clearcd', controller.weSrvController.weSrv.clearcd);
+  router.get('/guessnum/getpackrecords', controller.weSrvController.weSrv.getpackrecords);
+  router.get('/guessnum/getpackrankinglist', controller.weSrvController.weSrv.getpackrankinglist);
+  router.get('/guessnum/getuserpackrecords', controller.weSrvController.weSrv.getuserpackrecords);
+  router.get('/guessnum/getacceleration', controller.weSrvController.weSrv.getacceleration);
+
+    io.of('/').route('join', io.controller.nsp.joinRoom);
+    io.of('/').route('leave', io.controller.nsp.leaveRoom);
+    io.of('/english').route('join', io.controller.englishIOController.english.joinRoom);
+    io.of('/english').route('leave', io.controller.englishIOController.english.leaveRoom);
+
 };

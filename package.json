@@ -9,6 +9,7 @@
     "egg-mongoose": "^2.1.1",
     "egg-redis": "^1.0.2",
     "egg-scripts": "^2.5.0",
+    "egg-socket.io": "^4.0.6",
     "ioredis": "^3.2.2",
     "tenpay": "^2.0.9",
     "xml2js": "^0.4.19"
@@ -27,7 +28,7 @@
     "node": ">=8.9.0"
   },
   "scripts": {
-    "start": "egg-scripts start --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
+    "start": "egg-scripts start --sticky --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "stop": "egg-scripts stop --title=egg-server-server",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",

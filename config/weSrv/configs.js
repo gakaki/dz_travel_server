@@ -1,4 +1,4 @@
-exports.configs=function (configs={}) {
+var configs=(configs={})=> {
     let t;
     class Guessstart {
         constructor(d) { this.cfg = d; }
@@ -197,3 +197,5 @@ exports.configs=function (configs={}) {
     };
     return configs;
 };
+module.exports=configs();
+

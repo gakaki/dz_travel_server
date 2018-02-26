@@ -16,7 +16,8 @@ module.exports = app => {
         openid :{type:String},
         created :{type:String},
         createTime:{type:String},
-        success:{type:Boolean}
+        success:{type:Boolean},
+        appName:{type:String}
 
 
     });

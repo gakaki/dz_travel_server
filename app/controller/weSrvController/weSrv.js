@@ -1,30 +1,30 @@
 'use strict';
 
 const Controller = require('egg').Controller;
-const utils=require("./../utils/utils");
-const constant=require("./../utils/constant");
+const constant=require("../../utils/constant");
 
 
-class GuessnumController extends Controller {
+class weSrvController extends Controller {
     async sendpack(ctx){
         ctx.logger.info("我要发红包");
         let result={
             data:{}
         };
-        if(!ctx.query._sid||!ctx.query.money||!ctx.query.title||!ctx.query.useTicket){
+        const {_sid,money,title,useTicket,orderId}=ctx.query;
+        if(!_sid || !money || !title || !useTicket){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
 
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        if(ctx.query.orderId){
-            let pack=await ctx.model.PackInfo.findOne({"orderId":ctx.query.orderId});
+        if(orderId){
+            let pack=await ctx.model.WeSrvModel.PackInfo.findOne({"orderId":orderId});
             if(pack !=null){
                 pack.userInfo=ui;
                result.code=constant.Code.OK;
@@ -33,7 +33,7 @@ class GuessnumController extends Controller {
                 result.code=constant.Code.PACK_EMPTY;
             }
         }else{
-            let resultP = await this.service.guessnum.sendPack(ui,ctx.query.money,ctx.query.title,ctx.query.useTicket);
+            let resultP = await this.service.weSrv.sendPack(ui,money,title,useTicket);
             if(resultP.packInfo!=null){
                 result.code=constant.Code.OK;
                 result.data=resultP.packInfo;
@@ -49,25 +49,26 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
-        if(!ctx.query._sid||!ctx.query.pid||!ctx.query.guessNum){
+        const {_sid,pid,guessNum}=ctx.query;
+        if(!_sid || !pid|| !guessNum){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
+        let pack=await ctx.model.WeSrvModel.PackInfo.findOne({pid:pid});
         if(pack==null){
             result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
 
-       ctx.body=await this.service.guessnum.guessPack(ui,pack,ctx.query.guessNum,ctx.query._sid);
+       ctx.body=await this.service.weSrvService.weSrv.guessPack(ui,pack,guessNum,_sid);
     }
 
     async clearcd(ctx){
@@ -75,24 +76,25 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
-        if(!ctx.query._sid||!ctx.query.pid){
+        const {_sid,pid}=ctx.query;
+        if(!_sid||!pid){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.publicService.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
+        let pack=await ctx.model.WeSrvModel.PackInfo.findOne({pid:pid});
         if(pack==null){
             result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
-        ctx.body=await this.service.guessnum.clearCD(ui,pack,ctx.query._sid);
+        ctx.body=await this.service.weSrvService.weSrv.clearCD(ui,pack,_sid);
     }
 
     async getpackrecords(ctx){
@@ -100,90 +102,94 @@ class GuessnumController extends Controller {
         let result={
             data:{}
         };
-        if(!ctx.query._sid||!ctx.query.pid){
+        const {_sid,pid}=ctx.query;
+        if(!_sid||!pid){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.publicService.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
+        let pack=await ctx.model.WeSrvModel.PackInfo.findOne({pid:pid});
         if(pack==null){
             result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
-        ctx.body=await this.service.guessnum.getPackRecords(ui,pack);
+        ctx.body=await this.service.weSrvService.weSrv.getPackRecords(ui,pack);
     }
 
     async getpackrankinglist(ctx){
         ctx.logger.info("我要获取红包竞猜排行榜");
         let result={};
-        if(!ctx.query._sid||!ctx.query.pid){
+        const {_sid,pid}=ctx.query;
+        if(!_sid||!pid){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.publicService.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        let pack=await ctx.model.PackInfo.findOne({pid:ctx.query.pid});
+        let pack=await ctx.model.WeSrvModel.PackInfo.findOne({pid:pid});
         if(pack==null){
             result.code=constant.Code.PACK_EMPTY;
             ctx.body=result;
             return
         }
-        ctx.body=await this.service.guessnum.getPackRankingList(ui,pack);
+        ctx.body=await this.service.weSrvService.weSrv.getPackRankingList(ui,pack);
     }
 
     async getuserpackrecords(ctx){
         ctx.logger.info("获取用户收发红包记录");
         let result={};
-        if(!ctx.query._sid){
+        const {_sid,sendPage,sendLimit,receivePage,receiveLimit}=ctx.query;
+        if(!_sid){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.publicService.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        let ui={
+        /*let ui={
             uid:"123"
-        }
+        }*/
 
-        let sendPage = ctx.query.sendPage || 1;
-        let sendLimit = ctx.query.sendLimit || 20;
-        let receivePage = ctx.query.receivePage || 1;
-        let receiveLimit = ctx.query.receiveLimit || 20;
+        let sendPageN = sendPage || 1;
+        let sendLimitN = sendLimit || 20;
+        let receivePageN = receivePage || 1;
+        let receiveLimitN = receiveLimit || 20;
 
-        ctx.body=await this.service.guessnum.getUserPackRecords(ui,Number(sendPage),Number(sendLimit),Number(receivePage),Number(receiveLimit));
+        ctx.body=await this.service.weSrvService.weSrv.getUserPackRecords(ui,Number(sendPageN),Number(sendLimitN),Number(receivePageN),Number(receiveLimitN));
     }
     async getacceleration(ctx){
         ctx.logger.info("获取加速卡");
         let result={};
-        if(!ctx.query._sid){
+        const {_sid}=ctx.query;
+        if(!_sid){
             result.code=constant.Code.PARAMETER_NOT_MATCH;
             ctx.body=result;
             return;
         }
-        let ui=await this.service.user.findUserBySid(ctx.query._sid);
+        let ui=await this.service.publicService.user.findUserBySid(_sid);
         if(ui==null){
             result.code=constant.Code.USER_NOT_FOUND;
             ctx.body=result;
             return;
         }
-        ctx.body=await this.service.guessnum.getAcceleration(ui);
+        ctx.body=await this.service.weSrvService.weSrv.getAcceleration(ui);
     }
 }
 
-module.exports = GuessnumController;
+module.exports = weSrvController;

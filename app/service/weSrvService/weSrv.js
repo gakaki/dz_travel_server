@@ -1,10 +1,9 @@
 const Service = require('egg').Service;
-const utils = require('./../utils/utils');
-const nonce = require('./../utils/nonce');
-const constant = require('./../utils/constant');
-const configs=require('./../../config/configs');
-const fs=require("fs");
-const tenpay=require("tenpay");
+const utils = require('../../utils/utils');
+const nonce = require('../../utils/nonce');
+const constant = require('../../utils/constant');
+const configs=require('../../../config/weSrv/configs');
+
 
 
 module.exports =app =>{
@@ -14,12 +13,12 @@ module.exports =app =>{
             let result={};
 
             let cost={
-                ["items."+configs.configs().Item.ACCELERATION]:2
+                ["items."+configs.Item.ACCELERATION]:2
             };
             if(useTicket){
-                cost  ["items."+configs.configs().Item.CASHCOUPON]=-1;
+                cost  ["items."+configs.Item.CASHCOUPON]=-1;
                 money =1;
-                if(ui.items[configs.configs().Item.CASHCOUPON] <= 0){
+                if(ui.items[configs.Item.CASHCOUPON] <= 0){
                     result.status=constant.Code.NEED_COUPON;
                     result.packInfo=null;
                     return result;
@@ -30,9 +29,9 @@ module.exports =app =>{
             //扣代金券
             //获得加速卡
 
-         await this.ctx.model.User.update({uid:ui.uid},{$inc:cost});
-         ui=await this.ctx.model.User.findOne({uid:ui.uid});
-         await this.ctx.service.item.itemChange(ui,cost);
+         await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:cost});
+         ui=await this.ctx.model.PublicModel.User.findOne({uid:ui.uid});
+         await this.ctx.service.publicService.item.itemChange(ui,cost,"weSrv");
          let pack={
              pid:new Date().getTime(),
              uid:ui.uid,
@@ -46,25 +45,25 @@ module.exports =app =>{
          if(orderid != null){
              pack.orderId=orderid;
          }
-         let packInfo=await this.ctx.model.PackInfo.create(pack);
+         let packInfo=await this.ctx.model.WeSrvModel.PackInfo.create(pack);
          this.logger.info("生成的红包信息 "+JSON.stringify(packInfo));
          packInfo.userInfo=ui;
          let that =this;
             setTimeout(async function () {
-                let p = await that.ctx.model.PackInfo.findOne({pid:packInfo.pid});
+                let p = await that.ctx.model.WeSrvModel.PackInfo.findOne({pid:packInfo.pid});
                 that.logger.info("红包要过期了 :"+JSON.stringify(p));
                 p.status=constant.Code.PACK_EXPIRED;
-                await that.ctx.model.PackInfo.update({pid:p.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
+                await that.ctx.model.WeSrvModel.PackInfo.update({pid:p.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
                 if(!useTicket){
-                    let recordsCount=await  that.ctx.model.PackGuessRecord.count({pid:p.pid});
+                    let recordsCount=await  that.ctx.model.WeSrvModel.PackGuessRecord.count({pid:p.pid});
                     if(recordsCount>0){
                         that.logger.info("有竞猜记录");
                         let cost={
-                            ["items."+configs.configs().Item.MONEY]:p.remain,
+                            ["items."+configs.Item.MONEY]:p.remain,
                         };
-                        that.ctx.model.User.update({uid:ui.uid},{$inc:cost});
-                        ui=await this.ctx.model.User.findOne({uid:ui.uid});
-                        that.ctx.service.item.itemChange(ui,cost);
+                        that.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:cost});
+                        ui=await this.ctx.model.PublicModel.User.findOne({uid:ui.uid});
+                        that.ctx.service.publicService.item.itemChange(ui,cost,"weSrv");
 
                     }else{
                         that.logger.info("没有竞猜记录");
@@ -73,7 +72,7 @@ module.exports =app =>{
                 }
 
 
-            },Number(configs.configs().Parameter.Get("expire").value)*3600*1000);
+            },Number(configs.Parameter.Get("expire").value)*3600*1000);
             result.packInfo=packInfo;
         return result;
         }
@@ -84,10 +83,10 @@ module.exports =app =>{
                 data:{}
             };
             let time= new Date(pack.createTime);
-            if(time.getTime() +Number(configs.configs().Parameter.Get("expire").value)*60*60*1000 <= new Date().getTime()){
+            if(time.getTime() +Number(configs.Parameter.Get("expire").value)*60*60*1000 <= new Date().getTime()){
                 result.code =constant.Code.PACK_EXPIRED;
                 pack.status=constant.Code.PACK_EXPIRED;
-                this.ctx.model.update({pid:pack.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
+                this.ctx.model.WeSrvModel.PackInfo.update({pid:pack.pid},{$set:{status:constant.Code.PACK_EXPIRED}});
                 return result;
             }
 
@@ -99,15 +98,15 @@ module.exports =app =>{
             if(pack.guessCount<=0){
                 result.code = constant.Code.COUNT_OVER;
                 pack.status =constant.Code.COUNT_OVER;
-                this.ctx.model.update({pid:pack.pid},{$set:{status:constant.Code.COUNT_OVER}});
+                this.ctx.model.WeSrvModel.PackInfo.update({pid:pack.pid},{$set:{status:constant.Code.COUNT_OVER}});
                 return result;
             }
 
 
             if(pack.CDList[sid]){
-                if(pack.CDList[sid]+Number(configs.configs().Parameter.Get("waitcd").value)*1000 >= new Date().getTime()){
+                if(pack.CDList[sid]+Number(configs.Parameter.Get("waitcd").value)*1000 >= new Date().getTime()){
                     result.code =constant.Code.PACK_ISCD;
-                    result.data.restTime=new Date(pack.CDList[sid]+Number(configs.configs().Parameter.Get("waitcd").value)*1000-new Date().getTime()).toTimeString();
+                    result.data.restTime=new Date(pack.CDList[sid]+Number(configs.Parameter.Get("waitcd").value)*1000-new Date().getTime()).toTimeString();
                     return result;
                 }else{
                     delete pack.CDList[sid];
@@ -123,7 +122,7 @@ module.exports =app =>{
 
             switch (A+B){
                 case 4:
-                    let cfgAAAA= configs.configs().Distribution.Get(4);
+                    let cfgAAAA= configs.Distribution.Get(4);
                     if(pack.AAAA){
                         probability = utils.Rangef(cfgAAAA.min,cfgAAAA.max);
                     }else{
@@ -132,7 +131,7 @@ module.exports =app =>{
                     }
                     break;
                 case 3:
-                    let cfgAAA= configs.configs().Distribution.Get(3);
+                    let cfgAAA= configs.Distribution.Get(3);
                     if(pack.AAA){
                         probability = utils.Rangef(cfgAAA.min,cfgAAA.max);
                     }else{
@@ -141,7 +140,7 @@ module.exports =app =>{
                     }
                     break;
                 case 2:
-                    let cfgAA= configs.configs().Distribution.Get(2);
+                    let cfgAA= configs.Distribution.Get(2);
                     if(pack.AA){
                         probability = utils.Rangef(cfgAA.min,cfgAA.max);
                     }else{
@@ -150,7 +149,7 @@ module.exports =app =>{
                     }
                     break;
                 case 1:
-                    let cfgA= configs.configs().Distribution.Get(1);
+                    let cfgA= configs.Distribution.Get(1);
                     if(pack.A){
                         probability = utils.Rangef(cfgA.min,cfgA.max);
                     }else{
@@ -159,7 +158,7 @@ module.exports =app =>{
                     }
                     break;
                 case 0:
-                    let cfg= configs.configs().Distribution.Get(5);
+                    let cfg= configs.Distribution.Get(5);
                     if(pack.miss){
                         probability = utils.Rangef(cfg.min,cfg.max);
                     }else{
@@ -187,13 +186,13 @@ module.exports =app =>{
             let cid=utils.Rangei(1,4);
             switch (cid){
                 case 1:
-                    result.data.commit=configs.configs().Evaluate.Get(Number(result.data.markId)).iqwored1;
+                    result.data.commit=configs.Evaluate.Get(Number(result.data.markId)).iqwored1;
                     break;
                 case 2:
-                    result.data.commit=configs.configs().Evaluate.Get(Number(result.data.markId)).iqwored2;
+                    result.data.commit=configs.Evaluate.Get(Number(result.data.markId)).iqwored2;
                     break;
                 case 3:
-                    result.data.commit=configs.configs().Evaluate.Get(Number(result.data.markId)).iqwored3;
+                    result.data.commit=configs.Evaluate.Get(Number(result.data.markId)).iqwored3;
                     break;
             }
             let remain =pack.remain;
@@ -209,7 +208,7 @@ module.exports =app =>{
             if(pack.guessCount == 0){
                 pack.status=constant.Code.COUNT_OVER;
             }
-            await this.ctx.model.PackInfo.update({pid:pack.pid},pack);
+            await this.ctx.model.WeSrvModel.PackInfo.update({pid:pack.pid},pack);
 
             this.logger.info("竞猜后的红包："+JSON.stringify(pack));
             let packGuessRecord={
@@ -220,17 +219,17 @@ module.exports =app =>{
                 userMark:result.data.userMark,
                 commit:result.data.commit
             };
-            await this.ctx.model.PackGuessRecord.create(packGuessRecord);
+            await this.ctx.model.WeSrvModel.PackGuessRecord.create(packGuessRecord);
 
             let delta = {
-                ["items."+configs.configs().Item.MONEY]:moneyGeted,
+                ["items."+configs.Item.MONEY]:moneyGeted,
             };
-            await this.ctx.model.User.update({uid:ui.uid},{$inc:delta});
+            await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:delta});
 
-            ui=await this.ctx.model.User.findOne({uid:ui.uid});
+            ui=await this.ctx.model.PublicModel.User.findOne({uid:ui.uid});
 
-            await this.ctx.service.item.itemChange(ui,delta);
-            pack.userInfo=await this.ctx.model.User.findOne({uid:pack.uid});
+            await this.ctx.service.publicService.item.itemChange(ui,delta,"weSrv");
+            pack.userInfo=await this.ctx.model.PublicModel.User.findOne({uid:pack.uid});
 
             result.data.userAnswerWord=guessNum;
             result.data.packInfo=pack;
@@ -246,24 +245,24 @@ module.exports =app =>{
                 result.code = pack.status;
                 return result;
             }
-            this.logger.info("剩余加速卡:"+ui.items[configs.configs().Item.ACCELERATION]);
+            this.logger.info("剩余加速卡:"+ui.items[configs.Item.ACCELERATION]);
 
-            if(ui.items[configs.configs().Item.ACCELERATION] <= 0){
+            if(ui.items[configs.Item.ACCELERATION] <= 0){
                 result.code=constant.Code.NEED_ITEMS;
                 return result;
             }
             let delta = {
-                ["items."+configs.configs().Item.ACCELERATION]:-1
+                ["items."+configs.Item.ACCELERATION]:-1
             };
 
-            await this.ctx.model.User.update({uid:ui.uid},{$inc:delta});
-            ui=await this.ctx.model.User.findOne({uid:ui.uid});
-            await this.ctx.service.item.itemChange(ui,delta);
+            await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:delta});
+            ui=await this.ctx.model.PublicModel.User.findOne({uid:ui.uid});
+            await this.ctx.service.publicService.item.itemChange(ui,delta,"weSrv");
 
 
             if(pack.CDList[sid]){
-                if(pack.CDList[sid]+Number(configs.configs().Parameter.Get("waitcd").value)*1000 >= new Date().getTime()){
-                    await this.ctx.model.PackInfo.update({pid:pack.pid},{$unset:{["CDList."+sid]:1}});
+                if(pack.CDList[sid]+Number(configs.Parameter.Get("waitcd").value)*1000 >= new Date().getTime()){
+                    await this.ctx.model.WeSrvModel.PackInfo.update({pid:pack.pid},{$unset:{["CDList."+sid]:1}});
                     result.code=constant.Code.OK;
                 }else{
                     result.code = constant.Code.PACK_Fighing;
@@ -278,10 +277,10 @@ module.exports =app =>{
             let result={
                 data:{}
             };
-            result.data.originator=await this.ctx.model.User.findOne({uid:pack.uid});
+            result.data.originator=await this.ctx.model.PublicModel.User.findOne({uid:pack.uid});
             result.data.packPassword=pack.password;
             result.data.packInfo=pack;
-            let records=await this.ctx.model.PackGuessRecord.find({pid:pack.pid});
+            let records=await this.ctx.model.WeSrvModel.PackGuessRecord.find({pid:pack.pid});
             let rcs=await this.getRecords(records);
 
             result.data.records=rcs;
@@ -292,19 +291,19 @@ module.exports =app =>{
             let result={
                 data:{}
             };
-            pack.userInfo=await this.ctx.model.User.findOne({uid:pack.uid});
+            pack.userInfo=await this.ctx.model.PublicModel.User.findOne({uid:pack.uid});
             result.data.packInfo=pack;
             result.data.answer=pack.password;
 
-            let r = await this.ctx.model.PackGuessRecord.aggregate( [{$match: {pid: pack.pid,}}]).group({_id:"$uid",moneyGot:{$sum:"$userGetMoney"}}).sort({moneyGot: -1});
+            let r = await this.ctx.model.WeSrvModel.PackGuessRecord.aggregate( [{$match: {pid: pack.pid,}}]).group({_id:"$uid",moneyGot:{$sum:"$userGetMoney"}}).sort({moneyGot: -1});
 
             let rankInfos= [];
             for(let record of r){
                 let rankInfo={};
                 rankInfo.uid=record._id;
-                rankInfo.userInfo=await this.ctx.model.User.findOne({uid:record._id});
+                rankInfo.userInfo=await this.ctx.model.PublicModel.User.findOne({uid:record._id});
                 rankInfo.moneyGot=record.moneyGot;
-                let records = await this.ctx.model.PackGuessRecord.find({pid:pack.pid,uid:record._id});
+                let records = await this.ctx.model.WeSrvModel.PackGuessRecord.find({pid:pack.pid,uid:record._id});
                 rankInfo.guessRecords=records;
                 rankInfo.maxRecord=this.getMaxGuessRecord(records);
                 rankInfos.push(rankInfo);
@@ -327,8 +326,8 @@ module.exports =app =>{
                 sendPackage.sum=p.sum;
             }
 
-            sendPackage.num=await this.ctx.model.PackInfo.count({uid:ui.uid});
-            sendPackage.record=await this.ctx.model.PackInfo.find({uid:ui.uid}).limit(sendLimit).skip((sendPage-1)*sendLimit).sort({"createTime":-1});
+            sendPackage.num=await this.ctx.model.WeSrvModel.PackInfo.count({uid:ui.uid});
+            sendPackage.record=await this.ctx.model.WeSrvModel.PackInfo.find({uid:ui.uid}).limit(sendLimit).skip((sendPage-1)*sendLimit).sort({"createTime":-1});
             let r =await this.getReceivePackageRecordsMoneyByUid(ui.uid);
             if(r == null){
                 receivePackage.sum=0;
@@ -336,7 +335,7 @@ module.exports =app =>{
                 receivePackage.sum=r.moneyGot;
             }
 
-            receivePackage.num=await this.ctx.model.PackGuessRecord.count({uid:ui.uid});
+            receivePackage.num=await this.ctx.model.WeSrvModel.PackGuessRecord.count({uid:ui.uid});
             receivePackage.record=await this.getReceivePackageRecordsByUid(ui.uid,receiveLimit,((receivePage-1)*receiveLimit),{"createTime":-1});
 
             result.data.sendPackages=sendPackage;
@@ -349,30 +348,31 @@ module.exports =app =>{
                 data:{}
             };
             let userShareRecord={
-                uid:ui.uid
+                uid:ui.uid,
+                appName:"weSrv"
             };
            let createDate = new Date().toLocaleDateString();
-            let count =await this.ctx.model.UserShareRecord.count({"uid":ui.uid,"createDate":createDate});
+            let count =await this.ctx.model.PublicModel.UserShareRecord.count({"uid":ui.uid,"createDate":createDate,"appName":"weSrv"});
             if(count <1){
                 let delta = {
-                    ["items."+configs.configs().Item.ACCELERATION]:1
+                    ["items."+configs.Item.ACCELERATION]:1
                 };
-                await this.ctx.model.User.update({uid:ui.uid},{$inc:delta});
-                ui=await this.ctx.model.User.findOne({uid:ui.uid});
-                await this.ctx.service.item.itemChange(ui,delta);
+                await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:delta});
+                ui=await this.ctx.model.PublicModel.User.findOne({uid:ui.uid});
+                await this.ctx.service.publicService.item.itemChange(ui,delta,"weSrv");
 
                 userShareRecord.num=1;
                 userShareRecord.getItem=true;
-                userShareRecord.itemId=configs.configs().Item.ACCELERATION;
+                userShareRecord.itemId=configs.Item.ACCELERATION;
                 result.code=constant.Code.OK;
             }else{
                 result.code=constant.Code.PACK_ISSHARED;
                 userShareRecord.num=0;
                 userShareRecord.getItem=false;
-                userShareRecord.itemId=configs.configs().Item.ACCELERATION;
+                userShareRecord.itemId=configs.Item.ACCELERATION;
             }
 
-            this.ctx.model.UserShareRecord.create(userShareRecord);
+            this.ctx.model.PublicModel.UserShareRecord.create(userShareRecord);
             result.data=userShareRecord;
             return result;
         }
@@ -409,7 +409,7 @@ module.exports =app =>{
         }
 
         getMarkId(mark){
-            for(let i of configs.configs().evaluates){
+            for(let i of configs.evaluates){
                 if(i[1]==mark){
                     return i[0];
                 }
@@ -426,7 +426,7 @@ module.exports =app =>{
             return recordsSort[0];
         }
        async getPackSumByUid(uid){
-            let r = await this.ctx.model.PackInfo.aggregate([{$match: {uid: uid,}}]).group({_id:"$uid",sum:{$sum:"$money"}}).limit(1);
+            let r = await this.ctx.model.WeSrvModel.PackInfo.aggregate([{$match: {uid: uid,}}]).group({_id:"$uid",sum:{$sum:"$money"}}).limit(1);
 
 
             if(r &&r.length>0){
@@ -438,7 +438,7 @@ module.exports =app =>{
         }
 
         async getReceivePackageRecordsMoneyByUid(uid){
-            let r = await this.ctx.model.PackGuessRecord.aggregate([{
+            let r = await this.ctx.model.WeSrvModel.PackGuessRecord.aggregate([{
                 $match: {uid: uid,}}]).group({_id:"$uid",moneyGot:{$sum:"$userGetMoney"}}).limit(1);
 
             if(r && r.length>0){
@@ -449,13 +449,13 @@ module.exports =app =>{
         }
 
         async getReceivePackageRecordsByUid(uid,limit,skip,sort){
-            let ps= await this.ctx.model.PackGuessRecord.find({uid:uid}).limit(limit).skip(skip).sort(sort);
+            let ps= await this.ctx.model.WeSrvModel.PackGuessRecord.find({uid:uid}).limit(limit).skip(skip).sort(sort);
             let getPacks=[];
             for(let p of ps){
                 let getPack={};
-                let pack=await this.ctx.model.PackInfo.findOne({pid:p.pid});
+                let pack=await this.ctx.model.WeSrvModel.PackInfo.findOne({pid:p.pid});
                 if(pack!=null){
-                    getPack.userInfo=await this.ctx.model.User.findOne({uid:pack.uid});
+                    getPack.userInfo=await this.ctx.model.PublicModel.User.findOne({uid:pack.uid});
                     getPack.guessInfo = p;
                     p.packInfo=pack;
                     getPacks.push(getPack);
@@ -466,7 +466,7 @@ module.exports =app =>{
         }
 
         async refund(pid,orderId){
-            let rechargeRecord =await this.ctx.model.RechargeRecord.findOne({"orderid":orderId});
+            let rechargeRecord =await this.ctx.model.WeChatModel.RechargeRecord.findOne({"orderid":orderId});
             this.logger.info("查询下单记录 ："+JSON.stringify(rechargeRecord));
             if(rechargeRecord == null){
                 return false;
@@ -480,7 +480,7 @@ module.exports =app =>{
             refund.desc="红包退回";
 
 
-            let res = await this.ReqUserRefund(refund);
+            let res = await this.ctx.service.weChatService.ReqUserRefund(refund);
 
 
             if(res == null){
@@ -491,42 +491,18 @@ module.exports =app =>{
                 this.logger.info("退款人："+pid+"退款金额："+refund.total_fee+"退款状态："+res.return_code);
             }
 
-            this.ctx.model.WechatRefundRecord.create(refund);
+            this.ctx.model.WeChatModel.WechatRefundRecord.create(refund);
 
             return true;
         }
 
-        async ReqUserRefund(m){
-            const config = {
-                appid: this.config.appid,
-                mchid: this.config.pubmchid,
-                partnerKey: this.config.pubkey,
-                pfx: this.config.file,
-                spbill_create_ip:(this.ctx.request.socket.remoteAddress).replace("::ffff:","")
-            };
-            const api = new tenpay(config);
-            try{
-                let result = await api.refund({
-                    op_user_id:this.config.pubid,
-                    out_refund_no:m.out_refund_no,
-                    out_trade_no: m.orderId,
-                    total_fee: m.total_fee,
-                    refund_fee: m.refund_fee,
-                });
-                this.logger.info("退款结果 ："+JSON.stringify(result));
-                return result;
-            }catch (err){
-                this.logger.error("退款失败:"+err);
-                return null;
-            }
 
-        }
 
         async getRecords(records){
             let rcs=[];
             for(let record of records){
                 let rc={};
-                rc.userInfo=await this.ctx.model.User.findOne({uid:record.uid});
+                rc.userInfo=await this.ctx.model.PublicModel.User.findOne({uid:record.uid});
                 rc.commit=record.commit;
                 rc.userGetMoney=record.userGetMoney;
                 rc.userAnswerWord=record.userAnswerWord;
@@ -534,6 +510,19 @@ module.exports =app =>{
             }
             return rcs;
         }
+        async doComplete(orderid,appName){
+            let rcd = await this.ctx.model.WeChatModel.RechargeRecord.findOne({  orderid: orderid, close:true,appName:appName});
+            this.logger.info("修改预下单状态 ："+JSON.stringify(rcd));
+            if(rcd == null){
+                return false;
+            }
+            let ui = await this.ctx.model.PublicModel.User.findOne({pid:rcd.pid});
+            this.logger.info("准备生成红包");
+            await this.sendPack(ui,rcd.price,rcd.title,false,orderid);
+
+            return true;
+        }
+
 
     }
 };

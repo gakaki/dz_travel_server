@@ -1,3 +1,31 @@
+const configs = require("../../config/weSrv/configs");
+
+exports.AppName={
+  weSrv:"weSrv"
+};
+
+exports.AppWithdrawCount={
+    weSrv:configs.Parameter.Get("withdrawalsnum").value
+};
+
+exports.AppItem={
+    weSrv: {
+            [configs.Item.MONEY]: 100,
+            [configs.Item.ACCELERATION]: 100,
+            [configs.Item.CASHCOUPON]: 100,
+        }
+
+};
+
+exports.AppCharacter={
+
+};
+
+exports.PID_INIT={
+    weSrv:"0160000",
+};
+
+
 exports.LoginMethod = {
     PHONE: 0x1, // 手机登陆
     WECHAT_QRCODE: 0x21, // 微信扫码登陆

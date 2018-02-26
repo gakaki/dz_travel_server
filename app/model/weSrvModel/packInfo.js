@@ -1,4 +1,4 @@
-const config=require('./../../config/configs');
+const config=require('../../../config/weSrv/configs');
 
 module.exports = app => {
     const mongoose = app.mongoose;
@@ -11,7 +11,7 @@ module.exports = app => {
         createTime: { type: String,default:new Date().toLocaleString()  },
         password:{type:String},
         title:{type:String},
-        guessCount:{type:Number,default:Number(config.configs().Parameter.Get("timeslimit").value)},
+        guessCount:{type:Number,default:Number(config.Parameter.Get("timeslimit").value)},
         useTicket:{type:Boolean},
         AAAA:{type:Boolean,default:false},
         AAA:{type:Boolean,default:false},
