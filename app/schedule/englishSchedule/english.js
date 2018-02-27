@@ -13,7 +13,7 @@ module.exports = {
         for(let player of totalPool){
             if(player.waitTime > 30 ){
                 ctx.logger.warn(player.user.uid +"在匹配池中是时间超过 30 s，直接移除");
-                ctx.service.publicService.matching.mtachFinish(player,constant.AppName.ENGLISH);
+                ctx.service.englishService.english.matchFailed(player);
                 continue;
             }
             let set = pointMap.get(player.user.character.rank);
@@ -63,15 +63,20 @@ module.exports = {
                     let thisRankPlayers=new Set([...thisUpRankPlayers,...thisDownRankPlayers]);
 
                     if(thisRankPlayers.size>0){
-                        for(let player of thisRankPlayers){
-                            if(player.user.uid != oldest.user.uid){//排除玩家本身
-                                matchPoolPlayer.add(player);
-                                ctx.logger.info(oldest.user.uid + "|匹配到玩家|"+player.user.uid+ "|rank|" +player.user.character.rank);
-                                //移除
-                                sameRankPlayers.delete(player);
-                                break;
+                        if(matchPoolPlayer.size<1){
+                            for(let player of thisRankPlayers){
+                                if(player.user.uid != oldest.user.uid){//排除玩家本身
+                                    if(matchPoolPlayer.size<1){
+                                        matchPoolPlayer.add(player);
+                                        ctx.logger.info(oldest.user.uid + "|匹配到玩家|"+player.user.uid+ "|rank|" +player.user.character.rank);
+                                        //移除
+                                        sameRankPlayers.delete(player);
+                                        break;
+                                    }
+                                }
                             }
                         }
+
                     }
                 }
 

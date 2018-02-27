@@ -35,6 +35,7 @@ class Player{
     }
 
     gameFinish(){
+        clearTimeout(this.wait);
         this.status=constant.playerStatus.online;
         this.roomId=null;
         this.startTime=null;

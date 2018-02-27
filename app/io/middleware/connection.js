@@ -45,6 +45,7 @@ module.exports = () => {
 
        // ctx.service.socketService.socketio.delSocket(userId);
         ctx.service.socketService.socketio.delUser(appName,ui.uid);
+        ctx.service.publicService.matching.deleteUser(player,appName);
 
        /* nsp.adapter.clients(rooms, (err, clients) => {
             app.logger.info('#leave', userId);

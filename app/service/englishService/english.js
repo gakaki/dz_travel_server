@@ -6,7 +6,7 @@ const constant = require("../../utils/constant");
 module.exports =app =>{
     return class EnglishService extends Service {
          matchSuccess(matchPoolPlayer){
-             let roomId=1;
+             let roomId="0"+new Date().getTime();
              let userList =[];
             for(let player of matchPoolPlayer){
                 this.ctx.service.publicService.matching.mtachFinish(player,constant.AppName.ENGLISH,roomId);
@@ -26,13 +26,14 @@ module.exports =app =>{
                  target: 'participator',
                //  message: `User(${uid}) joined.`,
              });
-           /* for(let p of userList){
-                let msg=this.ctx.helper.parseMsg("join",{
-                    userList:userList
-                });
-                p.socket.emit("matchSuccess",msg)
-            }*/
 
+        }
+
+        matchFailed(player){
+            this.ctx.service.publicService.matching.mtachFinish(player,constant.AppName.ENGLISH);
+            player.socket.emit("matchFailed",this.ctx.helper.parseMsg("matchFailed",{
+                info:player.user,
+            }));
         }
     }
 };
