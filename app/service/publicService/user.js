@@ -24,7 +24,7 @@ module.exports =app =>{
                         let sid = this.GEN_SID();
                         this.recruitSid(sid,loginUser.pid);
                         this.logger.info("老用户刷新SID ："+sid);
-                        this.ctx.service.socketService.socketio.addUser(appName,loginUser);
+
                     }
                     result.sid=sid;
                     result.info=loginUser;
@@ -33,7 +33,6 @@ module.exports =app =>{
                 }else{
                     result.sid=sid;
                     result.info=authUi;
-                    this.ctx.service.socketService.socketio.addUser(appName,authUi);
                     return result;
                 }
 
@@ -61,7 +60,6 @@ module.exports =app =>{
                     let sid = this.GEN_SID();
                     this.logger.info("使用第三方凭据注册账号 " + ui.pid+ " sid : "+sid);
                     this.recruitSid(sid,ui.pid);
-                    this.ctx.service.socketService.socketio.addUser(appName,ui,true);
                 }else{
                     //更新一次userInfo
                     await this.ctx.model.PublicModel.User.update({pid: ui.pid}, {$set: {nickName:  JSON.parse(param.info).nickName, avatarUrl:  JSON.parse(param.info).avatarUrl}});
@@ -69,7 +67,6 @@ module.exports =app =>{
                         uid: uid,
                         third: true
                     });
-                    this.ctx.service.socketService.socketio.addUser(appName,ui);
                 }
             }
 

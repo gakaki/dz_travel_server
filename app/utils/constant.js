@@ -1,7 +1,8 @@
 const configs = require("../../config/weSrv/configs");
 
 exports.AppName={
-  weSrv:"weSrv"
+    weSrv:"weSrv",
+    ENGLISH:"english"
 };
 
 exports.AppWithdrawCount={
@@ -20,6 +21,14 @@ exports.AppItem={
 exports.AppCharacter={
 
 };
+
+exports.playerStatus={
+    online:0,
+    ready:1,
+    isGaming:2,
+    offline:3
+};
+
 
 exports.PID_INIT={
     weSrv:"0160000",

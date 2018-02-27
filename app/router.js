@@ -23,9 +23,8 @@ module.exports = app => {
   router.get('/guessnum/getuserpackrecords', controller.weSrvController.weSrv.getuserpackrecords);
   router.get('/guessnum/getacceleration', controller.weSrvController.weSrv.getacceleration);
 
-    io.of('/').route('join', io.controller.nsp.joinRoom);
-    io.of('/').route('leave', io.controller.nsp.leaveRoom);
-    io.of('/english').route('join', io.controller.englishIOController.english.joinRoom);
-    io.of('/english').route('leave', io.controller.englishIOController.english.leaveRoom);
+/*    io.of('/english').route('join', io.controller.englishIOController.english.joinRoom);
+    io.of('/english').route('leave', io.controller.englishIOController.english.leaveRoom);*/
+    io.of('/english').route('ranking', io.controller.englishIOController.english.ranking);
 
 };

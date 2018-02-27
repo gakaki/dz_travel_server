@@ -6,7 +6,7 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://127.0.0.1:27017/test',
+        url: 'mongodb://wxsrv:wxsrv@10.1.70.106:27017/wxsrv',
     };
     config.env="local";
 

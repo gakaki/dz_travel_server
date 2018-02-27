@@ -16,7 +16,7 @@ module.exports = app => {
         third: { type: Boolean ,default:false },//第三方
         registertime:{type:String},//注册时间
         items:{type:JSON}, //道具
-        character:{type:JSON}
+        character:{type:JSON} 
 
     });
 

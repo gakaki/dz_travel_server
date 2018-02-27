@@ -1,35 +1,17 @@
 const Service = require('egg').Service;
 
-const userList={};
+const userList={};//在线用户列表
+const userCount={};//在线用户数
 const roomList={};
-const userCount={};
-const socketList={};
 
 module.exports =app =>{
     return class SocketService extends Service {
 
         //添加在线用户
-        async addUser(appName,udata,isRegister=false) {
+        async addUser(appName,udata) {
             let uList=userList[appName]? userList[appName] :userList[appName]={};
-            uList [udata.uid] = udata;
-            let registerCount = 0;
-            if(isRegister){
-                registerCount = 1;
-            }
-            let dataStr = new Date().toLocaleDateString();
-            if(userCount[appName]){
-                userCount[appName] ++;
-                this.ctx.model.PublicModel.Statistic.update({appName:appName,date:dataStr},
-                    {$inc:{loginCount:1,registerCount:registerCount}})
-            }else{
-                userCount[appName]=1;
-                 this.ctx.model.PublicModel.Statistic.create({
-                    appName:appName,
-                    loginCount:1,
-                    registerCount:registerCount
-                });
-            }
-
+            uList [udata.user.uid] = udata;
+            userCount[appName]? userCount[appName] ++:  userCount[appName]=1;
         }
 
         getUserList(appName,uid){
@@ -41,22 +23,16 @@ module.exports =app =>{
             return userList[appName];
         }
 
+        setUser(appName,udata){
+            let uList=userList[appName]? userList[appName] :userList[appName]={};
+            uList [udata.user.uid] = udata;
+        }
+
         delUser(appName,uid){
             delete userList[appName][uid];
+            userCount[appName] --;
         }
 
-
-
-        setSocket(uid,socket){
-            socketList[uid]=socket;
-        }
-
-        getSocket(uid){
-            return socketList[uid];
-        }
-        delSocket(uid){
-            delete socketList[uid]
-        }
 
         getUserCount(appName){
             if(userCount[appName]){
