@@ -28,10 +28,9 @@ module.exports = () => {
         /* let ui={
              uid:userId,
              character:{
-                 rank:utils.Rangei(1,1000,true)
+                 ELO:utils.Rangei(1,1000,true)
              }
-         };
-   */
+         };*/
         logger.info(ui.uid + ' connected');
         let player = new Player(socket, ui, constant.playerStatus.online, appName);
 
