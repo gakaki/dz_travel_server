@@ -21,8 +21,15 @@ module.exports = app => {
     router.get('/guessnum/getuserpackrecords', controller.guessnumController.guessnumController.getuserpackrecords);
     router.get('/guessnum/getacceleration', controller.guessnumController.guessnumController.getacceleration);
 
-    /*    io.of('/english').route('join', io.controller.englishIOController.english.joinRoom);
-        io.of('/english').route('leave', io.controller.englishIOController.english.leaveRoom);*/
+    router.get('/english/showpersonal', controller.englishController.englishController.showpersonal);
+    router.get('/english/signin', controller.englishController.englishController.signin);
+
+
     io.of('/english').route('ranking', io.controller.englishIOController.englishIOController.ranking);
+    io.of('/english').route('cancelmatch', io.controller.englishIOController.englishIOController.cancelmatch);
+    io.of('/english').route('roundend', io.controller.englishIOController.englishIOController.roundend);
+    io.of('/english').route('pkend', io.controller.englishIOController.englishIOController.pkend);
+    io.of('/english').route('joinroom', io.controller.englishIOController.englishIOController.joinroom);
+    io.of('/english').route('leaveroom', io.controller.englishIOController.englishIOController.leaveroom);
 
 };

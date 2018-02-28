@@ -105,6 +105,7 @@ class UserService extends Service {
     }
 
 
+
     async collect(sid, appName) {
         let ui = await this.findUserBySid(sid);
         if (ui) {

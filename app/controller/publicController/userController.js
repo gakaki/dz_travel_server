@@ -34,19 +34,24 @@ class UserController extends Controller {
             data: {}
         };
         const {_sid, itemId} = ctx.query;
-        if (!_sid || !itemId) {
+        if (!_sid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let ui = await this.service.publicService.userService.findUserBySid(ctx.query._sid);
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
         if (ui == null) {
             result.code = constant.Code.USER_NOT_FOUND;
             ctx.body = result;
             return;
         }
         result.code = constant.Code.OK;
-        result.data.stock = ui.items[ctx.query.itemId];
+        if(itemId){
+            result.data.stock = ui.items[itemId];
+        }else{
+            result.data.stock = ui.items;
+        }
+
         ctx.body = result;
 
     }
@@ -66,6 +71,7 @@ class UserController extends Controller {
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
         await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
     }
+
 
 }
 
