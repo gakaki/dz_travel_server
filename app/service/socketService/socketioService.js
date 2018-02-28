@@ -1,57 +1,46 @@
 const Service = require('egg').Service;
 
-const userList = {};//在线用户列表
-const userCount = {};//在线用户数
-const roomList = {};
+const userList = new Map();//在线用户列表
+//const userCount = new Map();//在线用户数
+const roomList = new Map();//房间信息
 
 class SocketService extends Service {
 
     //添加在线用户
-    async addUser(appName, udata) {
-        let uList = userList[appName] ? userList[appName] : userList[appName] = {};
-        uList [udata.user.uid] = udata;
-        userCount[appName] ? userCount[appName]++ : userCount[appName] = 1;
+     setOnlineUser(appName, udata) {
+       userList.has(appName) ? userList.get(appName) : userList.set(appName,new Map());
+       userList.get(appName).set(udata.user.uid ,udata);
     }
 
     getUserList(appName, uid) {
-        if (userList[appName]) {
-            if (uid) {
-                return userList[appName][uid];
-            }
+        if (uid) {
+            return userList.get(appName).get(uid);
         }
-        return userList[appName];
-    }
-
-    setUser(appName, udata) {
-        let uList = userList[appName] ? userList[appName] : userList[appName] = {};
-        uList [udata.user.uid] = udata;
+        return userList.get(appName);
     }
 
     delUser(appName, uid) {
-        delete userList[appName][uid];
-        userCount[appName]--;
+        userList.get(appName).delete(uid);
     }
 
-
     getUserCount(appName) {
-        if (userCount[appName]) {
-            return userCount[appName];
-        }
-        return 0;
+        return userList.get(appName).size;
     }
 
     setRoomList(appName, roomInfo) {
-        let rList = roomList[appName] ? roomList[appName] : roomList[appName] = {};
-        rList[roomInfo.roomId] = roomInfo;
+        roomList.has(appName) ? roomList.get(appName) : roomList.set(appName,new Map());
+        roomList.get(appName).set(roomInfo.roomId ,roomInfo);
     }
 
     getRoomList(appName, roomId) {
-        if (roomList[appName]) {
-            if (roomId) {
-                return roomList[appName][roomId];
-            }
-        }
-        return roomList[appName];
+         if (roomId) {
+             return roomList.get(appName).get(roomId);
+         }
+        return roomList.get(appName);
+    }
+
+    delRoom(appName, roomId){
+        roomList.get(appName).delete(roomId);
     }
 
 

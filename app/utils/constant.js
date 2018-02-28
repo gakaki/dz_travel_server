@@ -27,9 +27,22 @@ exports.AppCharacter = {
         ELO: 0,        //等级分
         experience: 0,  //经验值
         winningStreak: 0, //连胜场数
-        friendsList: new Set() //好友列表
+        wins:0,            //胜场
+        losses:0,            //负场
+        total:0,             //总局数
+        cumulativeDays:0, //累计天数
+        beautifulWords:"", //每日美句
+        friendsList: new Set(), //好友列表
+        develop:{
+            n:{
+                level:0,
+                scoreUp:0
+            }
+        }
     }
 };
+
+
 
 exports.playerStatus = {
     online: 0,

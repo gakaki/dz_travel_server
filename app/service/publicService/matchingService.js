@@ -12,7 +12,7 @@ class MatchingService extends Service {
     mtachFinish(player, appName, roomId) {
         let totalPool = matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
         if (roomId) {
-            player.finishReady(roomId);
+            player.finishReady();
         } else {
             player.gameFinish();
         }

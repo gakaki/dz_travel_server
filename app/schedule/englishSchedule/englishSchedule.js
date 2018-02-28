@@ -1,3 +1,5 @@
+const constant =require("../../utils/constant");
+
 module.exports = {
     schedule: {
         interval: '1s',
@@ -63,7 +65,7 @@ module.exports = {
                     if (thisRankPlayers.size > 0) {
                         if (matchPoolPlayer.size < 1) {
                             for (let player of thisRankPlayers) {
-                                if (player.user.uid != oldest.user.uid) {//排除玩家本身
+                                if (player.user.uid != oldest.user.uid && player.status == constant.playerStatus.ready) {//排除玩家本身
                                     if (matchPoolPlayer.size < 1) {
                                         matchPoolPlayer.add(player);
                                         ctx.logger.info(oldest.user.uid + "|匹配到玩家|" + player.user.uid + "|ELO|" + player.user.character.ELO);
