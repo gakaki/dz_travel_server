@@ -1,0 +1,27 @@
+//所有原始数据
+let _data = {jsondata};
+
+//数据类声明
+{#sheets}
+    class {.classname} {~lb}
+    constructor(d) {~lb}
+    this.cfg = d;
+    {`rb}
+
+    {#.fileds}
+        // {.comments}
+        get {.name}(){~lb} return this.cfg.{.name}; {~rb}
+    {/.fileds}
+    static Get(id){~lb} return id in _data.{.sheetname} ? _data.{.sheetname}.id : null; {~rb}
+    {~rb}
+{/sheets}
+
+//数据类的源数组
+{#sheets}
+    exports.{.sheetname}s = Object.values(_data.{.sheetname});
+{/sheets}
+
+//导出类
+{#sheets}
+    exports.{.classname} = {.classname};
+{/sheets}
