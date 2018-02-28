@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const constant =require('./constant');
+const constant = require('./constant');
 
 exports.Rangef = function (from, to) {
     return Math.random() * (to - from) + from;
@@ -13,7 +13,7 @@ exports.Rangei = function (from, to, close = false) {
     }
 };
 
-exports.ToMap=function(obj ,sort = true){
+exports.ToMap = function (obj, sort = true) {
     let r = new Map();
     let keys = Object.keys(obj);
     if (sort)
@@ -24,7 +24,7 @@ exports.ToMap=function(obj ,sort = true){
     return r;
 };
 
-exports.MD5=function(str, fmt = constant.Format.BASE64){
+exports.MD5 = function (str, fmt = constant.Format.BASE64) {
     let hdl = crypto.createHash('md5').update(str);
     return fmt == constant.Format.BASE64 ? hdl.digest().toString("base64") : hdl.digest("hex");
 }

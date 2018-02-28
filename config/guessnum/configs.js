@@ -1,113 +1,241 @@
-var configs=(configs={})=> {
+var configs = (configs = {}) => {
     let t;
+
     class Guessstart {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //消耗现金
-        get consume() { return this.cfg[1]; }
-        static Get(key) { return key in _guessstartMap ? new Guessstart(_guessstartMap[key]) : null; }
+        get consume() {
+            return this.cfg[1];
+        }
+
+        static Get(key) {
+            return key in _guessstartMap ? new Guessstart(_guessstartMap[key]) : null;
+        }
     }
+
     Guessstart.INDEX_ID = 0;
     Guessstart.INDEX_CONSUME = 1;
     configs.Guessstart = Guessstart;
+
     class Parameter {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //属性
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //具体变量
-        get value() { return this.cfg[1]; }
-        static Get(key) { return key in _parameterMap ? new Parameter(_parameterMap[key]) : null; }
+        get value() {
+            return this.cfg[1];
+        }
+
+        static Get(key) {
+            return key in _parameterMap ? new Parameter(_parameterMap[key]) : null;
+        }
     }
+
     Parameter.INDEX_ID = 0;
     Parameter.INDEX_VALUE = 1;
     configs.Parameter = Parameter;
+
     class Message {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //文字
-        get words() { return this.cfg[1]; }
-        static Get(key) { return key in _messageMap ? new Message(_messageMap[key]) : null; }
+        get words() {
+            return this.cfg[1];
+        }
+
+        static Get(key) {
+            return key in _messageMap ? new Message(_messageMap[key]) : null;
+        }
     }
+
     Message.INDEX_ID = 0;
     Message.INDEX_WORDS = 1;
     configs.Message = Message;
+
     class Evaluate {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //得分形式
-        get score() { return this.cfg[1]; }
+        get score() {
+            return this.cfg[1];
+        }
+
         //智商评语1
-        get iqwored1() { return this.cfg[2]; }
+        get iqwored1() {
+            return this.cfg[2];
+        }
+
         //智商评语2
-        get iqwored2() { return this.cfg[3]; }
+        get iqwored2() {
+            return this.cfg[3];
+        }
+
         //智商评语3
-        get iqwored3() { return this.cfg[4]; }
-        static Get(key) { return key in _evaluateMap ? new Evaluate(_evaluateMap[key]) : null; }
+        get iqwored3() {
+            return this.cfg[4];
+        }
+
+        static Get(key) {
+            return key in _evaluateMap ? new Evaluate(_evaluateMap[key]) : null;
+        }
     }
+
     Evaluate.INDEX_ID = 0;
     Evaluate.INDEX_SCORE = 1;
     Evaluate.INDEX_IQWORED1 = 2;
     Evaluate.INDEX_IQWORED2 = 3;
     Evaluate.INDEX_IQWORED3 = 4;
     configs.Evaluate = Evaluate;
+
     class Item {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //名称
-        get name() { return this.cfg[1]; }
-        static Get(key) { return key in _itemMap ? new Item(_itemMap[key]) : null; }
+        get name() {
+            return this.cfg[1];
+        }
+
+        static Get(key) {
+            return key in _itemMap ? new Item(_itemMap[key]) : null;
+        }
     }
+
     Item.INDEX_ID = 0;
     Item.INDEX_NAME = 1;
     Item.MONEY = 1;
     Item.CASHCOUPON = 2;
     Item.ACCELERATION = 3;
     configs.Item = Item;
+
     class Question {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //问题
-        get question() { return this.cfg[1]; }
+        get question() {
+            return this.cfg[1];
+        }
+
         //答案
-        get answer() { return this.cfg[2]; }
-        static Get(key) { return key in _questionMap ? new Question(_questionMap[key]) : null; }
+        get answer() {
+            return this.cfg[2];
+        }
+
+        static Get(key) {
+            return key in _questionMap ? new Question(_questionMap[key]) : null;
+        }
     }
+
     Question.INDEX_ID = 0;
     Question.INDEX_QUESTION = 1;
     Question.INDEX_ANSWER = 2;
     configs.Question = Question;
+
     class Topic {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //标题
-        get topic() { return this.cfg[1]; }
-        static Get(key) { return key in _topicMap ? new Topic(_topicMap[key]) : null; }
+        get topic() {
+            return this.cfg[1];
+        }
+
+        static Get(key) {
+            return key in _topicMap ? new Topic(_topicMap[key]) : null;
+        }
     }
+
     Topic.INDEX_ID = 0;
     Topic.INDEX_TOPIC = 1;
     configs.Topic = Topic;
+
     class Distribution {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //A+B数值
-        get determine() { return this.cfg[1]; }
+        get determine() {
+            return this.cfg[1];
+        }
+
         //第一次猜到的最小比例
-        get firstmin() { return this.cfg[2]; }
+        get firstmin() {
+            return this.cfg[2];
+        }
+
         //第一次猜到的最大比例
-        get firstmax() { return this.cfg[3]; }
+        get firstmax() {
+            return this.cfg[3];
+        }
+
         //之后的最小比例
-        get min() { return this.cfg[4]; }
+        get min() {
+            return this.cfg[4];
+        }
+
         //之后猜到的最大的比例
-        get max() { return this.cfg[5]; }
-        static Get(key) { return key in _distributionMap ? new Distribution(_distributionMap[key]) : null; }
+        get max() {
+            return this.cfg[5];
+        }
+
+        static Get(key) {
+            return key in _distributionMap ? new Distribution(_distributionMap[key]) : null;
+        }
     }
+
     Distribution.INDEX_ID = 0;
     Distribution.INDEX_DETERMINE = 1;
     Distribution.INDEX_FIRSTMIN = 2;
@@ -115,18 +243,37 @@ var configs=(configs={})=> {
     Distribution.INDEX_MIN = 4;
     Distribution.INDEX_MAX = 5;
     configs.Distribution = Distribution;
+
     class Share {
-        constructor(d) { this.cfg = d; }
+        constructor(d) {
+            this.cfg = d;
+        }
+
         //id
-        get id() { return this.cfg[0]; }
+        get id() {
+            return this.cfg[0];
+        }
+
         //分享标题
-        get title() { return this.cfg[1]; }
+        get title() {
+            return this.cfg[1];
+        }
+
         //链接
-        get link() { return this.cfg[2]; }
+        get link() {
+            return this.cfg[2];
+        }
+
         //图片
-        get image() { return this.cfg[3]; }
-        static Get(key) { return key in _shareMap ? new Share(_shareMap[key]) : null; }
+        get image() {
+            return this.cfg[3];
+        }
+
+        static Get(key) {
+            return key in _shareMap ? new Share(_shareMap[key]) : null;
+        }
     }
+
     Share.INDEX_ID = 0;
     Share.INDEX_TITLE = 1;
     Share.INDEX_LINK = 2;
@@ -136,7 +283,7 @@ var configs=(configs={})=> {
         [1, 1.68], [2, 8.8], [3, 28.8]
     ];
     configs.parameters = [
-        ["timeslimit", "20"], ["waitcd", "180"], ["expire", "24"], ["rewardmax", "50000"], ["withdrawalsmax", "50000"], ["withdrawalsnum", "3"],["withdrawalsmin","2"]
+        ["timeslimit", "20"], ["waitcd", "180"], ["expire", "24"], ["rewardmax", "50000"], ["withdrawalsmax", "50000"], ["withdrawalsnum", "3"], ["withdrawalsmin", "2"]
     ];
     configs.messages = [
         [1, "竞猜pk已过期"], [2, "赏金至少1元"], [3, "赏金上限50000元"], [4, "赏金已领取完毕"], [5, "竞猜次数达到上限"], [6, "每天最多提现3次"], [7, "提现金额上限50000元"], [8, "您目前没有加速卡，每日首次分享可获得加速卡"], [9, "提现成功，1-5个工作日到账。"]
@@ -165,7 +312,12 @@ var configs=(configs={})=> {
     };
     t = configs.parameters;
     let _parameterMap = {
-        "timeslimit": t[0], "waitcd": t[1], "expire": t[2], "rewardmax": t[3], "withdrawalsmax": t[4], "withdrawalsnum": t[5]
+        "timeslimit": t[0],
+        "waitcd": t[1],
+        "expire": t[2],
+        "rewardmax": t[3],
+        "withdrawalsmax": t[4],
+        "withdrawalsnum": t[5]
     };
     t = configs.messages;
     let _messageMap = {
@@ -173,7 +325,21 @@ var configs=(configs={})=> {
     };
     t = configs.evaluates;
     let _evaluateMap = {
-        1: t[0], 2: t[1], 3: t[2], 4: t[3], 5: t[4], 6: t[5], 7: t[6], 8: t[7], 9: t[8], 10: t[9], 11: t[10], 12: t[11], 13: t[12], 14: t[13], 15: t[14]
+        1: t[0],
+        2: t[1],
+        3: t[2],
+        4: t[3],
+        5: t[4],
+        6: t[5],
+        7: t[6],
+        8: t[7],
+        9: t[8],
+        10: t[9],
+        11: t[10],
+        12: t[11],
+        13: t[12],
+        14: t[13],
+        15: t[14]
     };
     t = configs.items;
     let _itemMap = {
@@ -197,5 +363,5 @@ var configs=(configs={})=> {
     };
     return configs;
 };
-module.exports=configs();
+module.exports = configs();
 

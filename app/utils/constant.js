@@ -1,48 +1,47 @@
-const weSrvConfigs = require("../../config/weSrv/configs");
+const guessnumConfigs = require("../../config/guessnum/configs");
 
-exports.AppName={
-    WESRV:"weSrv",
-    ENGLISH:"english"
+exports.AppName = {
+    GUESSNUM: "guessnum",
+    ENGLISH: "english"
 };
 
-exports.AppWithdrawCount={
-    weSrv:weSrvConfigs.Parameter.Get("withdrawalsnum").value
+exports.AppWithdrawCount = {
+    guessnum: guessnumConfigs.Parameter.Get("withdrawalsnum").value
 };
 
-exports.AppItem={
-    weSrv: {
-            [weSrvConfigs.Item.MONEY]: 100,
-            [weSrvConfigs.Item.ACCELERATION]: 100,
-            [weSrvConfigs.Item.CASHCOUPON]: 100,
-        },
-    english:{
-
-    }
+exports.AppItem = {
+    guessnum: {
+        [guessnumConfigs.Item.MONEY]: 100,
+        [guessnumConfigs.Item.ACCELERATION]: 100,
+        [guessnumConfigs.Item.CASHCOUPON]: 100,
+    },
+    english: {}
 
 };
 
-exports.AppCharacter={
-    english:{
-        level:0,      //等级
-        rank:0,       //段位
-        star:0,       //星星数
-        ELO:0,        //等级分
-        experience:0,  //经验值
-        winningStreak:0, //连胜场数
-        friendsList:new Set() //好友列表
+exports.AppCharacter = {
+    english: {
+        level: 0,      //等级
+        rank: 0,       //段位
+        star: 0,       //星星数
+        ELO: 0,        //等级分
+        experience: 0,  //经验值
+        winningStreak: 0, //连胜场数
+        friendsList: new Set() //好友列表
     }
 };
 
-exports.playerStatus={
-    online:0,
-    ready:1,
-    isGaming:2,
-    offline:3
+exports.playerStatus = {
+    online: 0,
+    ready: 1,
+    isGaming: 2,
+    offline: 3
 };
 
 
-exports.PID_INIT={
-    weSrv:"0160000",
+exports.PID_INIT = {
+    guessnum: "0160000",
+    english: "1160000"
 };
 
 
@@ -147,7 +146,7 @@ exports.UserActionRecordType = {
     "CHGPASSWD": 5
 };
 
-exports.Format={
-    BASE64:0,
-    HEX:1
+exports.Format = {
+    BASE64: 0,
+    HEX: 1
 };

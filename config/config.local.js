@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = appInfo => {
     const config = {};
 
@@ -7,8 +5,9 @@ module.exports = appInfo => {
     // add your config here
     config.mongoose = {
         url: 'mongodb://wxsrv:wxsrv@10.1.70.106:27017/wxsrv',
+        //url: 'mongodb://127.0.0.1:27017/test',
     };
-    config.env="local";
+    config.env = "local";
 
     config.redis = {
         client: {
@@ -33,8 +32,6 @@ module.exports = appInfo => {
             db: '0',
         },
     };
-
-
 
 
     config.appid = "wx1c721a2e355de9ba";

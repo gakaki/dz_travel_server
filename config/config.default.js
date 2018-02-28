@@ -1,14 +1,13 @@
-'use strict';
-const fs=require("fs");
+const fs = require("fs");
 
 module.exports = appInfo => {
-  const config  = {};
+    const config = {};
 
-  // use for cookie sign key, should change to your own and keep security
-  config.keys = appInfo.name + '_1518087334696_5975';
+    // use for cookie sign key, should change to your own and keep security
+    config.keys = appInfo.name + '_1518087334696_5975';
 
-  // add your config here
-    config.session={
+    // add your config here
+    config.session = {
         key: 'EGG_SESS',
         maxAge: 24 * 3600 * 1000, // 1 天
         httpOnly: true,
@@ -19,12 +18,12 @@ module.exports = appInfo => {
     config.security = {
         csrf: {
             ignoreJSON: true, // 默认为 false，当设置为 true 时，将会放过所有 content-type 为 `application/json` 的请求
-            ignore:"/user/shopdone",
+            ignore: "/user/shopdone",
         },
     };
-    config.file=fs.readFileSync(__dirname+"/apiclient_cert.p12");
+    config.file = fs.readFileSync(__dirname + "/apiclient_cert.p12");
 
 
     config.middleware = ["routerControl"];
-  return config;
+    return config;
 };
