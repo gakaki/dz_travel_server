@@ -1,5 +1,5 @@
 const Service = require('egg').Service;
-const Room = require('../../io/room/room');
+const Room = require('../../io/room/englishRoom');
 const constant = require("../../utils/constant");
 
 
