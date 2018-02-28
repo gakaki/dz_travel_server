@@ -14,7 +14,7 @@ module.exports = () => {
         const nsp = app.io.of(['/'+appName]);
      //   const rooms = [room];
 
-      /*  let ui=await app.service.publicService.user.findUserBySid(_sid);
+        let ui=await app.service.publicService.user.findUserBySid(_sid);
         if(ui==null){
             socket.emit(id, helper.parseMsg('deny', "the user has no login"));
 
@@ -23,15 +23,15 @@ module.exports = () => {
                 logger.error(err);
             });
             return;
-        }*/
+        }
 
-      let ui={
+     /* let ui={
           uid:userId,
           character:{
               rank:utils.Rangei(1,1000,true)
           }
       };
-
+*/
         logger.info(ui.uid+ ' connected');
         let player = new Player(socket,ui,constant.playerStatus.online,appName);
 

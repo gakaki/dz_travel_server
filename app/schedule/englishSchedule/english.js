@@ -16,11 +16,11 @@ module.exports = {
                 ctx.service.englishService.english.matchFailed(player);
                 continue;
             }
-            let set = pointMap.get(player.user.character.rank);
+            let set = pointMap.get(player.user.character.ELO);
             if(set == null){
                 set = new Set();
                 set.add(player);
-                pointMap.set(player.user.character.rank, set);
+                pointMap.set(player.user.character.ELO, set);
             }else{
                 set.add(player);
             }
@@ -42,18 +42,18 @@ module.exports = {
                     break;
                 }
 
-                let max =oldest.user.character.rank;
-                let min =oldest.user.character.rank;
-                let middle =oldest.user.character.rank;
+                let max =oldest.user.character.ELO;
+                let min =oldest.user.character.ELO;
+                let middle =oldest.user.character.ELO;
                 if(oldest.waitTime> 15){
                     max=99;
                     min=0;
                 }else if(oldest.waitTime > 10){
-                    max = oldest.user.character.rank + 5;
-                    min = oldest.user.character.rank - 5;
+                    max = oldest.user.character.ELO + 5;
+                    min = oldest.user.character.ELO - 5;
                 }else if(oldest.waitTime >5){
-                    max = oldest.user.character.rank + 3;
-                    min = oldest.user.character.rank - 3;
+                    max = oldest.user.character.ELO + 3;
+                    min = oldest.user.character.ELO - 3;
                 }
                 let matchPoolPlayer = new Set();
                 //从中位数向两边扩大范围搜索
@@ -68,7 +68,7 @@ module.exports = {
                                 if(player.user.uid != oldest.user.uid){//排除玩家本身
                                     if(matchPoolPlayer.size<1){
                                         matchPoolPlayer.add(player);
-                                        ctx.logger.info(oldest.user.uid + "|匹配到玩家|"+player.user.uid+ "|rank|" +player.user.character.rank);
+                                        ctx.logger.info(oldest.user.uid + "|匹配到玩家|"+player.user.uid+ "|ELO|" +player.user.character.ELO);
                                         //移除
                                         sameRankPlayers.delete(player);
                                         break;

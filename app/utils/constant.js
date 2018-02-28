@@ -1,25 +1,36 @@
-const configs = require("../../config/weSrv/configs");
+const weSrvConfigs = require("../../config/weSrv/configs");
 
 exports.AppName={
-    weSrv:"weSrv",
+    WESRV:"weSrv",
     ENGLISH:"english"
 };
 
 exports.AppWithdrawCount={
-    weSrv:configs.Parameter.Get("withdrawalsnum").value
+    weSrv:weSrvConfigs.Parameter.Get("withdrawalsnum").value
 };
 
 exports.AppItem={
     weSrv: {
-            [configs.Item.MONEY]: 100,
-            [configs.Item.ACCELERATION]: 100,
-            [configs.Item.CASHCOUPON]: 100,
-        }
+            [weSrvConfigs.Item.MONEY]: 100,
+            [weSrvConfigs.Item.ACCELERATION]: 100,
+            [weSrvConfigs.Item.CASHCOUPON]: 100,
+        },
+    english:{
+
+    }
 
 };
 
 exports.AppCharacter={
-
+    english:{
+        level:0,      //等级
+        rank:0,       //段位
+        star:0,       //星星数
+        ELO:0,        //等级分
+        experience:0,  //经验值
+        winningStreak:0, //连胜场数
+        friendsList:new Set() //好友列表
+    }
 };
 
 exports.playerStatus={

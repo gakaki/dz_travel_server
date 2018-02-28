@@ -133,7 +133,7 @@ module.exports =app =>{
             let count = await this.ctx.model.PublicModel.User.count({appName:appName});
             let pid=count+1;
             // 新建用户
-            let items = constant.AppItem[appName];
+            let items = constant.AppItem[appName] || {};
             let pidStr = constant.PID_INIT[appName]+pid;
             let character = constant.AppCharacter[appName] || {};
             let ui = await this.ctx.model.PublicModel.User.create({

@@ -241,7 +241,7 @@ module.exports =app =>{
                             close: {$ne: true}
                         }, {$set: {close: true}});
 
-                        if(appName == constant.AppName.weSrv){
+                        if(appName == constant.AppName.WESRV){
                             that.service.weSrvService.weSrv.doComplete(resultParam.out_trade_no,appName);
                         }
 
