@@ -1,0 +1,25 @@
+//该Base类会在实际中作为所有api的基类
+class Base{
+    prop host:string
+    prop action:string
+    func fetch() {
+        return new Promise(resolve => {
+            wx.request({
+                url: this.host,
+                data: this.reqData,
+                success: function (res) {
+                  this.parse(res.data)
+                  resolve(this)
+                },
+                fail: err
+              })
+        })
+    }
+
+    func get reqData() {
+
+    }
+    func parse() {
+
+    }
+}
