@@ -206,7 +206,7 @@ function parseType(type, data) {
         case TYPE_TAG.INT:
             return parseInt(data);
         case TYPE_TAG.INTS:
-            return data.split(',').map(d => parseInt(d));
+            return (data+"").split(',').map(d => parseInt(d));
         case TYPE_TAG.ITEM:
             let kv = {};
             let arr = data.split(':');
