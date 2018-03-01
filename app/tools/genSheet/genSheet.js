@@ -100,17 +100,17 @@ async function gen(cfgKey, cfgNode) {
 
 function parseFile(flPath) {
     let fl = path.basename(flPath);
-    var extName = path.extname(fl);
+    let extName = path.extname(fl);
     if (/^[a-zA-Z]+/.test(fl) == false) {
         //文件名不能为全中文命名
         return;
     }
     if (extName == ".xlsx") {
-        var sheets = xlsx.parse(flPath);
+        let sheets = xlsx.parse(flPath);
         //先筛选出有效的工作表
-        var validSheets = {};
-        for (var i = 0; i < sheets.length; i++) {
-            var sht = sheets[i];
+        let validSheets = {};
+        for (let i = 0; i < sheets.length; i++) {
+            let sht = sheets[i];
             if (/Sheet[0-9]+/.test(sht.name)) {
                 //excel 的默认表名不处理
                 continue;
@@ -134,29 +134,29 @@ function mergeToJson(sht, sheetName, fl) {
     parsedData.server.jsondata[sheetName] = {};
 
     //先读掉前几行配置、类型、注释等
-    var shtHeads = sht.slice(0, SHEET_HEADS); //表头
+    let shtHeads = sht.slice(0, SHEET_HEADS); //表头
     let data = sht.slice(SHEET_HEADS); //数据
-    var colComments = shtHeads[0]; //中文字段名
-    var colNames = shtHeads[1]; //字段名
-    var colFlags = shtHeads[2]; //字段导出标识
+    let colComments = shtHeads[0]; //中文字段名
+    let colNames = shtHeads[1]; //字段名
+    let colFlags = shtHeads[2]; //字段导出标识
 
     //生成数据类声明
     let sheetClzC = new Sheet(sheetName);
     let sheetClzS = new Sheet(sheetName);
 
     //有效数据的起始列索引
-    var colStart = 0;
+    let colStart = 0;
 
     //每行数据生成一个包装单元
-    for (var i in data) {
-        var cellC = {};
-        var cellS = {};
-        var line = data[i];
+    for (let i in data) {
+        let cellC = {};
+        let cellS = {};
+        let line = data[i];
 
-        for (var k = colStart; k < colNames.length; k++) {
-            var clName = colNames[k];
-            var clFlag = colFlags[k];
-            var clCmts = colComments[k];
+        for (let k = colStart; k < colNames.length; k++) {
+            let clName = colNames[k];
+            let clFlag = colFlags[k];
+            let clCmts = colComments[k];
 
 
             //字段过滤

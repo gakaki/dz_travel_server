@@ -41,7 +41,8 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "sheet": "node ./app/tools/genSheet/genSheet.js"
+    "sheet": "node ./app/tools/genSheet/genSheet.js",
+    "api": "node ./app/tools/genApi/genApi.js"
   },
   "ci": {
     "version": "8"
