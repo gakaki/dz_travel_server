@@ -8,6 +8,7 @@ const SHEET_HEADS = 3; //表头所占据的行数
 
 //支持的字段类型
 const TYPE_TAG  = {
+    STR: "Str",
     INT: "Int",
     INTS: "Ints",
     ITEM: "Item",
@@ -19,10 +20,9 @@ const OUT_TAG = {
 }
 
 class Field {
-    constructor(name, cmts, tag) {
+    constructor(name, cmts) {
         this.name = name;
         this.comments = cmts;
-        this.outTag = tag;
     }
 }
 class Sheet {
@@ -36,6 +36,9 @@ class Data {
     constructor(){
         this.jsondata = {};
         this.sheets = [];
+    }
+    get json() {
+        return JSON.stringify(this.jsondata);
     }
 }
 
@@ -65,21 +68,28 @@ async function gen(cfgKey, cfgNode) {
     let outFileC = cfgNode.outFileC;
     let outFileS = cfgNode.outFileS;
 
-    let files;
-    try {
-        files = fs.readdirSync(inDir).map(fl => {
-            return path.resolve(inDir, fl);
-        })
-    }catch (e) {
-        console.error(e)
-        console.warn(`未找到${cfgKey}的inputDir配置的目标路径：${inDir} 请检查后重试！！！`);
-        return;
+    //判断inDir是文件夹，还是文件
+    let st = fs.statSync(inDir);
+    if (st.isFile()) {
+        parseFile(inDir);
     }
+    else {
+        let files;
+        try {
+            files = fs.readdirSync(inDir).map(f => {
+                return path.resolve(inDir, f);
+            })
+        }catch (e) {
+            console.error(e)
+            console.warn(`未找到${cfgKey}的inputDir配置的目标路径：${inDir} 请检查后重试！！！`);
+            return;
+        }
 
-    //开始读表转换
-    files.every(fl => {
-        parseFile(fl);
-    })
+        //开始读表转换
+        files.every(f => {
+            parseFile(f);
+        })
+    }
 
     //写入output文件
     await dust.gen('sheet',
@@ -88,9 +98,9 @@ async function gen(cfgKey, cfgNode) {
 }
 
 
-function parseFile(fl) {
+function parseFile(flPath) {
+    let fl = path.basename(flPath);
     var extName = path.extname(fl);
-    var flPath = path.resolve(inDir, fl);
     if (/^[a-zA-Z]+/.test(fl) == false) {
         //文件名不能为全中文命名
         return;
@@ -152,15 +162,17 @@ function mergeToJson(sht, sheetName, fl) {
             //字段过滤
             if (clName ) {
                 //转换数据
+                clFlag = clFlag || TYPE_TAG.STR;//空值，按Str处理
+
                 let clData = parseType(clFlag.split('.')[0], line[k]);
 
                 //记录数据
-                if (clFlag && clFlag.indexOf(OUT_TAG.CLIENT) != -1) {
+                if (clFlag.indexOf(OUT_TAG.CLIENT) != -1) {
                     //此字段仅客户端使用
                     i == 0 && sheetClzC.fileds.push(new Field(clName, clCmts));
                     cellC[clName] = clData;
                 }
-                else if (clFlag && clFlag.indexOf(OUT_TAG.SERVER) != -1) {
+                else if (clFlag.indexOf(OUT_TAG.SERVER) != -1) {
                     //此字段仅服务器使用
                     i == 0 && sheetClzS.fileds.push(new Field(clName, clCmts));
                     cellS[clName] = clData;

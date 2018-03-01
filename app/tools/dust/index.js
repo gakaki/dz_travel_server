@@ -1,6 +1,7 @@
 const tpl = require("dustjs-linkedin");
 const mkdirp = require("mkdir-p");
 const path = require("path");
+const fs = require("fs");
 
 /**
  * @param tplName 模板文件名，模板文件统一放在tools/dust/里，调用时传入文件名，如sheet
