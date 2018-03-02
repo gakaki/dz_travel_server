@@ -194,7 +194,7 @@ var configs = (configs = {}) => {
         1: t[0]
     };
     return configs;
-}
+};
 
 
 module.exports = configs();

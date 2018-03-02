@@ -29,7 +29,7 @@ class SocketService extends Service {
 
     setRoomList(appName, roomInfo) {
         roomList.has(appName) ? roomList.get(appName) : roomList.set(appName,new Map());
-        roomList.get(appName).set(roomInfo.roomId ,roomInfo);
+        roomList.get(appName).set(roomInfo.rid ,roomInfo);
     }
 
     getRoomList(appName, roomId) {

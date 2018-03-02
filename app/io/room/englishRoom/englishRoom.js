@@ -1,33 +1,46 @@
 const utils = require("../../../utils/utils");
+const englishConfigs = require("../../../../sheets/english");
 
 class EnglishRoom {
-    constructor(roomId) {
-        this.userList = new Map();
-        this.bystander=new Map();
-        this.roomId = roomId;
-        this.wordList=[];
-        this.setQuestions();
+    constructor(rid,difficulty=1,isFriend=false) {
+        this.userList = new Map(); //参与者
+        this.bystander=new Map(); //旁观者
+        this.rid = rid;
+        this.difficulty=difficulty;
+        this.isFriend=isFriend;
+        this.wordList=this.setQuestions();
     }
 
     setQuestions(){
-        while (this.wordList.length < 5){
-            let gameType=utils.Rangei(1,5);
-            let word = this.getWord();
-            let question = {
-                gameType :gameType,
-                word :word
-            };
-            this.wordList.push(question);
+        let wordLib= englishConfigs.words;
+        let words=[];
+        for(let word of wordLib){
+            if(word.difficulty == this.difficulty){
+                words.push(word);
+            }
         }
-
+        return this.getWord(words);
     }
 
-    getWord(){
-        return {
-            "word": "hello",
-            "translate": "你好",
-            "soundmark": "[helˈō]"
+    getWord(words){
+        let indexs = new Set();
+        while (indexs.size<5){
+            let index=utils.Rangei(0,words.length);
+            indexs.add(index);
         }
+        let questions=[];
+        for(let i of indexs){
+            let qword = words[i];
+            let types = qword.type;
+            let type = utils.Rangei(0,types.length);
+            let word={
+                id:qword.id,
+                type:types[type]
+            };
+            questions.push(word);
+        }
+
+        return questions;
     }
 
     joinRoom(player){
@@ -72,7 +85,7 @@ class EnglishRoom {
             }
 
         }else{
-            result.losses=0;
+            result.losses=1;
             if(owner.user.character.star > 0 && !isFriend){
                 result.star=-1;
             }

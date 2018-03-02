@@ -11,6 +11,7 @@ class EnglishPlayer {
         this.startTime = null;
         this.score=0;
         this.answers=[];
+        this.answer=null;
         this.right=0;
         this.mistake=0;
         this.continuousRight=0;
@@ -24,7 +25,9 @@ class EnglishPlayer {
     setScore(score){
         this.score=score;
     }
+
     setAnswer(answer){
+        this.answer=answer;
         this.answers.push(answer);
     }
 

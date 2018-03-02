@@ -1,4 +1,4 @@
-const config = require('../../../config/guessnum/configs');
+const config = require('../../../config/guessnumConfig/guessnumConfigs');
 
 module.exports = app => {
     const mongoose = app.mongoose;

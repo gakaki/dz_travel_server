@@ -14,7 +14,9 @@ module.exports = () => {
         const nsp = app.io.of(['/' + appName]);
         //   const rooms = [room];
 
-     /*   let ui = await app.service.publicService.userService.findUserBySid(_sid);
+        logger.info("socket 链接 ：" + appName +","+_sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        logger.info(JSON.stringify(ui));
         if (ui == null) {
             socket.emit(id, helper.parseMsg('deny', "the user has no login"));
 
@@ -23,14 +25,41 @@ module.exports = () => {
                 logger.error(err);
             });
             return;
-        }*/
+        }
+/*
+        let ui=await ctx.model.PublicModel.User.findOne({uid:uid});
+        let dateStr=new Date().toLocaleDateString();
+        if(ui == null){
+            let u={
+                uid:uid,
+                appName:appName,
+                character:{
+                    level: 0,      //等级
+                    rank: 1,       //段位
+                    star: 0,       //星星数
+                    ELO: 0,        //等级分
+                    experience: 0,  //经验值
+                    winningStreak: 0, //连胜场数
+                    wins:0,            //胜场
+                    losses:0,            //负场
+                    total:0,             //总局数
+                    cumulativeDays:0, //累计天数
+                    beautifulWords:"welcome to english world", //每日美句
+                    friendsList: ["aaaaaaaa","VTH7jgb-67MClPGDAAAC"], //好友列表
+                    wordList:{
+                        [dateStr]:[],
+                    }, //单词列表
+                },
+                items:{
+                    gold:0
+                }
+            };
 
-         let ui={
-             uid:uid,
-             character:{
-                 ELO:utils.Rangei(1,1000,true)
-             }
-         };
+            await ctx.model.PublicModel.User.create(u);
+             ui=await ctx.model.PublicModel.User.findOne({uid:uid});
+        }
+*/
+
         logger.info(ui.uid + ' connected');
         let player = null ;
         switch (appName){

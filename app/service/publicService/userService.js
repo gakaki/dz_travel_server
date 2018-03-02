@@ -49,6 +49,7 @@ class UserService extends Service {
             // 因为以后登陆仅仅通过sid，所以安全问题能得以提高
             ui = await this.ctx.model.PublicModel.User.findOne({
                 uid: uid,
+                appName:appName,
                 third: true
             });
 
@@ -82,6 +83,8 @@ class UserService extends Service {
                 this.recruitSid(ses.sid, ui.pid);
             }
         }
+
+        this.logger.info(JSON.stringify(ses));
 
 
         this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", {user: ui.pid, sid: ses.sid});
@@ -154,7 +157,7 @@ class UserService extends Service {
 
 
         // 日志
-        this.ctx.model.UserActionRecord.PublicModel.create({
+        this.ctx.model.PublicModel.UserActionRecord.create({
             pid: pid,
             type: constant.UserActionRecordType.REGISTER,
             appName: appName

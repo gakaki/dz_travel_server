@@ -8,11 +8,11 @@ class UserController extends Controller {
     async login(ctx) {
         this.logger.info("我要登陆");
 
-        const {sid, uid} = ctx.query;
+        const {_sid, uid} = ctx.query;
         let result = {
             data: {}
         };
-        if (!sid && !uid) {
+        if (!_sid && !uid) {
             result.code = constant.Code.LOGIN_FAILED;
             ctx.body = result;
             return;

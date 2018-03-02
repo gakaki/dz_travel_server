@@ -1,4 +1,5 @@
-const guessnumConfigs = require("../../config/guessnum/configs");
+const guessnumConfigs = require("../../config/guessnumConfig/guessnumConfigs");
+const englishConfigs = require("../../sheets/english");
 
 exports.AppName = {
     GUESSNUM: "guessnum",
@@ -15,34 +16,79 @@ exports.AppItem = {
         [guessnumConfigs.Item.ACCELERATION]: 100,
         [guessnumConfigs.Item.CASHCOUPON]: 100,
     },
-    english: {}
+    english: {
+        gold:0,
+        n:0,
+        adj:0,
+        adv:0,
+        pron:0,
+        num:0,
+        v:0,
+        art:0,
+        prep:0,
+        conj:0,
+        int:0,
+        treasure:0,
+        coins:0
+}
 
 };
 
 exports.AppCharacter = {
     english: {
         level: 0,      //等级
-        rank: 0,       //段位
-        star: 0,       //星星数
-        ELO: 0,        //等级分
-        experience: 0,  //经验值
+        season:{
+            "1":{
+                   rank: 1,       //段位
+                   star: 0,       //星星数
+                   ELO: 0,        //等级分
+                   createTime:new Date().toLocaleString()
+                 }
+        },
+        experience: {
+            exp:0,
+            needExp:10
+        },  //经验值
         winningStreak: 0, //连胜场数
         wins:0,            //胜场
         losses:0,            //负场
         total:0,             //总局数
         cumulativeDays:0, //累计天数
-        beautifulWords:"", //每日美句
-        friendsList: new Set(), //好友列表
-        develop:{
-            n:{
-                level:0,
-                scoreUp:0
-            }
-        }
+        beautifulWords:"welcome to english world", //每日美句
+        friendsList: [], //好友列表
+        wordList:{}, //单词列表
+        developSystem:getDevelop()
     }
 };
 
+function getDevelop() {
+    let devs={};
+    let speechs=englishConfigs.speechs;
+    for(let sp of speechs){
+       devs[sp.id]={
+           level:sp.minlevel,
+           speech:sp.speech.replace(".",""),
+           plus:0,
+           consume:{
+               [sp.speech.replace(".","")]:sp.consume1,
+               gold:sp.consume2
+           }
+       }
+    }
+    return devs;
+}
 
+/*{
+    1:{
+    level:englishConfigs.Speech.Get(1).minlevel,
+        plus:0,
+        consume:{
+        n:englishConfigs.Speech.Get(1).consume1,
+            gold:englishConfigs.Speech.Get(1).consume2
+    }
+},
+
+}*/
 
 exports.playerStatus = {
     online: 0,

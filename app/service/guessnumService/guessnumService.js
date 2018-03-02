@@ -2,7 +2,7 @@ const Service = require('egg').Service;
 const utils = require('../../utils/utils');
 const nonce = require('../../utils/nonce');
 const constant = require('../../utils/constant');
-const guessnumConfigs = require('../../../config/guessnum/configs');
+const guessnumConfigs = require('../../../config/guessnumConfig/guessnumConfigs');
 
 
 class GuessnumService extends Service {
