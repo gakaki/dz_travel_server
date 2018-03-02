@@ -202,11 +202,12 @@ function mergeToJson(sht, sheetName, fl) {
 
 
 function parseType(type, data) {
+    data +=''//转字符串
     switch (type) {
         case TYPE_TAG.INT:
             return parseInt(data);
         case TYPE_TAG.INTS:
-            return (data+"").split(',').map(d => parseInt(d));
+            return data.split(',').map(d => parseInt(d));
         case TYPE_TAG.ITEM:
             let kv = {};
             let arr = data.split(':');
@@ -218,7 +219,7 @@ function parseType(type, data) {
                 return parseType(TYPE_TAG.ITEM, it);
             });
         default:// string
-            return data ? (data + "").replace(/\n/g, "\\n") : "";
+            return data.replace(/\n/g, "\\n");
     }
 
 }
