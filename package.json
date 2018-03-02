@@ -33,7 +33,7 @@
   "scripts": {
     "start": "egg-scripts start --sticky --daemon --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "stop": "egg-scripts stop --title=egg-server-server",
-    "dev": "egg-bin dev",
+    "dev": "egg-bin dev  --sticky --daemon --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "debug": "egg-bin debug",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",
