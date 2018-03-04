@@ -14,6 +14,9 @@ const TYPE_TAG  = {
     ITEM: "Item",
     ITEMS: "Items"
 }
+
+const CONST_NAME = 'const';
+
 const OUT_TAG = {
     CLIENT: ".C",
     SERVER: ".S",
@@ -30,6 +33,10 @@ class Sheet {
         this.fileds = [];
         this.sheetname = shtName;
         this.classname = shtName.substr(0, 1).toUpperCase() + shtName.substr(1);
+        this._consts = [];
+    }
+    consts(k, v) {
+        this._consts.push({k: k.toUpperCase(), v:v})
     }
 }
 class Data {
@@ -166,23 +173,46 @@ function mergeToJson(sht, sheetName, fl) {
 
                 let clData = parseType(clFlag.split('.')[0], line[k]);
 
-                //记录数据
-                if (clFlag.indexOf(OUT_TAG.CLIENT) != -1) {
-                    //此字段仅客户端使用
-                    i == 0 && sheetClzC.fileds.push(new Field(clName, clCmts));
-                    cellC[clName] = clData;
-                }
-                else if (clFlag.indexOf(OUT_TAG.SERVER) != -1) {
-                    //此字段仅服务器使用
-                    i == 0 && sheetClzS.fileds.push(new Field(clName, clCmts));
-                    cellS[clName] = clData;
+                //const 字段，生成类常量, 每个表只能有一个const字段，字段类型仅支持Str/Str.C/Str.S, 留空为Str,该字段列的值为转换成全部大写作为KEY，该表第一列的值为转换成与KEY对应的值
+                if (clName == CONST_NAME) {
+
+                    if (clFlag.indexOf(TYPE_TAG.STR) == -1) {
+                        console.error(`const字段仅支持Str/Str.C/Str.S类型，而文件${fl}.xlsx中的${sheetName}表中出现了不支持的类型，请检查修改后重新生成！！！`)
+                        process.exit(1);
+                    }
+
+                    let v = line[colStart] + '';
+                    if (clFlag.indexOf(OUT_TAG.CLIENT) != -1) {
+                        //仅客户端
+                        sheetClzC.consts(clData, v);
+                    }
+                    else if (clFlag.indexOf(OUT_TAG.SERVER) != -1) {
+                        sheetClzS.consts(clData, v);
+                    }
+                    else {
+                        sheetClzC.consts(clData, v);
+                        sheetClzS.consts(clData, v);
+                    }
                 }
                 else {
-                    //此字段前后端都用
-                    i == 0 && sheetClzC.fileds.push(new Field(clName, clCmts));
-                    i == 0 && sheetClzS.fileds.push(new Field(clName, clCmts));
-                    cellC[clName] = clData;
-                    cellS[clName] = clData;
+                    //记录数据
+                    if (clFlag.indexOf(OUT_TAG.CLIENT) != -1) {
+                        //此字段仅客户端使用
+                        i == 0 && sheetClzC.fileds.push(new Field(clName, clCmts));
+                        cellC[clName] = clData;
+                    }
+                    else if (clFlag.indexOf(OUT_TAG.SERVER) != -1) {
+                        //此字段仅服务器使用
+                        i == 0 && sheetClzS.fileds.push(new Field(clName, clCmts));
+                        cellS[clName] = clData;
+                    }
+                    else {
+                        //此字段前后端都用
+                        i == 0 && sheetClzC.fileds.push(new Field(clName, clCmts));
+                        i == 0 && sheetClzS.fileds.push(new Field(clName, clCmts));
+                        cellC[clName] = clData;
+                        cellS[clName] = clData;
+                    }
                 }
             }
 

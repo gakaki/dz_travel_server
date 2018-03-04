@@ -10,6 +10,9 @@ class {.classname} {~lb}
     // {.comments|s}
     get {.name|s}(){~lb} return this.cfg.{.name|s}; {~rb}
 {/.fileds}
+{#._consts}
+    static {.k} = {.v};
+{/._consts}
     static Get(id){~lb} return id in _data.{.sheetname} ? new {.classname}(_data.{.sheetname}[id]) : null; {~rb}
 {~rb}
 {/sheets}
