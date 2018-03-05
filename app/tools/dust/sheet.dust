@@ -11,7 +11,7 @@ class {.classname} {~lb}
     get {.name|s}(){~lb} return this.cfg.{.name|s}; {~rb}
 {/.fileds}
 {#._consts}
-    static {.k} = {.v};
+    static get {.k}() {~lb} return {.v} {~rb};
 {/._consts}
     static Get(id){~lb} return id in _data.{.sheetname} ? new {.classname}(_data.{.sheetname}[id]) : null; {~rb}
 {~rb}

@@ -128,31 +128,31 @@ class Item {
     get drop(){ return this.cfg.drop; }
 
 
-    static GOLD = 1;
+    static get GOLD() { return 1 };
 
-    static N = 2;
+    static get N() { return 2 };
 
-    static ADJ = 3;
+    static get ADJ() { return 3 };
 
-    static ADV = 4;
+    static get ADV() { return 4 };
 
-    static PRON = 5;
+    static get PRON() { return 5 };
 
-    static NUM = 6;
+    static get NUM() { return 6 };
 
-    static V = 7;
+    static get V() { return 7 };
 
-    static ART = 8;
+    static get ART() { return 8 };
 
-    static PREP = 9;
+    static get PREP() { return 9 };
 
-    static CONJ = 10;
+    static get CONJ() { return 10 };
 
-    static INT = 11;
+    static get INT() { return 11 };
 
-    static TREASURE = 12;
+    static get TREASURE() { return 12 };
 
-    static COINS = 13;
+    static get COINS() { return 13 };
 
     static Get(id){ return id in _data.item ? new Item(_data.item[id]) : null; }
 }
@@ -202,7 +202,7 @@ class Share {
     get id(){ return this.cfg.id; }
 
 
-    static MAIN = 1;
+    static get MAIN() { return 1 };
 
     static Get(id){ return id in _data.share ? new Share(_data.share[id]) : null; }
 }
