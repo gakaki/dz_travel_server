@@ -17,19 +17,19 @@ exports.AppItem = {
         [guessnumConfigs.Item.CASHCOUPON]: 100,
     },
     english: {
-        gold:0,
-        n:0,
-        adj:0,
-        adv:0,
-        pron:0,
-        num:0,
-        v:0,
-        art:0,
-        prep:0,
-        conj:0,
-        int:0,
-        treasure:0,
-        coins:0
+        [englishConfigs.Item.GOLD]:10000,
+        [englishConfigs.Item.N]:100,
+        [englishConfigs.Item.ADJ]:100,
+        [englishConfigs.Item.ADV]:100,
+        [englishConfigs.Item.PRON]:100,
+        [englishConfigs.Item.NUM]:100,
+        [englishConfigs.Item.V]:100,
+        [englishConfigs.Item.ART]:100,
+        [englishConfigs.Item.PREP]:100,
+        [englishConfigs.Item.CONJ]:100,
+        [englishConfigs.Item.INT]:100,
+        [englishConfigs.Item.TREASURE]:100,
+        [englishConfigs.Item.COINS]:100,
 }
 
 };
@@ -54,7 +54,7 @@ exports.AppCharacter = {
         losses:0,            //负场
         total:0,             //总局数
         cumulativeDays:0, //累计天数
-        beautifulWords:"welcome to english world", //每日美句
+        beautifulWords:1, //每日美句
         friendsList: [], //好友列表
         wordList:{}, //单词列表
         developSystem:getDevelop()
@@ -70,8 +70,8 @@ function getDevelop() {
            speech:sp.speech.replace(".",""),
            plus:0,
            consume:{
-               [sp.speech.replace(".","")]:sp.consume1,
-               gold:sp.consume2
+               [englishConfigs.Item[sp.speech.replace(".","").toUpperCase()]]:sp.consume1,
+               [englishConfigs.Item.GOLD]:sp.consume2
            }
        }
     }
@@ -153,6 +153,7 @@ exports.Code = {
     NO_MONEY: -136,//企业没钱
     EXCEED_COUNT: -137,//超过提现次数
     LESS_MONEY: -138,//低于最低限额
+    LEVEL_MAX:-140,//等级上限
     PACK_Fighing: 168, //红包可竞猜
     NEED_COUPON: 170, //代金券不足
     NEED_MONEY: 171, //金额不足

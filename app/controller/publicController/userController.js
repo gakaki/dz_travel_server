@@ -8,7 +8,8 @@ class UserController extends Controller {
     async login(ctx) {
         this.logger.info("我要登陆");
 
-        const {_sid, uid} = ctx.query;
+
+        const {_sid, uid,info,appName} = ctx.query;
         let result = {
             data: {}
         };
@@ -17,7 +18,7 @@ class UserController extends Controller {
             ctx.body = result;
             return;
         }
-        let rs = await this.service.publicService.userService.login(ctx.query);
+        let rs = await this.service.publicService.userService.login(uid,_sid,appName,JSON.parse(info));
         if (rs.info != null) {
             result.code = 0;
             result.data.info = rs.info;
@@ -67,9 +68,9 @@ class UserController extends Controller {
         let cost = {
             ["items." + itemId]: Number(count)
         };
-        await this.ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
-        await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
+        await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
+        let ui = await ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
+        await this.service.publicService.itemService.itemChange(ui, cost, appName);
     }
 
 

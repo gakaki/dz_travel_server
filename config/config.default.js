@@ -1,10 +1,9 @@
 const fs = require("fs");
 
-module.exports = appInfo => {
+module.exports = app => {
     const config = {};
-
     // use for cookie sign key, should change to your own and keep security
-    config.keys = appInfo.name + '_1518087334696_5975';
+    config.keys = app.name + '_1518087334696_5975';
 
     // add your config here
     config.session = {
@@ -25,5 +24,7 @@ module.exports = appInfo => {
 
 
     config.middleware = ["routerControl"];
+
+
     return config;
 };

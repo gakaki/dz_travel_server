@@ -6,7 +6,7 @@ class ItemService extends Service {
         for (let indexs in delta) {
             let daddup = delta[indexs] > 0 ? delta[indexs] : 0;
             let dcost = delta[indexs] > 0 ? 0 : -delta[indexs];  // cost统计时按照正数统计
-            let index = Number(indexs.replace("items.", ""));
+            let index = indexs.replace("items.", "");
             this.logger.info("道具编号 " + index);
             try {
                 let r = await this.ctx.model.PublicModel.UserItemCounter.update({

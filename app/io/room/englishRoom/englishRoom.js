@@ -81,7 +81,7 @@ class EnglishRoom {
             result.wins=1;
             if(!isFriend){
                 result.star=1;
-                result.gold=10
+                result.gold=englishConfigs.Stage.Get(owner.rankType).goldcoins2
             }
 
         }else{

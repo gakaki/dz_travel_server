@@ -8,13 +8,15 @@ const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 
 class WeChatService extends Service {
-    async auth(param) {
-        this.logger.info("我要进行微信授权登陆");
-        let appid = (this.config.appid).trim();
-        let appsec = (this.config.appsecret).trim();
-        let authcode = JSON.parse(param.payload).code;
-        let appName = param.appName;
+    async auth(sdkAuth) {
 
+        let appName = sdkAuth.appName;
+
+        let appid = this.config[appName].appid;
+        let appsec = this.config[appName].appsecret;
+        let authcode = JSON.parse(sdkAuth.payload).code;
+
+        this.logger.info("我要进行微信授权登陆" +appid);
         let auResult = await this.doReqToken(appid, appsec, authcode);
 
         // let authtype = AuthType.MINI;
@@ -69,7 +71,7 @@ class WeChatService extends Service {
             time_start: moment(new Date()).format("YYYYMMDDHHMMSS"),
             spbill_create_ip: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
             notify_url: this.config.noticeurl,
-            appid: this.config.appid,
+            appid: this.config[appName].appid,
             mch_id: this.config.pubmchid,
             openid: ui.uid,
             trade_type: "JSAPI"
@@ -105,7 +107,7 @@ class WeChatService extends Service {
                     let prepay_id = realResult["prepay_id"][0];
                     let returnParam =
                         {
-                            appId: that.config.appid,
+                            appId: that.config[appName].appid,
                             nonceStr: nonce.NonceAlDig(10),
                             package: "prepay_id=" + prepay_id,
                             signType: "MD5",
@@ -143,7 +145,7 @@ class WeChatService extends Service {
         wtd.partner_trade_no = "withdraw" + ((new Date().getTime()) / 1000 >> 0);
         wtd.amount = Number(money); // 正式的价格
         wtd.spbill_create_ip = (this.ctx.request.socket.remoteAddress).replace("::ffff:", "");
-        wtd.mch_appid = this.config.appid;
+        wtd.mch_appid = this.config[appName].appid;
         wtd.mchid = this.config.pubmchid;
         wtd.partnerKey = this.config.pubkey;
         wtd.check_name = "NO_CHECK";
@@ -255,7 +257,7 @@ class WeChatService extends Service {
 
     async ReqUserRefund(m) {
         const config = {
-            appid: this.config.appid,
+            appid: m.appid,
             mchid: this.config.pubmchid,
             partnerKey: this.config.pubkey,
             pfx: this.config.file,

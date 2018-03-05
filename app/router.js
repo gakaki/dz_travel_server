@@ -2,7 +2,7 @@
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
-    const {router, controller, io} = app;
+    const {router, controller, io,ws} = app;
     router.get('/user/login', controller.publicController.userController.login);
     router.get('/user/changeitem', controller.publicController.userController.changeitem);
     router.get('/user/getiteminfo', controller.publicController.userController.getiteminfo);
@@ -22,7 +22,16 @@ module.exports = app => {
     router.get('/guessnum/getacceleration', controller.guessnumController.guessnumController.getacceleration);
 
     router.get('/english/showpersonal', controller.englishController.englishController.showpersonal);
+    router.get('/english/updateposition', controller.englishController.englishController.updateposition);
     router.get('/english/signin', controller.englishController.englishController.signin);
+    router.get('/english/develop', controller.englishController.englishController.develop);
+    router.get('/english/speechlevelup', controller.englishController.englishController.speechlevelup);
+    router.get('/english/getfriendrankinglist', controller.englishController.englishController.getfriendrankinglist);
+    router.get('/english/getworldrankinglist', controller.englishController.englishController.getworldrankinglist);
+
+
+
+    router.get('/english/english', io.controller.englishIOController.englishIOController.ranking);
 
 
     io.of('/english').route('ranking', io.controller.englishIOController.englishIOController.ranking);
@@ -31,5 +40,4 @@ module.exports = app => {
     io.of('/english').route('pkend', io.controller.englishIOController.englishIOController.pkend);
     io.of('/english').route('joinroom', io.controller.englishIOController.englishIOController.joinroom);
     io.of('/english').route('leaveroom', io.controller.englishIOController.englishIOController.leaveroom);
-
 };

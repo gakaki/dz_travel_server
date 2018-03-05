@@ -7,12 +7,12 @@ module.exports = {
     },
     async task(ctx) {
         // let startTime = new Date().getTime();
-        //   ctx.logger.info("执行匹配开始|开始时间|"+startTime);
+         //  ctx.logger.info("执行匹配开始|开始时间|");
         let totalPool = ctx.service.publicService.matchingService.getTotalPool("english");
         let pointMap = new Map();
         for (let player of totalPool) {
             if (player.waitTime > 30) {
-                ctx.logger.warn(player.user.uid + "在匹配池中是时间超过 30 s，直接移除");
+              //  ctx.logger.warn(player.user.uid + "在匹配池中是时间超过 30 s，直接移除");
                 ctx.service.englishService.englishService.matchFailed(player);
                 continue;
             }
@@ -68,7 +68,7 @@ module.exports = {
                                 if (player.user.uid != oldest.user.uid && player.status == constant.playerStatus.ready) {//排除玩家本身
                                     if (matchPoolPlayer.size < 1) {
                                         matchPoolPlayer.add(player);
-                                        ctx.logger.info(oldest.user.uid + "|匹配到玩家|" + player.user.uid + "|ELO|" + player.user.character.ELO);
+                                 //       ctx.logger.info(oldest.user.uid + "|匹配到玩家|" + player.user.uid + "|ELO|" + player.user.character.ELO);
                                         //移除
                                         sameRankPlayers.delete(player);
                                         break;
@@ -81,7 +81,7 @@ module.exports = {
                 }
 
                 if (matchPoolPlayer.size == 1) {
-                    ctx.logger.info(oldest.user.uid + "|匹配到玩家数量够了|提交匹配成功处理");
+                //    ctx.logger.info(oldest.user.uid + "|匹配到玩家数量够了|提交匹配成功处理");
                     //自己也匹配池移除
                     sameRankPlayers.delete(oldest);
                     //匹配成功处理
@@ -90,7 +90,7 @@ module.exports = {
                 } else {
                     //本分数段等待时间最长的玩家都匹配不到，其他更不用尝试了
                     continueMatch = false;
-                    ctx.logger.info(oldest.user.uid + "|匹配到玩家数量不够，取消本次匹配");
+                  //  ctx.logger.info(oldest.user.uid + "|匹配到玩家数量不够，取消本次匹配");
                 }
             }
         }

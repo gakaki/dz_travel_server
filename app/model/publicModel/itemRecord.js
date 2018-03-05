@@ -4,7 +4,7 @@ module.exports = app => {
         pid: {type: String},
         appName: {type: String},
         time: {type: String, default: new Date().toLocaleString()},
-        index: {type: Number},
+        index: {type: String},
         delta: {type: Number}
 
     });

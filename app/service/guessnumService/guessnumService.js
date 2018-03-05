@@ -27,8 +27,8 @@ class GuessnumService extends Service {
         //扣代金券
         //获得加速卡
 
-        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
-        ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid,appName:constant.AppName.GUESSNUM}, {$inc: cost});
+        ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid,appName:constant.AppName.GUESSNUM});
         await this.ctx.service.publicService.itemService.itemChange(ui, cost, constant.AppName.GUESSNUM);
         let pack = {
             pid: new Date().getTime(),
@@ -59,13 +59,13 @@ class GuessnumService extends Service {
                     let cost = {
                         ["items." + guessnumConfigs.Item.MONEY]: p.remain,
                     };
-                    that.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
-                    ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+                    that.ctx.model.PublicModel.User.update({uid: ui.uid,appName:constant.AppName.GUESSNUM}, {$inc: cost});
+                    ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid,appName:constant.AppName.GUESSNUM});
                     that.ctx.service.publicService.itemService.itemChange(ui, cost, constant.AppName.GUESSNUM);
 
                 } else {
                     that.logger.info("没有竞猜记录");
-                    await that.refund(ui.pid, p.orderId);
+                    await that.refund(ui.pid, p.orderId,constant.AppName.GUESSNUM);
                 }
             }
 
@@ -221,12 +221,12 @@ class GuessnumService extends Service {
         let delta = {
             ["items." + guessnumConfigs.Item.MONEY]: moneyGeted,
         };
-        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: delta});
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid,appName:constant.AppName.GUESSNUM}, {$inc: delta});
 
-        ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid,appName:constant.AppName.GUESSNUM});
 
         await this.ctx.service.publicService.itemService.itemChange(ui, delta, constant.AppName.GUESSNUM);
-        pack.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid});
+        pack.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid,appName:constant.AppName.GUESSNUM});
 
         result.data.userAnswerWord = guessNum;
         result.data.packInfo = pack;
@@ -252,8 +252,8 @@ class GuessnumService extends Service {
             ["items." + guessnumConfigs.Item.ACCELERATION]: -1
         };
 
-        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: delta});
-        ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid,appName:constant.AppName.GUESSNUM}, {$inc: delta});
+        ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid,appName:constant.AppName.GUESSNUM});
         await this.ctx.service.publicService.itemService.itemChange(ui, delta, constant.AppName.GUESSNUM);
 
 
@@ -275,7 +275,7 @@ class GuessnumService extends Service {
         let result = {
             data: {}
         };
-        result.data.originator = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid});
+        result.data.originator = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid,appName:constant.AppName.GUESSNUM});
         result.data.packPassword = pack.password;
         result.data.packInfo = pack;
         let records = await this.ctx.model.GuessnumModel.PackGuessRecord.find({pid: pack.pid});
@@ -290,7 +290,7 @@ class GuessnumService extends Service {
         let result = {
             data: {}
         };
-        pack.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid});
+        pack.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid,appName:constant.AppName.GUESSNUM});
         result.data.packInfo = pack;
         result.data.answer = pack.password;
 
@@ -303,7 +303,7 @@ class GuessnumService extends Service {
         for (let record of r) {
             let rankInfo = {};
             rankInfo.uid = record._id;
-            rankInfo.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: record._id});
+            rankInfo.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: record._id,appName:constant.AppName.GUESSNUM});
             rankInfo.moneyGot = record.moneyGot;
             let records = await this.ctx.model.GuessnumModel.PackGuessRecord.find({pid: pack.pid, uid: record._id});
             rankInfo.guessRecords = records;
@@ -365,8 +365,8 @@ class GuessnumService extends Service {
             let delta = {
                 ["items." + guessnumConfigs.Item.ACCELERATION]: 1
             };
-            await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: delta});
-            ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+            await this.ctx.model.PublicModel.User.update({uid: ui.uid,appName:constant.AppName.GUESSNUM}, {$inc: delta});
+            ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid,appName:constant.AppName.GUESSNUM});
             await this.ctx.service.publicService.itemService.itemChange(ui, delta, constant.AppName.GUESSNUM);
 
             userShareRecord.num = 1;
@@ -468,7 +468,7 @@ class GuessnumService extends Service {
             let getPack = {};
             let pack = await this.ctx.model.GuessnumModel.PackInfo.findOne({pid: p.pid});
             if (pack != null) {
-                getPack.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid});
+                getPack.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: pack.uid,appName:constant.AppName.GUESSNUM});
                 getPack.guessInfo = p;
                 p.packInfo = pack;
                 getPacks.push(getPack);
@@ -478,7 +478,7 @@ class GuessnumService extends Service {
         return getPacks
     }
 
-    async refund(pid, orderId) {
+    async refund(pid, orderId,appName) {
         let rechargeRecord = await this.ctx.model.WeChatModel.RechargeRecord.findOne({"orderid": orderId});
         this.logger.info("查询下单记录 ：" + JSON.stringify(rechargeRecord));
         if (rechargeRecord == null) {
@@ -486,6 +486,7 @@ class GuessnumService extends Service {
         }
         let refund = {};
         refund.pid = pid;
+        refund.appid=this.config[appName].appid;
         refund.orderId = rechargeRecord.orderid;
         refund.total_fee = rechargeRecord.price;
         refund.out_refund_no = nonce.NonceAlDig(10);
@@ -514,7 +515,7 @@ class GuessnumService extends Service {
         let rcs = [];
         for (let record of records) {
             let rc = {};
-            rc.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: record.uid});
+            rc.userInfo = await this.ctx.model.PublicModel.User.findOne({uid: record.uid,appName:constant.AppName.GUESSNUM});
             rc.commit = record.commit;
             rc.userGetMoney = record.userGetMoney;
             rc.userAnswerWord = record.userAnswerWord;
@@ -533,7 +534,7 @@ class GuessnumService extends Service {
         if (rcd == null) {
             return false;
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid});
+        let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid,appName:constant.AppName.GUESSNUM});
         this.logger.info("准备生成红包");
         await this.sendPack(ui, rcd.price, rcd.title, false, orderid);
 

@@ -12,6 +12,8 @@ module.exports = () => {
             ctx.url = "/" + router + "/" + inter + ctx.url;
         }
 
+
         await next();
+
     };
 };

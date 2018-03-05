@@ -22,6 +22,7 @@ class WeChatController extends Controller {
         };
 
         let resultS = await this.service.weChatService.weChatService.auth(sdkAuth);
+        this.logger.info("授权信息" +JSON.stringify(resultS));
         if (resultS != null) {
             result.code = 0;
             result.data.uid = resultS.openid;

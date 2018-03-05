@@ -16,6 +16,7 @@ class EnglishPlayer {
         this.mistake=0;
         this.continuousRight=0;
         this.isInitiator=false;
+        this.rankType=0;
     }
 
     setStatus(status) {
@@ -24,6 +25,10 @@ class EnglishPlayer {
 
     setScore(score){
         this.score=score;
+    }
+
+    setRankType(rankType){
+        this.rankType=rankType;
     }
 
     setAnswer(answer){
@@ -73,6 +78,7 @@ class EnglishPlayer {
         this.mistake=0;
         this.continuousRight=0;
         this.isInitiator=false;
+        this.rankType=0;
     }
 
 }

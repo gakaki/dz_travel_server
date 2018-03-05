@@ -5,10 +5,7 @@ const crypto = require("crypto");
 
 class UserService extends Service {
 
-    async login(param) {
-        let uid = param.uid;
-        let sid = param._sid;
-        let appName = param.appName;
+    async login(uid,sid,appName,info) {
         this.logger.info("登陆时的参数 ：" + uid + " " + sid);
         let result = {};
         //老用户登陆
@@ -16,19 +13,40 @@ class UserService extends Service {
             let authUi = await this.collect(sid, appName);
             this.logger.info("老用户登陆 ：" + JSON.stringify(authUi));
             if (authUi == null) {
-                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid});
+                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
                 this.logger.info("通过openid查库 ：" + JSON.stringify(loginUser));
                 if (loginUser != null) {
                     let sid = this.GEN_SID();
                     this.recruitSid(sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + sid);
 
+                    await this.ctx.model.PublicModel.User.update({pid: loginUser.pid,appName:appName}, {
+                        $set: {
+                            nickName:info.nickName,
+                            avatarUrl:info.avatarUrl,
+                            gender:info.gender,
+                            city:info.city,
+                            province:info.province,
+                            country:info.country,
+                        }
+                    });
                 }
                 result.sid = sid;
                 result.info = loginUser;
                 return result;
 
             } else {
+                await this.ctx.model.PublicModel.User.update({pid: authUi.pid,appName:appName}, {
+                    $set: {
+                        nickName:info.nickName,
+                        avatarUrl:info.avatarUrl,
+                        gender:info.gender,
+                        city:info.city,
+                        province:info.province,
+                        country:info.country,
+                    }
+                });
+
                 result.sid = sid;
                 result.info = authUi;
                 return result;
@@ -55,20 +73,25 @@ class UserService extends Service {
 
             if (!ui) {
                 // 自动注册
-                ui = await this.register(uid, JSON.parse(param.info).nickName, JSON.parse(param.info).avatarUrl, true, appName);
+                ui = await this.register(uid, info, true, appName);
                 let sid = this.GEN_SID();
                 this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
                 this.recruitSid(sid, ui.pid);
             } else {
                 //更新一次userInfo
-                await this.ctx.model.PublicModel.User.update({pid: ui.pid}, {
+                await this.ctx.model.PublicModel.User.update({pid: ui.pid,appName:appName}, {
                     $set: {
-                        nickName: JSON.parse(param.info).nickName,
-                        avatarUrl: JSON.parse(param.info).avatarUrl
+                        nickName:info.nickName,
+                        avatarUrl:info.avatarUrl,
+                        gender:info.gender,
+                        city:info.city,
+                        province:info.province,
+                        country:info.country,
                     }
                 });
                 ui = await this.ctx.model.PublicModel.User.findOne({
                     uid: uid,
+                    appName:appName,
                     third: true
                 });
             }
@@ -135,7 +158,7 @@ class UserService extends Service {
     }
 
     // @third 是否是第三方登陆
-    async register(uid, nickname, avatar, third, appName) {
+    async register(uid, info, third, appName) {
         // 生成pid
         let count = await this.ctx.model.PublicModel.User.count({appName: appName});
         let pid = count + 1;
@@ -146,8 +169,12 @@ class UserService extends Service {
         let ui = await this.ctx.model.PublicModel.User.create({
             uid: uid,
             appName: appName,
-            nickName: nickname,
-            avatarUrl: avatar,
+            nickName: info.nickName,
+            avatarUrl: info.avatarUrl,
+            gender:info.gender,
+            city:info.city,
+            province:info.province,
+            country:info.country,
             registertime: new Date().toLocaleString(),
             third: third,
             pid: pidStr,

@@ -4,24 +4,24 @@ const matchPool = {};
 
 class MatchingService extends Service {
     readyMatch(player, appName) {
-        let totalPool = matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
+        matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
         player.readyWait();
-        totalPool.add(player);
+        matchPool[appName].add(player);
     }
 
     mtachFinish(player, appName, roomId) {
-        let totalPool = matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
+        matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
         if (roomId) {
             player.finishReady();
         } else {
             player.gameFinish();
         }
-        totalPool.delete(player);
+        matchPool[appName].delete(player);
     }
 
     deleteUser(player, appName) {
-        let totalPool = matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
-        totalPool.delete(player);
+         matchPool[appName] ? matchPool[appName] : matchPool[appName] = new Set();
+        matchPool[appName].delete(player);
     }
 
     getTotalPool(appName) {
