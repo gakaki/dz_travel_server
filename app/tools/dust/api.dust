@@ -11,7 +11,10 @@ class {.name}{
 class {.name} {?.parent}extends {.parent}{/.parent} {
     constructor(){~lb}
     {?.parent}    super();{/.parent}{#.props}
-    {^server}{?.action}   this.action = {.action}{/.action}{/server}
+    {^server}{?.action}
+        this.appName = '{appName|s}';
+        this.action = '{.action}';
+    {/.action}{/server}
         //prop type: {.v|s}
         this.{.k|s} = null;{/.props}{#.requires}
         this._{.k|s} = null;{/.requires}{#.optionals}

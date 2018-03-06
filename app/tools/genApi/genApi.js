@@ -244,9 +244,7 @@ class BlankProcessor extends Processor {
 class ClzProcessor extends Processor {
     parse(tags) {
         super.parse(tags);
-        if (parsing && parsing instanceof Clazz) {
-            parsing.genFieldStr();
-        }
+
         parsing = new Clazz(tags.pop());
     }
 }
@@ -257,7 +255,7 @@ class ApiProcessor extends ClzProcessor {
         parsing.isApi = true;
         let flname = path.basename(curFl, '.api');
         parsing.action = `${flname}.${parsing.name.toLowerCase()}`;
-        console.log(parsing.action)
+        parsing.action = 'test'//该字段导不出来。。。?
         parsing.parent = "Base";
     }
 }
@@ -379,6 +377,9 @@ class MustcacheRProcessor extends Processor {
                 parsedData.enums.push(parsing);
             }
             else {
+                if (parsing instanceof Clazz) {
+                    parsing.genFieldStr();
+                }
                 parsedData.classes.push(parsing);
                 parsedData.classDic[parsing.name] = parsing;
             }
@@ -471,6 +472,7 @@ async function gen(cfgKey, cfgNode) {
     let inDir = cfgNode.inDir;
     let outFileC = cfgNode.outFileC;
     let outFileS = cfgNode.outFileS;
+    parsedData.appName = cfgKey;
 
     //判断inDir是文件夹，还是文件
     let st = fs.statSync(inDir);
@@ -494,6 +496,7 @@ async function gen(cfgKey, cfgNode) {
     //对类按依赖关系排序
     listClass();
 
+    console.log(parsedData.classDic)
     //写入output文件
     await dust.gen('api',
         {data: parsedData, outfile: outFileC},

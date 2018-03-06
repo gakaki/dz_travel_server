@@ -46,8 +46,8 @@ class Base  {
     
         //prop type: string[]
         this.resFields = null;
-        
-        
+        this.reqFields = [];
+        this.resFields = [];
     }
 
 
