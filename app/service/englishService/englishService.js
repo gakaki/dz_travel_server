@@ -6,6 +6,7 @@ const englishConfigs = require("../../../sheets/english");
 
 class EnglishService extends Service {
     matchSuccess(matchPoolPlayer) {
+        console.log("匹配成功");
         let roomId = "10" + new Date().getTime();
         let season=this.getSeason();
         let userList = [];

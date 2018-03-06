@@ -22,8 +22,7 @@ class EnglishIOController extends Controller {
         if(player==null){
             return;
         }
-       /* let season = ctx.service.englishService.englishService.getSeason();
-        let rank = ui.character.season;*/
+
         let cost =englishConfigs.Stage.Get(rankType).goldcoins1;
         if(ui.items[englishConfigs.Item.GOLD] < cost){
             socket.emit("needGold",{
@@ -35,7 +34,7 @@ class EnglishIOController extends Controller {
 
         player.setStatus(constant.playerStatus.ready);
         player.setRankType(rankType);
-        ctx.service.publicService.matchingService.readyMatch(player, appName);
+        ctx.service.publicService.matchingService.readyMatch(player,appName);
         socket.emit("waiting",{
             code:constant.Code.FRIEND_APPLY,
             data:{
@@ -46,6 +45,7 @@ class EnglishIOController extends Controller {
     }
 
     async cancelmatch(){
+        console.log("取消匹配");
         const {ctx, app} = this;
         const socket = ctx.socket;
         const query = socket.handshake.query;
@@ -454,59 +454,70 @@ class EnglishIOController extends Controller {
         //是否好友局
         if(roomInfo.isFriend){
             let dissolveFlag=false;
-            //离开的人是当局者还是旁观者
-            for(let player of roomInfo.userList.values()){
-                if(player.user.uid == ui.uid){
-                    if(player.isInitiator){
-                        dissolveFlag = true; //离开者为房主
-                    }else{
-                        isbystander = false;  //离开者为参与者
+            if(roomInfo.roomStatus == constant.roomStatus.ready){
+                //离开的人是当局者还是旁观者
+                for(let player of roomInfo.userList.values()){
+                    if(player.user.uid == ui.uid){
+                        if(player.isInitiator){
+                            dissolveFlag = true; //离开者为房主
+                        }else{
+                            isbystander = false;  //离开者为参与者
+                        }
+                        break;
                     }
-                    break;
-                }
 
-            }
-            //离开的是房主
-            if(dissolveFlag){
-                //通知所有人房间已经解散
-                nsp.to(rid).emit('dissolve', {
+                }
+                //离开的是房主
+                if(dissolveFlag){
+                    //通知所有人房间已经解散
+                    nsp.to(rid).emit('dissolve', {
+                        code:constant.Code.OK,
+                        data:{
+                            dissolve:dissolveFlag
+                        }
+                    });
+                    //其余人离开房间
+                    for(let [uid,player] of roomInfo.userList.entries()){
+                        if(uid != ui.uid){
+                            player.socket.leave(rid);
+                        }
+                    }
+                    for (let bystander of roomInfo.bystander.values()){
+                        bystander.socket.leave(rid);
+                        break;
+                    }
+                    ctx.service.socketService.socketioService.delRoom(appName,rid);
+                    return;
+                }
+                if(!isbystander){
+                    for (let [uid,bystander] of roomInfo.bystander.entries()){
+                        roomInfo.leaveBystander(uid);
+                        roomInfo.joinRoom(bystander);
+                        break;
+                    }
+                }
+                let userList=[];
+                for(let player of roomInfo.userList.values()){
+                    let user={
+                        info :player.user,
+                        isInitiator:player.isInitiator
+                    };
+                    userList.push(user);
+                }
+                let rinfo={
+                    userList:userList,
+                    bystanderCount:roomInfo.bystander.size,
+                    rid:rid,
+                    isFriend:true,
+                    roomStatus:roomInfo.roomStatus
+                };
+                nsp.to(rid).emit('roomInfo', {
                     code:constant.Code.OK,
-                    data:{
-                        dissolve:dissolveFlag
-                    }
+                    data:rinfo
                 });
-                //其余人离开房间
-                for(let [uid,player] of roomInfo.userList.entries()){
-                    if(uid != ui.uid){
-                        player.socket.leave(rid);
-                    }
-                }
-                for (let bystander of roomInfo.bystander.values()){
-                    bystander.socket.leave(rid);
-                    break;
-                }
-                ctx.service.socketService.socketioService.delRoom(appName,rid);
                 return;
             }
 
-           /* //是否对战中
-            if(roomInfo.roomStatus == constant.roomStatus.ready){
-
-                if(flag){
-                    rinfo.leaveInfo={
-                        info: player.user,
-                        isInitiator:player.isInitiator
-                    };
-                }
-
-                nsp.to(rid).emit('exchange', {
-                    code:constant.Code.OK,
-                    data:{
-                        exchange:flag
-
-                    }
-                });
-            }*/
         }else{
             isbystander=false;
         }
