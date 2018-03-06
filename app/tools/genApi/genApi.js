@@ -496,7 +496,6 @@ async function gen(cfgKey, cfgNode) {
     //对类按依赖关系排序
     listClass();
 
-    console.log(parsedData.classDic)
     //写入output文件
     await dust.gen('api',
         {data: parsedData, outfile: outFileC},
