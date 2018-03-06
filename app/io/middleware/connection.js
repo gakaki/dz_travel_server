@@ -15,19 +15,15 @@ module.exports = () => {
         const nsp = app.io.of(['/english']);
       //  let appName,uid,_sid;
 
-
         logger.info("socket 链接 ：" + appName +","+_sid);
 
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
-        logger.info(JSON.stringify(ui));
+        //logger.info(JSON.stringify(ui));
         if (ui == null) {
-            socket.emit("loginFailed", {
-                code:constant.Code.USER_NOT_FOUND
-            });
             return;
         }
 
-        logger.info(id + ' connected');
+        logger.info(ui.uid + ' connected');
         let player = null ;
         switch (appName){
             case constant.AppName.ENGLISH:
@@ -36,9 +32,6 @@ module.exports = () => {
         }
 
         if(player == null ){
-            socket.emit("appFailed ", {
-                code:constant.Code.VERIFY_FAILED
-            });
             return;
         }
 
@@ -112,28 +105,26 @@ module.exports = () => {
 
 
         await next();
-
-        logger.info(ui.uid + ' disconnection');
-
         // ctx.service.socketService.socketio.delSocket(userId);
-        ctx.service.socketService.socketioService.delUser(constant.AppName.ENGLISH, ui.uid);
+        logger.info(ui.uid + ' disconnection');
+        ctx.service.socketService.socketioService.delUser(appName, ui.uid);
       //  let player=ctx.service.socketService.socketioService.getUserList(constant.AppName.ENGLISH, id);
-        ctx.service.publicService.matchingService.deleteUser(player, constant.AppName.ENGLISH);
-        let roomList = ctx.service.socketService.socketioService.getRoomList(constant.AppName.ENGLISH);
+        ctx.service.publicService.matchingService.deleteUser(player, appName);
+        let roomList = ctx.service.socketService.socketioService.getRoomList(appName);
         for(let roomId in roomList){
             for(let userId in roomList[roomId].userList){
                 if(userId == ui.uid){
-                    roomList[roomId].leaveRoom(userId);
-                    if(roomList[roomId].userList.size == 0 || player.isInitiator){
-                        ctx.service.socketService.socketioService.delRoom(constant.AppName.ENGLISH,roomId);
+                    if(roomList[roomId].userList.size == 0|| player.isInitiator){
+                        ctx.service.socketService.socketioService.delRoom(appName,roomId);
                     }
                     nsp.adapter.clients([roomId], (err, clients) => {
                         app.logger.info('#leave', userId);
                         nsp.to(roomId).emit('someoneLeave', {
-                            clients,
-                            action: 'leave',
-                            target: 'participator',
-                            message: `User(${userId}) leaved.`,
+                            code:constant.Code.OK,
+                            data:{
+                                info: player.user,
+                                isInitiator:player.isInitiator
+                            }
                         });
 
                     });

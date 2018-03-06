@@ -3,6 +3,8 @@ const Service = require('egg').Service;
 const constant = require('../../utils/constant');
 const crypto = require("crypto");
 
+const PID_INIT=160000;
+
 class UserService extends Service {
 
     async login(uid,sid,appName,info) {
@@ -161,7 +163,7 @@ class UserService extends Service {
     async register(uid, info, third, appName) {
         // 生成pid
         let count = await this.ctx.model.PublicModel.User.count({appName: appName});
-        let pid = count + 1;
+        let pid = count + 1 +PID_INIT;
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;

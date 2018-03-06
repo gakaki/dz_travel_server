@@ -149,7 +149,7 @@ class EnglishController extends Controller {
             ctx.body = result;
             return;
         }
-        let worldList=await this.service.englishService.englishService.getWorldRankingList(appName,season);
+        let worldList=await this.service.englishService.englishService.getWorldRankingList(appName,Number(season));
         if(worldList !=null){
             result.code=constant.Code.OK;
             result.data=worldList;

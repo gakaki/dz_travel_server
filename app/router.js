@@ -38,6 +38,10 @@ module.exports = app => {
     io.of('/english').route('cancelmatch', io.controller.englishIOController.englishIOController.cancelmatch);
     io.of('/english').route('roundend', io.controller.englishIOController.englishIOController.roundend);
     io.of('/english').route('pkend', io.controller.englishIOController.englishIOController.pkend);
+    io.of('/english').route('createroom', io.controller.englishIOController.englishIOController.createroom);
     io.of('/english').route('joinroom', io.controller.englishIOController.englishIOController.joinroom);
+    io.of('/english').route('startgame', io.controller.englishIOController.englishIOController.startgame);
     io.of('/english').route('leaveroom', io.controller.englishIOController.englishIOController.leaveroom);
+    io.of('/english').route('getroominfo', io.controller.englishIOController.englishIOController.getroominfo);
+    io.of('/english').route('test', io.controller.englishIOController.englishIOController.test);
 };

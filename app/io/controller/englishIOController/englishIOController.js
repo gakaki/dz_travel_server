@@ -16,18 +16,10 @@ class EnglishIOController extends Controller {
 
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
         if(player==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
        /* let season = ctx.service.englishService.englishService.getSeason();
@@ -50,16 +42,7 @@ class EnglishIOController extends Controller {
                 cost:cost
             }
         })
-        /*let roomId = "1";
-        let englishRoom = new EnglishRoom(roomId);
-       // socket.emit("roomInfo",englishRoom)
-       socket.join(roomId);
-        nsp.to(roomId).emit('roomInfo', {
-            code:constant.Code.OK,
-            data:{
-                roomInfo:englishRoom
-            }
-        });*/
+
     }
 
     async cancelmatch(){
@@ -69,18 +52,10 @@ class EnglishIOController extends Controller {
         const {appName, _sid} = query;
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
         if(player==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         ctx.service.publicService.matchingService.mtachFinish(player,appName);
@@ -100,28 +75,13 @@ class EnglishIOController extends Controller {
         const nsp=app.io.of("/english");
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
         if(player==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName,rid);
-        if(player==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
-            return;
-        }
         if(roomInfo==null){
             socket.emit("roomNotExist ",{
                 code:constant.Code.ROOM_EXPIRED
@@ -136,7 +96,7 @@ class EnglishIOController extends Controller {
        // roomInfo.joinRoom(player);
 
         let englishAnswerRecord={
-            uid:uid,
+            uid:ui.uid,
             rid:rid,
             type:type,
             answer:answer,
@@ -152,8 +112,8 @@ class EnglishIOController extends Controller {
 
       //  console.log(roomInfo.userList);
         if(!lib.has(wid)){
-            await ctx.model.PublicModel.User.update({uid:uid,appName:appName},{$push:{["character.wordList."+dateStr]:wid}});
-            let ui=await ctx.model.PublicModel.User.findOne({uid:uid,appName:appName});
+            await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$push:{["character.wordList."+dateStr]:wid}});
+            let ui=await ctx.model.PublicModel.User.findOne({uid:ui.uid,appName:appName});
             player.setUser(ui);
         }
 
@@ -189,21 +149,19 @@ class EnglishIOController extends Controller {
         const nsp=app.io.of("/english");
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
         if(player==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName,rid);
+        if(roomInfo==null){
+            socket.emit("roomNotExist ",{
+                code:constant.Code.ROOM_EXPIRED
+            });
+            return;
+        }
 
         let result=roomInfo.gameover(ui.uid,roomInfo.isFriend);
 
@@ -220,8 +178,6 @@ class EnglishIOController extends Controller {
             ["items."+englishConfigs.Item.GOLD] :result.gold
         };
 
-
-
         let winningStreak =user.character.winningStreak;
         let rank = user.character[season].rank;
         let star = user.character[season].star;
@@ -229,35 +185,35 @@ class EnglishIOController extends Controller {
         let needExp = user.character.experience.needExp;
         let level = user.character.level;
         let time = new Date().toLocaleString();
-
+        let up ={};
         //连胜统计
-        if(result.wins>0){
-            winningStreak ++;
-        }else{
-            winningStreak = 0;
-        }
-        let up ={
-            ["character.winningStreak"]:winningStreak,
-
-
-        };
-        if(rankType == user.character[season].rank){
-            //段位统计
-            if(star+result.star < 0 ){
-                star = 0;
+        if(!roomInfo.isFriend){
+            if(result.wins>0){
+                winningStreak ++;
             }else{
-                if(englishConfigs.Stage.Get(rank).star == (star+result.star)){
-                    rank ++;
+                winningStreak = 0;
+            }
+            up["character.winningStreak"]=winningStreak;
+
+            if(rankType == user.character[season].rank){
+                //段位统计
+                if(star+result.star < 0 ){
                     star = 0;
                 }else{
-                    star =star+result.star;
+                    if(englishConfigs.Stage.Get(rank).star == (star+result.star)){
+                        rank ++;
+                        star = 0;
+                    }else{
+                        star =star+result.star;
+                    }
                 }
-            }
 
-            up["character."+season+".rank"]=rank;
-            up["character."+season+".star"]=star;
-            up["character."+season+".createTime"]=time;
+                up["character."+season+".rank"]=rank;
+                up["character."+season+".star"]=star;
+                up["character."+season+".createTime"]=time;
+            }
         }
+
 
 
         //等级统计
@@ -271,7 +227,6 @@ class EnglishIOController extends Controller {
             cost ["character.level"] = 1;
             up["character.experience.needExp"]=needExp;
         }
-
 
 
         await ctx.model.PublicModel.User.update({uid:user.uid,appName:appName},{
@@ -299,7 +254,7 @@ class EnglishIOController extends Controller {
             opponent:result.challenger.user.uid,
             opponentScore:result.challenger.score,
             rid:rid,
-            result: result.wins==1 ? true : false,
+            result: result.final,
         };
         ctx.model.EnglishModel.EnglishPKRecord.create(englishPKRecord);
 
@@ -311,6 +266,7 @@ class EnglishIOController extends Controller {
                 info:player.user,
                 score:player.score,
                 continuousRight:player.continuousRight,
+                final:result.final
                // playerAnswer:player.answers
             }
         }
@@ -319,12 +275,13 @@ class EnglishIOController extends Controller {
             code:constant.Code.OK,
             data:{
                 userList:ulist,
+                isFriend:roomInfo.isFriend
             }
         });
 
     }
 
-    async createRoom(){
+    async createroom(){
         const {ctx, app} = this;
         const socket = ctx.socket;
         const query = socket.handshake.query;
@@ -333,20 +290,13 @@ class EnglishIOController extends Controller {
         const {} = message;
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
         let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
         if(player==null){
-            socket.emit("loginFailed",{
-                code:constant.Code.USER_NOT_FOUND
-            });
-
             return;
         }
+        player.setInitiator();
         let rid = "11" + new Date().getTime();
         let season =ctx.service.englishService.englishService.getSeason();
         let difficulty = englishConfigs.Stage.Get(player.character[season].rank).difficulty;
@@ -354,58 +304,315 @@ class EnglishIOController extends Controller {
         let englishRoom = new EnglishRoom(rid,difficulty[index],true);
         socket.join(rid);
         englishRoom.joinRoom(player);
-        socket.emit("createSuccess",{
-            rid:rid
-        });
+        let roominfo={
+            userList:{
+                [ui.uid]:player.user
+            },
+            bystander:0,
+            rid:rid,
+            isFriend:true,
+            roomStatus:constant.roomStatus.ready
 
-
-
+        };
+        socket.emit("createSuccess",roominfo);
     }
 
-    joinroom() {
+    async joinroom() {
         const {ctx, app} = this;
         const socket = ctx.socket;
+        const nsp = app.io.of('/english');
         const query = socket.handshake.query;
-        const {appName, _sid, uid} = query;
+        const {appName, _sid} = query;
         const message = ctx.args[0] || {};
         const {rid} = message;
         let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName, rid);
-        let player=ctx.socketioService.socketioService.getUserList(appName,uid);
         if (!roomInfo) {
+            socket.emit("roomNotExist ",{
+                code:constant.Code.ROOM_EXPIRED
+            });
+            return;
+        }
+        if(!roomInfo.isFriend){
             return
         }
-        socket.join(rid);
-        roomInfo.joinRoom(player)
-    }
 
-    startgame(){
-        const {ctx, app} = this;
-        const socket = ctx.socket;
-        const query = socket.handshake.query;
-        const {appName, _sid, uid} = query;
-        const message = ctx.args[0] || {};
-        const {rid} = message;
-
-    }
-
-
-
-    leaveroom(){
-        const {ctx, app} = this;
-        const socket = ctx.socket;
-        const query = socket.handshake.query;
-        const {appName, _sid, uid} = query;
-        const message = ctx.args[0] || {};
-        const {rid} = message;
-        let player = ctx.service.socketService.socketioService.getUserList(appName, uid);
-        let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName,rid);
-        player.gameFinish();
-        socket.leave(rid);
-        roomInfo.leaveRoom(uid);
-        if(roomInfo.userList.size == 0 || player.isInitiator){
-            ctx.service.socketService.socketioService.delRoom(appName,rid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        if(ui==null){
+            return;
+        }
+        let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
+        if(player==null){
+            return;
         }
 
+
+        socket.join(rid);
+        roomInfo.joinRoom(player);
+        let userList=[];
+        let roomMaster;
+        for(let [uid,player] of roomInfo.userList.entries()){
+            let user={
+                info :player.user,
+                isInitiator:player.isInitiator
+            };
+           userList.push(user);
+            if(uid != ui.uid){
+                roomMaster = uid;
+            }
+        }
+        await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$addToSet:{["character.friendsList"]:roomMaster}});
+        await ctx.model.PublicModel.User.update({uid:roomMaster,appName:appName},{$addToSet:{["character.friendsList"]:ui.uid}});
+        let rinfo={
+            userList:userList,
+            bystanderCount:roomInfo.bystander.size,
+            rid:rid,
+            isFriend:true,
+            roomStatus:roomInfo.roomStatus
+        };
+        nsp.to(rid).emit("join",{
+            code:constant.Code.OK,
+            data:rinfo
+        })
+    }
+
+    async startgame(){
+        const {ctx, app} = this;
+        const socket = ctx.socket;
+        const nsp = app.io.of('/english');
+        const query = socket.handshake.query;
+        const {appName, _sid} = query;
+        const message = ctx.args[0] || {};
+        const {rid} = message;
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        if(ui==null){
+            return;
+        }
+        let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
+        if(player==null){
+            return;
+        }
+        if(!player.isInitiator){
+            return
+        }
+        let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName, rid);
+        if (!roomInfo) {
+            socket.emit("roomNotExist ",{
+                code:constant.Code.ROOM_EXPIRED
+            });
+            return;
+        }
+        if(!roomInfo.isFriend){
+            return
+        }
+        roomInfo.startGame();
+        let userList=[];
+        for(let player of roomInfo.userList.values()){
+            let user={
+                info: player.user,
+                waitTime: player.waitTime,
+                isInitiator:player.isInitiator
+            };
+            userList.push(user);
+        }
+        nsp.to(rid).emit('matchSuccess', {
+            code:constant.Code.OK,
+            data:{
+                userList: userList,
+                roomInfo:roomInfo
+            }
+        });
+
+    }
+
+
+
+    async leaveroom(){
+        const {ctx, app} = this;
+        const socket = ctx.socket;
+        const nsp = app.io.of('/english');
+        const query = socket.handshake.query;
+        const {appName, _sid} = query;
+        const message = ctx.args[0] || {};
+        const {rid} = message;
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        if(ui==null){
+            return;
+        }
+        let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
+        if(player==null){
+            return;
+        }
+        let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName, rid);
+        if (!roomInfo) {
+            socket.emit("roomNotExist ",{
+                code:constant.Code.ROOM_EXPIRED
+            });
+            return;
+        }
+        socket.leave(rid);
+        let isbystander=true;
+        //是否好友局
+        if(roomInfo.isFriend){
+            let dissolveFlag=false;
+            //离开的人是当局者还是旁观者
+            for(let player of roomInfo.userList.values()){
+                if(player.user.uid == ui.uid){
+                    if(player.isInitiator){
+                        dissolveFlag = true; //离开者为房主
+                    }else{
+                        isbystander = false;  //离开者为参与者
+                    }
+                    break;
+                }
+
+            }
+            //离开的是房主
+            if(dissolveFlag){
+                //通知所有人房间已经解散
+                nsp.to(rid).emit('dissolve', {
+                    code:constant.Code.OK,
+                    data:{
+                        dissolve:dissolveFlag
+                    }
+                });
+                //其余人离开房间
+                for(let [uid,player] of roomInfo.userList.entries()){
+                    if(uid != ui.uid){
+                        player.socket.leave(rid);
+                    }
+                }
+                for (let bystander of roomInfo.bystander.values()){
+                    bystander.socket.leave(rid);
+                    break;
+                }
+                ctx.service.socketService.socketioService.delRoom(appName,rid);
+                return;
+            }
+
+           /* //是否对战中
+            if(roomInfo.roomStatus == constant.roomStatus.ready){
+
+                if(flag){
+                    rinfo.leaveInfo={
+                        info: player.user,
+                        isInitiator:player.isInitiator
+                    };
+                }
+
+                nsp.to(rid).emit('exchange', {
+                    code:constant.Code.OK,
+                    data:{
+                        exchange:flag
+
+                    }
+                });
+            }*/
+        }else{
+            isbystander=false;
+        }
+        player.gameFinish();
+        nsp.to(rid).emit('someoneLeave', {
+            code:constant.Code.OK,
+            data:{
+                code:constant.Code.OK,
+                data:{
+                    info: player.user,
+                    isInitiator:player.isInitiator,
+                    isbystander:isbystander,
+                    isFriend:roomInfo.isFriend
+                }
+            }
+        });
+
+        if(roomInfo.userList.size == 0){
+            ctx.service.socketService.socketioService.delRoom(appName,rid);
+        }
+    }
+
+
+    async getroominfo(){
+        const {ctx, app} = this;
+        const socket = ctx.socket;
+        const nsp = app.io.of('/english');
+        const query = socket.handshake.query;
+        const {appName, _sid} = query;
+        const message = ctx.args[0] || {};
+        const {rid} = message;
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        if(ui==null){
+            return;
+        }
+        let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
+        if(player==null){
+            return;
+        }
+        let roomInfo = ctx.service.socketService.socketioService.getRoomList(appName, rid);
+        if (!roomInfo) {
+            socket.emit("roomNotExist ",{
+                code:constant.Code.ROOM_EXPIRED
+            });
+            return;
+        }
+        if(!roomInfo.isFriend){
+            return;
+        }
+        if(roomInfo.userList.size <2){
+            for (let [uid,bystander] of roomInfo.bystander.entries()){
+                roomInfo.leaveBystander(uid);
+                roomInfo.joinRoom(bystander);
+                break;
+            }
+        }
+        let userList=[];
+        for(let player of roomInfo.userList.values()){
+            let user={
+                info :player.user,
+                isInitiator:player.isInitiator
+            };
+            userList.push(user);
+        }
+        let rinfo={
+            userList:userList,
+            bystanderCount:roomInfo.bystander.size,
+            rid:rid,
+            isFriend:true,
+            roomStatus:roomInfo.roomStatus
+        };
+        nsp.to(rid).emit('roomInfo', {
+            code:constant.Code.OK,
+            data:rinfo
+        });
+
+    }
+
+    async test(){
+        const {ctx, app} = this;
+        const socket = ctx.socket;
+        const nsp = app.io.of('/english');
+        const query = socket.handshake.query;
+        const {appName, _sid} = query;
+        const message = ctx.args[0] || {};
+        const {rid} = message;
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        if(ui==null){
+            return;
+        }
+        let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
+        if(player==null){
+            return;
+        }
+
+        let roomId = "1";
+        let englishRoom = new EnglishRoom(roomId,1,true);
+        englishRoom.joinRoom(player);
+       // socket.emit("roomInfo",englishRoom)
+       socket.join(roomId);
+        nsp.to(roomId).emit('roomInfo', {
+            code:constant.Code.OK,
+            data:{
+                roomInfo:englishRoom
+            }
+        });
     }
 
 

@@ -29,7 +29,7 @@ class EnglishService extends Service {
             userList.push(user);
         }
         this.ctx.service.socketService.socketioService.setRoomList(constant.AppName.ENGLISH,englishRoom);
-
+        englishRoom.startGame();
         const nsp = this.app.io.of('/english');
         nsp.to(roomId).emit('matchSuccess', {
             code:constant.Code.OK,
@@ -192,9 +192,11 @@ class EnglishService extends Service {
                 appName:appName,
                 nickName:user.nickName,
                 avatarUrl:user.avatarUrl,
+                location:user.location,
                 ELO:user.character.season[season].ELO,
                 rank:user.character.season[season].rank,
                 star:user.character.season[season].star,
+                createTime:user.character.season[season].createTime
             };
             uList.push(friend);
         }
@@ -209,6 +211,7 @@ class EnglishService extends Service {
     async getWorldRankingList(appName,season){
         let nowSeason=this.getSeason();
         if(season){
+            console.log(typeof season);
             if(nowSeason == 1){
                 return null;
             }else{
@@ -216,18 +219,21 @@ class EnglishService extends Service {
             }
 
         }
+
         let allUser=await this.ctx.model.PublicModel.User.find({appName:appName});
         let seasonList=[];
         for(let user of allUser){
-            if(allUser.character.season[nowSeason]){
+            if(user.character.season[nowSeason]){
                 let player ={
                     uid:user.uid,
                     appName:appName,
                     nickName:user.nickName,
                     avatarUrl:user.avatarUrl,
+                    location:user.location,
                     ELO:user.character.season[nowSeason].ELO,
                     rank:user.character.season[nowSeason].rank,
                     star:user.character.season[nowSeason].star,
+                    createTime:user.character.season[nowSeason].createTime
                 };
                 seasonList.push(player);
             }
@@ -236,7 +242,7 @@ class EnglishService extends Service {
             (a, b) => b["ELO"]-a["ELO"],
             (a, b) => a["createTime"]-b["createTime"]);
 
-        return sortList.slice(0,100);
+        return sortList.slice(0,101);
     }
 
     getSeason(){

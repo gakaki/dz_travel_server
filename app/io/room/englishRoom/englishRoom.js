@@ -1,4 +1,5 @@
 const utils = require("../../../utils/utils");
+const constant = require("../../../utils/constant");
 const englishConfigs = require("../../../../sheets/english");
 
 class EnglishRoom {
@@ -8,7 +9,8 @@ class EnglishRoom {
         this.rid = rid;
         this.difficulty=difficulty;
         this.isFriend=isFriend;
-        this.wordList=this.setQuestions();
+        this.wordList=null;
+        this.roomStatus=constant.roomStatus.ready;
     }
 
     setQuestions(){
@@ -52,11 +54,30 @@ class EnglishRoom {
 
     }
 
-    leaveRoom(uid){
-        this.userList.delete(uid);
+    leaveBystander(uid){
+        this.bystander.delete(uid);
     }
 
+    /*leaveRoom(uid){
+        if(this.userList.has(uid)){
+            this.userList.delete(uid);
+        }
+        if(this.bystander.has(uid)){
+            this.bystander.delete(uid);
+        }
+        this.roomStatus=constant.roomStatus.ready;
+    }*/
+
+    startGame(){
+        this.wordList=this.setQuestions();
+        this.roomStatus=constant.roomStatus.isGaming;
+    }
+
+
     gameover(uid,isFriend=false){
+        if(isFriend){
+            this.roomStatus=constant.roomStatus.ready;
+        }
         let owner= null;
         let challenger = null;
         for(let [userId,player] of this.userList.entries()){
@@ -69,27 +90,35 @@ class EnglishRoom {
 
         let result = {
             exp:10,
-            total:1,
+            total:0,
             star:0,
             gold:0,
             wins:0,
             losses:0,
+            final:0,
             challenger:challenger
         };
+        if(!isFriend){
+            result.total=1;
+        }
 
         if(owner.score > challenger.score){
-            result.wins=1;
             if(!isFriend){
+                result.wins=1;
                 result.star=1;
                 result.gold=englishConfigs.Stage.Get(owner.rankType).goldcoins2
             }
-
+            result.final=2;
         }else{
-            result.losses=1;
-            if(owner.user.character.star > 0 && !isFriend){
-                result.star=-1;
+            if(!isFriend){
+                if(owner.score == challenger.score){
+                    result.final=1;
+                }
+                result.losses=1;
+                if(owner.user.character.star > 0){
+                    result.star=-1;
+                }
             }
-
         }
 
         return result;

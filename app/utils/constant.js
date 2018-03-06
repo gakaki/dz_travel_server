@@ -97,10 +97,15 @@ exports.playerStatus = {
     offline: 3
 };
 
+exports.roomStatus = {
+    ready: 0,
+    isGaming: 1,
+};
+
 
 exports.PID_INIT = {
-    guessnum: "0160000",
-    english: "1160000"
+    guessnum: "0",
+    english: "1"
 };
 
 
