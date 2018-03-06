@@ -177,7 +177,7 @@ function mergeToJson(sht, sheetName, fl) {
                 if (clName == CONST_NAME) {
 
                     if (clFlag.indexOf(TYPE_TAG.STR) == -1) {
-                        console.error(`const字段仅支持Str/Str.C/Str.S类型，而文件${fl}.xlsx中的${sheetName}表中出现了不支持的类型，请检查修改后重新生成！！！`)
+                        console.error(`const字段仅支持Str/Str.C/Str.S类型，而文件${fl}中的${sheetName}表中出现了不支持的类型，请检查修改后重新生成！！！`)
                         process.exit(1);
                     }
 

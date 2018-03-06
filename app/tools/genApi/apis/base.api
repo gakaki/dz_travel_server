@@ -2,8 +2,11 @@
 class Base{
     prop host:string
     prop action:string
-    func fetch() {
-        return new Promise(resolve => {
+    prop appName:string
+    prop reqFields:string[]
+    prop resFields:string[]
+    func client fetch() {
+        return new Promise((resolve, reject) => {
             wx.request({
                 url: this.host,
                 data: this.reqData,
@@ -11,15 +14,40 @@ class Base{
                   this.parse(res.data)
                   resolve(this)
                 },
-                fail: err
+                fail: err => {
+                    error(err)
+                    reject(err);
+                }
               })
         })
     }
 
-    func get reqData() {
+    func server submit() {
+        let tmp = {};
+        tmp.action = this.action;
+        this.resFields.forEach(k => {
+           tmp[k] = this[k]
+        });
+
+        this.ctx.body = tmp;
+    }
+
+    func client get reqData() {
+        let tmp = {};
+        tmp.appName = this.appName;
+        tmp.action = this.action;
+        this.reqFields.forEach(k => {
+            tmp[k] = this[k]
+        });
+        return tmp;
+    }
+
+    func parse(data) {
+        Object.assign(this, data);
+    }
+
+    func error(err) {
 
     }
-    func parse() {
 
-    }
 }

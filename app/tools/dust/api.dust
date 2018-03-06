@@ -1,0 +1,50 @@
+//-------------enums---------------
+{#enums}
+class {.name}{
+    {#.consts}
+    {?server}static get {.k|s}() { return {.v|s};}{:else}static {.k|s} = {.v|s};{/server}
+    {/.consts}
+}
+{/enums}
+//------------classes--------------
+{#classes}
+class {.name} {?.parent}extends {.parent}{/.parent} {
+    constructor(){~lb}
+    {?.parent}    super();{/.parent}{#.props}
+    {^server}{?.action}   this.action = {.action}{/.action}{/server}
+        //prop type: {.v|s}
+        this.{.k|s} = null;{/.props}{#.requires}
+        this._{.k|s} = null;{/.requires}{#.optionals}
+        this._{.k|s} = null;{/.optionals}{#.outputs}
+        this._{.k|s} = null;{/.outputs}
+        {?.reqFieldStr}this.reqFields = {.reqFieldStr|s};{/.reqFieldStr}
+        {?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}
+    {~rb}{#.requires}
+    //client input, require, type: {.v|s}{!客户端输入，必填字段!}
+    {?server}get {.k|s}() {~lb}return this._{.k|s}{~rb}
+    {:else}set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
+    {/server}
+{/.requires}{#.optionals}
+    //client input, optional, type: {.v|s}{!客户端输入，可选字段!}
+    {?server}get {.k|s}() {~lb}return this._{.k|s}{~rb}
+    {:else}set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
+    {/server}
+{/.optionals}{#.outputs}
+    //server output, type: {.v|s}{!服务端输出字段!}
+    {?server}set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
+    {:else}get {.k|s}() {~lb}return this._{.k|s}{~rb}
+    {/server}
+{/.outputs}
+{!函数!}
+{#.funcs}
+{?server}{^.isClient}{.contentStr|s}{/.isClient}{:else}{^.isServer}{.contentStr|s}{/.isServer}{/server}
+{/.funcs}
+}
+{/classes}
+//-------------exports---------------
+{#enums}exports.{.name} = {.name};
+{/enums}
+{#classes}exports.{.name} = {.name};
+{/classes}
+
+

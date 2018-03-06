@@ -3,7 +3,7 @@ module.exports = {
     english: {
         enable: true,
         inDir: './app/tools/genApi/apis/english',//可以是目录，也可以是具体到某个文件,文件
-        outFileC: './apis/english.js',
-        outFileS: '../english/api.js'
+        outFileC: '../english/api.js',
+        outFileS: './apis/english.js'
     }
 }
