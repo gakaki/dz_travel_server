@@ -1,10 +1,17 @@
 //该Base类会在实际中作为所有api的基类
 class Base{
-    prop host:string
-    prop action:string
     prop appName:string
-    prop reqFields:string[]
-    prop resFields:string[]
+    prop client _app:App
+    prop client host:string
+    prop action:string
+
+    func client get app() {
+        if (!this._app) {
+            this._app = getApp();
+        }
+        return this._app;
+    }
+
     func client fetch() {
         return new Promise((resolve, reject) => {
             wx.request({

@@ -9,6 +9,8 @@ class KV {
     constructor(k, v) {
         this.k = k;
         this.v = v;
+        this.isClient = false;
+        this.isServer = false;
     }
 }
 
@@ -21,7 +23,7 @@ class Func {
     }
 
     genContentStr() {
-        this.contentStr = this.contents.join('\n');
+        this.contentStr = this.contents.join('\n').replace(/\s}\s?/g, '}');
     }
 }
 
@@ -40,7 +42,8 @@ class Clazz extends Structor {
         this.appname = '';//isApi为true时有值
         this.action = '';//isApi为true时有值
         this.parent = '';//父类名称,读取extends，当类型为api时，无extends则默认父类为Base
-        this.props = [];//类的固有属性
+        this.propsC = [];//仅客户端使用的属性
+        this.propsS = [];//仅服务器使用的属性
         this.requires = [];//api需要的输入字段
         this.optionals = [];//api可选的输入字段
         this.outputs = [];//api输入字段
@@ -56,6 +59,8 @@ class Clazz extends Structor {
         this.resFields = mergeParentArr(this, 'resFields');
         this.reqFieldStr = JSON.stringify(this.reqFields);
         this.resFieldStr = JSON.stringify(this.resFields);
+        let flname = path.basename(curFl, '.api');
+        this.action = `${flname}.${parsing.name.toLowerCase()}`;
     }
 
 }
@@ -253,10 +258,6 @@ class ApiProcessor extends ClzProcessor {
     parse(tags) {
         super.parse(tags);
         parsing.isApi = true;
-        let flname = path.basename(curFl, '.api');
-        parsing.action = `${flname}.${parsing.name.toLowerCase()}`;
-        parsing.action = 'test'//该字段导不出来。。。?
-        parsing.parent = "Base";
     }
 }
 
@@ -278,8 +279,22 @@ class PropProcessor extends Processor {
     parse(tags) {
         //PropProcessor只处理Class内的字段声明
         if (parsing instanceof Clazz) {
-            let types = tags.pop().split(':');
-            parsing.props.push(new KV(types[0], types[1]));
+            let typeTag = tags.pop();
+            let types;
+            if (typeTag == SYNTAX.FUNC_OUT_CLIENT) {
+                types = tags.pop().split(':');
+                parsing.propsC.push(new KV(types[0], types[1]));
+            }
+            else if (typeTag == SYNTAX.FUNC_OUT_SERVER) {
+                types = tags.pop().split(':');
+                parsing.propsS.push(new KV(types[0], types[1]));
+            }
+            else {
+                types = typeTag.split(':');
+                let kv = new KV(types[0], types[1])
+                parsing.propsC.push(kv);
+                parsing.propsS.push(kv);
+            }
         }
         else {
             console.error('非class/api声明内，不可出现 prop 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件`)

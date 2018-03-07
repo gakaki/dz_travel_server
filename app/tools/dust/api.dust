@@ -10,13 +10,16 @@ class {.name}{
 {#classes}
 class {.name} {?.parent}extends {.parent}{/.parent} {
     constructor(){~lb}
-    {?.parent}    super();{/.parent}{#.props}
-    {^server}{?.action}
+    {?.parent}    super();{/.parent}{^server}{?.isApi}
         this.appName = '{appName|s}';
-        this.action = '{.action}';
-    {/.action}{/server}
+        this.action = '{.action}';{/.isApi}
+    {/server}{?server}{#.propsS}
         //prop type: {.v|s}
-        this.{.k|s} = null;{/.props}{#.requires}
+        this.{.k|s} = null;
+    {/.propsS}{:else}{#.propsC}
+        //prop type: {.v|s}
+        this.{.k|s} = null;
+    {/.propsC}{/server}{#.requires}
         this._{.k|s} = null;{/.requires}{#.optionals}
         this._{.k|s} = null;{/.optionals}{#.outputs}
         this._{.k|s} = null;{/.outputs}
@@ -24,19 +27,16 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
         {?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}
     {~rb}{#.requires}
     //client input, require, type: {.v|s}{!客户端输入，必填字段!}
-    {?server}get {.k|s}() {~lb}return this._{.k|s}{~rb}
-    {:else}set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
-    {/server}
+    get {.k|s}() {~lb}return this._{.k|s}{~rb}
+    set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
 {/.requires}{#.optionals}
     //client input, optional, type: {.v|s}{!客户端输入，可选字段!}
-    {?server}get {.k|s}() {~lb}return this._{.k|s}{~rb}
-    {:else}set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
-    {/server}
+    get {.k|s}() {~lb}return this._{.k|s}{~rb}
+    set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
 {/.optionals}{#.outputs}
     //server output, type: {.v|s}{!服务端输出字段!}
-    {?server}set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
-    {:else}get {.k|s}() {~lb}return this._{.k|s}{~rb}
-    {/server}
+    get {.k|s}() {~lb}return this._{.k|s}{~rb}
+    set {.k|s}(v) {~lb}this._{.k|s} = v{~rb}
 {/.outputs}
 {!函数!}
 {#.funcs}

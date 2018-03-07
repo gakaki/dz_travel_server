@@ -15,12 +15,12 @@ class RankType{
 class RankItem  {
     constructor(){
     
-    
         //prop type: string
         this.name = null;
     
         //prop type: number
         this.rank = null;
+    
         this.reqFields = [];
         this.resFields = [];
     }
@@ -28,56 +28,9 @@ class RankItem  {
 
 }
 
-class Base  {
+class RankInfo  {
     constructor(){
     
-    
-        //prop type: string
-        this.host = null;
-    
-        //prop type: string
-        this.action = null;
-    
-        //prop type: string
-        this.appName = null;
-    
-        //prop type: string[]
-        this.reqFields = null;
-    
-        //prop type: string[]
-        this.resFields = null;
-        this.reqFields = [];
-        this.resFields = [];
-    }
-
-
-
-
-   submit()  { 
-        let tmp = {  } ;
-        tmp.action=this.action;
-        this.resFields.forEach(k =>  { 
-           tmp[k]=this[k]
-         } );
-
-        this.ctx.body=tmp;
-     } 
-
-
-
-   parse(data)  { 
-        Object.assign(this, data);
-     } 
-
-   error(err)  { 
-
-     } 
-
-}
-
-class RankInfo extends Base {
-    constructor(){
-        super();
         this._rankType = null;
         this._limit = null;
         this._selfRank = null;
@@ -87,21 +40,61 @@ class RankInfo extends Base {
     }
     //client input, require, type: RankType
     get rankType() {return this._rankType}
-    
+    set rankType(v) {this._rankType = v}
 
     //client input, optional, type: number
     get limit() {return this._limit}
-    
+    set limit(v) {this._limit = v}
 
     //server output, type: number
+    get selfRank() {return this._selfRank}
     set selfRank(v) {this._selfRank = v}
-    
 
     //server output, type: RankItem[]
+    get ranks() {return this._ranks}
     set ranks(v) {this._ranks = v}
+
+
+
+}
+
+class Base  {
+    constructor(){
     
+        //prop type: string
+        this.appName = null;
+    
+        //prop type: string
+        this.action = null;
+    
+        this.reqFields = [];
+        this.resFields = [];
+    }
 
 
+
+
+
+
+   submit()  { 
+        let tmp = { };
+        tmp.action=this.action;
+        this.resFields.forEach(k =>  { 
+           tmp[k]=this[k]
+        });
+
+        this.ctx.body=tmp;
+    }
+
+
+
+   parse(data)  { 
+        Object.assign(this, data);
+    }
+
+   error(err)  { 
+
+    }
 
 }
 
@@ -113,8 +106,8 @@ class RechargeRankInfo extends RankInfo {
         this.resFields = ["myRecharge","selfRank","ranks"];
     }
     //server output, type: number
+    get myRecharge() {return this._myRecharge}
     set myRecharge(v) {this._myRecharge = v}
-    
 
 
 
@@ -124,8 +117,8 @@ class RechargeRankInfo extends RankInfo {
 exports.RankType = RankType;
 
 exports.RankItem = RankItem;
-exports.Base = Base;
 exports.RankInfo = RankInfo;
+exports.Base = Base;
 exports.RechargeRankInfo = RechargeRankInfo;
 
 
