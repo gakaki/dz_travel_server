@@ -3,19 +3,21 @@ const constant =require("../../utils/constant");
 module.exports = {
     schedule: {
         interval: '1s',
-        type: 'all', // 指定所有的 worker 都需要执行
+        type: 'worker', // all 指定所有的 worker 都需要执行
     },
     async task(ctx) {
        //  let startTime = new Date().getTime();
         //   ctx.logger.info("执行匹配开始|开始时间|"+startTime);
         let season=ctx.service.englishService.englishService.getSeason();
-        let totalPool = ctx.service.publicService.matchingService.getTotalPool("english");
+        //let totalPool = ctx.service.publicService.matchingService.getTotalPool("english");
+        let totalPool = ctx.app.matchPool.get(constant.AppName.ENGLISH) || new Set();
         let pointMap = new Map();
-        //console.log("总玩家 ："+totalPool.size);
+        console.log("总玩家数 ：" +totalPool.size);
         for (let player of totalPool) {
             if (player.waitTime > 30) {
                 ctx.logger.warn(player.user.uid + "在匹配池中是时间超过 30 s，直接移除");
-                ctx.service.englishService.englishService.matchFailed(player);
+                ctx.app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:player.user.uid});
+               // ctx.service.englishService.englishService.matchFailed(player);
                 continue;
             }
             let set = pointMap.get(player.user.character.season[season].ELO);
@@ -90,7 +92,12 @@ module.exports = {
                     sameRankPlayers.delete(oldest);
                     //匹配成功处理
                     matchPoolPlayer.add(oldest);
-                    ctx.service.englishService.englishService.matchSuccess(matchPoolPlayer);
+                    let uidArr=[];
+                    for(let player of matchPoolPlayer){
+                        uidArr.push(player.user.uid);
+                    }
+                    ctx.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr});
+                    //ctx.service.englishService.englishService.matchSuccess(matchPoolPlayer);
                 } else {
                     //本分数段等待时间最长的玩家都匹配不到，其他更不用尝试了
                     continueMatch = false;

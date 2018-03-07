@@ -2,7 +2,7 @@ const utils = require("../../utils/utils");
 
 const constant = require("../../utils/constant");
 const EnglishPlayer = require('../player/englishPlayer/englishPlayer');
-
+const userList=new Set();
 
 module.exports = () => {
     return async (ctx, next) => {
@@ -24,91 +24,21 @@ module.exports = () => {
         }
 
         logger.info(ui.uid + ' connected');
-        let player = null ;
-        switch (appName){
-            case constant.AppName.ENGLISH:
-                player = new EnglishPlayer(socket, ui, constant.playerStatus.online, appName);
-                break;
-        }
-
-        if(player == null ){
-            return;
-        }
-
-        ctx.service.socketService.socketioService.setOnlineUser(appName, player);
 
 
-        //   const rooms = [room];
-        //console.log(socket);
-        /*socket.on('init',async msg => {
-           _sid = msg._sid;
-            appName = msg.appName;
-            uid = msg.uid;
-            logger.info("socket 链接 ：" + appName +","+_sid);
+        //  app.messenger.sendToAgent('refresh', obj);
 
-            let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
-            logger.info(JSON.stringify(ui));
-            if (ui == null) {
-                socket.emit("test", "hello");
-                return;
-            }
-            /!*
-                    let ui=await ctx.model.PublicModel.User.findOne({uid:uid});
-                    let dateStr=new Date().toLocaleDateString();
-                    if(ui == null){
-                        let u={
-                            uid:uid,
-                            appName:appName,
-                            character:{
-                                level: 0,      //等级
-                                rank: 1,       //段位
-                                star: 0,       //星星数
-                                ELO: 0,        //等级分
-                                experience: 0,  //经验值
-                                winningStreak: 0, //连胜场数
-                                wins:0,            //胜场
-                                losses:0,            //负场
-                                total:0,             //总局数
-                                cumulativeDays:0, //累计天数
-                                beautifulWords:"welcome to english world", //每日美句
-                                friendsList: ["aaaaaaaa","VTH7jgb-67MClPGDAAAC"], //好友列表
-                                wordList:{
-                                    [dateStr]:[],
-                                }, //单词列表
-                            },
-                            items:{
-                                gold:0
-                            }
-                        };
+        app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
 
-                        await ctx.model.PublicModel.User.create(u);
-                         ui=await ctx.model.PublicModel.User.findOne({uid:uid});
-                    }
-            *!/
-
-            logger.info(id + ' connected');
-            let player = null ;
-            switch (appName){
-                case constant.AppName.ENGLISH:
-                    player = new EnglishPlayer(socket, ui, constant.playerStatus.online, appName);
-                    break;
-            }
-
-            if(player == null ){
-                socket.emit("test", "hello");
-                return;
-            }
-
-            ctx.service.socketService.socketioService.setOnlineUser(appName, player);
-        });*/
+        // ctx.service.socketService.socketioService.setOnlineUser(constant.AppName.ENGLISH, player);
+         ctx.service.socketService.socketioService.setSocket(constant.AppName.ENGLISH, ui.uid,socket);
 
 
 
         await next();
-        // ctx.service.socketService.socketio.delSocket(userId);
-        logger.info(ui.uid + ' disconnection');
+
+    /*    logger.info(ui.uid + ' disconnection');
         ctx.service.socketService.socketioService.delUser(appName, ui.uid);
-      //  let player=ctx.service.socketService.socketioService.getUserList(constant.AppName.ENGLISH, id);
         ctx.service.publicService.matchingService.deleteUser(player, appName);
         let roomList = ctx.service.socketService.socketioService.getRoomList(appName);
         for(let roomId in roomList){
@@ -131,7 +61,7 @@ module.exports = () => {
                     break;
                 }
             }
-        }
+        }*/
 
 
 

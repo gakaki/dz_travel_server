@@ -5,48 +5,41 @@ const utils = require("../../utils/utils");
 const englishConfigs = require("../../../sheets/english");
 
 class EnglishService extends Service {
-    matchSuccess(matchPoolPlayer) {
+    matchSuccess(matchPoolPlayer,englishroom) {
         console.log("匹配成功");
-        let roomId = "10" + new Date().getTime();
-        let season=this.getSeason();
-        let userList = [];
-        let playerA=matchPoolPlayer[0];
-        let playerB=matchPoolPlayer[1];
-        let pARank=playerA.user.character.season[season].rank;
-        let pBRank=playerB.user.character.season[season].rank;
-        let pk = Math.min(pARank,pBRank);
-        let difficulty = englishConfigs.Stage.Get(pk).difficulty;
-        let index = utils.Rangei(0,difficulty.length);
-        let englishRoom = new EnglishRoom(roomId,difficulty[index],false);
+        let flag = false;
         for (let player of matchPoolPlayer) {
-            this.ctx.service.publicService.matchingService.mtachFinish(player, constant.AppName.ENGLISH, roomId);
-            player.socket.join(roomId);
-            englishRoom.joinRoom(player);
-            let user = {
-                info: player.user,
-                waitTime: player.waitTime,
-                isInitiator:player.isInitiator
-            };
-            userList.push(user);
-        }
-        this.ctx.service.socketService.socketioService.setRoomList(constant.AppName.ENGLISH,englishRoom);
-        englishRoom.startGame();
-        const nsp = this.app.io.of('/english');
-        nsp.to(roomId).emit('matchSuccess', {
-            code:constant.Code.OK,
-            data:{
-                userList: userList,
-                roomInfo:englishRoom
+            let socket=this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH,player.user.uid);
+            if(socket){
+                console.log(player.user.nickName);
+                flag =true;
+                socket.join(englishroom.rid);
             }
-        });
+
+        }
+        console.log(flag);
+        if(flag){
+            const nsp = this.app.io.of('/english');
+            nsp.to(englishroom.rid).emit('matchSuccess', {
+                code:constant.Code.OK,
+                data:{
+                    //userList: userList,
+                    roomInfo:englishroom
+                }
+            });
+        }
+
 
     }
 
-    matchFailed(player) {
-        this.ctx.service.publicService.matchingService.mtachFinish(player, constant.AppName.ENGLISH);
-        player.socket.emit("matchFailed",{
-            code:constant.Code.REQUIRED_LOST
-        });
+    matchFailed(uid) {
+        let socket=this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH,uid);
+        if(socket){
+            socket.emit("matchFailed",{
+                code:constant.Code.REQUIRED_LOST
+            });
+        }
+
     }
 
 
@@ -141,6 +134,10 @@ class EnglishService extends Service {
     async speechLevelUp(ui,id,appName){
         let upSpeech=ui.character.developSystem[id];
         let speech= upSpeech.speech;
+        if(upSpeech.consume[englishConfigs.Item.GOLD] < englishConfigs.Speech.Get(id).addconsume2 || upSpeech.consume[englishConfigs.Item[speech.toUpperCase()]] < englishConfigs.Speech.Get(id).addconsume1){
+            return null;
+        }
+
         let cost = {
             ["items."+englishConfigs.Item.GOLD]: (upSpeech.consume[englishConfigs.Item.GOLD]) * -1,
             ["items."+englishConfigs.Item[speech.toUpperCase()]]: (upSpeech.consume[englishConfigs.Item[speech.toUpperCase()]]) * -1,
@@ -250,8 +247,7 @@ class EnglishService extends Service {
         let date = new Date();
         let seasons=englishConfigs.seasons;
         for(let season of seasons){
-            let time = season.periodtime.split(",");
-            if(date>= new Date(time[0]) && date <= new Date(time[1])){
+            if(date>= new Date(season.star) && date <= new Date(season.end)){
                 return season.id
             }
         }

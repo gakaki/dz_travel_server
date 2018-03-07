@@ -104,8 +104,13 @@ class EnglishController extends Controller {
             return;
         }
         let r=await this.service.englishService.englishService.speechLevelUp(ui,spid,appName);
-        result.code=constant.Code.OK;
-        result.data=r;
+        if(r!=null){
+            result.code=constant.Code.OK;
+            result.data=r;
+        }else {
+            result.code=constant.Code.NEED_ITEMS;
+        }
+
         ctx.body=result;
     }
 
