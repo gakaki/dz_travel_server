@@ -62,9 +62,6 @@ class Base  {
     constructor(){
     
         //prop type: string
-        this.appName = null;
-    
-        //prop type: string
         this.action = null;
     
         this.reqFields = [];
@@ -92,9 +89,13 @@ class Base  {
         Object.assign(this, data);
     }
 
-   error(err)  { 
 
-    }
+
+
+
+
+
+
 
 }
 
@@ -120,6 +121,3 @@ exports.RankItem = RankItem;
 exports.RankInfo = RankInfo;
 exports.Base = Base;
 exports.RechargeRankInfo = RechargeRankInfo;
-
-
-

@@ -1,8 +1,6 @@
 //该Base类会在实际中作为所有api的基类
 class Base{
-    prop appName:string
     prop client _app:App
-    prop client host:string
     prop action:string
 
     func client get app() {
@@ -15,14 +13,14 @@ class Base{
     func client fetch() {
         return new Promise((resolve, reject) => {
             wx.request({
-                url: this.host,
+                url: Base.SRV,
                 data: this.reqData,
-                success: function (res) {
+                success: res => {
                   this.parse(res.data)
                   resolve(this)
                 },
                 fail: err => {
-                    error(err)
+                    this.error(err)
                     reject(err);
                 }
               })
@@ -41,11 +39,17 @@ class Base{
 
     func client get reqData() {
         let tmp = {};
-        tmp.appName = this.appName;
-        tmp.action = this.action;
+        let sid = Base.SID || wx.getStorageSync('sid');
+        if (sid)
+            tmp._sid = sid;
+        let uid = Base.UID || wx.getStorageSync('uid');
+        if (uid)
+            tmp.uid = uid;
         this.reqFields.forEach(k => {
             tmp[k] = this[k]
         });
+        tmp.appName = Base.APP_NAME;
+        tmp.action = this.action;
         return tmp;
     }
 
@@ -53,8 +57,83 @@ class Base{
         Object.assign(this, data);
     }
 
-    func error(err) {
+    func client error(err) {
 
     }
 
+    func client static start(appName, srv, wss) {
+        //定义一些静态变量
+        this.SID = '';
+        this.UID = '';
+        this.APP_NAME = appName;
+        this.SRV = srv || 'https://h5.ddz2018.com/';//https服务器链接
+        this.WSS = wss || 'wss://h5.ddz2018.com/english';//websocket服务器链接
+        this.AUTHED = false;
+
+        //start
+        return new Promise(resolve => {
+            wx.checkSession({
+                success: () => {
+                    this.AUTHED = true;
+                    this.userLogin(resolve)
+                },
+                fail: res => {
+                    wx.login({
+                        success: res => {
+                            this.AUTHED = false;
+                            this.userAuth(res.code, resolve);
+                        }
+                    })
+                }
+            });
+        });
+
+    }
+
+    func client static userAuth(code, suc) {
+        let req = new Base();
+        req.action = 'weChat.auth';
+        req.reqFields = ['payload'];
+
+        //set data
+        req.payload = {code};
+        req.fetch().then( res => {
+            this.UID = res.data.uid;
+            wx.setStorageSync('uid', this.UID);
+            this.userLogin(suc);
+        });
+    }
+
+    func client static userLogin(suc) {
+        let req = new Base();
+        req.action = 'user.login';
+        req.reqFields = [ 'info'];
+
+        //wx login
+        wx.getUserInfo({
+            success: info =>{
+                let app = getApp();
+                app.globalData.userInfo = info.userInfo;
+                app.globalData.hasUserInfo = true;
+                if (app.userInfoReadyCallback) {
+                   app.userInfoReadyCallback(info)
+                }
+
+                //fetch srv
+                req.info = info;
+                req.fetch().then(()=>{
+                    this.AUTHED = true;
+                    if (req.code != 0) {
+                        req.error(req.code);
+                    }
+                    else {
+                        this.SID = req.sid;
+                        wx.setStorageSync('sid', this.SID);
+                        suc(req);
+                    }
+                });
+            }
+        });
+
+    }
 }

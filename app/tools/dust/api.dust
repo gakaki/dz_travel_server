@@ -11,7 +11,6 @@ class {.name}{
 class {.name} {?.parent}extends {.parent}{/.parent} {
     constructor(){~lb}
     {?.parent}    super();{/.parent}{^server}{?.isApi}
-        this.appName = '{appName|s}';
         this.action = '{.action}';{/.isApi}
     {/server}{?server}{#.propsS}
         //prop type: {.v|s}

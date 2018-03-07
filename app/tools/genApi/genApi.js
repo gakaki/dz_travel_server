@@ -39,7 +39,6 @@ class Clazz extends Structor {
     constructor(name) {
         super(name);
         this.isApi = false;
-        this.appname = '';//isApi为true时有值
         this.action = '';//isApi为true时有值
         this.parent = '';//父类名称,读取extends，当类型为api时，无extends则默认父类为Base
         this.propsC = [];//仅客户端使用的属性

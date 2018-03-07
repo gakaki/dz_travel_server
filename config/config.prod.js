@@ -46,6 +46,9 @@ module.exports = appInfo => {
     config.english.appid="wx4cdb3cbd1248ee5e";
     config.english.appsecret="844c2d947f2fe69db5ad101fa9d4d871";
 
+    config.travel.appid = "wx69595aa92bd81b00";
+    config.travel.appsecret="e4e7b4769a9eb8e17ad0b79f588cb736";
+
     config.pubid = "wx4224663bb4f0ed80";
     config.pubmchid = "1494209122";
     config.pubkey = "shanghaidouziwangluokejigongsih5";
