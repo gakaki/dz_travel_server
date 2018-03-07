@@ -49,5 +49,3 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
 {/enums}
 {#classes}exports.{.name} = {.name};
 {/classes}
-
-
