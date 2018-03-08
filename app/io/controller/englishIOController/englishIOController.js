@@ -1,6 +1,7 @@
 const Controller = require('egg').Controller;
 const EnglishRoom = require('../../room/englishRoom/englishRoom');
 const constant = require("../../../utils/constant");
+const utils = require("../../../utils/utils");
 const englishConfigs = require("../../../../sheets/english");
 
 class EnglishIOController extends Controller {
@@ -17,8 +18,7 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
-
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
@@ -35,7 +35,7 @@ class EnglishIOController extends Controller {
         player.setRankType(rankType);
 
 
-        app.messenger.sendToApp('readyMatch',{appName:appName,player:ui.uid});
+
         app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player});
 
 
@@ -44,12 +44,15 @@ class EnglishIOController extends Controller {
             data:{
                 cost:cost
             }
-        })
+        });
+
+        setTimeout(function () {
+            app.messenger.sendToApp('readyMatch',{appName:appName,player:ui.uid});
+        },2000)
 
     }
 
     async cancelmatch(){
-        console.log("取消匹配");
         const {ctx, app} = this;
         const socket = ctx.socket;
         const query = socket.handshake.query;
@@ -58,10 +61,11 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
+
         app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:ui.uid});
       //  app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player});
       /*  ctx.service.publicService.matchingService.mtachFinish(player,appName);
@@ -83,11 +87,11 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
-        let roomInfo = app.roomList.get(appName).get(rid);
+        let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             return;
         }
@@ -149,17 +153,16 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
-        let roomInfo = app.roomList.get(appName).get(rid);
+        let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             return;
         }
 
         let result=roomInfo.gameover(ui.uid,roomInfo.isFriend);
-
 
 
         let season = ctx.service.englishService.englishService.getSeason();
@@ -209,6 +212,14 @@ class EnglishIOController extends Controller {
                 up["character."+season+".star"]=star;
                 up["character."+season+".createTime"]=time;
             }
+
+            socket.emit("rankResult",{
+                code:constant.Code.OK,
+                data:{
+                    rank:rank,
+                    star:star
+                }
+            })
         }
 
 
@@ -255,7 +266,7 @@ class EnglishIOController extends Controller {
         };
         ctx.model.EnglishModel.EnglishPKRecord.create(englishPKRecord);
 
-        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo});
+        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo,isOver:true});
         app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player});
 
         let ulist={};
@@ -269,6 +280,8 @@ class EnglishIOController extends Controller {
                // playerAnswer:player.answers
             }
         }
+
+
 
         nsp.to(rid).emit('pkEndSettlement', {
             code:constant.Code.OK,
@@ -290,39 +303,45 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
 
+
         player.setInitiator();
-        let rid = "11" + new Date().getTime();
+        //let rid = "11" + new Date().getTime();
+        let rid = "111111";
         let season =ctx.service.englishService.englishService.getSeason();
-        let difficulty = englishConfigs.Stage.Get(player.character[season].rank).difficulty;
+        let difficulty = englishConfigs.Stage.Get(player.user.character.season[season].rank).difficulty;
         let index = utils.Rangei(0,difficulty.length);
-        let englishRoom = new EnglishRoom(rid,difficulty[index],true);
-
-
 
         socket.join(rid);
-        englishRoom.joinRoom(player);
+      //  englishRoom.joinRoom(player);
 
-        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:englishRoom});
+        app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:rid,difficulty:difficulty[index]});
         app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player});
+        app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:rid});
 
-        let roominfo={
-            userList:{
-                [ui.uid]:player.user
-            },
+      /*  let roominfo={
+            userList:[
+                {
+                    info:player.user,
+                    isInitiator:true
+
+                }
+            ],
             bystander:0,
             rid:rid,
             isFriend:true,
             roomStatus:constant.roomStatus.ready
 
-        };
-        socket.emit("roomInfo",{
+        };*/
+        socket.emit("createSuccess",{
             code:constant.Code.OK,
-            data:roominfo
+            data:{
+                rid:rid
+            }
         });
     }
 
@@ -338,11 +357,11 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
-        let roomInfo = app.roomList.get(appName).get(rid);
+        let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             socket.emit("roomNotExist ",{
                 code:constant.Code.ROOM_EXPIRED
@@ -355,38 +374,45 @@ class EnglishIOController extends Controller {
         }
 
         socket.join(rid);
-        roomInfo.joinRoom(player);
-        let userList=[];
-        let roomMaster;
-        for(let [uid,player] of roomInfo.userList.entries()){
-            let user={
-                info :player.user,
-                isInitiator:player.isInitiator
-            };
-           userList.push(user);
-            if(uid != ui.uid){
-                roomMaster = uid;
+        app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:rid});
+
+
+        setTimeout(async function () {
+
+            let userList=[];
+            let roomMaster;
+            for(let [uid,player] of roomInfo.userList.entries()){
+                let user={
+                    info :player.user,
+                    isInitiator:player.isInitiator
+                };
+                userList.push(user);
+                if(uid != ui.uid){
+                    roomMaster = uid;
+                }
             }
-        }
-        await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$addToSet:{["character.friendsList"]:roomMaster}});
-        await ctx.model.PublicModel.User.update({uid:roomMaster,appName:appName},{$addToSet:{["character.friendsList"]:ui.uid}});
+            await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$addToSet:{["character.friendsList"]:roomMaster}});
+            await ctx.model.PublicModel.User.update({uid:roomMaster,appName:appName},{$addToSet:{["character.friendsList"]:ui.uid}});
 
 
 
-        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo});
-       // app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player});
 
-        let rinfo={
-            userList:userList,
-            bystanderCount:roomInfo.bystander.size,
-            rid:rid,
-            isFriend:true,
-            roomStatus:roomInfo.roomStatus
-        };
-        nsp.to(rid).emit("roomInfo",{
-            code:constant.Code.OK,
-            data:rinfo
-        })
+
+            let rinfo={
+                userList:userList,
+                bystanderCount:roomInfo.bystander.size,
+                rid:rid,
+                isFriend:true,
+                roomStatus:roomInfo.roomStatus
+            };
+            nsp.to(rid).emit("roomInfo",{
+                code:constant.Code.OK,
+                data:rinfo
+            })
+        },100);
+
+
+
     }
 
     async startgame(){
@@ -401,42 +427,50 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
-
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
         }
 
-        if(!player.isInitiator){
-            return
-        }
 
-        let roomInfo = app.roomList.get(appName).get(rid);
+        let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             return;
         }
 
-        if(!roomInfo.isFriend){
-            return
-        }
-        roomInfo.startGame();
-        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo});
-        let userList=[];
-        for(let player of roomInfo.userList.values()){
-            let user={
-                info: player.user,
-                waitTime: player.waitTime,
-                isInitiator:player.isInitiator
-            };
-            userList.push(user);
-        }
-        nsp.to(rid).emit('matchSuccess', {
-            code:constant.Code.OK,
-            data:{
-                userList: userList,
-                roomInfo:roomInfo
+        if(roomInfo.isFriend){
+            if(!player.isInitiator){
+                return
             }
+        }
+        nsp.to(rid).emit('joinSuccess', {
+            code:constant.Code.OK,
+
         });
+        let season = ctx.service.englishService.englishService.getSeason();
+        let wordList=ctx.service.englishService.englishService.setQuestions(player.user.character.season[season].rank);
+        roomInfo.setWordList(wordList);
+        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo,isOver:false});
+
+        setTimeout(function () {
+            let userList=[];
+            for(let player of roomInfo.userList.values()){
+                let user={
+                    info: player.user,
+                    waitTime: player.waitTime,
+                    isInitiator:player.isInitiator
+                };
+                userList.push(user);
+            }
+            nsp.to(rid).emit('matchSuccess', {
+                code:constant.Code.OK,
+                data:{
+                    userList: userList,
+                    roomInfo:roomInfo
+                }
+            });
+        },100);
+
 
     }
 
@@ -454,12 +488,12 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
 
         if(!player){
             return;
         }
-        let roomInfo = app.roomList.get(appName).get(rid);
+        let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             return;
         }
@@ -505,49 +539,44 @@ class EnglishIOController extends Controller {
                     return;
                 }
                 if(!isbystander){
-                    for (let [uid,bystander] of roomInfo.bystander.entries()){
-                        roomInfo.leaveBystander(uid);
-                        roomInfo.joinRoom(bystander);
-                        break;
+                    if(roomInfo.roomStatus == constant.roomStatus.ready){
+                        app.messenger.sendToApp('exchange',{appName:constant.AppName.ENGLISH,rid:rid});
+                        let userList=[];
+                        for(let player of roomInfo.userList.values()){
+                            let user={
+                                info :player.user,
+                                isInitiator:player.isInitiator
+                            };
+                            userList.push(user);
+                        }
+                        let rinfo={
+                            userList:userList,
+                            bystanderCount:roomInfo.bystander.size,
+                            rid:rid,
+                            isFriend:true,
+                            roomStatus:roomInfo.roomStatus
+                        };
+                        nsp.to(rid).emit('roomInfo', {
+                            code:constant.Code.OK,
+                            data:rinfo
+                        });
+
+                    }else{
+                        nsp.to(rid).emit('pkend', {
+                            code:constant.Code.OK,
+                        });
                     }
+
+
                 }
-                let userList=[];
-                for(let player of roomInfo.userList.values()){
-                    let user={
-                        info :player.user,
-                        isInitiator:player.isInitiator
-                    };
-                    userList.push(user);
-                }
-                app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo});
-                let rinfo={
-                    userList:userList,
-                    bystanderCount:roomInfo.bystander.size,
-                    rid:rid,
-                    isFriend:true,
-                    roomStatus:roomInfo.roomStatus
-                };
-                nsp.to(rid).emit('roomInfo', {
-                    code:constant.Code.OK,
-                    data:rinfo
-                });
+
                 return;
             }
 
-        }else{
-            isbystander=false;
         }
         player.gameFinish();
-        app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player});
-        nsp.to(rid).emit('someoneLeave', {
-            code:constant.Code.OK,
-            data:{
-                info: player.user,
-                isInitiator:player.isInitiator,
-                isbystander:isbystander,
-                isFriend:roomInfo.isFriend
-            }
-        });
+        app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,refreshPlayer:player,isOver:true});
+
 
         if(roomInfo.userList.size == 0){
             app.messenger.sendToApp('delRoom',{appName:constant.AppName.ENGLISH,rid:rid});
@@ -577,16 +606,6 @@ class EnglishIOController extends Controller {
         if(!roomInfo){
             return;
         }
-        if(!roomInfo.isFriend){
-            return;
-        }
-        if(roomInfo.userList.size <2){
-            for (let [uid,bystander] of roomInfo.bystander.entries()){
-                roomInfo.leaveBystander(uid);
-                roomInfo.joinRoom(bystander);
-                break;
-            }
-        }
         let userList=[];
         for(let player of roomInfo.userList.values()){
             let user={
@@ -595,22 +614,38 @@ class EnglishIOController extends Controller {
             };
             userList.push(user);
         }
-        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo});
-        let rinfo={
-            userList:userList,
-            bystanderCount:roomInfo.bystander.size,
-            rid:rid,
-            isFriend:true,
-            roomStatus:roomInfo.roomStatus
-        };
-        nsp.to(rid).emit('roomInfo', {
-            code:constant.Code.OK,
-            data:rinfo
-        });
+        if(roomInfo.isFriend){
+            if(roomInfo.userList.size <2){
+                app.messenger.sendToApp('exchange',{appName:constant.AppName.ENGLISH,rid:rid});
+            }
+
+            let rinfo={
+                userList:userList,
+                bystanderCount:roomInfo.bystander.size,
+                rid:rid,
+                isFriend:true,
+                roomStatus:roomInfo.roomStatus
+            };
+            nsp.to(rid).emit('roomInfo', {
+                code:constant.Code.OK,
+                data:rinfo
+            });
+        }else{
+            nsp.to(rid).emit('pkInfo', {
+                code:constant.Code.OK,
+                data:{
+                    userList:userList,
+                    roomInfo:roomInfo
+                }
+            });
+        }
+
+
+
 
     }
 
-   /* async test(){
+    async test(){
         const {ctx, app} = this;
         const socket = ctx.socket;
         const nsp = app.io.of('/english');
@@ -622,23 +657,27 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = ctx.service.socketService.socketioService.getUserList(appName, ui.uid);
-        if(player==null){
+        let player = app.userList.get(appName).get(ui.uid);
+
+        if(!player){
             return;
         }
-
-        let roomId = "1";
+        let roomInfo = app.roomList.get(appName).get(rid);
+        if(!roomInfo){
+            return;
+        }
+       /* let roomId = "1";
         let englishRoom = new EnglishRoom(roomId,1,true);
-        englishRoom.joinRoom(player);
+        englishRoom.joinRoom(player);*/
        // socket.emit("roomInfo",englishRoom)
-       socket.join(roomId);
-        nsp.to(roomId).emit('roomInfo', {
+       //socket.join(roomId);
+        nsp.to(rid).emit('roomInfo', {
             code:constant.Code.OK,
             data:{
-                roomInfo:englishRoom
+                roomInfo:111
             }
         });
-    }*/
+    }
 
 
 }

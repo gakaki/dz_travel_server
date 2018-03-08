@@ -93,15 +93,16 @@ function getDevelop() {
 
 
 exports.playerStatus = {
-    online: 0,
-    ready: 1,
-    isGaming: 2,
-    offline: 3
+    offline: 0,
+    online: 1,
+    ready: 2,
+    isGaming: 3,
+
 };
 
 exports.roomStatus = {
-    ready: 0,
-    isGaming: 1,
+    ready: 1,
+    isGaming: 2,
 };
 
 

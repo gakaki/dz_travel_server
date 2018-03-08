@@ -5,31 +5,36 @@ const utils = require("../../utils/utils");
 const englishConfigs = require("../../../sheets/english");
 
 class EnglishService extends Service {
-    matchSuccess(matchPoolPlayer,englishroom) {
-        console.log("匹配成功");
-        let flag = false;
+    matchSuccess(matchPoolPlayer,roomId) {
+        let englishroom=this.app.roomList.get(constant.AppName.ENGLISH).get(roomId);
         for (let player of matchPoolPlayer) {
             let socket=this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH,player.user.uid);
             if(socket){
-                console.log(player.user.nickName);
-                flag =true;
-                socket.join(englishroom.rid);
-            }
-
-        }
-        console.log(flag);
-        if(flag){
-            const nsp = this.app.io.of('/english');
-            nsp.to(englishroom.rid).emit('matchSuccess', {
-                code:constant.Code.OK,
-                data:{
-                    //userList: userList,
-                    roomInfo:englishroom
+                socket.join(roomId);
+                let uList = [];
+                for(let player of englishroom.userList.values()){
+                    let user = {
+                        info:player.user,
+                        isInitiator:player.isInitiator
+                    };
+                    uList.push(user);
                 }
-            });
+
+                socket.emit('joinSuccess', {
+                    code:constant.Code.OK,
+                });
+
+                setTimeout(function () {
+                    socket.emit("matchSuccess",{
+                        code:constant.Code.OK,
+                        data:{
+                            userList: uList,
+                            roomInfo:englishroom
+                        }
+                    })
+                },100)
+            }
         }
-
-
     }
 
     matchFailed(uid) {
@@ -251,6 +256,38 @@ class EnglishService extends Service {
                 return season.id
             }
         }
+    }
+
+    setQuestions(difficulty){
+        let wordLib= englishConfigs.words;
+        let words=[];
+        for(let word of wordLib){
+            if(word.difficulty == difficulty){
+                words.push(word);
+            }
+        }
+        return this.getWord(words);
+    }
+
+    getWord(words){
+        let indexs = new Set();
+        while (indexs.size<5){
+            let index=utils.Rangei(0,words.length);
+            indexs.add(index);
+        }
+        let questions=[];
+        for(let i of indexs){
+            let qword = words[i];
+            let types = qword.type;
+            let type = utils.Rangei(0,types.length);
+            let word={
+                id:qword.id,
+                type:types[type]
+            };
+            questions.push(word);
+        }
+
+        return questions;
     }
 }
 

@@ -1,3 +1,7 @@
+const englishConfigs = require("../../../sheets/english");
+
+const utils = require("../../utils/utils");
+
 const constant =require("../../utils/constant");
 
 module.exports = {
@@ -12,7 +16,7 @@ module.exports = {
         //let totalPool = ctx.service.publicService.matchingService.getTotalPool("english");
         let totalPool = ctx.app.matchPool.get(constant.AppName.ENGLISH) || new Set();
         let pointMap = new Map();
-        console.log("总玩家数 ：" +totalPool.size);
+       // console.log("总玩家数 ：" +totalPool.size);
         for (let player of totalPool) {
             if (player.waitTime > 30) {
                 ctx.logger.warn(player.user.uid + "在匹配池中是时间超过 30 s，直接移除");
@@ -93,10 +97,19 @@ module.exports = {
                     //匹配成功处理
                     matchPoolPlayer.add(oldest);
                     let uidArr=[];
+                    let rankA= oldest.rankType;
+                    let rankB=0;
                     for(let player of matchPoolPlayer){
                         uidArr.push(player.user.uid);
+                        if(player.user.uid != oldest.user.uid){
+                            rankB=player.rankType;
+                        }
                     }
-                    ctx.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr});
+                    let pk = Math.min(rankA,rankB);
+                    let difficulty = englishConfigs.Stage.Get(pk).difficulty;
+                    let index = utils.Rangei(0,difficulty.length);
+                    let wordList=ctx.service.englishService.englishService.setQuestions(difficulty[index]);
+                    ctx.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr,wordList:wordList,difficulty:difficulty[index]});
                     //ctx.service.englishService.englishService.matchSuccess(matchPoolPlayer);
                 } else {
                     //本分数段等待时间最长的玩家都匹配不到，其他更不用尝试了

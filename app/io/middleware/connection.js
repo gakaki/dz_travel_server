@@ -37,31 +37,25 @@ module.exports = () => {
 
         await next();
 
-    /*    logger.info(ui.uid + ' disconnection');
-        ctx.service.socketService.socketioService.delUser(appName, ui.uid);
-        ctx.service.publicService.matchingService.deleteUser(player, appName);
-        let roomList = ctx.service.socketService.socketioService.getRoomList(appName);
+        logger.info(ui.uid + ' disconnection');
+        app.messenger.sendToApp('disconnection',{appName:appName,uid:ui.uid});
+        ctx.service.socketService.socketioService.delSocket(appName, ui.uid);
+        let roomList = app.roomList.get(appName);
         for(let roomId in roomList){
-            for(let userId in roomList[roomId].userList){
+            for(let userId in roomList[roomId].userList.keys()){
                 if(userId == ui.uid){
-                    if(roomList[roomId].userList.size == 0|| player.isInitiator){
-                        ctx.service.socketService.socketioService.delRoom(appName,roomId);
+                    if(roomList[roomId].userList.size == 0){
+                        app.messenger.sendToApp('delRoom',{appName:appName,rid:roomId});
+                        break;
                     }
-                    nsp.adapter.clients([roomId], (err, clients) => {
-                        app.logger.info('#leave', userId);
-                        nsp.to(roomId).emit('someoneLeave', {
-                            code:constant.Code.OK,
-                            data:{
-                                info: player.user,
-                                isInitiator:player.isInitiator
-                            }
-                        });
 
+                    nsp.to(roomId).emit('pkend', {
+                        code:constant.Code.OK
                     });
                     break;
                 }
             }
-        }*/
+        }
 
 
 

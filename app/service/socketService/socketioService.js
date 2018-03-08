@@ -21,6 +21,10 @@ class SocketService extends Service {
         }
         return socketList.get(appName);
     }
+    delSocket(appName,uid){
+        socketList.has(appName)?socketList.get(appName):socketList.set(appName,new Map());
+        socketList.get(appName).delete(uid);
+    }
 
     //添加在线用户
       setOnlineUser(appName, udata) {

@@ -18,7 +18,7 @@ module.exports = app => {
         if(!app.userList.has(conPlayer.appName)){
             app.userList.set(conPlayer.appName,new Map());
         }
-        let player = new EnglishPlayer("socket", conPlayer.userInfo, constant.playerStatus.online, conPlayer.appName);
+        let player = new EnglishPlayer(conPlayer.userInfo, constant.playerStatus.online, conPlayer.appName);
         app.userList.get(conPlayer.appName).set(player.user.uid,player);
     });
 
@@ -26,12 +26,21 @@ module.exports = app => {
         if(!app.userList.has(disconPlayer.appName)){
             app.userList.set(disconPlayer.appName,new Map());
         }
+        if(!app.matchPool.has(disconPlayer.appName)){
+            app.matchPool.set(disconPlayer.appName,new Set());
+        }
+        let player=app.userList.get(disconPlayer.appName).get(disconPlayer.uid);
+        app.matchPool.get(disconPlayer.appName).delete(player);
         app.userList.get(disconPlayer.appName).delete(disconPlayer.uid);
+
     });
 
 
     app.messenger.on('refresh', refreshPlayer=>{
         let player = app.userList.get(refreshPlayer.appName).get(refreshPlayer.refreshPlayer.user.uid);
+        if(refreshPlayer.isOver){
+            player.gameFinish();
+        }
         if(refreshPlayer.refreshPlayer.status) {
             player.setStatus(refreshPlayer.refreshPlayer.status)
         }
@@ -75,24 +84,17 @@ module.exports = app => {
         }
         const ctx = app.createAnonymousContext();
         ctx.runInBackground(async () => {
-            let season = ctx.service.englishService.englishService.getSeason();
             let roomId = "10" + new Date().getTime();
-            let playerA=arr[0];
-            let playerB=arr[1];
-            let pARank=playerA.user.character.season[season].rank;
-            let pBRank=playerB.user.character.season[season].rank;
-            let pk = Math.min(pARank,pBRank);
-            let difficulty = englishConfigs.Stage.Get(pk).difficulty;
-            let index = utils.Rangei(0,difficulty.length);
-            let englishRoom = new EnglishRoom(roomId,difficulty[index],false);
-            englishRoom.joinRoom(playerA);
-            englishRoom.joinRoom(playerB);
-            englishRoom.startGame();
-             ctx.service.englishService.englishService.matchSuccess(arr,englishRoom);
+            let englishRoom = new EnglishRoom(roomId,matchPoolPlayers.difficulty,false);
+            englishRoom.joinRoom(arr[0]);
+            englishRoom.joinRoom(arr[1]);
+            englishRoom.setWordList(matchPoolPlayers.wordList);
             if(!app.roomList.has(matchPoolPlayers.appName)){
                 app.roomList.set(matchPoolPlayers.appName,new Map());
             }
             app.roomList.get(matchPoolPlayers.appName).set(roomId,englishRoom);
+             ctx.service.englishService.englishService.matchSuccess(arr,roomId);
+
         });
     });
 
@@ -107,12 +109,52 @@ module.exports = app => {
 
     });
 
+    app.messenger.on('createRoom',roomInfo =>{
+        if(!app.roomList.has(roomInfo.appName)){
+            app.roomList.set(roomInfo.appName,new Map());
+        }
+        let englishRoom = new EnglishRoom(roomInfo.rid,roomInfo.difficulty,true);
+        app.roomList.get(roomInfo.appName).set(roomInfo.rid,englishRoom);
+    });
+
     app.messenger.on('setRoom',roomInfo =>{
         if(!app.roomList.has(roomInfo.appName)){
             app.roomList.set(roomInfo.appName,new Map());
         }
-        app.roomList.get(roomInfo.appName).set(roomInfo.room.rid,roomInfo.room);
+        let englishRoom =  app.roomList.get(roomInfo.appName).get(roomInfo.room.rid);
+        if(roomInfo.room.wordList){
+            englishRoom.setWordList(roomInfo.room.wordList);
+        }
+        if(roomInfo.isOver){
+            if(englishRoom.isFriend){
+                englishRoom.setRoomStatus(constant.roomStatus.ready);
+            }
+
+        }
     });
+
+    app.messenger.on('exchange',rInfo =>{
+        if(!app.roomList.has(rInfo.appName)){
+            app.roomList.set(rInfo.appName,new Map());
+        }
+        let roomInfo = app.roomList.get(rInfo.appName).get(rInfo.rid);
+        for (let [uid,bystander] of roomInfo.bystander.entries()){
+            roomInfo.leaveBystander(uid);
+            roomInfo.joinRoom(bystander);
+            break;
+        }
+    });
+
+    app.messenger.on('joinRoom',rInfo =>{
+        if(!app.roomList.has(rInfo.appName)){
+            app.roomList.set(rInfo.appName,new Map());
+        }
+        let player = app.userList.get(rInfo.appName).get(rInfo.uid);
+        let roomInfo = app.roomList.get(rInfo.appName).get(rInfo.rid);
+        roomInfo.joinRoom(player);
+
+    });
+
     app.messenger.on('delRoom',roomInfo =>{
         app.roomList.get(roomInfo.appName).delete(roomInfo.rid);
     });

@@ -1,8 +1,7 @@
 const constant = require("../../../utils/constant");
 
 class EnglishPlayer {
-    constructor(socket, user, status, appName) {
-        this.socket = socket;
+    constructor(user, status, appName) {
         this.user = user;
         this.status = status;
         this.appName = appName;
@@ -16,7 +15,7 @@ class EnglishPlayer {
         this.mistake=0;
         this.continuousRight=0;
         this.isInitiator=false;
-        this.rankType=0;
+        this.rankType=1;
     }
 
     setStatus(status) {

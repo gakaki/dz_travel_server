@@ -13,37 +13,7 @@ class EnglishRoom {
         this.roomStatus=constant.roomStatus.ready;
     }
 
-    setQuestions(){
-        let wordLib= englishConfigs.words;
-        let words=[];
-        for(let word of wordLib){
-            if(word.difficulty == this.difficulty){
-                words.push(word);
-            }
-        }
-        return this.getWord(words);
-    }
 
-    getWord(words){
-        let indexs = new Set();
-        while (indexs.size<5){
-            let index=utils.Rangei(0,words.length);
-            indexs.add(index);
-        }
-        let questions=[];
-        for(let i of indexs){
-            let qword = words[i];
-            let types = qword.type;
-            let type = utils.Rangei(0,types.length);
-            let word={
-                id:qword.id,
-                type:types[type]
-            };
-            questions.push(word);
-        }
-
-        return questions;
-    }
 
     joinRoom(player){
         if(this.userList.size<2){
@@ -51,26 +21,18 @@ class EnglishRoom {
         }else{
             this.bystander.set([player.user.uid],player);
         }
-
     }
 
     leaveBystander(uid){
         this.bystander.delete(uid);
     }
-
-    /*leaveRoom(uid){
-        if(this.userList.has(uid)){
-            this.userList.delete(uid);
-        }
-        if(this.bystander.has(uid)){
-            this.bystander.delete(uid);
-        }
-        this.roomStatus=constant.roomStatus.ready;
-    }*/
-
-    startGame(){
-        this.wordList=this.setQuestions();
+    setWordList(wordList){
         this.roomStatus=constant.roomStatus.isGaming;
+        this.wordList=wordList;
+    }
+
+    setRoomStatus(status){
+        this.roomStatus=status;
     }
 
 
