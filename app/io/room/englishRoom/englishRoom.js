@@ -37,9 +37,6 @@ class EnglishRoom {
 
 
     gameover(uid,isFriend=false,isLeave = false){
-        if(isFriend){
-            this.roomStatus=constant.roomStatus.ready;
-        }
         let owner= null;
         let challenger = null;
         for(let [userId,player] of this.userList.entries()){
@@ -65,11 +62,11 @@ class EnglishRoom {
         }
         if(isLeave){
             if(!isFriend){
-                result.wins=1;
-                result.star=1;
-                result.gold=englishConfigs.Stage.Get(owner.rankType).goldcoins2
+                result.losses=1;
+                if(owner.user.character.star > 0){
+                    result.star=-1;
+                }
             }
-            result.final=2;
         }else{
             if(owner.score > challenger.score){
                 if(!isFriend){

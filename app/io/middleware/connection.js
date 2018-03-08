@@ -50,28 +50,9 @@ module.exports = () => {
         await next();
 
         logger.info(ui.uid + ' disconnection');
+
         app.messenger.sendToApp('disconnection',{appName:appName,uid:ui.uid});
-        ctx.service.socketService.socketioService.delSocket(appName, ui.uid);
-        let roomList = app.roomList.get(appName);
-        for(let roomId in roomList){
-            for(let userId in roomList[roomId].userList.keys()){
-                if(userId == ui.uid){
-                    if(roomList[roomId].userList.size == 0){
-                        app.messenger.sendToApp('delRoom',{appName:appName,rid:roomId});
-                        break;
-                    }
-
-                    nsp.to(roomId).emit('someOneLeave', {
-                        code:constant.Code.OK,
-                        data:{
-                            uid:ui.uid
-                        }
-                    });
-                    break;
-                }
-            }
-        }
-
+        app.messenger.sendToApp('leaveRoom',{appName:appName,uid:ui.uid});
 
 
     };
