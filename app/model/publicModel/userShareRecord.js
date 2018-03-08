@@ -8,7 +8,6 @@ module.exports = app => {
         num: {type: Number},
         getItem: {type: Boolean},
         itemId: {type: Number}
-
     });
 
     return mongoose.model('UserShareRecord', UserShareRecordSchema);

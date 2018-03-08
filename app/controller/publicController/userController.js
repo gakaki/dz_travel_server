@@ -13,7 +13,7 @@ class UserController extends Controller {
         let result = {
             data: {}
         };
-        if (!_sid && !uid) {
+        if ( !info || !appName ||(!_sid && !uid )) {
             result.code = constant.Code.LOGIN_FAILED;
             ctx.body = result;
             return;

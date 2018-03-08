@@ -22,18 +22,22 @@ module.exports = app => {
     router.get('/guessnum/getacceleration', controller.guessnumController.guessnumController.getacceleration);
 
     router.get('/english/showpersonal', controller.englishController.englishController.showpersonal);
+    router.get('/english/getseason', controller.englishController.englishController.getseason);
     router.get('/english/updateposition', controller.englishController.englishController.updateposition);
     router.get('/english/signin', controller.englishController.englishController.signin);
+    router.get('/english/getshareaward', controller.englishController.englishController.getshareaward);
     router.get('/english/develop', controller.englishController.englishController.develop);
     router.get('/english/speechlevelup', controller.englishController.englishController.speechlevelup);
     router.get('/english/getfriendrankinglist', controller.englishController.englishController.getfriendrankinglist);
     router.get('/english/getworldrankinglist', controller.englishController.englishController.getworldrankinglist);
+    router.get('/english/roomisexist', controller.englishController.englishController.roomisexist);
 
 
 
-    router.get('/english/english', io.controller.englishIOController.englishIOController.ranking);
+ /*   router.get('/english/english', io.controller.englishIOController.englishIOController.ranking);*/
 
 
+    io.of('/english').route('canmatch', io.controller.englishIOController.englishIOController.canmatch);
     io.of('/english').route('ranking', io.controller.englishIOController.englishIOController.ranking);
     io.of('/english').route('cancelmatch', io.controller.englishIOController.englishIOController.cancelmatch);
     io.of('/english').route('roundend', io.controller.englishIOController.englishIOController.roundend);

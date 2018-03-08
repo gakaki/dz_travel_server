@@ -25,6 +25,18 @@ module.exports = () => {
 
         logger.info(ui.uid + ' connected');
 
+        let season =ctx.service.englishService.englishService.getSeason();
+        if(!ui.character.season[season]){
+            await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$set:{
+                ["character.season."+season]:{
+                    rank: 1,       //段位
+                    star: 0,       //星星数
+                    ELO: 0,        //等级分
+                    createTime:new Date().toLocaleString()
+                }
+                }});
+            ui = await ctx.model.PublicModel.User.findOne({uid:ui.uid,appName:appName});
+        }
 
         //  app.messenger.sendToAgent('refresh', obj);
 
@@ -49,8 +61,11 @@ module.exports = () => {
                         break;
                     }
 
-                    nsp.to(roomId).emit('pkend', {
-                        code:constant.Code.OK
+                    nsp.to(roomId).emit('someOneLeave', {
+                        code:constant.Code.OK,
+                        data:{
+                            uid:ui.uid
+                        }
                     });
                     break;
                 }

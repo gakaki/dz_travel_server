@@ -54,7 +54,7 @@ exports.AppCharacter = {
         losses:0,            //负场
         total:0,             //总局数
         cumulativeDays:0, //累计天数
-        beautifulWords:1, //每日美句
+        beautifulWords:0, //每日美句
         friendsList: [], //好友列表
         wordList:{}, //单词列表
         developSystem:getDevelop()

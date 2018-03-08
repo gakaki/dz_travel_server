@@ -101,11 +101,17 @@ module.exports = app => {
     app.messenger.on('matchFailed',info =>{
         let player = app.userList.get(info.appName).get(info.uid);
         player.gameFinish();
+        if(!app.matchPool.has(info.appName)){
+            app.matchPool.set(info.appName,new Set());
+        }
         app.matchPool.get(info.appName).delete(player);
-        const ctx = app.createAnonymousContext();
-        ctx.runInBackground(async () => {
-             ctx.service.englishService.englishService.matchFailed(info.uid);
-        });
+        if(!info.isCancel){
+            const ctx = app.createAnonymousContext();
+            ctx.runInBackground(async () => {
+                ctx.service.englishService.englishService.matchFailed(info.uid);
+            });
+        }
+
 
     });
 
@@ -129,7 +135,6 @@ module.exports = app => {
             if(englishRoom.isFriend){
                 englishRoom.setRoomStatus(constant.roomStatus.ready);
             }
-
         }
     });
 
@@ -143,6 +148,7 @@ module.exports = app => {
             roomInfo.joinRoom(bystander);
             break;
         }
+
     });
 
     app.messenger.on('joinRoom',rInfo =>{

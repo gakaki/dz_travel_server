@@ -36,7 +36,7 @@ class EnglishRoom {
     }
 
 
-    gameover(uid,isFriend=false){
+    gameover(uid,isFriend=false,isLeave = false){
         if(isFriend){
             this.roomStatus=constant.roomStatus.ready;
         }
@@ -51,7 +51,7 @@ class EnglishRoom {
         }
 
         let result = {
-            exp:10,
+            exp:englishConfigs.Constant.Get(englishConfigs.Constant.EXP).value,
             total:0,
             star:0,
             gold:0,
@@ -63,8 +63,7 @@ class EnglishRoom {
         if(!isFriend){
             result.total=1;
         }
-
-        if(owner.score > challenger.score){
+        if(isLeave){
             if(!isFriend){
                 result.wins=1;
                 result.star=1;
@@ -72,16 +71,27 @@ class EnglishRoom {
             }
             result.final=2;
         }else{
-            if(!isFriend){
-                if(owner.score == challenger.score){
-                    result.final=1;
+            if(owner.score > challenger.score){
+                if(!isFriend){
+                    result.wins=1;
+                    result.star=1;
+                    result.gold=englishConfigs.Stage.Get(owner.rankType).goldcoins2
                 }
-                result.losses=1;
-                if(owner.user.character.star > 0){
-                    result.star=-1;
+                result.final=2;
+            }else{
+                if(!isFriend){
+                    if(owner.score == challenger.score){
+                        result.final=1;
+                    }
+                    result.losses=1;
+                    if(owner.user.character.star > 0){
+                        result.star=-1;
+                    }
                 }
             }
         }
+
+
 
         return result;
     }

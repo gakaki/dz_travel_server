@@ -24,7 +24,7 @@ class EnglishService extends Service {
                     code:constant.Code.OK,
                 });
 
-                setTimeout(function () {
+               // setTimeout(function () {
                     socket.emit("matchSuccess",{
                         code:constant.Code.OK,
                         data:{
@@ -32,7 +32,7 @@ class EnglishService extends Service {
                             roomInfo:englishroom
                         }
                     })
-                },100)
+               // },500)
             }
         }
     }
@@ -72,6 +72,8 @@ class EnglishService extends Service {
        // let answerCount = await this.ctx.model.EnglishModel.EnglishAnswerRecord.count({uid:ui.uid,date:date});
 
 
+
+
         let result = {
             userInfo:ui,
             todayWords:todayWords.size,
@@ -98,14 +100,63 @@ class EnglishService extends Service {
 
 
     async signin(ui,appName){
+      let cumulativeDays = (ui.character.cumulativeDays+1);
+      let day = cumulativeDays%7;
+      if(day==0){
+          day=7
+      }
         let cost = {
-            ["items.gold"]: 200,
             ["character.cumulativeDays"]:1,
             ["character.beautifulWords"]:1,
         };
+      let items={};
+        let reward = englishConfigs.Landing.Get(day).itemid;
+
+        for(let item of reward){
+            cost["items."+item.k]=Number(item.v);
+            items["items."+item.k]=Number(item.v)
+        }
         await this.ctx.model.PublicModel.SignInRecord.create({uid:ui.uid,appName:appName});
         await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
-        await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
+        await this.ctx.service.publicService.itemService.itemChange(ui, items, appName);
+
+        return reward;
+    }
+
+    async getShareAward(ui,appName){
+        let createDate = new Date().toLocaleDateString();
+        let count = await this.ctx.model.PublicModel.UserShareRecord.count({
+            "uid": ui.uid,
+            "createDate": createDate,
+            "appName": appName
+        });
+        let userShareRecord = {
+            uid: ui.uid,
+            appName: appName
+        };
+        let season = this.getSeason();
+        if(count < englishConfigs.Constant.Get(englishConfigs.Constant.SHARENUM).value){
+            let delta = {
+                ["items." +englishConfigs.Item.GOLD]: englishConfigs.Stage.Get(ui.character.season[season].rank).goldcoins1
+            };
+            await this.ctx.model.PublicModel.User.update({uid: ui.uid,appName:appName}, {$inc: delta});
+            ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid,appName:appName});
+            await this.ctx.service.publicService.itemService.itemChange(ui, delta, appName);
+
+            userShareRecord.num = englishConfigs.Stage.Get(ui.character.season[season].rank).goldcoins1;
+            userShareRecord.getItem = true;
+            userShareRecord.itemId = englishConfigs.Item.GOLD;
+        }else{
+            userShareRecord.num = englishConfigs.Stage.Get(ui.character.season[season].rank).goldcoins1;
+            userShareRecord.getItem = false;
+            userShareRecord.itemId = englishConfigs.Item.GOLD;
+        }
+        this.ctx.model.PublicModel.UserShareRecord.create(userShareRecord);
+
+        return userShareRecord;
+    }
+    roomIsExist(ui,appName,rid){
+        return  this.app.roomList.has(appName)?this.app.roomList.get(appName).get(rid):null;
     }
 
      develop(ui){
@@ -125,7 +176,8 @@ class EnglishService extends Service {
                     havaG:items[englishConfigs.Item.GOLD],
                 }
             };
-            if(sp.levelUP.haveI >= sp.levelUP.needI && sp.levelUP.havaG >= sp.levelUP.havaG){
+
+            if(sp.levelUP.haveI >= sp.levelUP.needI && sp.levelUP.havaG >= sp.levelUP.needG){
                 sp.canUp = true;
             }
             if(developSys[dev].level == englishConfigs.Speech.Get(dev).endlevel ){
@@ -139,10 +191,15 @@ class EnglishService extends Service {
     async speechLevelUp(ui,id,appName){
         let upSpeech=ui.character.developSystem[id];
         let speech= upSpeech.speech;
-        if(upSpeech.consume[englishConfigs.Item.GOLD] < englishConfigs.Speech.Get(id).addconsume2 || upSpeech.consume[englishConfigs.Item[speech.toUpperCase()]] < englishConfigs.Speech.Get(id).addconsume1){
+        console.log("有道具 ："+ui.items[englishConfigs.Item[upSpeech.speech.toUpperCase()]]);
+        console.log("需要的 ："+upSpeech.consume[englishConfigs.Item[upSpeech.speech.toUpperCase()]]);
+        console.log("有金币 ："+ui.items[englishConfigs.Item.GOLD]);
+        console.log("需要的 ："+upSpeech.consume[englishConfigs.Item.GOLD]);
+        if((ui.items[englishConfigs.Item.GOLD] < upSpeech.consume[englishConfigs.Item.GOLD]) || (ui.items[englishConfigs.Item[upSpeech.speech.toUpperCase()]] <upSpeech.consume[englishConfigs.Item[upSpeech.speech.toUpperCase()]])){
             return null;
         }
 
+        console.log(upSpeech.consume[englishConfigs.Item.GOLD]);
         let cost = {
             ["items."+englishConfigs.Item.GOLD]: (upSpeech.consume[englishConfigs.Item.GOLD]) * -1,
             ["items."+englishConfigs.Item[speech.toUpperCase()]]: (upSpeech.consume[englishConfigs.Item[speech.toUpperCase()]]) * -1,
@@ -173,7 +230,7 @@ class EnglishService extends Service {
                 havaG:items[englishConfigs.Item.GOLD],
             }
         };
-        if(sp.levelUP.haveI >= sp.levelUP.needI && sp.levelUP.havaG >= sp.levelUP.havaG){
+        if(sp.levelUP.haveI >= sp.levelUP.needI && sp.levelUP.havaG >= sp.levelUP.needG){
             sp.canUp = true;
         }
         if(up.level == englishConfigs.Speech.Get(id).endlevel ){
@@ -214,7 +271,6 @@ class EnglishService extends Service {
     async getWorldRankingList(appName,season){
         let nowSeason=this.getSeason();
         if(season){
-            console.log(typeof season);
             if(nowSeason == 1){
                 return null;
             }else{

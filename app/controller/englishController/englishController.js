@@ -23,6 +23,28 @@ class EnglishController extends Controller {
         ctx.body=result;
     }
 
+    async getseason(ctx){
+        const {_sid, appName,position} = ctx.query;
+        let result = {};
+        if (!_sid || !appName) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let season=await this.service.englishService.englishService.getSeason();
+        result.code=constant.Code.OK;
+        result.data={
+            season:season
+        };
+        ctx.body=result;
+    }
+
     async updateposition(ctx){
         const {_sid, appName,position} = ctx.query;
         let result = {};
@@ -58,8 +80,56 @@ class EnglishController extends Controller {
             ctx.body = result;
             return;
         }
-        await this.service.englishService.englishService.signin(ui,appName);
+        let award=await this.service.englishService.englishService.signin(ui,appName);
         result.code=constant.Code.OK;
+        result.data=award;
+        ctx.body=result;
+    }
+
+    async getshareaward(ctx){
+        const {_sid, appName} = ctx.query;
+        let result = {};
+        if (!_sid || !appName) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let award=await this.service.englishService.englishService.getShareAward(ui,appName);
+        if(award.getItem){
+            result.code=constant.Code.OK;
+            result.data=award;
+        }else{
+            result.code=constant.Code.REQUIRED_LOST;
+        }
+        ctx.body=result;
+    }
+    async roomisexist(ctx){
+        const {_sid, appName,rid} = ctx.query;
+        let result = {};
+        if (!_sid || !appName ||! rid) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let room=await this.service.englishService.englishService.roomIsExist(ui,appName,rid);
+
+        if(room){
+            result.code=constant.Code.OK;
+        }else{
+            result.code=constant.Code.ROOM_EXPIRED;
+        }
         ctx.body=result;
     }
 

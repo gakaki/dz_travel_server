@@ -20,17 +20,17 @@ module.exports = {
         for (let player of totalPool) {
             if (player.waitTime > 30) {
                 ctx.logger.warn(player.user.uid + "在匹配池中是时间超过 30 s，直接移除");
-                ctx.app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:player.user.uid});
+                ctx.app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:player.user.uid,isCancel:false});
                // ctx.service.englishService.englishService.matchFailed(player);
                 continue;
             }
-            let set = pointMap.get(player.user.character.season[season].ELO);
+            let set = pointMap.get(player.rankType);
             if (set) {
                 set.add(player);
             } else {
                 set = new Set();
                 set.add(player);
-                pointMap.set(player.user.character.season[season].ELO, set);
+                pointMap.set(player.rankType, set);
             }
         }
       //  console.log(pointMap.get(0).size);
@@ -51,10 +51,10 @@ module.exports = {
                     break;
                 }
 
-                let max = oldest.user.character.season[season].ELO;
-                let min = oldest.user.character.season[season].ELO;
-                let middle = oldest.user.character.season[season].ELO;
-                if (oldest.waitTime > 15) {
+                let max = oldest.rankType;
+                let min = oldest.rankType;
+                let middle = oldest.rankType;
+               /* if (oldest.waitTime > 15) {
                     max = 10000*200;
                     min = 0;
                 } else if (oldest.waitTime > 10) {
@@ -63,7 +63,7 @@ module.exports = {
                 } else if (oldest.waitTime > 5) {
                     max = oldest.user.character.season[season].ELO+ 3*200;
                     min = oldest.user.character.season[season].ELO - 3*200;
-                }
+                }*/
                 let matchPoolPlayer = new Set();
                 //从中位数向两边扩大范围搜索
                 for (let searchRankUp = middle, searchRankDown = middle; searchRankUp <= max || searchRankDown >= min; searchRankUp++, searchRankDown--) {
@@ -78,7 +78,7 @@ module.exports = {
                                 if (player.user.uid != oldest.user.uid && player.status == constant.playerStatus.ready) {//排除玩家本身
                                     if (matchPoolPlayer.size < 1) {
                                         matchPoolPlayer.add(player);
-                                        ctx.logger.info(oldest.user.uid + "|匹配到玩家|" + player.user.uid + "|ELO|" + player.user.character.season[season].ELO);
+                                        ctx.logger.info(oldest.user.uid + "|匹配到玩家|" + player.user.uid + "|rankType|" + player.rankType);
                                         //移除
                                         sameRankPlayers.delete(player);
                                         break;

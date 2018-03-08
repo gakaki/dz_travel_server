@@ -18,9 +18,9 @@ class UserService extends Service {
                 let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
                 this.logger.info("通过openid查库 ：" + JSON.stringify(loginUser));
                 if (loginUser != null) {
-                    let sid = this.GEN_SID();
-                    this.recruitSid(sid, loginUser.pid);
-                    this.logger.info("老用户刷新SID ：" + sid);
+                    let _sid = this.GEN_SID();
+                    this.recruitSid(_sid, loginUser.pid);
+                    this.logger.info("老用户刷新SID ：" + _sid);
 
                     await this.ctx.model.PublicModel.User.update({pid: loginUser.pid,appName:appName}, {
                         $set: {
@@ -32,8 +32,8 @@ class UserService extends Service {
                             country:info.country,
                         }
                     });
+                    result.sid = _sid;
                 }
-                result.sid = sid;
                 result.info = loginUser;
                 return result;
 
