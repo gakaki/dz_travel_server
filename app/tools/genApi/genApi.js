@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dust = require("../dust");
+dust.trimWrap = true;
 
 //--------------declares----------------------
 const API_FILE_EXT = '.api';
@@ -23,7 +24,11 @@ class Func {
     }
 
     genContentStr() {
-        this.contentStr = this.contents.join('\n').replace(/\s}\s?/g, '}');
+        this.contentStr = this.contents.join('\n').replace(/\s[{}]\s?/g, str => {
+            if (str.indexOf('{') > -1)
+                return '{'
+            return '}'
+        });
     }
 }
 
@@ -369,7 +374,7 @@ class OutputProcessor extends Processor {
     }
 }
 
-class MustcacheLProcessor extends Processor {
+class MustacheLProcessor extends Processor {
     parse(tags) {
         parsing.mustcacheOpening++
         tags.pop();
@@ -377,7 +382,7 @@ class MustcacheLProcessor extends Processor {
     }
 }
 
-class MustcacheRProcessor extends Processor {
+class MustacheRProcessor extends Processor {
     parse(tags) {
         parsing.mustcacheOpening--;
         if (parsing.mustcacheOpening == 1) {
@@ -461,8 +466,8 @@ syntax.reg(SYNTAX.OPTIONAL, new OptionalProcessor());
 syntax.reg(SYNTAX.OUTPUT, new OutputProcessor());
 syntax.reg(SYNTAX.FUNC, new FuncProcessor());
 syntax.reg(SYNTAX.EXTENDS, new ExtendsProcessor());
-syntax.reg(SYNTAX.MS_LEFT, new MustcacheLProcessor());
-syntax.reg(SYNTAX.MS_RIGHT, new MustcacheRProcessor());
+syntax.reg(SYNTAX.MS_LEFT, new MustacheLProcessor());
+syntax.reg(SYNTAX.MS_RIGHT, new MustacheRProcessor());
 
 
 //读取配置
