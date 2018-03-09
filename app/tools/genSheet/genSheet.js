@@ -51,6 +51,7 @@ class Data {
 
 //-------------enter---------------------------------
 //读取配置
+let curFl,curSheet;
 const cfg = require('./config');
 const parsedData = {
     client: new Data(),
@@ -107,6 +108,7 @@ async function gen(cfgKey, cfgNode) {
 
 function parseFile(flPath) {
     let fl = path.basename(flPath);
+    curFl = flPath;
     let extName = path.extname(fl);
     if (/^[a-zA-Z]+/.test(fl) == false) {
         //文件名不能为全中文命名
@@ -137,6 +139,7 @@ function parseFile(flPath) {
 
 function mergeToJson(sht, sheetName, fl) {
     //sht==其中一个工作表的内容
+    curSheet = sheetName;
     parsedData.client.jsondata[sheetName] = {};
     parsedData.server.jsondata[sheetName] = {};
 
@@ -232,7 +235,10 @@ function mergeToJson(sht, sheetName, fl) {
 
 
 function parseType(type, data) {
-    data +=''//转字符串
+    if (data)
+        data +=''//转字符串
+    else
+        data = '';
     switch (type) {
         case TYPE_TAG.INT:
             return parseInt(data);
@@ -243,6 +249,10 @@ function parseType(type, data) {
             let arr = data.split(':');
             kv.k = arr[0];
             kv.v = arr[1];
+            if (kv.k == 'undefined'){
+                console.log('has blank row in',curSheet, curFl);
+                return null;
+            }
             return kv;
         case TYPE_TAG.ITEMS:
             return data.split(',').map(it => {
