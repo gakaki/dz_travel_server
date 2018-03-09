@@ -112,8 +112,29 @@ module.exports = app => {
             });
         }
 
+    });
+
+    app.messenger.on('pkend',pkinfo => {
+        if(!app.roomList.has(pkinfo.appName)){
+            app.roomList.set(pkinfo.appName,new Map());
+        }
+        let roomInfo =  app.roomList.get(pkinfo.appName).get(pkinfo.rid);
+        if(roomInfo.isFriend){
+            roomInfo.setRoomStatus(constant.roomStatus.ready);
+        }
+        for(let player of roomInfo.userList.values()){
+            player.gameFinish();
+        }
+        const ctx = app.createAnonymousContext();
+        ctx.runInBackground(async () => {
+            ctx.service.englishService.englishService.pkEnd(pkinfo.rid,pkinfo.appName,pkinfo.leaveUid);
+        });
+
+
 
     });
+
+
 
     app.messenger.on('createRoom',roomInfo =>{
         if(!app.roomList.has(roomInfo.appName)){
@@ -143,11 +164,34 @@ module.exports = app => {
             app.roomList.set(rInfo.appName,new Map());
         }
         let roomInfo = app.roomList.get(rInfo.appName).get(rInfo.rid);
-        for (let [uid,bystander] of roomInfo.bystander.entries()){
-            roomInfo.leaveBystander(uid);
-            roomInfo.joinRoom(bystander);
-            break;
+        if(roomInfo.userList.size <2){
+            for (let [uid,bystander] of roomInfo.bystander.entries()){
+                roomInfo.leaveBystander(uid);
+                roomInfo.joinRoom(bystander);
+                break;
+            }
         }
+        let userList=[];
+        for(let player of roomInfo.userList.values()){
+            let user={
+                info :player.user,
+                isInitiator:player.isInitiator
+            };
+            userList.push(user);
+        }
+        let rinfo={
+            userList:userList,
+            bystanderCount:roomInfo.bystander.size,
+            rid:rid,
+            isFriend:true,
+            roomStatus:roomInfo.roomStatus
+        };
+
+        const ctx = app.createAnonymousContext();
+        ctx.runInBackground(async () => {
+            ctx.service.englishService.englishService.exchange(rInfo.appName,rInfo.rid,userList,rinfo);
+        });
+
 
     });
 
@@ -161,9 +205,35 @@ module.exports = app => {
 
     });
 
+    app.messenger.on('leaveRoom',info =>{
+        if(!app.roomList.has(info.appName)){
+            app.roomList.set(info.appName,new Map());
+        }
+        const ctx = app.createAnonymousContext();
+        let roomList = app.roomList.get(info.appName);
+        let isInitiator = false;
+        for(let [rid,roomInfo] of roomList.entries()){
+            for(let [userId,player] of roomInfo.userList.entries()){
+                if(userId == info.uid){
+                    if(player.isInitiator){
+                        isInitiator = true
+                    }
+                    ctx.runInBackground(async () => {
+                        ctx.service.englishService.englishService.leaveRoom(info.uid,rid,info.appName,isInitiator);
+                    });
+
+                }
+            }
+        }
+    });
+
+
+
     app.messenger.on('delRoom',roomInfo =>{
         app.roomList.get(roomInfo.appName).delete(roomInfo.rid);
     });
+
+
 
 
 };
