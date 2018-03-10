@@ -38,6 +38,10 @@ class UserService extends Service {
                 return result;
 
             } else {
+                if(uid && authUi.uid != uid){
+                    result.info = null;
+                    return result;
+                }
                 await this.ctx.model.PublicModel.User.update({pid: authUi.pid,appName:appName}, {
                     $set: {
                         nickName:info.nickName,
@@ -213,12 +217,13 @@ class UserService extends Service {
         if (ses == null) {
             return null;
         }
+        this.logger.info("用户PID: " + ses.pid);
         return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
     }
 
 
     GEN_SID() {
-        return crypto.createHash('md5').update(Math.random().toString()).digest('hex');
+        return crypto.createHash('md5').update(new Date().getTime().toString()).digest('hex');
     };
 
 

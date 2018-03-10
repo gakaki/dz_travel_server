@@ -36,16 +36,16 @@ class WeChatService extends Service {
     }
 
 
-    async minAppPay(ui, payCount, title, appName) {
+    async minAppPay(ui, payCount, good, appName) {
         let result = {
             data: {}
         };
         // 规则，year/month/day 000000000
         let orderid = moment().format('YYYYMMDDhhmmssSS') + await this.ctx.model.WeChatModel.WechatUnifiedOrder.count();
         let payInfo = {
-            price: Math.floor(payCount * 100),
+            price: payCount,
             //  price:1,
-            title: title,
+            title: good,
             pid: ui.pid,
             type: "recharge",
             orderid: orderid,
@@ -241,6 +241,8 @@ class WeChatService extends Service {
 
                     if (appName == constant.AppName.GUESSNUM) {
                         that.service.guessnumService.guessnumService.doComplete(resultParam.out_trade_no, appName);
+                    }else if(appName == constant.AppName.ENGLISH){
+                        that.service.englishService.englishService.doComplete(resultParam.out_trade_no, appName);
                     }
 
 

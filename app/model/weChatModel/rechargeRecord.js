@@ -4,7 +4,7 @@ module.exports = app => {
         orderid: {type: String},
         appName: {type: String},
         pid: {type: String},
-        title: {type: String},
+        good: {type: String},
         time: {type: String, default: new Date().toLocaleString()},
         price: {type: Number},
         desc: {type: String},

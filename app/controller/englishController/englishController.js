@@ -17,7 +17,7 @@ class EnglishController extends Controller {
             ctx.body = result;
             return;
         }
-        let show=await this.service.englishService.englishService.showPersonal(ui);
+        let show=await this.service.englishService.englishService.showPersonal(ui,appName);
         result.code=constant.Code.OK;
         result.data=show;
         ctx.body=result;
@@ -95,6 +95,7 @@ class EnglishController extends Controller {
             return;
         }
         let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        ctx.logger.info("分享的奖励");
         if (ui == null) {
             result.code = constant.Code.USER_NOT_FOUND;
             ctx.body = result;
@@ -127,9 +128,38 @@ class EnglishController extends Controller {
 
         if(room){
             result.code=constant.Code.OK;
+            result.data ={
+                roomStatus:room.roomStatus
+            }
         }else{
             result.code=constant.Code.ROOM_EXPIRED;
         }
+        ctx.body=result;
+    }
+
+    async makesurprise(ctx){
+        const {_sid, appName,itemId} = ctx.query;
+        let result = {};
+        if (!_sid || !appName || !itemId ) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        if(!englishConfigs.Item.Get(itemId) ||englishConfigs.Item.Get(itemId).ifuse == -1){
+            result.code = constant.Code.REQUIREMENT_FAILED;
+            ctx.body = result;
+            return
+        }
+
+        let dropItem=await this.service.englishService.englishService.makeSurprise(ui,appName,itemId);
+        result.code=constant.Code.OK;
+        result.data=dropItem;
         ctx.body=result;
     }
 

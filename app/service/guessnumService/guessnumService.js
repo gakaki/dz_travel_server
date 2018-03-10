@@ -536,7 +536,7 @@ class GuessnumService extends Service {
         }
         let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid,appName:constant.AppName.GUESSNUM});
         this.logger.info("准备生成红包");
-        await this.sendPack(ui, rcd.price, rcd.title, false, orderid);
+        await this.sendPack(ui, rcd.price, rcd.good, false, orderid);
 
         return true;
     }

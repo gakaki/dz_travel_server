@@ -6,9 +6,9 @@ class EnglishPlayer {
         this.status = status;
         this.appName = appName;
         this.waitTime = 0;
-        this.isAnswer  = false;
+       // this.isAnswer  = false;
         this.wait = null;
-        this.gameWait=null;
+     //   this.gameWait=null;
         this.startTime = null;
         this.score=0;
         this.answers=[];
@@ -68,13 +68,6 @@ class EnglishPlayer {
         this.status = constant.playerStatus.isGaming;
     }
 
-    nextRound(){
-        let that = this;
-        this.gameWait = setInterval(function () {
-            that.isAnswer =false;
-            return true
-        }, 10000)
-    }
 
     gameFinish() {
         clearTimeout(this.wait);
@@ -87,7 +80,7 @@ class EnglishPlayer {
         this.mistake=0;
         this.continuousRight=0;
         this.isInitiator=false;
-        this.rankType=0;
+        this.rankType=1;
     }
 
 

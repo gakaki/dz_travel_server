@@ -36,8 +36,8 @@ class WeChatController extends Controller {
     async minapppay(ctx) {
         this.logger.info("我要付款");
         let result = {};
-        const {_sid, payCount, title, appName} = ctx.query;
-        if (!_sid || !payCount || !title || !appName) {
+        const {_sid, payCount, good, appName} = ctx.query;
+        if (!_sid || !payCount || !good || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
@@ -50,7 +50,7 @@ class WeChatController extends Controller {
         }
 
         this.logger.info("我拿到的钱数:" + payCount);
-        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, payCount, title, appName);
+        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, payCount, good, appName);
     }
 
     async minappwithdraw(ctx) {

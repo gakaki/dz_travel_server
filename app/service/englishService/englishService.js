@@ -5,8 +5,9 @@ const utils = require("../../utils/utils");
 const englishConfigs = require("../../../sheets/english");
 
 class EnglishService extends Service {
-    matchSuccess(matchPoolPlayer, roomId) {
+    async matchSuccess(matchPoolPlayer, roomId) {
         let englishroom = this.app.roomList.get(constant.AppName.ENGLISH).get(roomId);
+        this.logger.info("发送匹配信息 ："+roomId);
         for (let player of matchPoolPlayer) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, player.user.uid);
             if (socket) {
@@ -19,17 +20,24 @@ class EnglishService extends Service {
                     };
                     uList.push(user);
                 }
+                this.logger.info(player.user.nickName+"当前选择 为："+player.rankType+"花费金币 L:"+ englishConfigs.Stage.Get(player.rankType).goldcoins1);
+                let cost = {
+                    ["items."+englishConfigs.Item.GOLD] :(englishConfigs.Stage.Get(player.rankType).goldcoins1)* -1
+                };
+                await this.ctx.model.PublicModel.User.update({uid: player.user.uid, appName: constant.AppName.ENGLISH}, {$inc: cost});
 
-                socket.emit('joinSuccess', {
+                await this.ctx.service.publicService.itemService.itemChange(player.user, cost, constant.AppName.ENGLISH);
+               /* socket.emit('joinSuccess', {
                     code: constant.Code.OK,
-                });
+                });*/
 
                 // setTimeout(function () {
+              //  this.logger.info("matchSuccess ："+englishroom.rid);
                 socket.emit("matchSuccess", {
                     code: constant.Code.OK,
                     data: {
                         userList: uList,
-                        roomInfo: englishroom
+                        rid: roomId
                     }
                 })
                 // },500)
@@ -48,7 +56,7 @@ class EnglishService extends Service {
     }
 
 
-    async showPersonal(ui) {
+    async showPersonal(ui,appName) {
         let date = new Date().toLocaleDateString();
         let answerRecords = await this.ctx.model.EnglishModel.EnglishAnswerRecord.find({uid: ui.uid, date: date});
         let todayWords = new Set();
@@ -68,6 +76,18 @@ class EnglishService extends Service {
             if (record.isRight) {
                 rightCount++;
             }
+        }
+
+        if(Object.keys(ui.items).length < englishConfigs.items.length){
+            let items = {};
+            for(let item of englishConfigs.items){
+                if(!ui.items[item.id]){
+                    items["items."+item.id]=0;
+                }
+            }
+
+            await this.ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$set:items});
+            ui = await this.ctx.model.PublicModel.User.findOne({uid:ui.uid,appName:appName});
         }
         // let answerCount = await this.ctx.model.EnglishModel.EnglishAnswerRecord.count({uid:ui.uid,date:date});
 
@@ -118,7 +138,10 @@ class EnglishService extends Service {
         await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
         await this.ctx.service.publicService.itemService.itemChange(ui, items, appName);
 
-        return reward;
+        return {
+            day:day,
+            reward:reward
+        };
     }
 
     async getShareAward(ui, appName) {
@@ -156,6 +179,39 @@ class EnglishService extends Service {
 
     roomIsExist(ui, appName, rid) {
         return this.app.roomList.has(appName) ? this.app.roomList.get(appName).get(rid) : null;
+    }
+
+    async makeSurprise(ui,appName,itemId){
+        let drop=englishConfigs.Item.Get(itemId).drop;  //掉落物品
+        let cost = {
+            ["items." + itemId]: -1,
+        };
+        let result ={};
+        let randomdropIDs = englishConfigs.Drop.Get(drop).randomdropID;
+        for(let randomItem of randomdropIDs){
+            for(let i = 0 ; i<randomItem.v;i++){
+                let randomDrop=englishConfigs.Randomdrop.Get(randomItem.k).drop;
+                if(randomDrop.length>1){
+                    let index=utils.Rangei(0,randomDrop.length);
+                    let num = cost["items."+randomDrop[index].k];
+                    if(num){
+                        cost["items."+randomDrop[index].k] = Number(randomDrop[index].v)+num;
+                        result[randomDrop[index].k] = Number(randomDrop[index].v)+num;
+                    }else{
+                        cost["items."+randomDrop[index].k] =Number(randomDrop[index].v);
+                        result[randomDrop[index].k] = Number(randomDrop[index].v);
+                    }
+                }else{
+                    cost["items."+randomDrop[0].k] = Number(randomDrop[0].v);
+                    result[randomDrop[0].k] = Number(randomDrop[0].v);
+                }
+            }
+
+        }
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
+        await this.ctx.service.publicService.itemService.itemChange(ui, cost, constant.AppName.ENGLISH);
+        return result;
+
     }
 
     develop(ui) {
@@ -344,8 +400,39 @@ class EnglishService extends Service {
         return questions;
     }
 
+    async doComplete(orderid,appName){
+        let rcd = await this.ctx.model.WeChatModel.RechargeRecord.findOne({
+            orderid: orderid,
+            close: true,
+            appName: appName
+        });
+        this.logger.info("修改预下单状态 ：" + JSON.stringify(rcd));
+        if (rcd == null) {
+            return false;
+        }
+        let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid,appName:appName});
+        //修改数据库;
+        let good =englishConfigs.Shop.Get(rcd.good);
+        let cost = {
+          ["items."+good.itemid.k] :Number(good.itemid.v)
+        };
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
+        ui= await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid,appName:appName});
+        await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
+        let socket = this.ctx.service.socketService.socketioService.getSocket(appName, ui.uid);
+        if (socket) {
+            socket.emit("getItem", {
+                code: constant.Code.OK,
+                data:{
+                    [rcd.good]:ui.items[good.itemid.k]
+                }
+            })
+        }
+        return true;
+    }
 
-    leaveRoom(uid, rid, appName, isInitiator) {
+
+    async leaveRoom(uid, rid, appName, isInitiator) {
         let roomInfo = this.app.roomList.get(appName).get(rid);
         //是否是好友房
         if (roomInfo.isFriend) {
@@ -374,26 +461,18 @@ class EnglishService extends Service {
                             })
                         }
                     }
-                    return
-                } else {
-                    this.app.messenger.sendToApp('exchange', {appName: constant.AppName.ENGLISH, rid: rid});
+                    return true
                 }
-
             }
 
         }
-        //  if(!isOver){
+
         //直接触发游戏结束
-        this.app.messenger.sendToApp('pkend', {appName: appName, rid: rid, leaveUid: uid});
+        return await this.pkEnd(rid,appName,uid);
 
-        // }
-
-     /*   if (roomList[rid].userList.size == 0) {
-            this.app.messenger.sendToApp('delRoom', {appName: appName, rid: rid});
-        }*/
     }
 
-    exchange(appName, rid, uList, rInfo) {
+    notice(appName, rid, uList, rInfo) {
         let roomInfo = this.app.roomList.get(appName).get(rid);
         for (let userId of roomInfo.userList.keys()) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId);
@@ -422,36 +501,44 @@ class EnglishService extends Service {
     }
 
     async pkEnd(rid, appName, leaveUid) {
+        this.logger.info("对战结束。。。");
         let isLeave = false;
+        if(leaveUid != null){
+            isLeave = true;
+        }
+        let roomMangerLeave = false;
         let roomInfo = this.app.roomList.get(appName).get(rid);
+
+
+
         for (let player of roomInfo.userList.values()) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, player.user.uid);
             if (socket) {
-                if (player.user.uid == leaveUid) {
-                    this.ctx.service.socketService.socketioService.delSocket(appName, player.user.uid);
-                    isLeave = true;
-                }
-                let result = roomInfo.gameover(player.user.uid, roomInfo.isFriend, isLeave);
+                let result = roomInfo.gameover(player.user.uid, roomInfo.isFriend, isLeave,leaveUid);
                 let season = this.getSeason();
                 let user = player.user;
                 let rankType = player.rankType;
 
+             //   this.logger.info(player.user.nickName +"本轮成绩 ：" ,result);
+                let items={
+                    ["items." + englishConfigs.Item.GOLD]: result.gold
+                };
                 let cost = {
-                    ["character.experience.exp"]: result.exp,
                     ["character.wins"]: result.wins,
                     ["character.losses"]: result.losses,
                     ["character.total"]: result.total,
-                    ["character." + season + ".ELO"]: 200 * result.star,
                     ["items." + englishConfigs.Item.GOLD]: result.gold
                 };
 
                 let winningStreak = user.character.winningStreak;
-                let rank = user.character[season].rank;
-                let star = user.character[season].star;
+                let rank = user.character.season[season].rank;
+                let star = user.character.season[season].star;
+                let ELO = user.character.season[season].ELO;
                 let exp = user.character.experience.exp;
                 let needExp = user.character.experience.needExp;
                 let level = user.character.level;
                 let time = new Date().toLocaleString();
+                let awards=null;
                 let up = {};
                 //连胜统计
                 let isRank = false;
@@ -465,9 +552,14 @@ class EnglishService extends Service {
                     }
                     up["character.winningStreak"] = winningStreak;
 
-                    if (rankType == user.character[season].rank) {
+                    this.logger.info("用户选择的段位 :"+rankType);
+                    this.logger.info("用户当前段位 :"+user.character.season[season].rank);
+                    if (rankType == user.character.season[season].rank) {
                         //段位统计
-                        if (star + result.star < 0) {
+                        if(result.losses){
+                            result.star = -1;
+                        }
+                        if (star + result.star <= 0) {
                             star = 0;
                         } else {
                             if (englishConfigs.Stage.Get(rank).star == (star + result.star)) {
@@ -479,29 +571,46 @@ class EnglishService extends Service {
                                 isStarUp = result.star;
                             }
                         }
+                        if(ELO > 0){
+                            cost["character.season." + season + ".ELO"]=200 * result.star;
+                        }
 
-                        up["character." + season + ".rank"] = rank;
-                        up["character." + season + ".star"] = star;
-                        up["character." + season + ".createTime"] = time;
+                        up["character.season." + season + ".rank"] = rank;
+                        up["character.season." + season + ".star"] = star;
+                        up["character.season." + season + ".createTime"] = time;
+
                     }
 
 
                 }
 
+                this.logger.info("等级提升 ：" ,exp,result.exp ,needExp);
+                let nextLevel = englishConfigs.Level.Get(level+1).next;
+                if(nextLevel != -1){
+                    //等级统计
+                    if ((exp + result.exp) == needExp) {
+                        level++;
+                        isUp = true;
+                        awards = englishConfigs.Level.Get(level).award;
 
-                //等级统计
-                if ((exp + result.exp) == needExp) {
-                    level++;
-                    isUp = true;
-                    let awards = englishConfigs.Level.Get(level).award;
-                    needExp = englishConfigs.Speech.Get(level);
-                    for (let award of awards) {
-                        cost ["items." + award] = 1;
+                        needExp = Number(englishConfigs.Level.Get(level+1).EXP);
+                        for (let award of awards) {
+                            cost ["items." + award] = 1;
+                            items ["items." + englishConfigs.Item.GOLD]=result.gold
+
+                        }
+
+                        cost ["character.level"] = 1;
+                        up["character.experience.needExp"] = needExp;
+                        up["character.experience.exp"] = 0;
+                    }else{
+                        cost["character.experience.exp"]=result.exp;
                     }
-                    cost ["character.level"] = 1;
-                    up["character.experience.needExp"] = needExp;
                 }
 
+
+
+                this.logger.info(user.nickName +"数据入库 :" ,cost,up);
 
                 await this.ctx.model.PublicModel.User.update({uid: user.uid, appName: appName}, {
                     $set: up,
@@ -510,6 +619,7 @@ class EnglishService extends Service {
 
 
                 let upUser = await this.ctx.model.PublicModel.User.findOne({uid: user.uid, appName: appName});
+                await this.ctx.service.publicService.itemService.itemChange(upUser, items, constant.AppName.ENGLISH);
                 //   console.log(ui);
                 player.setUser(upUser);
 
@@ -532,49 +642,66 @@ class EnglishService extends Service {
                 };
                 this.ctx.model.EnglishModel.EnglishPKRecord.create(englishPKRecord);
 
-                //app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,room:roomInfo,isOver:true});
-                app.messenger.sendToApp('refresh', {appName: constant.AppName.ENGLISH, refreshPlayer: player});
-
 
                 let ulist = [];
-                for (let player of roomInfo.userList.values()) {
-                    //  console.log(player);
-                    ulist.push({
-                        info: player.user,
-                        score: player.score,
-                        continuousRight: player.continuousRight,
-                        // playerAnswer:player.answers
-                    })
+                for (let uInfo of roomInfo.userList.values()) {
+                    let user={
+                        info: uInfo.user,
+                        score: uInfo.score,
+                        continuousRight: uInfo.continuousRight,
+                        winningStreak:uInfo.user.character.winningStreak
+                    };
+                    if(result.wins && uInfo.user.uid != player.user.uid){
+                        user.winningStreak = 0
+                    }
+                    ulist.push(user);
                 }
 
                 socket.leave(rid);
 
-                if(!isLeave){
+                if (player.user.uid == leaveUid) {
+                    if(player.isInitiator){
+                        roomMangerLeave = true;
+                    }
+                    this.logger.info("离开者 ：" +player.user.nickName);
+                    this.ctx.service.socketService.socketioService.delSocket(appName, player.user.uid);
+                }else{
                     socket.emit('pkEndSettlement', {
                         code: constant.Code.OK,
                         data: {
                             userList: ulist,
+                            exp:result.exp,
+                            gold:result.gold,
                             final: result.final,
-                            isFriend: roomInfo.isFriend
+                            isFriend: roomInfo.isFriend,
+                            pkResult:{
+                                isRank: {
+                                    isRank:isRank,
+                                    rank:rank
+                                },
+                                isStarUp: {
+                                    isStarUp:isStarUp,
+                                },
+                                isUp: {
+                                    isUp:isUp,
+                                    level:level,
+                                    awards:awards
+                                }
+                            }
                         }
                     });
-
-                    socket.emit("pkResult", {
-                        code: constant.Code.OK,
-                        data: {
-                            isRank: isRank,
-                            isStarUp: isStarUp,
-                            isUp: isUp
-                        }
-                    })
                 }
 
-            }
 
+
+            }
         }
-        if(!roomInfo.isFriend){
-            this.app.messenger.sendToApp('delRoom', {appName: appName, rid: rid});
+
+        if(!roomInfo.isFriend || roomMangerLeave){
+            return true
         }
+
+        return false;
 
     }
 }

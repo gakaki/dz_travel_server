@@ -16,23 +16,20 @@ exports.AppItem = {
         [guessnumConfigs.Item.ACCELERATION]: 100,
         [guessnumConfigs.Item.CASHCOUPON]: 100,
     },
-    english: {
-        [englishConfigs.Item.GOLD]:10000,
-        [englishConfigs.Item.N]:100,
-        [englishConfigs.Item.ADJ]:100,
-        [englishConfigs.Item.ADV]:100,
-        [englishConfigs.Item.PRON]:100,
-        [englishConfigs.Item.NUM]:100,
-        [englishConfigs.Item.V]:100,
-        [englishConfigs.Item.ART]:100,
-        [englishConfigs.Item.PREP]:100,
-        [englishConfigs.Item.CONJ]:100,
-        [englishConfigs.Item.INT]:100,
-        [englishConfigs.Item.TREASURE]:100,
-        [englishConfigs.Item.COINS]:100,
-}
+    english: getItem("english")
 
 };
+function getItem(appName) {
+    switch (appName){
+        case "english":
+            let items={};
+            for(let item of englishConfigs.items){
+                items[item.id]=10000
+            }
+            return items;
+    }
+}
+
 
 exports.AppCharacter = {
     english: {
@@ -56,7 +53,9 @@ exports.AppCharacter = {
         cumulativeDays:0, //累计天数
         beautifulWords:0, //每日美句
         friendsList: [], //好友列表
-        wordList:{}, //单词列表
+        wordList:{
+            [new Date().toLocaleDateString()]:[]
+        }, //单词列表
         developSystem:getDevelop()
     }
 };

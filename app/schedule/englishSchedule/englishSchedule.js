@@ -105,11 +105,14 @@ module.exports = {
                             rankB=player.rankType;
                         }
                     }
+                    let roomId = "10" + new Date().getTime();
+
                     let pk = Math.min(rankA,rankB);
                     let difficulty = englishConfigs.Stage.Get(pk).difficulty;
                     let index = utils.Rangei(0,difficulty.length);
                     let wordList=ctx.service.englishService.englishService.setQuestions(difficulty[index]);
-                    ctx.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr,wordList:wordList,difficulty:difficulty[index]});
+                    ctx.logger.info("匹配成功 ："+roomId);
+                    ctx.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr,rid:roomId,wordList:wordList,difficulty:difficulty[index]});
                     //ctx.service.englishService.englishService.matchSuccess(matchPoolPlayer);
                 } else {
                     //本分数段等待时间最长的玩家都匹配不到，其他更不用尝试了

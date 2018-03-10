@@ -23,8 +23,14 @@ class EnglishRoom {
         }
     }
 
+
+
     leaveBystander(uid){
         this.bystander.delete(uid);
+    }
+
+    leaveUserList(uid){
+        return this.userList.delete(uid);
     }
     setWordList(wordList){
         this.roomStatus=constant.roomStatus.isGaming;
@@ -36,7 +42,7 @@ class EnglishRoom {
     }
 
 
-    gameover(uid,isFriend=false,isLeave = false){
+    gameover(uid,isFriend=false,isLeave = false,leaveUid){
         let owner= null;
         let challenger = null;
         for(let [userId,player] of this.userList.entries()){
@@ -48,7 +54,7 @@ class EnglishRoom {
         }
 
         let result = {
-            exp:englishConfigs.Constant.Get(englishConfigs.Constant.EXP).value,
+            exp:Number(englishConfigs.Constant.Get(englishConfigs.Constant.EXP).value),
             total:0,
             star:0,
             gold:0,
@@ -61,18 +67,25 @@ class EnglishRoom {
             result.total=1;
         }
         if(isLeave){
-            if(!isFriend){
-                result.losses=1;
-                if(owner.user.character.star > 0){
-                    result.star=-1;
+            if(uid == leaveUid){
+                if(!isFriend){
+                    result.losses=1;
                 }
+            }else{
+                if(!isFriend){
+                    result.wins=1;
+                    result.star=1;
+                    result.gold=Number(englishConfigs.Stage.Get(owner.rankType).goldcoins2)
+                }
+                result.final=2;
             }
+
         }else{
             if(owner.score > challenger.score){
                 if(!isFriend){
                     result.wins=1;
                     result.star=1;
-                    result.gold=englishConfigs.Stage.Get(owner.rankType).goldcoins2
+                    result.gold=Number(englishConfigs.Stage.Get(owner.rankType).goldcoins2)
                 }
                 result.final=2;
             }else{
@@ -81,9 +94,6 @@ class EnglishRoom {
                         result.final=1;
                     }
                     result.losses=1;
-                    if(owner.user.character.star > 0){
-                        result.star=-1;
-                    }
                 }
             }
         }
