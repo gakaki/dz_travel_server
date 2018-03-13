@@ -168,6 +168,7 @@ class UserService extends Service {
         // 生成pid
         let count = await this.ctx.model.PublicModel.User.count({appName: appName});
         let pid = count + 1 +PID_INIT;
+        //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;

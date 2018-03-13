@@ -1,7 +1,5 @@
 const englishConfigs = require("../../../sheets/english");
-
 const utils = require("../../utils/utils");
-
 const constant =require("../../utils/constant");
 
 module.exports = {
@@ -12,8 +10,7 @@ module.exports = {
     async task(ctx) {
        //  let startTime = new Date().getTime();
         //   ctx.logger.info("执行匹配开始|开始时间|"+startTime);
-        let season=ctx.service.englishService.englishService.getSeason();
-        //let totalPool = ctx.service.publicService.matchingService.getTotalPool("english");
+      //  let season=ctx.service.englishService.englishService.getSeason();
         let totalPool = ctx.app.matchPool.get(constant.AppName.ENGLISH) || new Set();
         let pointMap = new Map();
        // console.log("总玩家数 ：" +totalPool.size);
@@ -117,7 +114,7 @@ module.exports = {
                 } else {
                     //本分数段等待时间最长的玩家都匹配不到，其他更不用尝试了
                     continueMatch = false;
-                    ctx.logger.info(oldest.user.uid + "|匹配到玩家数量不够，取消本次匹配");
+                  //  ctx.logger.info(oldest.user.uid + "|匹配到玩家数量不够，取消本次匹配");
                 }
             }
         }

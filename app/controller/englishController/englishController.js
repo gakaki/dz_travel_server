@@ -65,6 +65,27 @@ class EnglishController extends Controller {
         ctx.body=result;
     }
 
+    async isfirstsign(ctx){
+        const {_sid, appName} = ctx.query;
+        let result = {};
+        if (!_sid || !appName) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        ctx.logger.info("我要判断是否首次签到");
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let sign=await this.service.englishService.englishService.isFirstSign(ui,appName);
+        result.code=constant.Code.OK;
+        result.data=sign;
+
+        ctx.body=result;
+    }
 
     async signin(ctx){
         const {_sid, appName} = ctx.query;
@@ -74,15 +95,42 @@ class EnglishController extends Controller {
             ctx.body = result;
             return;
         }
+        ctx.logger.info("我要签到");
         let ui = await this.service.publicService.userService.findUserBySid(_sid);
         if (ui == null) {
             result.code = constant.Code.USER_NOT_FOUND;
             ctx.body = result;
             return;
         }
-        let award=await this.service.englishService.englishService.signin(ui,appName);
+        let award=await this.service.englishService.englishService.signIn(ui,appName);
+        if(award !=null){
+            result.code=constant.Code.OK;
+            result.data=award;
+        }else{
+            result.code=constant.Code.REQUIREMENT_FAILED;
+        }
+
+        ctx.body=result;
+    }
+
+    async canshare(ctx){
+        const {_sid, appName} = ctx.query;
+        let result = {};
+        if (!_sid || !appName) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        ctx.logger.info("是否可以分享");
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let canShare=await this.service.englishService.englishService.canShare(ui,appName);
         result.code=constant.Code.OK;
-        result.data=award;
+        result.data=canShare;
         ctx.body=result;
     }
 

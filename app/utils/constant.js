@@ -24,7 +24,12 @@ function getItem(appName) {
         case "english":
             let items={};
             for(let item of englishConfigs.items){
-                items[item.id]=10000
+                if(item.id == englishConfigs.Item.GOLD){
+                    items[item.id]=500
+                }else{
+                    items[item.id]=0
+                }
+
             }
             return items;
     }
@@ -38,7 +43,6 @@ exports.AppCharacter = {
             "1":{
                    rank: 1,       //段位
                    star: 0,       //星星数
-                   ELO: 0,        //等级分
                    createTime:new Date().toLocaleString()
                  }
         },
@@ -64,7 +68,7 @@ function getDevelop() {
     let devs={};
     let speechs=englishConfigs.speechs;
     for(let sp of speechs){
-       devs[sp.id]={
+        devs[sp.id]={
            level:sp.minlevel,
            speech:sp.speech.replace(".",""),
            plus:0,

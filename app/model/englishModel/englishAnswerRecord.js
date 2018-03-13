@@ -6,7 +6,7 @@ module.exports = app => {
         type:{type:Number},
         answer:{type:Array},
         isRight:{type:Boolean},
-        wid:{type:String},
+        wid:{type:Number},
         date:{type:String,default:new Date().toLocaleDateString()},
         time:{type:String,default:new Date().toLocaleTimeString()}
 

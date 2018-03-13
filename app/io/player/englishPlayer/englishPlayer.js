@@ -47,8 +47,8 @@ class EnglishPlayer {
         }
     }
 
-    setInitiator(){
-        this.isInitiator=true;
+    setInitiator(isInitiator=true){
+        this.isInitiator=isInitiator;
     }
     setUser(userInfo){
         this.user=userInfo;
@@ -64,23 +64,29 @@ class EnglishPlayer {
     }
 
     finishReady() {
-        clearTimeout(this.wait);
+        clearInterval(this.wait);
         this.status = constant.playerStatus.isGaming;
+        this.startTime = null;
+        this.waitTime = 0;
+        this.score=0;
+        this.answers=[];
+        this.answer=null;
+        this.right=0;
+        this.mistake=0;
+        this.continuousRight=0;
     }
 
-
     gameFinish() {
-        clearTimeout(this.wait);
+        clearInterval(this.wait);
         this.status = constant.playerStatus.online;
         this.startTime = null;
         this.waitTime = 0;
         this.score=0;
         this.answers=[];
+        this.answer=null;
         this.right=0;
         this.mistake=0;
         this.continuousRight=0;
-        this.isInitiator=false;
-        this.rankType=1;
     }
 
 

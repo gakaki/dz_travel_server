@@ -98,12 +98,18 @@ class WeChatController extends Controller {
     async shopdone(ctx) {
         this.logger.info("支付成功回调");
         let appName = ctx.url.split("/")[3];
-        this.service.weChatService.weChatService.shopDone(appName);
-        let xmlreturn = "<xml><return_code><![CDATA[SUCCESS]]>"
-            + "</return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
+        for(let app in constant.AppName){
+            if(constant.AppName[app] == appName){
+                 this.service.weChatService.weChatService.shopDone(appName);
+                let xmlreturn = "<xml><return_code><![CDATA[SUCCESS]]>"
+                    + "</return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
 
-        ctx.res.setHeader('Content-Type', 'application/xml');
-        ctx.res.end(xmlreturn);
+                ctx.response.type = 'xml';
+                ctx.response.body = xmlreturn;
+                return
+            }
+        }
+
 
 
     }

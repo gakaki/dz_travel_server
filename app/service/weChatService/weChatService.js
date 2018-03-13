@@ -45,7 +45,7 @@ class WeChatService extends Service {
         let payInfo = {
             price: payCount,
             //  price:1,
-            title: good,
+            good: good,
             pid: ui.pid,
             type: "recharge",
             orderid: orderid,
@@ -70,7 +70,7 @@ class WeChatService extends Service {
             total_fee: payInfo.price,// 正式的价格
             time_start: moment(new Date()).format("YYYYMMDDHHMMSS"),
             spbill_create_ip: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
-            notify_url: this.config.noticeurl,
+            notify_url: this.config.noticeurl+"/"+appName,
             appid: this.config[appName].appid,
             mch_id: this.config.pubmchid,
             openid: ui.uid,
@@ -175,11 +175,9 @@ class WeChatService extends Service {
         let result = {};
         let resultParam = {};
         let buf = "";
-        this.ctx.req.on('data', (chunk) => {
+        this.ctx.req.on('data', async (chunk) => {
             this.logger.info("接收数据");
-            buf += chunk
-        });
-        this.ctx.req.on('end', async () => {
+            buf += chunk;
             await parseString(buf, async function (err, wxresult) {
                 let xml = wxresult.xml;
                 that.logger.info("支付微信回调结果 ：" + JSON.stringify(xml));
@@ -219,13 +217,19 @@ class WeChatService extends Service {
                     that.logger.info("查询到的微信订单 ：" + JSON.stringify(rcd));
 
                     if (!rcd) {
-                        that.logger.log("没有查找到该微信订单 " + resultParam.out_trade_no);
+                        that.logger.info("没有查找到该微信订单 " + resultParam.out_trade_no);
+                        result.code = false;
+                        return result;
+                    }
+
+                    if(rcd.close){
+                        that.logger.info("该订单已经关闭 " + resultParam.cash_fee + ":" + rcd.price);
                         result.code = false;
                         return result;
                     }
 
                     if (resultParam.cash_fee != rcd.price) {
-                        that.logger.log("支付的金额和下单的金额不一致 " + resultParam.cash_fee + ":" + rcd.price);
+                        that.logger.info("支付的金额和下单的金额不一致 " + resultParam.cash_fee + ":" + rcd.price);
                         result.code = false;
                         return result;
                     }
@@ -249,10 +253,16 @@ class WeChatService extends Service {
                     return result;
                 }
 
-            })
-
+            });
 
         });
+      /*  this.ctx.req.on('end',()=>{
+            this.logger.info("接收数据结束");
+
+         //   this.ctx.res.setHeader('Content-Type','application/xml').end(xmlreturn);
+           // this.ctx.res.end(xmlreturn);
+        });
+*/
 
     }
 

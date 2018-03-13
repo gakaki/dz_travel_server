@@ -33,7 +33,6 @@ module.exports = () => {
                 ["character.season."+season]:{
                     rank: 1,       //段位
                     star: 0,       //星星数
-                    ELO: 0,        //等级分
                     createTime:new Date().toLocaleString()
                 }
                 }});

@@ -11,6 +11,7 @@ class EnglishRoom {
         this.isFriend=isFriend;
         this.wordList=null;
         this.roomStatus=constant.roomStatus.ready;
+        this.roundTimeOut=-1;
     }
 
 
@@ -39,6 +40,35 @@ class EnglishRoom {
 
     setRoomStatus(status){
         this.roomStatus=status;
+    }
+    start(ctx,uid,appName,time,countDown,rid){
+        let timeout = 11;
+        if(countDown<5){
+            timeout = 6
+        }
+        console.log("开始定时"+countDown);
+        this.roundTimeOut = setTimeout(function () {
+            console.log("可能卡死了。。");
+        //    if(time<5){
+                ctx.service.englishService.englishService.roundEndNotice(appName,uid,rid);
+         //   }/*else{
+            //   ctx.service.englishService.englishService.pkEnd(rid,appName,null);
+       //     }*/
+
+        },timeout*1000)
+    }
+    stop(ctx,uid,appName,time,rid,isLeave=false){
+        console.log("结束定时");
+        clearTimeout(this.roundTimeOut);
+        this.roundTimeOut=-1;
+        if(!isLeave){
+          //  if(time<5){
+                ctx.service.englishService.englishService.roundEndNotice(appName,uid,rid);
+         //   }/*else{
+             //   ctx.service.englishService.englishService.pkEnd(rid,appName,null);
+        //    }*/
+        }
+
     }
 
 
