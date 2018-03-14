@@ -33,37 +33,6 @@ class RankType{
     
 }
 //------------classes--------------
-class IndexInfo  {
-    constructor(){
-    
-        this._isNew = null;
-        this._season = null;
-        this._weather = null;
-        this._memberCnt = null;
-        this._friends = null;
-        this._unreadMsgCnt = null;
-        this.reqFields = [];
-        this.resFields = ["isNew","season","weather","memberCnt","friends","unreadMsgCnt"];
-    }
-    //server output, type: Boolean
-    get isNew() {return this._isNew}
-    set isNew(v) {this._isNew = v}
-    //server output, type: Season
-    get season() {return this._season}
-    set season(v) {this._season = v}
-    //server output, type: Weather
-    get weather() {return this._weather}
-    set weather(v) {this._weather = v}
-    //server output, type: number
-    get memberCnt() {return this._memberCnt}
-    set memberCnt(v) {this._memberCnt = v}
-    //server output, type: string[]
-    get friends() {return this._friends}
-    set friends(v) {this._friends = v}
-    //server output, type: number
-    get unreadMsgCnt() {return this._unreadMsgCnt}
-    set unreadMsgCnt(v) {this._unreadMsgCnt = v}
-}
 class UserInfo  {
     constructor(){
     
@@ -98,25 +67,6 @@ class UserInfo  {
         this.resFields = [];
     }
 }
-class PlayerBriefInfo  {
-    constructor(){
-    
-        this._playerUid = null;
-        this._info = null;
-        this._friends = null;
-        this.reqFields = ["playerUid"];
-        this.resFields = ["info","friends"];
-    }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: UserInfo
-    get info() {return this._info}
-    set info(v) {this._info = v}
-    //server output, type: string[]
-    get friends() {return this._friends}
-    set friends(v) {this._friends = v}
-}
 class RankItem  {
     constructor(){
     
@@ -129,29 +79,6 @@ class RankItem  {
         this.reqFields = [];
         this.resFields = [];
     }
-}
-class RankInfo  {
-    constructor(){
-    
-        this._rankType = null;
-        this._limit = null;
-        this._selfRank = null;
-        this._ranks = null;
-        this.reqFields = ["rankType","limit"];
-        this.resFields = ["selfRank","ranks"];
-    }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, optional, type: number
-    get limit() {return this._limit}
-    set limit(v) {this._limit = v}
-    //server output, type: number
-    get selfRank() {return this._selfRank}
-    set selfRank(v) {this._selfRank = v}
-    //server output, type: RankItem[]
-    get ranks() {return this._ranks}
-    set ranks(v) {this._ranks = v}
 }
 class Base  {
     constructor(){
@@ -215,9 +142,82 @@ class UserInfo  {
         this.resFields = [];
     }
 }
-class PlayerBriefInfo  {
+class IndexInfo extends Base {
     constructor(){
-    
+        super();
+        this._isNew = null;
+        this._season = null;
+        this._weather = null;
+        this._memberCnt = null;
+        this._friends = null;
+        this._unreadMsgCnt = null;
+        this.reqFields = [];
+        this.resFields = ["isNew","season","weather","memberCnt","friends","unreadMsgCnt"];
+    }
+    //server output, type: Boolean
+    get isNew() {return this._isNew}
+    set isNew(v) {this._isNew = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: Weather
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: number
+    get memberCnt() {return this._memberCnt}
+    set memberCnt(v) {this._memberCnt = v}
+    //server output, type: string[]
+    get friends() {return this._friends}
+    set friends(v) {this._friends = v}
+    //server output, type: number
+    get unreadMsgCnt() {return this._unreadMsgCnt}
+    set unreadMsgCnt(v) {this._unreadMsgCnt = v}
+}
+class PlayerBriefInfo extends Base {
+    constructor(){
+        super();
+        this._playerUid = null;
+        this._info = null;
+        this._friends = null;
+        this.reqFields = ["playerUid"];
+        this.resFields = ["info","friends"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserInfo
+    get info() {return this._info}
+    set info(v) {this._info = v}
+    //server output, type: string[]
+    get friends() {return this._friends}
+    set friends(v) {this._friends = v}
+}
+class RankInfo extends Base {
+    constructor(){
+        super();
+        this._rankType = null;
+        this._limit = null;
+        this._selfRank = null;
+        this._ranks = null;
+        this.reqFields = ["rankType","limit"];
+        this.resFields = ["selfRank","ranks"];
+    }
+    //client input, require, type: RankType
+    get rankType() {return this._rankType}
+    set rankType(v) {this._rankType = v}
+    //client input, optional, type: number
+    get limit() {return this._limit}
+    set limit(v) {this._limit = v}
+    //server output, type: number
+    get selfRank() {return this._selfRank}
+    set selfRank(v) {this._selfRank = v}
+    //server output, type: RankItem[]
+    get ranks() {return this._ranks}
+    set ranks(v) {this._ranks = v}
+}
+class PlayerBriefInfo extends Base {
+    constructor(){
+        super();
         this._playerUid = null;
         this._info = null;
         this._friends = null;
@@ -249,12 +249,12 @@ class RechargeRankInfo extends RankInfo {
 exports.Season = Season;
 exports.Weather = Weather;
 exports.RankType = RankType;
-exports.IndexInfo = IndexInfo;
 exports.UserInfo = UserInfo;
-exports.PlayerBriefInfo = PlayerBriefInfo;
 exports.RankItem = RankItem;
-exports.RankInfo = RankInfo;
 exports.Base = Base;
 exports.UserInfo = UserInfo;
+exports.IndexInfo = IndexInfo;
+exports.PlayerBriefInfo = PlayerBriefInfo;
+exports.RankInfo = RankInfo;
 exports.PlayerBriefInfo = PlayerBriefInfo;
 exports.RechargeRankInfo = RechargeRankInfo;
