@@ -8,7 +8,7 @@ module.exports = app => {
         uid: {type: String},
         money: {type: Number},
         remain: {type: Number},
-        createTime: {type: String, default: new Date().toLocaleString()},
+        createTime: {type: String},
         password: {type: String},
         title: {type: String},
         guessCount: {type: Number, default: Number(config.Parameter.Get("timeslimit").value)},

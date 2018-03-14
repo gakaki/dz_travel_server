@@ -3,7 +3,7 @@ module.exports = app => {
     const PackGuessRecordSchema = new mongoose.Schema({
         pid: {type: String},
         uid: {type: String},
-        createTime: {type: String, default: new Date().toLocaleString()},
+        createTime: {type: String},
         userAnswerWord: {type: String},
         userMark: {type: String},
         userGetMoney: {type: Number},

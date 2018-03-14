@@ -16,8 +16,8 @@ module.exports = app => {
         opponentScore:{type:Number},
         rid:{type:String},
         result: {type:Number,enum:[0,1,2]},//是否获胜   0:失败，1平局 2胜利
-        date:{type:String,default:new Date().toLocaleDateString()},
-        time:{type:String,default:new Date().toLocaleTimeString()}
+        date:{type:String},
+        time:{type:String}
 
     });
 

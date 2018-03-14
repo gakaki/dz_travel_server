@@ -50,7 +50,8 @@ class WeChatService extends Service {
             type: "recharge",
             orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
-            appName: appName
+            appName: appName,
+            time: new Date().toLocaleString(),
         };
         this.logger.info("我准备入库的金额 ：" + payInfo.price);
 

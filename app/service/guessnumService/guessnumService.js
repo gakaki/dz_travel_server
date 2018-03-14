@@ -38,7 +38,8 @@ class GuessnumService extends Service {
             remain: Math.floor(money * 100),
             status: constant.Code.PACK_Fighing,
             title: title,
-            useTicket: useTicket
+            useTicket: useTicket,
+            createTime: new Date().toLocaleString(),
         };
         if (orderid != null) {
             pack.orderId = orderid;
@@ -214,7 +215,8 @@ class GuessnumService extends Service {
             userAnswerWord: guessNum,
             userGetMoney: moneyGeted,
             userMark: result.data.userMark,
-            commit: result.data.commit
+            commit: result.data.commit,
+            createTime:new Date().toLocaleString()
         };
         await this.ctx.model.GuessnumModel.PackGuessRecord.create(packGuessRecord);
 
@@ -353,7 +355,9 @@ class GuessnumService extends Service {
         };
         let userShareRecord = {
             uid: ui.uid,
-            appName: constant.AppName.GUESSNUM
+            appName: constant.AppName.GUESSNUM,
+            createTime: new Date().toLocaleTimeString(),
+            createDate:  new Date().toLocaleDateString(),
         };
         let createDate = new Date().toLocaleDateString();
         let count = await this.ctx.model.PublicModel.UserShareRecord.count({
@@ -505,6 +509,7 @@ class GuessnumService extends Service {
             this.logger.info("退款人：" + pid + "退款金额：" + refund.total_fee + "退款状态：" + res.return_code);
         }
 
+        refund.createTime = new Date().toLocaleString();
         this.ctx.model.WeChatModel.WechatRefundRecord.create(refund);
 
         return true;

@@ -4,7 +4,9 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/wxsrv?authSource=admin',
+       // url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/wxsrv?authSource=admin',
+        url: 'mongodb://mongouser:' + encodeURIComponent("Douzi#Xx@2017") + '@172.17.16.3:27017/wxsrv?authSource=admin',
+
     };
 
     config.env = "prod";
@@ -19,7 +21,7 @@ module.exports = appInfo => {
     };
 
     config.logger = {
-        dir: "/root/server/appsrv/logs/server/"
+        dir: "/root/server/english/logs/server/"
     };
     config.io = {
         namespace: {
@@ -46,8 +48,8 @@ module.exports = appInfo => {
     config.english.appid="wx4cdb3cbd1248ee5e";
     config.english.appsecret="844c2d947f2fe69db5ad101fa9d4d871";
 
-    config.travel.appid = "wx69595aa92bd81b00";
-    config.travel.appsecret="e4e7b4769a9eb8e17ad0b79f588cb736";
+  //  config.travel.appid = "wx69595aa92bd81b00";
+    //config.travel.appsecret="e4e7b4769a9eb8e17ad0b79f588cb736";
 
     config.pubid = "wx4224663bb4f0ed80";
     config.pubmchid = "1494209122";

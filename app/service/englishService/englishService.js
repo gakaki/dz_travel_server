@@ -36,7 +36,8 @@ class EnglishService extends Service {
 
                 // setTimeout(function () {
                 //  this.logger.info("matchSuccess ："+englishroom.rid);
-                socket.emit("matchSuccess", {
+                let nsp =this.app.io.of('/english');
+                nsp.to(roomId).emit("matchSuccess", {
                     code: constant.Code.OK,
                     data: {
                         userList: uList,
@@ -176,7 +177,12 @@ class EnglishService extends Service {
             cost["items." + item.k] = Number(item.v);
             items["items." + item.k] = Number(item.v)
         }
-        await this.ctx.model.PublicModel.SignInRecord.create({uid: ui.uid, appName: appName});
+        await this.ctx.model.PublicModel.SignInRecord.create({
+            uid: ui.uid,
+            appName: appName,
+            createDate: new Date().toLocaleDateString(),
+            createTime: new Date().toLocaleTimeString()
+        });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
         await this.ctx.service.publicService.itemService.itemChange(ui, items, appName);
 
@@ -189,9 +195,9 @@ class EnglishService extends Service {
     async canShare(ui, appName) {
         let createDate = new Date().toLocaleDateString();
         let count = await this.ctx.model.PublicModel.UserShareRecord.count({
-            "uid": ui.uid,
-            "createDate": createDate,
-            "appName": appName
+            uid: ui.uid,
+            createDate: createDate,
+            appName: appName
         });
         let canShare = {};
         let season = this.getSeason();
@@ -208,13 +214,15 @@ class EnglishService extends Service {
     async getShareAward(ui, appName) {
         let createDate = new Date().toLocaleDateString();
         let count = await this.ctx.model.PublicModel.UserShareRecord.count({
-            "uid": ui.uid,
-            "createDate": createDate,
-            "appName": appName
+            uid: ui.uid,
+            createDate: createDate,
+            appName: appName
         });
         let userShareRecord = {
             uid: ui.uid,
-            appName: appName
+            appName: appName,
+            createTime: new Date().toLocaleTimeString(),
+            createDate:  new Date().toLocaleDateString(),
         };
         let season = this.getSeason();
         if (count < englishConfigs.Constant.Get(englishConfigs.Constant.SHARENUM).value) {
@@ -504,31 +512,36 @@ class EnglishService extends Service {
 
     async leaveRoom(uid, rid, appName, isInitiator) {
         let roomInfo = this.app.roomList.get(appName).get(rid);
+        let nsp= this.app.io.of("/english");
         //是否是好友房
         if (roomInfo.isFriend) {
             //是否对局中
             if (roomInfo.roomStatus == constant.roomStatus.ready) {
                 if (isInitiator) {
+                    this.logger.info("房主离开了,通知其他人房间解散");
                     //通知其他人离开
                     for (let userId of roomInfo.userList.keys()) {
                         if (userId != uid) {
-                            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId);
+                            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId[0]);
                             if (socket) {
-                                socket.leave(rid);
+                                this.logger.info("兄弟们该撤了");
+
                                 socket.emit("dissolve", {
                                     code: constant.Code.OK,
-                                })
+                                });
+                                socket.leave(rid);
                             }
 
                         }
                     }
                     for (let bystander of roomInfo.bystander.keys()) {
-                        let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander);
+                        let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander[0]);
                         if (socket) {
-                            socket.leave(rid);
+                            this.logger.info("不看戏了。。。。");
                             socket.emit("dissolve", {
                                 code: constant.Code.OK,
-                            })
+                            });
+                            socket.leave(rid);
                         }
                     }
                     return true
@@ -563,6 +576,7 @@ class EnglishService extends Service {
         for (let userId of roomInfo.userList.keys()) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId[0]);
             if (socket) {
+                this.logger.info("选手消息通知。。。");
                 socket.emit('roomInfo', {
                     code: constant.Code.OK,
                     data: {
@@ -575,6 +589,7 @@ class EnglishService extends Service {
         for (let bystander of roomInfo.bystander.keys()) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander[0]);
             if (socket) {
+                this.logger.info("旁观者消息通知。。。");
                 socket.emit('roomInfo', {
                     code: constant.Code.OK,
                     data: {
@@ -603,8 +618,9 @@ class EnglishService extends Service {
     async roundEnd(rid, appName, time, uid) {
         let socket = this.ctx.service.socketService.socketioService.getSocket(appName, uid);
         if (socket) {
-            let roomInfo = this.app.roomList.get(appName).has(rid) ? this.app.roomList.get(appName).get(rid) : null;
+            let roomInfo = this.app.roomList.get(appName).get(rid);
             if (!roomInfo) {
+                this.logger.info("roundend :没拿到房间信息");
                 return;
             }
             let ulist = [];
@@ -647,13 +663,18 @@ class EnglishService extends Service {
 
     }
 
-    async roundEndNotice(appName, uid, rid) {
+    async roundEndNotice(appName, uid, rid,time) {
+        this.logger.info("谁要下一轮 ？？ ",uid , appName);
         let socket = this.ctx.service.socketService.socketioService.getSocket(appName, uid);
         if (socket) {
             const nsp = this.app.io.of("/english");
             this.logger.info("准备进行下一轮 =======  ");
             nsp.to(rid).emit('nextRound', {
-                code: constant.Code.OK
+                code: constant.Code.OK,
+                data:{
+                    round:(time+1)
+                }
+
             });
         }
 
@@ -704,6 +725,8 @@ class EnglishService extends Service {
                 let isStarUp = 0;
                 let isUp = false;
                 if (!roomInfo.isFriend) {
+                    socket.leave(rid);
+
                     if (result.wins > 0) {
                         winningStreak++;
                     } else {
@@ -743,7 +766,7 @@ class EnglishService extends Service {
 
                 this.logger.info("等级提升 ：", exp, result.exp, needExp);
                 let nextLevel = englishConfigs.Level.Get(level + 1).next;
-                this.logger.info("下一个等级 :" + nextLevel)
+                this.logger.info("下一个等级 :" + nextLevel);
                 if (nextLevel != -1) {
                     //等级统计
                     if ((exp + result.exp) >= needExp) {
@@ -752,11 +775,8 @@ class EnglishService extends Service {
                         awards = englishConfigs.Level.Get(level).award;
 
                         needExp = Number(englishConfigs.Level.Get(level + 1).EXP);
-                        for (let award of awards) {
-                            cost ["items." + award] = 1;
-                            items ["items." + englishConfigs.Item.GOLD] = result.gold
-
-                        }
+                        cost ["items." + awards.k] = Number(awards.v);
+                        items ["items." + awards.k] = Number(awards.v);
 
                         cost ["character.level"] = 1;
                         up["character.experience.needExp"] = needExp;
@@ -801,6 +821,8 @@ class EnglishService extends Service {
                     opponentScore: result.challenger.score,
                     rid: rid,
                     result: result.final,
+                    date:new Date().toLocaleDateString(),
+                    time:new Date().toLocaleTimeString()
                 };
                 this.ctx.model.EnglishModel.EnglishPKRecord.create(englishPKRecord);
 
@@ -814,17 +836,14 @@ class EnglishService extends Service {
                         winningStreak: uInfo.user.character.winningStreak
                     };
                     if (uInfo.user.uid != player.user.uid) {
-                        if (result.wins || result.final == 1) {
-                            user.winningStreak = 0
-                        } else if (result.losses) {
-                            user.winningStreak = uInfo.user.character.winningStreak
-                        }
+                        let opponent = await this.ctx.model.PublicModel.User.findOne({uid: uInfo.user.uid, appName: appName});
+                        user.winningStreak = opponent.character.winningStreak;
                     }
 
                     ulist.push(user);
                 }
 
-                socket.leave(rid);
+
 
                 if (player.user.uid == leaveUid) {
                     if (player.isInitiator) {
@@ -836,6 +855,7 @@ class EnglishService extends Service {
                     socket.emit('pkEndSettlement', {
                         code: constant.Code.OK,
                         data: {
+                            isLeave:isLeave,
                             userList: ulist,
                             exp: result.exp,
                             gold: result.gold,
@@ -864,6 +884,7 @@ class EnglishService extends Service {
         }
 
         if (!roomInfo.isFriend || roomMangerLeave) {
+
             this.app.roomList.get(appName).delete(rid);
             return true
         }

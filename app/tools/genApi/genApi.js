@@ -262,6 +262,7 @@ class ApiProcessor extends ClzProcessor {
     parse(tags) {
         super.parse(tags);
         parsing.isApi = true;
+        parsing.parent = 'Base';
     }
 }
 

@@ -138,8 +138,8 @@ class Base{
 
     func client static InitWs(wss) {
         //初始化websocket
-        this.WSS = wss || 'wss://h5.ddz2018.com/english';//websocket服务器链接
-        this.IO = require('./utils/io.js')(wss + `?_sid=${this.SID}&appName=${this.APP_NAME}`);
+        this.WSS = wss = wss || `wss://h5.ddz2018.com/${this.APP_NAME}`;//websocket服务器链接
+        this.IO = require('./libs/io.js')(wss + `?_sid=${this.SID}&appName=${this.APP_NAME}`);
 
         return new Promise(resolve => {
             this.IO.on('connect', () => {
@@ -167,5 +167,11 @@ class Base{
 
     func client static WsSend(action, data) {
         this.IO.emit(action, data);
+    }
+
+    func client static WsClose(...actions) {
+        actions.forEach( a=> {
+            this.IO.removeAllListeners(a);
+        });
     }
 }

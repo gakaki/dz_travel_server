@@ -7,8 +7,8 @@ module.exports = app => {
         answer:{type:Array},
         isRight:{type:Boolean},
         wid:{type:Number},
-        date:{type:String,default:new Date().toLocaleDateString()},
-        time:{type:String,default:new Date().toLocaleTimeString()}
+        date:{type:String},
+        time:{type:String}
 
     });
 

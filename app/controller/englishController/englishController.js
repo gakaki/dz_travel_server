@@ -204,6 +204,11 @@ class EnglishController extends Controller {
             ctx.body = result;
             return
         }
+        if(ui.items[itemId]<= 0){
+            result.code = constant.Code.NEED_ITEMS;
+            ctx.body = result;
+            return
+        }
 
         let dropItem=await this.service.englishService.englishService.makeSurprise(ui,appName,itemId);
         result.code=constant.Code.OK;

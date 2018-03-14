@@ -123,6 +123,8 @@ class UserService extends Service {
             pid: ui.pid,
             appName: appName,
             type: constant.UserActionRecordType.LOGIN,
+            time: new Date().toLocaleTimeString(),
+            date: new Date().toLocaleDateString(),
             data: {
                 agent: this.ctx.request.header['user-agent'],
                 host: this.ctx.request.header.host,
@@ -148,6 +150,8 @@ class UserService extends Service {
                 pid: ui.pid,
                 appName: appName,
                 type: constant.UserActionRecordType.LOGIN,
+                time: new Date().toLocaleTimeString(),
+                date: new Date().toLocaleDateString(),
                 data: {
                     agent: this.ctx.request.header['user-agent'],
                     host: this.ctx.request.header.host,
@@ -166,8 +170,14 @@ class UserService extends Service {
     // @third 是否是第三方登陆
     async register(uid, info, third, appName) {
         // 生成pid
-        let count = await this.ctx.model.PublicModel.User.count({appName: appName});
-        let pid = count + 1 +PID_INIT;
+        let users = await this.ctx.model.PublicModel.User.find({appName: appName}).sort({pid:1});
+        let pid = PID_INIT;
+        if(users.length >0){
+             pid = Number(users.pop().pid) + 1;
+        }else{
+             pid = 1 +PID_INIT;
+        }
+
         //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};
@@ -194,7 +204,9 @@ class UserService extends Service {
         this.ctx.model.PublicModel.UserActionRecord.create({
             pid: pid,
             type: constant.UserActionRecordType.REGISTER,
-            appName: appName
+            appName: appName,
+            time: new Date().toLocaleTimeString(),
+            date: new Date().toLocaleDateString(),
         });
 
         return ui;

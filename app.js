@@ -43,7 +43,9 @@ module.exports = app => {
 
             if (refreshPlayer.round) {
                 let roomInfo = app.roomList.get(refreshPlayer.appName).get(refreshPlayer.rid);
-
+                if(!roomInfo){
+                    return
+                }
 
                 if (player.answers.length < refreshPlayer.time) {
                     player.setAnswer(refreshPlayer.answer);
@@ -51,6 +53,7 @@ module.exports = app => {
                     player.setResult(refreshPlayer.isRight);
                 }
                 ctx.runInBackground(async () => {
+                    app.logger.info("一回合结束了。。");
                     await ctx.service.englishService.englishService.roundEnd(refreshPlayer.rid, refreshPlayer.appName, refreshPlayer.time, refreshPlayer.uid);
                     if (roomInfo.roundTimeOut != -1) {
 
@@ -64,7 +67,7 @@ module.exports = app => {
                                 leaveUid: null
                             })*/
                         } else {
-                            roomInfo.stop(ctx, refreshPlayer.uid, refreshPlayer.appName, refreshPlayer.time, refreshPlayer.rid);
+                            roomInfo.stop(ctx, refreshPlayer.uid, refreshPlayer.appName, refreshPlayer.time, refreshPlayer.rid,false);
                         }
                     } else {
 
@@ -82,20 +85,6 @@ module.exports = app => {
                             }, refreshPlayer.clockTime * 1000)
                         }
                     }
-
-                    /*  if(isRoundEnd){
-                          if(!isRoundEnd.code){
-
-                          }else{
-
-                              if(refreshPlayer.time == 5){
-
-                              }
-
-                          }
-
-                     }*/
-
                 });
 
             }
@@ -103,12 +92,6 @@ module.exports = app => {
                 player.setUser(refreshPlayer.user)
             }
 
-            if (refreshPlayer.isFriend) {
-                player.setInitiator()
-            }
-            if (refreshPlayer.isOver) {
-                player.gameFinish();
-            }
         }
 
 
@@ -154,36 +137,28 @@ module.exports = app => {
         if (!app.matchPool.has(info.appName)) {
             app.matchPool.set(info.appName, new Set());
         }
-        app.matchPool.get(info.appName).delete(player);
-        if (!info.isCancel) {
-            const ctx = app.createAnonymousContext();
-            ctx.runInBackground(async () => {
-                ctx.service.englishService.englishService.matchFailed(info.uid);
-            });
+        let isMatch = app.matchPool.get(info.appName).delete(player);
+        const ctx = app.createAnonymousContext();
+        if(isMatch){
+            if (!info.isCancel) {
+                ctx.runInBackground(async () => {
+                    ctx.service.englishService.englishService.matchFailed(info.uid);
+                });
+            }
+        }else{
+            for (let roomInfo of roomList.values()) {
+                for(let uid of roomInfo.userList.values()){
+                    if(uid == info.uid){
+                        ctx.service.englishService.englishService.pkEnd(roomInfo.rid, info.appName, info.uid);
+                    }
+                }
+            }
+
         }
 
     });
 
- /*   app.messenger.on('pkend', pkinfo => {
-        if (!app.roomList.has(pkinfo.appName)) {
-            app.roomList.set(pkinfo.appName, new Map());
-        }
-        let roomInfo = app.roomList.get(pkinfo.appName).get(pkinfo.rid);
 
-        const ctx = app.createAnonymousContext();
-        ctx.runInBackground(async () => {
-            await ctx.service.englishService.englishService.pkEnd(pkinfo.rid, pkinfo.appName, pkinfo.leaveUid);
-            for (let player of roomInfo.userList.values()) {
-                player.gameFinish();
-                //      console.log(player);
-            }
-            roomInfo.stop(ctx, pkinfo.uid, pkinfo.appName, 5, roomInfo.rid, true);
-
-
-        });
-
-
-    });*/
 
 
     app.messenger.on('createRoom', roomInfo => {
@@ -191,23 +166,14 @@ module.exports = app => {
             app.roomList.set(roomInfo.appName, new Map());
         }
         let englishRoom = new EnglishRoom(roomInfo.rid, roomInfo.difficulty, true);
+        englishRoom.setWordList(roomInfo.wordList);
+        let player = app.userList.get(roomInfo.appName).get(roomInfo.uid);
+        englishRoom.joinRoom(player);
+        player.finishReady();
+        player.setInitiator();
         app.roomList.get(roomInfo.appName).set(roomInfo.rid, englishRoom);
     });
 
-    app.messenger.on('setRoom', roomInfo => {
-        if (!app.roomList.has(roomInfo.appName)) {
-            app.roomList.set(roomInfo.appName, new Map());
-        }
-        let englishRoom = app.roomList.get(roomInfo.appName).get(roomInfo.room.rid);
-        if (roomInfo.room.wordList) {
-            englishRoom.setWordList(roomInfo.room.wordList);
-        }
-        if (roomInfo.isOver) {
-            if (englishRoom.isFriend) {
-                englishRoom.setRoomStatus(constant.roomStatus.ready);
-            }
-        }
-    });
 
 
     app.messenger.on('joinRoom', rInfo => {
@@ -228,11 +194,12 @@ module.exports = app => {
     });
 
     app.messenger.on('test', msg => {
-        let roomInfo = new EnglishRoom("111");
-        const ctx = app.createAnonymousContext();
-        ctx.runInBackground(async () => {
-            roomInfo.start(ctx, msg.uid);
-        });
+        app.logger.info("测试")
+        // let roomInfo = new EnglishRoom("111");
+        // const ctx = app.createAnonymousContext();
+        // ctx.runInBackground(async () => {
+        //     roomInfo.start(ctx, msg.uid);
+        // });
     });
 
     app.messenger.on('leaveRoom', info => {
@@ -242,34 +209,34 @@ module.exports = app => {
         const ctx = app.createAnonymousContext();
         let roomList = app.roomList.get(info.appName);
         let isInitiator = false;
+        let exchage = false;
+        let leaveUid=null;
         for (let [rid, roomInfo] of roomList.entries()) {
             let userList = [];
             for (let [userId, player] of roomInfo.userList.entries()) {
                 if (userId == info.uid) {
+                    leaveUid=userId;
+                    app.logger.info("离开者 ：", userId);
                     if (player.isInitiator) {
                         isInitiator = true;
                         player.setInitiator(false);
                     }
+                    app.logger.info(roomInfo.isFriend,roomInfo.roomStatus,constant.roomStatus.ready,isInitiator);
                     //如果房间处于准备状态并且 退出者不是房主，执行交换
-                    if (roomInfo.isFriend && roomInfo.roomStatus == constant.roomStatus.ready && !isInitiator) {
-                        let leave = roomInfo.leaveUserList(info.uid);
-                        if (leave) {
-                            for (let [uid, bystander] of roomInfo.bystander.entries()) {
-                                roomInfo.leaveBystander(uid);
-                                roomInfo.joinRoom(bystander);
-                                break;
-                            }
-                            ctx.runInBackground(async () => {
-                                ctx.service.englishService.englishService.notice(info.appName, rid);
-                            });
-                        }
+                    if (roomInfo.isFriend && (roomInfo.roomStatus == constant.roomStatus.ready) && !isInitiator) {
+                        app.logger.info("选手交换");
+                        exchage =true;
                     } else {
                         ctx.runInBackground(async () => {
-                            await ctx.service.englishService.englishService.leaveRoom(info.uid, rid, info.appName, isInitiator);
+                            let result=await ctx.service.englishService.englishService.leaveRoom(info.uid, rid, info.appName, isInitiator);
+                            for(let player of roomInfo.userList.values()){
+                                player.gameFinish();
+                            }
+                            if(result){
+                                app.roomList.get(info.appName).delete(rid)
+                            }
                           //  app.messenger.sendToApp('pkend', {appName: info.appName, rid: rid, leaveUid: info.uid});
-                              for(let player of roomInfo.userList.values()){
-                                  player.gameFinish();
-                              }
+
                              roomInfo.stop(ctx,info.uid,info.appName,5,rid,true);
                         });
                     }
@@ -283,18 +250,51 @@ module.exports = app => {
                     userList.push(user);
                 }
             }
+            app.logger.info("是否交换  ："+exchage);
+            app.logger.info("选手离开   ："+info.uid);
+            if(exchage){
+                let leave = roomInfo.leaveUserList(leaveUid);
+                app.logger.info("是否是参与者 ："+leave);
+                let isBystander =null;
+                let bId = null;
+                if (leave) {
+                    for (let [uid, bystander] of roomInfo.bystander.entries()) {
+                        isBystander =bystander;
+                        bId = uid;
+                        break;
+                    }
+                    app.logger.info("替补者 :" + bId);
+                    if(isBystander !=null && bId !=null){
+                        roomInfo.leaveBystander(bId);
+                        roomInfo.joinRoom(isBystander);
+
+                    }
+                    ctx.runInBackground(async () => {
+                        ctx.service.englishService.englishService.notice(info.appName, rid);
+                    });
+
+                }
+            }
 
             if (userList.length == 2) {
                 if (roomInfo.isFriend) {
+                    app.logger.info("旁观者离开了。。。。");
+                    let byUid=null;
                     for (let userId of roomInfo.bystander.keys()) {
                         if (userId == info.uid) {
-                            roomInfo.leaveBystander(userId);
-                            ctx.runInBackground(async () => {
-                                ctx.service.englishService.englishService.notice(info.appName, info.rid);
-                            });
+                            byUid = userId;
+                            break;
 
                         }
                     }
+                    app.logger.info("旁观者 :" + byUid);
+                    if(byUid!=null){
+                        roomInfo.leaveBystander(byUid);
+                        ctx.runInBackground(async () => {
+                            ctx.service.englishService.englishService.notice(info.appName, info.rid);
+                        });
+                    }
+
                 }
             }
 

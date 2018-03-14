@@ -5,7 +5,7 @@ module.exports = app => {
         appName: {type: String},
         pid: {type: String},
         good: {type: String},
-        time: {type: String, default: new Date().toLocaleString()},
+        time: {type: String},
         price: {type: Number},
         desc: {type: String},
         type: {type: String},

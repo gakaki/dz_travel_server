@@ -8,7 +8,7 @@ module.exports = {
     },
     english: {
         enable: true,
-        inDir:'../h5group/design/小程序/配置表/guessenglish.xlsx',//也可以配置到具体文件，只处理这一个文件
+        inDir:'../../svn/design/小程序/配置表/guessenglish.xlsx',//也可以配置到具体文件，只处理这一个文件
         outFileC:'../english/sheets.js',
         outFileS:'./sheets/english.js',
     },

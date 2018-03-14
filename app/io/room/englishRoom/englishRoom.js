@@ -12,6 +12,7 @@ class EnglishRoom {
         this.wordList=null;
         this.roomStatus=constant.roomStatus.ready;
         this.roundTimeOut=-1;
+        this.round=1;
     }
 
 
@@ -46,11 +47,12 @@ class EnglishRoom {
         if(countDown<5){
             timeout = 6
         }
-        console.log("开始定时"+countDown);
+        ctx.logger.info("开始定时"+countDown);
         this.roundTimeOut = setTimeout(function () {
-            console.log("可能卡死了。。");
+            ctx.logger.info("可能卡死了。。");
         //    if(time<5){
-                ctx.service.englishService.englishService.roundEndNotice(appName,uid,rid);
+                ctx.service.englishService.englishService.roundEndNotice(appName,uid,rid,time);
+                this.round =time +1;
          //   }/*else{
             //   ctx.service.englishService.englishService.pkEnd(rid,appName,null);
        //     }*/
@@ -58,12 +60,17 @@ class EnglishRoom {
         },timeout*1000)
     }
     stop(ctx,uid,appName,time,rid,isLeave=false){
-        console.log("结束定时");
+        ctx.logger.info("结束定时");
         clearTimeout(this.roundTimeOut);
         this.roundTimeOut=-1;
         if(!isLeave){
+            ctx.logger.info(time,this.round);
           //  if(time<5){
-                ctx.service.englishService.englishService.roundEndNotice(appName,uid,rid);
+            if(time == this.round){
+                ctx.service.englishService.englishService.roundEndNotice(appName,uid,rid,time);
+                this.round =time +1;
+            }
+
          //   }/*else{
              //   ctx.service.englishService.englishService.pkEnd(rid,appName,null);
         //    }*/

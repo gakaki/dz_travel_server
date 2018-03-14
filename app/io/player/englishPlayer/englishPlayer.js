@@ -6,9 +6,7 @@ class EnglishPlayer {
         this.status = status;
         this.appName = appName;
         this.waitTime = 0;
-       // this.isAnswer  = false;
         this.wait = null;
-     //   this.gameWait=null;
         this.startTime = null;
         this.score=0;
         this.answers=[];
