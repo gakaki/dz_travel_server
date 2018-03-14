@@ -1,0 +1,34 @@
+//跟个人信息相关的
+
+class UserInfo {
+    //第三方登陆，则返回UID
+    prop uid:string
+    //用户名
+    prop nickName:string
+    //头像url
+    prop avatarUrl:string
+    //用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
+    prop gender:string
+    //当前所在城市
+    prop city:string
+    //当前所在省
+    prop province:string
+    //当前所有国家
+    prop country:string
+    //当前是否在线
+    prop online:Boolean
+    //金币等物品信息（如果查看他人的，可能不提供该数据）
+    prop items:KV[]
+
+}
+//拉取一个玩家的简要信息（自己或他人）
+api PlayerBriefInfo {
+    //玩家的uid，如果不传则使用自己的uid
+    optional playerUid:string
+
+    //玩家信息
+    output info:UserInfo
+    //好友uid
+    output friends:string[]
+
+}

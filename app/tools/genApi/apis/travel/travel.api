@@ -1,0 +1,32 @@
+//首页、出行、机票相关
+import ./player.api
+
+enum Season {
+    const SPRING = '春'
+    const SUMMER = '夏'
+    const AUTUMN = '秋'
+    const WINTER = '冬'
+}
+
+enum Weather {
+    const SUNNY = '晴'
+    const CLOUDY = '阴'
+    const RAIN = '雨'
+    const SNOW = '雪'
+    const WINDY = '风'
+}
+
+api IndexInfo {
+    //是否为第一次进来的玩家
+    output isNew:Boolean
+    //季节
+    output season:Season
+    //天气
+    output weather:Weather
+    //旅行人数
+    output memberCnt:number
+    //好友uid
+    output friends:string[]
+    //未读系统信息条数
+    output unreadMsgCnt:number
+}
