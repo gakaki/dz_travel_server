@@ -92,6 +92,9 @@ class Base  {
         //prop type: string
         this._sid = null;
     
+        //prop type: Context
+        this.ctx = null;
+    
         this.reqFields = [];
         this.resFields = [];
     }
