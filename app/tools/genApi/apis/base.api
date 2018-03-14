@@ -4,6 +4,7 @@ class Base{
     prop action:string
     prop server uid:string
     prop server _sid:string
+    prop server ctx:Context
 
     func client get app() {
         if (!this._app) {
