@@ -19,16 +19,14 @@ class UserInfo {
     prop online:Boolean
     //金币等物品信息（如果查看他人的，可能不提供该数据）
     prop items:KV[]
-
+    //好友uid
+    output friends:string[]
 }
 //拉取一个玩家的简要信息（自己或他人）
-api PlayerBriefInfo {
+api PlayerInfo {
     //玩家的uid，如果不传则使用自己的uid
     optional playerUid:string
 
     //玩家信息
     output info:UserInfo
-    //好友uid
-    output friends:string[]
-
 }

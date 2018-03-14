@@ -4,14 +4,17 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "date-season": "^0.0.2",
     "egg": "^2.2.1",
     "egg-logger": "^1.6.1",
     "egg-mongoose": "^2.1.1",
     "egg-redis": "^1.0.2",
     "egg-scripts": "^2.5.0",
     "egg-socket.io": "^4.0.6",
+    "holiday.cn": "^0.0.2",
     "ioredis": "^3.2.2",
     "tenpay": "^2.0.9",
+    "weather-china": "^0.0.3",
     "ws": "^4.1.0",
     "wxapp-socket-io": "^1.0.0",
     "xml2js": "^0.4.19"

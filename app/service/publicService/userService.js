@@ -148,7 +148,8 @@ module.exports = app => {
                 third: third,
                 pid: pidStr,
                 items: items,
-                character: character
+                character: character,
+                isNew: true
             });
 
 
