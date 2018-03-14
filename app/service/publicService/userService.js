@@ -184,6 +184,11 @@ module.exports = app => {
             return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
         }
 
+        async getMemberCnt() {
+            let cnt = await this.ctx.model.UserActionRecord.PublicModel.count();
+            return cnt;
+        }
+
 
         GEN_SID() {
             return crypto.createHash('md5').update(Math.random().toString()).digest('hex');

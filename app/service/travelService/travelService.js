@@ -9,6 +9,7 @@ module.exports = app => {
 
             info.season = await this.ctx.service.publicService.thirdService.getSeason();
             info.weather = await this.ctx.service.publicService.thirdService.getWeather();
+            info.memberCnt = await this.ctx.service.publicService.userService.getMemberCnt();
         }
     }
 };
