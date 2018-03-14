@@ -2,6 +2,8 @@
 class Base{
     prop client _app:App
     prop action:string
+    prop server uid:string
+    prop server _sid:string
 
     func client get app() {
         if (!this._app) {

@@ -37,6 +37,8 @@
     "cov": "egg-bin cov",
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
+    "sheet": "node ./app/tools/genSheet/genSheet.js",
+    "api": "node ./app/tools/genApi/genApi.js",
     "autod": "autod"
   },
   "ci": {
