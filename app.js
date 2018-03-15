@@ -142,6 +142,7 @@ module.exports = app => {
         if (!app.roomList.has(roomInfo.appName)) {
             app.roomList.set(roomInfo.appName, new Map());
         }
+        app.logger.info("我要创建房间");
         const ctx = app.createAnonymousContext();
         let englishRoom = new EnglishRoom(roomInfo.rid, roomInfo.difficulty, true,ctx);
         englishRoom.setWordList(roomInfo.wordList);
@@ -208,6 +209,8 @@ module.exports = app => {
                     //如果房间处于准备状态并且 退出者不是房主，执行交换
                     if (roomInfo.isFriend && (roomInfo.roomStatus == constant.roomStatus.ready)) {
                         if(!isInitiator){
+                            roomInfo.leaveUserList(info.uid);
+                            player.gameFinish();
                             app.logger.info("选手交换");
                             exchage =true;
                         }else{

@@ -13,11 +13,10 @@ class UserService extends Service {
         //老用户登陆
         if (sid) {
             let authUi = await this.collect(sid, appName);
-            this.logger.info("老用户登陆 ：" + JSON.stringify(authUi));
             if (authUi == null) {
                 let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
-                this.logger.info("通过openid查库 ：" + JSON.stringify(loginUser));
                 if (loginUser != null) {
+                    this.logger.info("通过openid查库 ：" + loginUser.uid +"昵称 ：" +loginUser.nickName);
                     let _sid = this.GEN_SID();
                     this.recruitSid(_sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + _sid);
@@ -38,6 +37,8 @@ class UserService extends Service {
                 return result;
 
             } else {
+
+                this.logger.info("老用户登陆  uid：" +authUi.uid +" 老用户的昵称 ：" +authUi.nickName);
                 if(uid && authUi.uid != uid){
                     result.info = null;
                     return result;
@@ -173,7 +174,7 @@ class UserService extends Service {
 
         let pid = await this.app.redis.incr("global_userid");
 
-
+        this.logger.info("注册信息 ：uid: " + uid +" pid :" +pid +"昵称 ： "+info.nickName);
         //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};

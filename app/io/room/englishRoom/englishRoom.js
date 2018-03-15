@@ -58,7 +58,7 @@ class EnglishRoom {
             t -=3;
         }
         (function(j) {
-            setTimeout(function(){
+            var tmp = setTimeout(function(){
                 // 该轮结束了， 最多有一个人回答题目
                 // 判断是否结束
                 if(self.round == 6){
@@ -70,7 +70,10 @@ class EnglishRoom {
                         self.nextTurn();
                     }
                 }
+                clearTimeout(tmp)
             }, t)
+
+
         })(this.round);
     }
 
@@ -109,10 +112,12 @@ class EnglishRoom {
 
         this.isGameOver = true;
         // 发 结果给 所有人
+        this.ctx.logger.info(" 发 结果给 所有人");
         await this.ctx.service.englishService.englishService.pkEnd(this.rid,constant.AppName.ENGLISH,leaveUid);
 
 
         //设 游戏结束状态
+        this.ctx.logger.info(" 设 游戏结束状态");
         this.setRoomStatus(constant.roomStatus.ready);
 
         for(let player of this.userList.values()){
@@ -193,12 +198,14 @@ class EnglishRoom {
                 }
                 result.final=2;
             }else{
+                if(owner.score == challenger.score){
+                    result.final=1;
+                }
                 if(!isFriend){
-                    if(owner.score == challenger.score){
-                        result.final=1;
-                    }
                     result.losses=1;
                 }
+
+
             }
         }
 

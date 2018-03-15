@@ -135,6 +135,9 @@ class EnglishIOController extends Controller {
             ctx.logger.info("没有拿到房间信息");
             return;
         }
+        if(roomInfo.isGameOver || roomInfo.roomStatus.ready == constant.roomStatus.ready){
+            return;
+        }
         if(!wid){
             ctx.logger.info("没有拿到单词");
             return
@@ -269,13 +272,25 @@ class EnglishIOController extends Controller {
             for(let play of room.userList.values()){
                 if(play.isInitiator){
                     let roomMaster = play.user.uid;
-                    await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$addToSet:{["character.friendsList"]:roomMaster}});
-                    await ctx.model.PublicModel.User.update({uid:roomMaster,appName:appName},{$addToSet:{["character.friendsList"]:ui.uid}});
+                    if(ui.uid != roomMaster){
+                        await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$addToSet:{["character.friendsList"]:roomMaster}});
+                        await ctx.model.PublicModel.User.update({uid:roomMaster,appName:appName},{$addToSet:{["character.friendsList"]:ui.uid}});
+                    }
+
                     break;
                 }
             }
 
             app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:roomId});
+
+            socket.emit("join",{
+                code:constant.Code.OK,
+                data:{
+                    rid:roomId,
+                }
+            })
+
+
         }else{
             ctx.logger.info("创建房间 :"+roomId);
             isCreate = true;
@@ -438,6 +453,7 @@ class EnglishIOController extends Controller {
         }
         let userList = [];
         for(let player of roomInfo.userList.values()){
+            this.logger.info("getRoomInfo  ：" ,JSON.stringify(player.user));
             let user={
                 info :player.user,
                 isInitiator:player.isInitiator,
@@ -452,6 +468,11 @@ class EnglishIOController extends Controller {
             isFriend: true,
             roomStatus: roomInfo.roomStatus
         };
+
+        this.logger.info("我拿到的房间信息 ： ",rinfo);
+
+
+        this.logger.info("我拿到的玩家信息 ：" +userList);
 
         nsp.to(rid).emit('roomInfo', {
             code: constant.Code.OK,

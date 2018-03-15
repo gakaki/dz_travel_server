@@ -557,6 +557,7 @@ class EnglishService extends Service {
         let roomInfo = this.app.roomList.get(appName).get(rid);
         let uList = [];
         for (let player of roomInfo.userList.values()) {
+            this.logger.info("循环的用户信息  ：" ,JSON.stringify(player.user));
             let user = {
                 info: player.user,
                 isInitiator: player.isInitiator
@@ -572,6 +573,8 @@ class EnglishService extends Service {
             roomStatus: roomInfo.roomStatus
         };
         this.logger.info("消息通知。。。");
+        this.logger.info("用户信息 ：" ,uList);
+        this.logger.info("房间信息  ：" ,rInfo);
         let nsp = this.app.io.of("/english");
         nsp.to(rid).emit('roomInfo', {
             code: constant.Code.OK,
