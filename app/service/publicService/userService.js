@@ -170,13 +170,9 @@ class UserService extends Service {
     // @third 是否是第三方登陆
     async register(uid, info, third, appName) {
         // 生成pid
-        let users = await this.ctx.model.PublicModel.User.find({appName: appName}).sort({pid:1});
-        let pid = PID_INIT;
-        if(users.length >0){
-             pid = Number(users.pop().pid) + 1;
-        }else{
-             pid = 1 +PID_INIT;
-        }
+
+        let pid = await this.app.redis.incr("global_userid");
+
 
         //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户

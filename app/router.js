@@ -44,12 +44,13 @@ module.exports = app => {
     io.of('/english').route('ranking', io.controller.englishIOController.englishIOController.ranking);
     io.of('/english').route('cancelmatch', io.controller.englishIOController.englishIOController.cancelmatch);
     io.of('/english').route('roundend', io.controller.englishIOController.englishIOController.roundend);
-    io.of('/english').route('createroom', io.controller.englishIOController.englishIOController.createroom);
+  //  io.of('/english').route('createroom', io.controller.englishIOController.englishIOController.createroom);
     io.of('/english').route('joinroom', io.controller.englishIOController.englishIOController.joinroom);
     io.of('/english').route('startgame', io.controller.englishIOController.englishIOController.startgame);
     io.of('/english').route('leaveroom', io.controller.englishIOController.englishIOController.leaveroom);
     io.of('/english').route('getroominfo', io.controller.englishIOController.englishIOController.getroominfo);
     io.of('/english').route('getmatchinfo', io.controller.englishIOController.englishIOController.getmatchinfo);
     io.of('/english').route('getpkinfo', io.controller.englishIOController.englishIOController.getpkinfo);
-    io.of('/english').route('test', io.controller.englishIOController.englishIOController.test);
+    io.of('/english').route('roomisexist', io.controller.englishIOController.englishIOController.roomisexist);
+    //io.of('/english').route('test', io.controller.englishIOController.englishIOController.test);
 };

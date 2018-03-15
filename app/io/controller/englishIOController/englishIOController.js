@@ -46,6 +46,7 @@ class EnglishIOController extends Controller {
         const message = ctx.args[0] ||{};
         const {rankType} = message;
         ctx.logger.info("排位赛");
+        ctx.logger.info("选择的段位 ：" +rankType);
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
             return;
@@ -62,6 +63,17 @@ class EnglishIOController extends Controller {
             });
             return;
         }
+  /*      let roomList = this.app.roomList.has(appName)?this.app.roomList.get(appName):new Map();
+        for(let room of roomList.values()){
+            for(let uid of room.userList.keys()){
+                if(uid == ui.uid || room.isFriend){
+                    socket.emit("inRoom",{
+                        code:constant.Code.OK,
+                    });
+                   return;
+                }
+            }
+        }*/
 
         player.setStatus(constant.playerStatus.ready);
         player.setRankType(rankType);
@@ -129,9 +141,9 @@ class EnglishIOController extends Controller {
         }
 
 
-        player.setScore(totalScore);
+  /*      player.setScore(totalScore);
         player.setAnswer(answer);
-        player.setResult(isRight);
+        player.setResult(isRight);*/
 
         let englishAnswerRecord={
             uid:ui.uid,
@@ -156,7 +168,7 @@ class EnglishIOController extends Controller {
             ctx.logger.info("更新单词 ："+wid);
             await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$push:{["character.wordList."+dateStr]:wid}});
             ui=await ctx.model.PublicModel.User.findOne({uid:ui.uid,appName:appName});
-            player.setUser(ui);
+          //  player.setUser(ui);
         }
 
         ctx.app.messenger.sendToApp('refresh',
@@ -197,15 +209,28 @@ class EnglishIOController extends Controller {
         const {appName, _sid} = query;
         const message = ctx.args[0] || {};
         const {rid} = message;
-        console.log(rid);
+
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
             return;
         }
+        ctx.logger.info("入参 ："+rid);
         ctx.logger.info(ui.nickName+ "加入房间");
         let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
             return;
+        }
+        ctx.logger.info(ui.nickName+ "当前状态 "+ player.status);
+        ctx.logger.info(ui.nickName+ "当前房主状态 "+ player.isInitiator);
+        //没有传rid，判断在不在房间内
+        let isCreate = false;
+        let isExist =true;
+        let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
+        if(rid){
+            if(!roomInfo){
+                ctx.logger.info("房间不存在");
+                isExist =false;
+            }
         }
 
         let roomList = this.app.roomList.has(appName)?this.app.roomList.get(appName):new Map();
@@ -213,63 +238,64 @@ class EnglishIOController extends Controller {
         for(let room of roomList.values()){
             for(let uid of room.userList.keys()){
                 if(uid == ui.uid){
-                    roomId = room.rid;
-                    console.log("存在房间 :"+roomId);
-                    socket.emit("joinSuccess",{
-                        code:constant.Code.OK,
-                        data:{
-                            rid:roomId
-                        }
-                    });
-                    return
+                    //在房间内
+                    if(rid && rid != room.rid) {
+                        ctx.logger.info("离开了？？" + room.rid,rid);
+                        roomId =rid;
+                        app.messenger.sendToApp('leaveRoom', {appName: constant.AppName.ENGLISH, uid: ui.uid});
+                    }else if(rid && room.rid ==rid){
+                        roomId =room.rid;
+                    }else if(!rid && room.rid){
+                        roomId= room.rid
+                    }
+                    break;
                 }
             }
         }
+        if(rid && isExist){
+            roomId =rid;
+        }
 
-        if(rid){
-            let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
-            if(!roomInfo){
-                ctx.logger.info("房间不存在");
-                return;
-            }
-
-            if(!roomInfo.isFriend){
-                return
-            }
-
-            socket.join(rid);
-
-            for(let player of roomInfo.userList.values()){
-                if(player.isInitiator){
-                    let roomMaster = player.user.uid;
+        let room =app.roomList.has(appName)?app.roomList.get(appName).get(roomId):null;
+        if(!room){
+            isExist = false;
+            roomId = null;
+        }
+        ctx.logger.info("当前房间号 ："+ roomId);
+        ctx.logger.info("房间存不存在 ："+ isExist);
+        if(isExist && roomId !=null){
+            ctx.logger.info("不是房主，我要加入");
+            socket.join(roomId);
+            for(let play of room.userList.values()){
+                if(play.isInitiator){
+                    let roomMaster = play.user.uid;
                     await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$addToSet:{["character.friendsList"]:roomMaster}});
                     await ctx.model.PublicModel.User.update({uid:roomMaster,appName:appName},{$addToSet:{["character.friendsList"]:ui.uid}});
                     break;
                 }
             }
 
-            app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:rid,isJoin:true});
-        }else {
-            if(roomId == null){
-                roomId = "11" + new Date().getTime();
-                player.setInitiator();
-                let season =ctx.service.englishService.englishService.getSeason();
-                let difficulty = englishConfigs.Stage.Get(player.user.character.season[season].rank).difficulty;
-                let index = utils.Rangei(0,difficulty.length);
-                let wordList=ctx.service.englishService.englishService.setQuestions(player.user.character.season[season].rank);
-                socket.join(roomId);
-                app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:roomId,difficulty:difficulty[index],wordList:wordList,uid:ui.uid});
-            }
+            app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:roomId});
+        }else{
+            ctx.logger.info("创建房间 :"+roomId);
+            isCreate = true;
+            roomId = "11" + new Date().getTime();
+            player.setInitiator();
+            let season =ctx.service.englishService.englishService.getSeason();
+            let difficulty = englishConfigs.Stage.Get(player.user.character.season[season].rank).difficulty;
+            let index = utils.Rangei(0,difficulty.length);
+            let wordList=ctx.service.englishService.englishService.setQuestions(player.user.character.season[season].rank);
+            socket.join(roomId);
+            app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:roomId,difficulty:difficulty[index],wordList:wordList,uid:ui.uid});
+            ctx.logger.info("创建房间发送信息 :"+roomId,isCreate);
             socket.emit("joinSuccess",{
                 code:constant.Code.OK,
                 data:{
-                    rid:roomId
+                    rid:roomId,
+                    isCreate:isCreate
                 }
             });
         }
-
-
-
 
     }
 
@@ -284,44 +310,54 @@ class EnglishIOController extends Controller {
         ctx.logger.info("开始游戏");
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
+            ctx.logger.info("用户不存在");
             return;
         }
         let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
+            ctx.logger.info("玩家不存在");
             return;
         }
 
 
         let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
+            ctx.logger.info("房间不存在");
             return;
         }
 
         if(!roomInfo.isFriend){
+            ctx.logger.info("不是好友房");
             return
         }
 
         if(!player.isInitiator){
+            ctx.logger.info("不是房主");
             return
         }
 
         if(roomInfo.userList.size !=2){
+            ctx.logger.info("房间人数不足");
             return
         }
         for(let play of roomInfo.userList.values()){
             if(play.status != constant.playerStatus.online){
+                ctx.logger.info("状态不正确。。。");
                 return
             }
         }
+        let season =ctx.service.englishService.englishService.getSeason();
+   //     let difficulty = englishConfigs.Stage.Get(player.user.character.season[season].rank).difficulty;
+ //       let index = utils.Rangei(0,difficulty.length);
+        let wordList=ctx.service.englishService.englishService.setQuestions(player.user.character.season[season].rank);
 
-
+        app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,rid:rid,wordList:wordList});
 
 
         let userList=[];
         for(let player of roomInfo.userList.values()){
             let user={
                 info: player.user,
-                waitTime: player.waitTime,
                 isInitiator:player.isInitiator
             };
             userList.push(user);
@@ -339,6 +375,7 @@ class EnglishIOController extends Controller {
 
 
 
+
     async leaveroom(){
         const {ctx, app} = this;
         const socket = ctx.socket;
@@ -346,8 +383,9 @@ class EnglishIOController extends Controller {
         const query = socket.handshake.query;
         const {appName, _sid} = query;
         const message = ctx.args[0] || {};
-        const {rid} = message;
-
+        const {rid,a} = message;
+        ctx.logger.info(rid);
+        ctx.logger.info(a);
         let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
         if(ui==null){
             return;
@@ -390,6 +428,9 @@ class EnglishIOController extends Controller {
         let roomInfo = app.roomList.get(appName).get(rid);
         if (!roomInfo) {
             ctx.logger.info("没拿到房间信息");
+            socket.emit('roomIsNotExist',{
+                code:constant.Code.OK
+            });
             return;
         }
         if(!roomInfo.isFriend){
@@ -508,6 +549,37 @@ class EnglishIOController extends Controller {
             }
         });
 
+    }
+
+    async roomisexist(){
+        const {ctx, app} = this;
+        const socket = ctx.socket;
+        const nsp = app.io.of('/english');
+        const query = socket.handshake.query;
+        const {appName, _sid} = query;
+        const message = ctx.args[0] || {};
+        const {rid} = message;
+        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
+        if(ui==null){
+            return;
+        }
+        let player = app.userList.get(appName).get(ui.uid);
+
+        if(!player){
+            return;
+        }
+        let roomInfo= this.app.roomList.has(appName) ? this.app.roomList.get(appName).get(rid) : null;
+        let isExist = false;
+        if(roomInfo){
+            isExist =true;
+        }
+
+        socket.emit("roomExist",{
+            code:constant.Code.OK,
+            data:{
+                isExist:isExist
+            }
+        })
     }
 
     async test(){

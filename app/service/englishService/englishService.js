@@ -8,8 +8,11 @@ class EnglishService extends Service {
     async matchSuccess(matchPoolPlayer, roomId) {
         let englishroom = this.app.roomList.get(constant.AppName.ENGLISH).get(roomId);
         this.logger.info("发送匹配信息 ：" + roomId);
+        this.logger.info(matchPoolPlayer.length);
+        englishroom.setFirstTimeOut();
         for (let player of matchPoolPlayer) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, player.user.uid);
+            this.logger.info("是否获取到socket"+socket);
             if (socket) {
                 socket.join(roomId);
                 let uList = [];
@@ -34,16 +37,24 @@ class EnglishService extends Service {
                      code: constant.Code.OK,
                  });*/
 
+
+
+
+
                 // setTimeout(function () {
                 //  this.logger.info("matchSuccess ："+englishroom.rid);
                 let nsp =this.app.io.of('/english');
-                nsp.to(roomId).emit("matchSuccess", {
+                this.logger.info(player.user.nickName+"推送消息");
+                socket.emit("matchSuccess",{
                     code: constant.Code.OK,
                     data: {
                         userList: uList,
                         rid: roomId
                     }
                 })
+           /*     nsp.to(roomId).emit("matchSuccess", {
+
+                })*/
                 // },500)
             }
         }
@@ -510,48 +521,35 @@ class EnglishService extends Service {
     }
 
 
-    async leaveRoom(uid, rid, appName, isInitiator) {
+    async initiatorLeaveRoom(uid, rid, appName) {
         let roomInfo = this.app.roomList.get(appName).get(rid);
-        let nsp= this.app.io.of("/english");
-        //是否是好友房
-        if (roomInfo.isFriend) {
-            //是否对局中
-            if (roomInfo.roomStatus == constant.roomStatus.ready) {
-                if (isInitiator) {
-                    this.logger.info("房主离开了,通知其他人房间解散");
-                    //通知其他人离开
-                    for (let userId of roomInfo.userList.keys()) {
-                        if (userId != uid) {
-                            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId[0]);
-                            if (socket) {
-                                this.logger.info("兄弟们该撤了");
+        this.logger.info("房主离开了,通知其他人房间解散");
+        //通知其他人离开
+    //    let nsp = this.app.io.of("/english");
+        for (let userId of roomInfo.userList.keys()) {
+            if (userId != uid) {
+                let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId);
+                if (socket) {
+                    this.logger.info("兄弟们该撤了");
 
-                                socket.emit("dissolve", {
-                                    code: constant.Code.OK,
-                                });
-                                socket.leave(rid);
-                            }
-
-                        }
-                    }
-                    for (let bystander of roomInfo.bystander.keys()) {
-                        let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander[0]);
-                        if (socket) {
-                            this.logger.info("不看戏了。。。。");
-                            socket.emit("dissolve", {
-                                code: constant.Code.OK,
-                            });
-                            socket.leave(rid);
-                        }
-                    }
-                    return true
+                    socket.emit("dissolve", {
+                        code: constant.Code.OK,
+                    });
+                    socket.leave(rid);
                 }
+
             }
-
         }
-
-        //直接触发游戏结束
-          return await this.pkEnd(rid,appName,uid);
+        for (let bystander of roomInfo.bystander.keys()) {
+            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander);
+            if (socket) {
+                this.logger.info("不看戏了。。。。");
+                socket.emit("dissolve", {
+                    code: constant.Code.OK,
+                });
+                socket.leave(rid);
+            }
+        }
 
     }
 
@@ -573,8 +571,18 @@ class EnglishService extends Service {
             isFriend: true,
             roomStatus: roomInfo.roomStatus
         };
-        for (let userId of roomInfo.userList.keys()) {
-            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId[0]);
+        this.logger.info("消息通知。。。");
+        let nsp = this.app.io.of("/english");
+        nsp.to(rid).emit('roomInfo', {
+            code: constant.Code.OK,
+            data: {
+                userList: uList,
+                roomInfo: rInfo
+            }
+        });
+
+/*        for (let userId of roomInfo.userList.keys()) {
+            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId);
             if (socket) {
                 this.logger.info("选手消息通知。。。");
                 socket.emit('roomInfo', {
@@ -587,7 +595,7 @@ class EnglishService extends Service {
             }
         }
         for (let bystander of roomInfo.bystander.keys()) {
-            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander[0]);
+            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander);
             if (socket) {
                 this.logger.info("旁观者消息通知。。。");
                 socket.emit('roomInfo', {
@@ -598,7 +606,7 @@ class EnglishService extends Service {
                     }
                 });
             }
-        }
+        }*/
     }
 
     test(uid) {
@@ -615,73 +623,70 @@ class EnglishService extends Service {
         }
     }
 
-    async roundEnd(rid, appName, time, uid) {
-        let socket = this.ctx.service.socketService.socketioService.getSocket(appName, uid);
-        if (socket) {
-            let roomInfo = this.app.roomList.get(appName).get(rid);
-            if (!roomInfo) {
-                this.logger.info("roundend :没拿到房间信息");
-                return;
-            }
-            let ulist = [];
-            let answers = [];
-            for (let play of roomInfo.userList.values()) {
-                answers.push(play.answers.length);
-                ulist.push({
-                    info: play.user,
-                    rid: rid,
-                    isInitiator: play.isInitiator,
-                    score: play.score,
-                    continuousRight: play.continuousRight,
-                    playerAnswer: play.answer
-                })
-            }
-            let ok = true;
-            this.logger.info(answers);
-            for (let okl of answers) {
-                if (okl != time) {
-                    ok = false;
-                    break;
-                }
-            }
-            this.logger.info(ok);
-
-            this.logger.info("当前次数 ：" + time);
-            const nsp = this.app.io.of("/english");
-            nsp.to(rid).emit('roundEndSettlement', {
-                code: constant.Code.OK,
-                data: {
-                    round: time,
-                    userList: ulist,
-                }
-            });
-
-            return {
-                code: ok
-            };
+    async broadAnswer(rid, appName, time, uid) {
+        let roomInfo = this.app.roomList.get(appName).get(rid);
+        if (!roomInfo) {
+            this.logger.info("roundend :没拿到房间信息");
+            return;
         }
+        let ulist = [];
+        let answers = [];
+        for (let play of roomInfo.userList.values()) {
+            answers.push(play.answers.length);
+            ulist.push({
+                info: play.user,
+                rid: rid,
+                isInitiator: play.isInitiator,
+                score: play.score,
+                continuousRight: play.continuousRight,
+                playerAnswer: play.answer
+            })
+        }
+        let ok = true;
+        this.logger.info(answers);
+        for (let okl of answers) {
+            if (okl != time) {
+                ok = false;
+                break;
+            }
+        }
+        this.logger.info(ok);
+
+        this.logger.info("当前次数 ：" + time);
+        const nsp = this.app.io.of("/english");
+        nsp.to(rid).emit('roundEndSettlement', {
+            code: constant.Code.OK,
+            data: {
+                round: time,
+                userList: ulist,
+            }
+        });
+
+        return {
+            code: ok
+        };
+
+
 
     }
 
-    async roundEndNotice(appName, uid, rid,time) {
-        this.logger.info("谁要下一轮 ？？ ",uid , appName);
-        let socket = this.ctx.service.socketService.socketioService.getSocket(appName, uid);
-        if (socket) {
+    async roundEndNotice(rid,time) {
             const nsp = this.app.io.of("/english");
             this.logger.info("准备进行下一轮 =======  ");
             nsp.to(rid).emit('nextRound', {
                 code: constant.Code.OK,
                 data:{
-                    round:(time+1)
+                    round:time
                 }
 
             });
-        }
+
 
     }
 
     async pkEnd(rid, appName, leaveUid) {
         this.logger.info("对战结束。。。");
+        this.logger.info("有离开者吗？？"+leaveUid);
         let isLeave = false;
         if (leaveUid != null) {
             isLeave = true;
@@ -692,8 +697,10 @@ class EnglishService extends Service {
             return
         }
         for (let player of roomInfo.userList.values()) {
+            this.logger.info("不循环？？？"+player.user.nickName);
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, player.user.uid);
             if (socket) {
+                this.logger.info("结算。。");
                 let result = roomInfo.gameover(player.user.uid, roomInfo.isFriend, isLeave, leaveUid);
                 let season = this.getSeason();
                 let user = player.user;
@@ -850,7 +857,7 @@ class EnglishService extends Service {
                         roomMangerLeave = true;
                     }
                     this.logger.info("离开者 ：" + player.user.nickName);
-                    this.ctx.service.socketService.socketioService.delSocket(appName, player.user.uid);
+                 /*   this.ctx.service.socketService.socketioService.delSocket(appName, player.user.uid);*/
                 } else {
                     socket.emit('pkEndSettlement', {
                         code: constant.Code.OK,

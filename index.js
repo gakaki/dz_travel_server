@@ -8,5 +8,5 @@ require('egg').startCluster({
     },
     port: 443,
     sticky: true,
-    //workers:1
+    workers:1
 });
