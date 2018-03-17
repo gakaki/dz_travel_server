@@ -11,7 +11,7 @@ module.exports = () => {
             let inter = action.substring(xindex + 1, action.length);
             ctx.url = "/" + router + "/" + inter + ctx.url;
         }
-
+        
         await next();
     };
 };
