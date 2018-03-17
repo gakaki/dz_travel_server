@@ -66,8 +66,8 @@ class UserInfo  {
         //prop type: string[]
         this.friends = null;
     
-        this.reqFields = [];
-        this.resFields = [];
+        
+        
     }
 }
 class RankItem  {
@@ -79,8 +79,8 @@ class RankItem  {
         //prop type: number
         this.rank = null;
     
-        this.reqFields = [];
-        this.resFields = [];
+        
+        
     }
 }
 class Base  {
@@ -98,8 +98,11 @@ class Base  {
         //prop type: Context
         this.ctx = null;
     
-        this.reqFields = [];
-        this.resFields = [];
+        //prop type: string[]
+        this.resFields = null;
+    
+        
+        
     }
    submit() {
         let tmp ={};

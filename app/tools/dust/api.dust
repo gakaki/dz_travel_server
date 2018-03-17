@@ -22,8 +22,8 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
         this._{.k|s} = null;{/.requires}{#.optionals}
         this._{.k|s} = null;{/.optionals}{#.outputs}
         this._{.k|s} = null;{/.outputs}
-        {?.reqFieldStr}this.reqFields = {.reqFieldStr|s};{/.reqFieldStr}
-        {?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}
+        {?isApi}{?.reqFieldStr}this.reqFields = {.reqFieldStr|s};{/.reqFieldStr}{/isApi}
+        {?isApi}{?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}{/isApi}
     {~rb}{#.requires}
     //client input, require, type: {.v|s}{!客户端输入，必填字段!}
     get {.k|s}() {~lb}return this._{.k|s}{~rb}

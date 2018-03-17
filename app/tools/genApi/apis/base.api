@@ -5,6 +5,8 @@ class Base{
     prop server uid:string
     prop server _sid:string
     prop server ctx:Context
+    prop client reqFields:string[]
+    prop server resFields:string[]
 
     func client get app() {
         if (!this._app) {
@@ -64,7 +66,20 @@ class Base{
 
     }
 
-    func client static start(appName, url) {
+    func client static Start(appName, url) {
+        return new Promise(resolve => {
+            let app = getApp();
+            if (app.globalData.userInfo) {
+                //已经有用户数据
+                resolve();
+            }
+            else {
+                this.DoStart(appName, url).then(resolve);
+            }
+        });
+    }
+
+    func client static DoStart(appName, url) {
         //定义一些静态变量
         this.SID = '';
         this.UID = '';
@@ -77,13 +92,13 @@ class Base{
             wx.checkSession({
                 success: () => {
                     this.AUTHED = true;
-                    this.userLogin(resolve)
+                    this.UserLogin(resolve)
                 },
                 fail: res => {
                     wx.login({
                         success: res => {
                             this.AUTHED = false;
-                            this.userAuth(res.code, resolve);
+                            this.UserAuth(res.code, resolve);
                         }
                     })
                 }
@@ -92,7 +107,7 @@ class Base{
 
     }
 
-    func client static userAuth(code, suc) {
+    func client static UserAuth(code, suc) {
         let req = new Base();
         req.action = 'weChat.auth';
         req.reqFields = ['payload'];
@@ -102,11 +117,11 @@ class Base{
         req.fetch().then( res => {
             this.UID = res.data.uid;
             wx.setStorageSync('uid', this.UID);
-            this.userLogin(suc);
+            this.UserLogin(suc);
         });
     }
 
-    func client static userLogin(suc) {
+    func client static UserLogin(suc) {
         let req = new Base();
         req.action = 'user.login';
         req.reqFields = [ 'info'];
@@ -116,10 +131,6 @@ class Base{
             success: info =>{
                 let app = getApp();
                 app.globalData.userInfo = info.userInfo;
-                app.globalData.hasUserInfo = true;
-                if (app.userInfoReadyCallback) {
-                   app.userInfoReadyCallback(info)
-                }
 
                 //fetch srv
                 req.info = info.userInfo;
