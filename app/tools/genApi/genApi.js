@@ -400,8 +400,10 @@ class MustacheRProcessor extends Processor {
                 if (parsing instanceof Clazz) {
                     parsing.genFieldStr();
                 }
-                parsedData.classes.push(parsing);
-                parsedData.classDic[parsing.name] = parsing;
+                if (!parsedData.classDic[parsing.name]) {
+                    parsedData.classDic[parsing.name] = parsing;
+                    parsedData.classes.push(parsing);
+                }
             }
         }
 
@@ -474,6 +476,7 @@ syntax.reg(SYNTAX.MS_RIGHT, new MustacheRProcessor());
 //读取配置
 const cfg = require('./config');
 let files;//要处理的文件列表，根据cfg读取
+let parsedFiles = {};//已处理的文件列表
 //开始处理
 Promise.all(Object.keys(cfg).map(key => {
     gen(key, cfg[key]);
@@ -526,6 +529,10 @@ async function gen(cfgKey, cfgNode) {
 async function parseFile() {
     if (files.length) {
         curFl = files.pop();
+        if (parsedFiles.hasOwnProperty(curFl)) {
+            await parseFile();
+        }
+        parsedFiles[curFl] = true;
         let fl = path.basename(curFl);
         let extName = path.extname(fl);
         if (extName != API_FILE_EXT) {

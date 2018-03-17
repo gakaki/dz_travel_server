@@ -20,7 +20,7 @@ class UserInfo {
     //金币等物品信息（如果查看他人的，可能不提供该数据）
     prop items:KV[]
     //好友uid
-    output friends:string[]
+    prop friends:string[]
 }
 //拉取一个玩家的简要信息（自己或他人）
 api PlayerInfo {

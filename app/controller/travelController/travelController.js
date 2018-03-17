@@ -1,12 +1,10 @@
-//@flow
 const Controller = require('egg').Controller;
-const api = require('../../../apis/api');
 const apis = require('../../../apis/travel');
 //旅行出发相关
 class TravelController extends Controller {
-    @api(apis.IndexInfo)
-    async index(ctx: Context) {
-        let info = ctx.api;
+    async index(ctx) {
+        let info = apis.IndexInfo.Init(ctx);
+
         //read info's prop by client
 
         //write info's prop to client

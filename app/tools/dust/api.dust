@@ -41,6 +41,14 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
 {#.funcs}
 {?server}{^.isClient}{.contentStr|s}{/.isClient}{:else}{^.isServer}{.contentStr|s}{/.isServer}{/server}
 {/.funcs}
+{?server}{?isApi}
+    static Init(ctx) {~lb}
+    let o = new {.name}();
+    o.ctx = ctx;
+    o.parse(ctx.query);
+    return o;
+    {~rb}{/isApi}
+{/server}
 }
 {/classes}
 //-------------exports---------------

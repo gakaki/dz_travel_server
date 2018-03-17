@@ -149,7 +149,7 @@ module.exports = app => {
                 pid: pidStr,
                 items: items,
                 character: character,
-                isNew: true
+                newUser: true
             });
 
 
