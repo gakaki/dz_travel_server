@@ -55,7 +55,7 @@ exports.AppCharacter = {
         losses:0,            //负场
         total:0,             //总局数
         cumulativeDays:0, //累计天数
-        beautifulWords:0, //每日美句
+        beautifulWords:1, //每日美句
         friendsList: [], //好友列表
         wordList:{
             [new Date().toLocaleDateString()]:[]
@@ -136,6 +136,7 @@ exports.Code = {
     FRIEND_WAIT: -107, // 正在等待好友通过
     REQUIREMENT_FAILED: -108, // 不满足条件
     ROOM_FULLED: -109, // 满员
+    ROOM_NEED_UPDATE:-88, //房间信息过期
     ROOM_EXPIRED: -110, // 房间过期
     ROOM_USER_EXISTS: -111, // 用户已经在房间内
     GANG_FULLED: -112, // 宝宝列表已满

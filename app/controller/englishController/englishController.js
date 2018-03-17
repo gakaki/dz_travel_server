@@ -158,6 +158,55 @@ class EnglishController extends Controller {
         }
         ctx.body=result;
     }
+
+
+    async canmatch(ctx){
+        const {_sid, appName,rankType} = ctx.query;
+        let result = {};
+        if (!_sid || !appName || !rankType) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let data=await this.service.englishService.englishService.isInRoom(ui,appName,rankType);
+
+        result.code=constant.Code.OK;
+        result.data = data;
+
+        ctx.body=result;
+    }
+
+    async checkroom(ctx){
+        const {_sid, appName,rid} = ctx.query;
+        let result = {};
+        ctx.logger.info("检查房间 入参 ："+ rid);
+        if (!_sid || !appName || !rid) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        let data=await this.service.englishService.englishService.checkRoom(ui,appName,rid);
+
+        result.code=constant.Code.OK;
+        result.data = data;
+
+        ctx.body=result;
+    }
+
+
+
     async roomisexist(ctx){
         const {_sid, appName,rid} = ctx.query;
         let result = {};
@@ -316,6 +365,17 @@ class EnglishController extends Controller {
         }
 
         ctx.body=result;
+    }
+
+    setquestions(ctx){
+        const {difficult} = ctx.query;
+        let result = {};
+        if (!difficult) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        ctx.body= this.service.englishService.englishService.setQuestions(difficult);
     }
 
 

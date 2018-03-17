@@ -6,37 +6,6 @@ const englishConfigs = require("../../../../sheets/english");
 
 class EnglishIOController extends Controller {
 
-    async canmatch(){
-        const {ctx, app} = this;
-        const nsp = app.io.of('/english');
-        const socket = ctx.socket;
-        const query = socket.handshake.query;
-        const {appName, _sid} = query;
-        const message = ctx.args[0] ||{};
-        const {rankType} = message;
-        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
-        if(ui==null){
-            return;
-        }
-        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
-        if(!player){
-            return;
-        }
-        let cost =englishConfigs.Stage.Get(rankType).goldcoins1;
-        if(ui.items[englishConfigs.Item.GOLD] < cost){
-            socket.emit("needGold",{
-                code:constant.Code.NEED_ITEMS
-            });
-        }
-       /* socket.emit("waiting",{
-            code:constant.Code.OK,
-            data:{
-                cost:cost
-            }
-        });*/
-    }
-
-
     async ranking() {
         const {ctx, app} = this;
         const nsp = app.io.of('/english');
@@ -63,28 +32,20 @@ class EnglishIOController extends Controller {
             });
             return;
         }
-  /*      let roomList = this.app.roomList.has(appName)?this.app.roomList.get(appName):new Map();
+        let roomList = this.app.roomList.has(appName)?this.app.roomList.get(appName):new Map();
         for(let room of roomList.values()){
             for(let uid of room.userList.keys()){
-                if(uid == ui.uid || room.isFriend){
+                if(uid == ui.uid && room.isFriend){
                     socket.emit("inRoom",{
                         code:constant.Code.OK,
                     });
                    return;
                 }
             }
-        }*/
-
-        player.setStatus(constant.playerStatus.ready);
-        player.setRankType(rankType);
-        player.setUser(ui);
+        }
 
         app.messenger.sendToApp('refresh',{appName:constant.AppName.ENGLISH,uid:ui.uid,ranking:true,round:false,rankType:rankType,status:constant.playerStatus.ready,user:ui});
 
-
-      //  setTimeout(function () {
-        app.messenger.sendToApp('readyMatch',{appName:appName,player:ui.uid});
-     //   },2000)
 
     }
 
@@ -144,9 +105,6 @@ class EnglishIOController extends Controller {
         }
 
 
-  /*      player.setScore(totalScore);
-        player.setAnswer(answer);
-        player.setResult(isRight);*/
 
         let englishAnswerRecord={
             uid:ui.uid,
@@ -163,7 +121,7 @@ class EnglishIOController extends Controller {
         ctx.model.EnglishModel.EnglishAnswerRecord.create(englishAnswerRecord);
 
         let dateStr = new Date().toLocaleDateString();
-     //   player.user.character.wordList?player.user.character.wordList:{};
+
         let libArr =player.user.character.wordList[dateStr] || [];
         let lib = new Set(libArr);
 
@@ -171,7 +129,6 @@ class EnglishIOController extends Controller {
             ctx.logger.info("更新单词 ："+wid);
             await ctx.model.PublicModel.User.update({uid:ui.uid,appName:appName},{$push:{["character.wordList."+dateStr]:wid}});
             ui=await ctx.model.PublicModel.User.findOne({uid:ui.uid,appName:appName});
-          //  player.setUser(ui);
         }
 
         ctx.app.messenger.sendToApp('refresh',
@@ -180,29 +137,6 @@ class EnglishIOController extends Controller {
     }
 
 
-
-/*    async createroom(){
-        const {ctx, app} = this;
-        const socket = ctx.socket;
-        const query = socket.handshake.query;
-        const {appName, _sid} = query;
-        ctx.logger.info("创建房间");
-        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
-        if(ui==null){
-            return;
-        }
-        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
-        if(!player){
-            return;
-        }
-
-        socket.emit("createSuccess",{
-            code:constant.Code.OK,
-            data:{
-                rid:rid
-            }
-        });
-    }*/
 
     async joinroom() {
         const {ctx, app} = this;
@@ -233,25 +167,32 @@ class EnglishIOController extends Controller {
             if(!roomInfo){
                 ctx.logger.info("房间不存在");
                 isExist =false;
+            }else{
+                if(!roomInfo.isFriend){
+                    isExist =false;
+                }
             }
+
         }
 
         let roomList = this.app.roomList.has(appName)?this.app.roomList.get(appName):new Map();
         let roomId = null;
         for(let room of roomList.values()){
-            for(let uid of room.userList.keys()){
-                if(uid == ui.uid){
-                    //在房间内
-                    if(rid && rid != room.rid) {
-                        ctx.logger.info("离开了？？" + room.rid,rid);
-                        roomId =rid;
-                        app.messenger.sendToApp('leaveRoom', {appName: constant.AppName.ENGLISH, uid: ui.uid});
-                    }else if(rid && room.rid ==rid){
-                        roomId =room.rid;
-                    }else if(!rid && room.rid){
-                        roomId= room.rid
+            if(room.isFriend){
+                for(let uid of room.userList.keys()){
+                    if(uid == ui.uid){
+                        //在房间内
+                        if(rid && rid != room.rid) {
+                            ctx.logger.info("离开了？？" + room.rid,rid);
+                            roomId =rid;
+                            app.messenger.sendToApp('leaveRoom', {appName: constant.AppName.ENGLISH, uid: ui.uid});
+                        }else if(rid && room.rid ==rid){
+                            roomId =room.rid;
+                        }else if(!rid && room.rid){
+                            roomId= room.rid
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -263,6 +204,10 @@ class EnglishIOController extends Controller {
         if(!room){
             isExist = false;
             roomId = null;
+        }else{
+            if(room.userList.size == 2){
+                roomId = null;
+            }
         }
         ctx.logger.info("当前房间号 ："+ roomId);
         ctx.logger.info("房间存不存在 ："+ isExist);
@@ -283,14 +228,6 @@ class EnglishIOController extends Controller {
 
             app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:roomId});
 
-            socket.emit("join",{
-                code:constant.Code.OK,
-                data:{
-                    rid:roomId,
-                }
-            })
-
-
         }else{
             ctx.logger.info("创建房间 :"+roomId);
             isCreate = true;
@@ -303,14 +240,15 @@ class EnglishIOController extends Controller {
             socket.join(roomId);
             app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:roomId,difficulty:difficulty[index],wordList:wordList,uid:ui.uid});
             ctx.logger.info("创建房间发送信息 :"+roomId,isCreate);
-            socket.emit("joinSuccess",{
-                code:constant.Code.OK,
-                data:{
-                    rid:roomId,
-                    isCreate:isCreate
-                }
-            });
+
         }
+        socket.emit("joinSuccess",{
+            code:constant.Code.OK,
+            data:{
+                rid:roomId,
+                isCreate:isCreate
+            }
+        });
 
     }
 
@@ -338,6 +276,9 @@ class EnglishIOController extends Controller {
         let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             ctx.logger.info("房间不存在");
+            socket.emit("roomExpired",{
+                code:constant.Code.ROOM_EXPIRED
+            });
             return;
         }
 
@@ -351,8 +292,12 @@ class EnglishIOController extends Controller {
             return
         }
 
-        if(roomInfo.userList.size !=2){
+        if(roomInfo.userList.size < 2){
             ctx.logger.info("房间人数不足");
+            socket.emit("needUpdate",{
+                code:constant.Code.ROOM_NEED_UPDATE,
+                rid:rid
+            });
             return
         }
         for(let play of roomInfo.userList.values()){
@@ -362,8 +307,7 @@ class EnglishIOController extends Controller {
             }
         }
         let season =ctx.service.englishService.englishService.getSeason();
-   //     let difficulty = englishConfigs.Stage.Get(player.user.character.season[season].rank).difficulty;
- //       let index = utils.Rangei(0,difficulty.length);
+
         let wordList=ctx.service.englishService.englishService.setQuestions(player.user.character.season[season].rank);
 
         app.messenger.sendToApp('setRoom',{appName:constant.AppName.ENGLISH,rid:rid,wordList:wordList});
@@ -413,6 +357,7 @@ class EnglishIOController extends Controller {
         }
         let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
+            ctx.logger.info("房间不存在 ：" + rid);
             return;
         }
         socket.leave(rid);
@@ -602,32 +547,6 @@ class EnglishIOController extends Controller {
             }
         })
     }
-
-    async test(){
-        const {ctx, app} = this;
-        const socket = ctx.socket;
-        const nsp = app.io.of('/english');
-        const query = socket.handshake.query;
-        const {appName, _sid} = query;
-        const message = ctx.args[0] || {};
-        const {rid} = message;
-        let ui = await ctx.service.publicService.userService.findUserBySid(_sid);
-        if(ui==null){
-            return;
-        }
-        let player = app.userList.get(appName).get(ui.uid);
-
-        if(!player){
-            return;
-        }
-      /*  let roomInfo = app.roomList.get(appName).get(rid);
-        if(!roomInfo){
-            return;
-        }*/
-
-        app.messenger.sendToApp('test',{appName:appName,uid:ui.uid});
-    }
-
 
 }
 

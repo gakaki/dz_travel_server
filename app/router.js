@@ -34,17 +34,15 @@ module.exports = app => {
     router.get('/english/makesurprise', controller.englishController.englishController.makesurprise);
     router.get('/english/canshare', controller.englishController.englishController.canshare);
     router.get('/english/isfirstsign', controller.englishController.englishController.isfirstsign);
+    router.get('/english/canmatch', controller.englishController.englishController.canmatch);
+    router.get('/english/checkroom', controller.englishController.englishController.checkroom);
+    router.get('/english/setquestions', controller.englishController.englishController.setquestions);
 
 
 
- /*   router.get('/english/english', io.controller.englishIOController.englishIOController.ranking);*/
-
-
-    io.of('/english').route('canmatch', io.controller.englishIOController.englishIOController.canmatch);
     io.of('/english').route('ranking', io.controller.englishIOController.englishIOController.ranking);
     io.of('/english').route('cancelmatch', io.controller.englishIOController.englishIOController.cancelmatch);
     io.of('/english').route('roundend', io.controller.englishIOController.englishIOController.roundend);
-  //  io.of('/english').route('createroom', io.controller.englishIOController.englishIOController.createroom);
     io.of('/english').route('joinroom', io.controller.englishIOController.englishIOController.joinroom);
     io.of('/english').route('startgame', io.controller.englishIOController.englishIOController.startgame);
     io.of('/english').route('leaveroom', io.controller.englishIOController.englishIOController.leaveroom);
@@ -52,5 +50,5 @@ module.exports = app => {
     io.of('/english').route('getmatchinfo', io.controller.englishIOController.englishIOController.getmatchinfo);
     io.of('/english').route('getpkinfo', io.controller.englishIOController.englishIOController.getpkinfo);
     io.of('/english').route('roomisexist', io.controller.englishIOController.englishIOController.roomisexist);
-    //io.of('/english').route('test', io.controller.englishIOController.englishIOController.test);
+
 };

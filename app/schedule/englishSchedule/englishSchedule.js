@@ -47,21 +47,36 @@ module.exports = {
                 if (oldest == null) {
                     break;
                 }
-
-                let max = oldest.rankType;
-                let min = oldest.rankType;
-                let middle = oldest.rankType;
-               /* if (oldest.waitTime > 15) {
-                    max = 10000*200;
-                    min = 0;
-                } else if (oldest.waitTime > 10) {
-                    max = oldest.user.character.season[season].ELO + 5*200;
-                    min = oldest.user.character.season[season].ELO - 5*200;
-                } else if (oldest.waitTime > 5) {
-                    max = oldest.user.character.season[season].ELO+ 3*200;
-                    min = oldest.user.character.season[season].ELO - 3*200;
-                }*/
                 let matchPoolPlayer = new Set();
+                let middle = oldest.rankType;
+                let thisRankPlayers = pointMap.has(middle) ? pointMap.get(middle) : new Set();
+
+
+                if (thisRankPlayers.size > 0) {
+                    //console.log(thisRankPlayers.size);
+                    if (matchPoolPlayer.size < 1) {
+                        for (let player of thisRankPlayers) {
+                            if (player.user.uid != oldest.user.uid && player.status == constant.playerStatus.ready) {//排除玩家本身
+                                if (matchPoolPlayer.size < 1) {
+                                    matchPoolPlayer.add(player);
+                                    ctx.logger.info(oldest.user.uid + "|匹配到玩家|" + player.user.uid + "|rankType|" + player.rankType);
+                                    //移除
+                                    sameRankPlayers.delete(player);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+             /*   let max = oldest.rankType;
+                let min = oldest.rankType;
+
+
+
+
                 //从中位数向两边扩大范围搜索
                 for (let searchRankUp = middle, searchRankDown = middle; searchRankUp <= max || searchRankDown >= min; searchRankUp++, searchRankDown--) {
                     let thisUpRankPlayers = pointMap.has(searchRankUp) ? pointMap.get(searchRankUp) : new Set();
@@ -86,31 +101,14 @@ module.exports = {
 
                     }
                 }
-
+*/
                 if (matchPoolPlayer.size == 1) {
                 //    ctx.logger.info(oldest.user.uid + "|匹配到玩家数量够了|提交匹配成功处理");
                     //自己也匹配池移除
                     sameRankPlayers.delete(oldest);
                     //匹配成功处理
                     matchPoolPlayer.add(oldest);
-                    let uidArr=[];
-                    let rankA= oldest.rankType;
-                    let rankB=0;
-                    for(let player of matchPoolPlayer){
-                        uidArr.push(player.user.uid);
-                        if(player.user.uid != oldest.user.uid){
-                            rankB=player.rankType;
-                        }
-                    }
-                    let roomId = "10" + new Date().getTime();
-
-                    let pk = Math.min(rankA,rankB);
-                    let difficulty = englishConfigs.Stage.Get(pk).difficulty;
-                    let index = utils.Rangei(0,difficulty.length);
-                    let wordList=ctx.service.englishService.englishService.setQuestions(difficulty[index]);
-                    ctx.logger.info("匹配成功 ："+roomId);
-                    ctx.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr,rid:roomId,wordList:wordList,difficulty:difficulty[index]});
-                    //ctx.service.englishService.englishService.matchSuccess(matchPoolPlayer);
+                    ctx.service.englishService.englishService.matchSuccess(matchPoolPlayer);
                 } else {
                     //本分数段等待时间最长的玩家都匹配不到，其他更不用尝试了
                     continueMatch = false;

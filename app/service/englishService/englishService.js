@@ -5,11 +5,30 @@ const utils = require("../../utils/utils");
 const englishConfigs = require("../../../sheets/english");
 
 class EnglishService extends Service {
-    async matchSuccess(matchPoolPlayer, roomId) {
+    async matchSuccess(matchPoolPlayer) {
+        let mplayers = Array.from(matchPoolPlayer);
+        let rankA= mplayers[0].rankType;
+        let rankB= mplayers[1].rankType;
+        let roomId = "10" + new Date().getTime();
+        let pk = Math.min(rankA,rankB);
+        let difficulty = englishConfigs.Stage.Get(pk).difficulty;
+        let index = utils.Rangei(0,difficulty.length);
+        let wordList=this.setQuestions(difficulty[index]);
+        this.logger.info("匹配成功 ："+roomId);
+        let uidArr=[mplayers[0].user.uid,mplayers[1].user.uid];
+        this.app.messenger.sendToApp('matchSuccess',{appName:constant.AppName.ENGLISH,matchPoolPlayer:uidArr,rid:roomId,wordList:wordList,difficulty:difficulty[index]});
+    }
+
+    async sendMatchInfo(matchPoolPlayer, roomId){
         let englishroom = this.app.roomList.get(constant.AppName.ENGLISH).get(roomId);
         this.logger.info("发送匹配信息 ：" + roomId);
         this.logger.info(matchPoolPlayer.length);
-        englishroom.setFirstTimeOut();
+        let firstWord = englishroom.wordList[0];
+        let settime = 200000;
+        if(firstWord.type == 3 ){
+            settime = 270000
+        }
+        englishroom.setFirstTimeOut(settime);
         for (let player of matchPoolPlayer) {
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, player.user.uid);
             this.logger.info("是否获取到socket"+socket);
@@ -24,15 +43,24 @@ class EnglishService extends Service {
                     uList.push(user);
                 }
                 this.logger.info(player.user.nickName + "当前选择 为：" + player.rankType + "花费金币 L:" + englishConfigs.Stage.Get(player.rankType).goldcoins1);
+
+
                 let cost = {
                     ["items." + englishConfigs.Item.GOLD]: (englishConfigs.Stage.Get(player.rankType).goldcoins1) * -1
                 };
-                await this.ctx.model.PublicModel.User.update({
+                 await this.ctx.model.PublicModel.User.update({
                     uid: player.user.uid,
                     appName: constant.AppName.ENGLISH
                 }, {$inc: cost});
-
-                await this.ctx.service.publicService.itemService.itemChange(player.user, cost, constant.AppName.ENGLISH);
+                this.logger.info(player.user.nickName+"推送消息");
+                socket.emit("matchSuccess",{
+                    code: constant.Code.OK,
+                    data: {
+                        userList: uList,
+                        rid: roomId
+                    }
+                })
+                 this.ctx.service.publicService.itemService.itemChange(player.user, cost, constant.AppName.ENGLISH);
                 /* socket.emit('joinSuccess', {
                      code: constant.Code.OK,
                  });*/
@@ -43,18 +71,11 @@ class EnglishService extends Service {
 
                 // setTimeout(function () {
                 //  this.logger.info("matchSuccess ："+englishroom.rid);
-                let nsp =this.app.io.of('/english');
-                this.logger.info(player.user.nickName+"推送消息");
-                socket.emit("matchSuccess",{
-                    code: constant.Code.OK,
-                    data: {
-                        userList: uList,
-                        rid: roomId
-                    }
-                })
-           /*     nsp.to(roomId).emit("matchSuccess", {
+            //    let nsp =this.app.io.of('/english');
 
-                })*/
+                /*     nsp.to(roomId).emit("matchSuccess", {
+
+                     })*/
                 // },500)
             }
         }
@@ -113,9 +134,16 @@ class EnglishService extends Service {
         }
         // let answerCount = await this.ctx.model.EnglishModel.EnglishAnswerRecord.count({uid:ui.uid,date:date});
 
+        let landingessay = ui.character.beautifulWords;
+        let beautifulWord ={
+            english :englishConfigs.Landingessay.Get(landingessay).English,
+            chinese:englishConfigs.Landingessay.Get(landingessay).Chinese
+        };
+
 
         let result = {
             userInfo: ui,
+            beautifulWord:beautifulWord,
             todayWords: todayWords.size,
             remember: {
                 totalCount: answerRecords.length,
@@ -257,8 +285,69 @@ class EnglishService extends Service {
         return userShareRecord;
     }
 
+    isInRoom(ui,appName,rankType){
+        let needGold = false;
+        let inRoom = false;
+        let cost =englishConfigs.Stage.Get(rankType).goldcoins1;
+        if(ui.items[englishConfigs.Item.GOLD] < cost){
+            needGold = true;
+        }
+        let roomList = this.app.roomList.has(appName)?this.app.roomList.get(appName):new Map();
+        for(let room of roomList.values()){
+            for(let uid of room.userList.keys()){
+                if(uid == ui.uid && room.isFriend){
+                    this.logger.info(uid,room.rid,room.isFriend);
+                    inRoom = true;
+                    break;
+                }
+            }
+        }
+        return {
+            needGold:needGold,
+            inRoom:inRoom
+        }
+    }
+
+    checkRoom(ui,appName,rid){
+        let roomExist = true;
+        let inRoom = false;
+        let isFriend = false;
+        let roomInfo =this.app.roomList.has(appName)?this.app.roomList.get(appName).get(rid):null;
+        if(!roomInfo){
+            roomExist=false;
+        }else{
+            this.logger.info("checkRoom 检查房间时 " +JSON.stringify(roomInfo));
+            if(roomInfo.isFriend){
+                isFriend = true;
+            }
+            for(let uid of roomInfo.userList.keys()){
+                if(uid == ui.uid){
+                    inRoom = true;
+                    break;
+                }
+            }
+        }
+
+        return {
+            rid:rid,
+            roomExist:roomExist,
+            inRoom:inRoom,
+            isFriend:isFriend
+        }
+    }
+
+
     roomIsExist(ui, appName, rid) {
-        return this.app.roomList.has(appName) ? this.app.roomList.get(appName).get(rid) : null;
+        let roomInfo=this.app.roomList.has(appName) ? this.app.roomList.get(appName).get(rid) : null;
+        if(!roomInfo){
+            return null;
+        }else{
+            if(roomInfo.userList.size == 2){
+                return null;
+            }else{
+                return roomInfo;
+            }
+        }
     }
 
     async makeSurprise(ui, appName, itemId) {
@@ -374,12 +463,18 @@ class EnglishService extends Service {
         let userList = ui.character.friendsList;
         let uList = [];
         let season = this.getSeason();
+        let lastRank = 1;
+        let lastseason = season-1;
+        if(ui.character.season[lastseason]){
+            lastRank = ui.character.season[lastseason].rank;
+        }
         uList.push({
             uid: ui.uid,
             appName: appName,
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
-            location: ui.location,
+            city: ui.city,
+            lastRank:lastRank,
             rank: ui.character.season[season].rank,
             star: ui.character.season[season].star,
             createTime: ui.character.season[season].createTime
@@ -387,12 +482,16 @@ class EnglishService extends Service {
         for (let userId of userList) {
             let user = await this.ctx.model.PublicModel.User.findOne({uid: userId, appName: appName});
             if (user.character.season[season]) {
+                if(user.character.season[lastseason]){
+                   lastRank = user.character.season[lastseason].rank;
+                }
                 let friend = {
                     uid: user.uid,
                     appName: appName,
                     nickName: user.nickName,
                     avatarUrl: user.avatarUrl,
-                    location: user.location,
+                    city: user.city,
+                    lastRank:lastRank,
                     rank: user.character.season[season].rank,
                     star: user.character.season[season].star,
                     createTime: user.character.season[season].createTime
@@ -419,17 +518,23 @@ class EnglishService extends Service {
             }
 
         }
+        let lastRank = 1;
+        let lastseason = season-1;
 
         let allUser = await this.ctx.model.PublicModel.User.find({appName: appName});
         let seasonList = [];
         for (let user of allUser) {
             if (user.character.season[nowSeason]) {
+                if(user.character.season[lastseason]){
+                    lastRank = user.character.season[lastseason].rank;
+                }
                 let player = {
                     uid: user.uid,
                     appName: appName,
                     nickName: user.nickName,
                     avatarUrl: user.avatarUrl,
-                    location: user.location,
+                    city: user.city,
+                    lastRank:lastRank,
                     rank: user.character.season[nowSeason].rank,
                     star: user.character.season[nowSeason].star,
                     createTime: user.character.season[nowSeason].createTime
@@ -480,12 +585,41 @@ class EnglishService extends Service {
             //  let type = 1;
             let word = {
                 id: qword.id,
-                type: types[type]
+                english:qword.english,
+                chinese:qword.China,
+                symbol:qword.symbol,
+                speech:qword.speech,
+                type: types[type],
+                eliminateNum:qword.eliminateNum,
+                eliminate:qword.eliminate,
             };
+            if(word.type == 1 ||word.type ==2){
+                word.errorWords = this.getErrorAnswer(qword.id,words)
+            }
+
             questions.push(word);
         }
 
         return questions;
+    }
+
+    getErrorAnswer(wid,wordLib){
+       // let wordLib = englishConfigs.words;
+      // let errorWords = [];
+        let words = new Set();
+        while(words.size <3){
+            let index = utils.Rangei(0, wordLib.length);
+            if(index != wid){
+                let word = {
+                    id: wordLib[index].id,
+                    english:wordLib[index].english,
+                    chinese:wordLib[index].China,
+                };
+                words.add(word);
+            }
+        }
+
+        return Array.from(words);
     }
 
     async doComplete(orderid, appName) {
@@ -556,6 +690,9 @@ class EnglishService extends Service {
     notice(appName, rid) {
         let roomInfo = this.app.roomList.get(appName).get(rid);
         let uList = [];
+        if(!roomInfo){
+            return
+        }
         for (let player of roomInfo.userList.values()) {
             this.logger.info("循环的用户信息  ：" ,JSON.stringify(player.user));
             let user = {
@@ -584,47 +721,9 @@ class EnglishService extends Service {
             }
         });
 
-/*        for (let userId of roomInfo.userList.keys()) {
-            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, userId);
-            if (socket) {
-                this.logger.info("选手消息通知。。。");
-                socket.emit('roomInfo', {
-                    code: constant.Code.OK,
-                    data: {
-                        userList: uList,
-                        roomInfo: rInfo
-                    }
-                });
-            }
-        }
-        for (let bystander of roomInfo.bystander.keys()) {
-            let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, bystander);
-            if (socket) {
-                this.logger.info("旁观者消息通知。。。");
-                socket.emit('roomInfo', {
-                    code: constant.Code.OK,
-                    data: {
-                        userList: uList,
-                        roomInfo: rInfo
-                    }
-                });
-            }
-        }*/
     }
 
-    test(uid) {
-        let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, uid);
-        if (socket) {
-            socket.emit('test', {
-                code: constant.Code.OK,
-                data: {
-                    msg: "this is a test"
-                }
-            });
 
-            return true
-        }
-    }
 
     async broadAnswer(rid, appName, time, uid) {
         let roomInfo = this.app.roomList.get(appName).get(rid);
@@ -656,6 +755,7 @@ class EnglishService extends Service {
         this.logger.info(ok);
 
         this.logger.info("当前次数 ：" + time);
+
         const nsp = this.app.io.of("/english");
         nsp.to(rid).emit('roundEndSettlement', {
             code: constant.Code.OK,
@@ -735,8 +835,6 @@ class EnglishService extends Service {
                 let isStarUp = 0;
                 let isUp = false;
                 if (!roomInfo.isFriend) {
-                    socket.leave(rid);
-
                     if (result.wins > 0) {
                         winningStreak++;
                     } else {
@@ -753,20 +851,23 @@ class EnglishService extends Service {
                         }
                         if (star + result.star <= 0) {
                             star = 0;
+                            up["character.season." + season + ".star"] = star;
                         } else {
                             if (englishConfigs.Stage.Get(rank).star == (star + result.star)) {
                                 isRank = true;
                                 rank++;
                                 star = 0;
+                                up["character.season." + season + ".star"] = star;
                             } else {
-                                star = star + result.star;
+                                star += result.star;
                                 isStarUp = result.star;
+                                cost["character.season." + season + ".star"] = star;
                             }
                         }
 
 
                         up["character.season." + season + ".rank"] = rank;
-                        up["character.season." + season + ".star"] = star;
+
                         up["character.season." + season + ".createTime"] = time;
 
                     }
@@ -811,7 +912,7 @@ class EnglishService extends Service {
 
 
                 let upUser = await this.ctx.model.PublicModel.User.findOne({uid: user.uid, appName: appName});
-                await this.ctx.service.publicService.itemService.itemChange(upUser, items, constant.AppName.ENGLISH);
+                 this.ctx.service.publicService.itemService.itemChange(upUser, items, constant.AppName.ENGLISH);
 
                 player.setUser(upUser);
 
@@ -862,6 +963,29 @@ class EnglishService extends Service {
                     this.logger.info("离开者 ：" + player.user.nickName);
                  /*   this.ctx.service.socketService.socketioService.delSocket(appName, player.user.uid);*/
                 } else {
+                    this.logger.info("pkend 推送信息 " , {
+                        isLeave: isLeave,
+                        userList: ulist,
+                        exp: result.exp,
+                        gold: result.gold,
+                        final: result.final,
+                        isFriend: roomInfo.isFriend,
+                        pkResult: {
+                            isRank: {
+                                isRank: isRank,
+                                rank: rank
+                            },
+                            isStarUp: {
+                                isStarUp: isStarUp,
+                            },
+                            isUp: {
+                                isUp: isUp,
+                                level: level,
+                                awards: awards
+                            }
+                        }
+                    })
+
                     socket.emit('pkEndSettlement', {
                         code: constant.Code.OK,
                         data: {
@@ -887,6 +1011,10 @@ class EnglishService extends Service {
                             }
                         }
                     });
+                    if (!roomInfo.isFriend || roomMangerLeave) {
+                        socket.leave(rid);
+                    }
+
                 }
 
 

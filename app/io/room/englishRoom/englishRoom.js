@@ -1,7 +1,7 @@
 const utils = require("../../../utils/utils");
 const constant = require("../../../utils/constant");
 const englishConfigs = require("../../../../sheets/english");
-
+var tmp = -1;
 class EnglishRoom {
     constructor(rid,difficulty=1,isFriend=false,ctx) {
         this.userList = new Map(); //参与者
@@ -14,7 +14,6 @@ class EnglishRoom {
         this.round = 1;
         this.isGameOver = false;
         this.ctx = ctx;
-        this.first=-1;
     }
 
 
@@ -44,18 +43,19 @@ class EnglishRoom {
         return true;
     }
 
-    setFirstTimeOut(){
+    setFirstTimeOut(time){
         this.ctx.logger.info("开始第一次计时");
         this.roomStatus=constant.roomStatus.isGaming;
         this.isGameOver=false;
         this.round = 1;
-        this.roundTO(20000)
+        this.roundTO(time)
     }
 
-    roundTO(t,time){
+    roundTO(t){
+        this.ctx.logger.info("设置倒计时 "+this.round);
         let self =this;
         if(this.round ==6){
-            t -=3;
+            t = 2000
         }
         (function(j) {
             var tmp = setTimeout(function(){
@@ -67,10 +67,11 @@ class EnglishRoom {
 
                 }else{
                     if(self.round == j){
-                        self.nextTurn();
+                        self.ctx.logger.info("玩家无响应，自动切题");
+                        self.nextTurn(10);
                     }
                 }
-                clearTimeout(tmp)
+
             }, t)
 
 
@@ -78,7 +79,7 @@ class EnglishRoom {
     }
 
     // 收到玩家答案
-    checkAnswer(){
+    checkAnswer(time){
         this.ctx.logger.info("checkAnswer");
         let isRoundEnd =true;
         // 检查两方的答案， 判断是 游戏结束还是下一个回合，还是等待另外一方
@@ -87,19 +88,25 @@ class EnglishRoom {
                 isRoundEnd = false;
             }
         }
+        this.ctx.logger.info("下一题" +isRoundEnd);
         if(isRoundEnd){
-            this.nextTurn()
+            this.nextTurn(time)
         }
     }
 
-    nextTurn(){
+    nextTurn(clockTime=10){
+        if(this.isGameOver){
+            return;
+        }
         this.ctx.logger.info("nextTurn");
         // 切入下一题
         this.round++;
         //  广播 切题
         this.ctx.service.englishService.englishService.roundEndNotice(this.rid,this.round);
         // 设置 下个 timeout
-        this.roundTO(15000);
+        this.ctx.logger.info("设置 下个 timeout");
+        clearTimeout(tmp);
+        this.roundTO(clockTime*1000);
     }
 
     // 结算
