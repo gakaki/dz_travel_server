@@ -204,10 +204,6 @@ class EnglishIOController extends Controller {
         if(!room){
             isExist = false;
             roomId = null;
-        }else{
-            if(room.userList.size == 2){
-                roomId = null;
-            }
         }
         ctx.logger.info("当前房间号 ："+ roomId);
         ctx.logger.info("房间存不存在 ："+ isExist);

@@ -1,5 +1,6 @@
 const Controller = require('egg').Controller;
 const constant = require("../../utils/constant");
+const englishConfig = require("../../../sheets/english");
 
 
 class WeChatController extends Controller {
@@ -49,8 +50,15 @@ class WeChatController extends Controller {
             return;
         }
 
-        this.logger.info("我拿到的钱数:" + payCount);
-        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, payCount, good, appName);
+
+
+        let goods=englishConfig.Shop.Get(good);
+        if(!goods){
+            return;
+        }
+        let money = (goods.Price)*100;
+        this.logger.info("我拿到的钱数:" + money);
+        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, good, appName);
     }
 
     async minappwithdraw(ctx) {

@@ -84,6 +84,18 @@ class EnglishService extends Service {
     matchFailed(uid) {
         let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, uid);
         if (socket) {
+            let roomList = this.app.roomList.has(constant.AppName.ENGLISH)?this.app.roomList.get(constant.AppName.ENGLISH):new Map();
+            if(roomList){
+                for(let room of roomList.values()){
+                    for(let userId of room.userList.keys()){
+                        if(userId == uid){
+                            this.app.messenger.sendToApp('leaveRoom',{appName:constant.AppName.ENGLISH,uid:uid});
+                            break;
+                        }
+                    }
+                }
+            }
+
             socket.emit("matchFailed", {
                 code: constant.Code.REQUIRED_LOST
             });
