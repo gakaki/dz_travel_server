@@ -2,6 +2,7 @@
 class Base{
     prop client _app:App
     prop action:string
+    prop client code:number//服务器返回的状态码
     prop server uid:string
     prop server _sid:string
     prop server ctx:Context
