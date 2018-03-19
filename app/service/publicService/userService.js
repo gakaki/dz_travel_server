@@ -184,7 +184,7 @@ module.exports = app => {
             return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
         }
 
-        async getMemberCnt() {
+        async getPlayerCnt() {
             let cnt = await this.ctx.model.UserActionRecord.PublicModel.count();
             return cnt;
         }

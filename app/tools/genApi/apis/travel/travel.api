@@ -18,13 +18,13 @@ enum Weather {
 
 api IndexInfo {
     //是否为第一次进来的玩家
-    output isNew:Boolean
+    output isFirst:Boolean
     //季节
     output season:Season
     //天气
     output weather:Weather
     //旅行人数
-    output memberCnt:number
+    output playerCnt:number
     //好友uid
     output friends:string[]
     //未读系统信息条数

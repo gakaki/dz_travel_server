@@ -16,7 +16,7 @@ module.exports = app => {
         registertime: {type: String},//注册时间
         items: {type: JSON}, //道具
         character: {type: JSON},
-        newUser: {type: Boolean}//是否新用户
+        isFirst: {type: Boolean}//是否新用户
 
     });
 
