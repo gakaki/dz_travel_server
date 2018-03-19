@@ -185,7 +185,7 @@ module.exports = app => {
         }
 
         async getPlayerCnt() {
-            let cnt = await this.ctx.model.UserActionRecord.PublicModel.count();
+            let cnt = await this.ctx.model.PublicModel.UserActionRecord.count();
             return cnt;
         }
 

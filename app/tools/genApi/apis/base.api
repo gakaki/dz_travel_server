@@ -21,7 +21,8 @@ class Base{
                 url: Base.SRV,
                 data: this.reqData,
                 success: res => {
-                  this.parse(res.data)
+                  this.parse(res.data.data);
+                  this.code = res.data.code;
                   resolve(this)
                 },
                 fail: err => {
@@ -44,10 +45,10 @@ class Base{
 
     func client get reqData() {
         let tmp = {};
-        let sid = Base.SID || wx.getStorageSync('sid');
+        let sid = Base.GetSID();
         if (sid)
             tmp._sid = sid;
-        let uid = Base.UID || wx.getStorageSync('uid');
+        let uid = Base.GetUID();
         if (uid)
             tmp.uid = uid;
         this.reqFields.forEach(k => {
@@ -64,6 +65,20 @@ class Base{
 
     func client error(err) {
 
+    }
+
+    func client static GetUID() {
+        if (!Base.UID) {
+            Base.UID = wx.getStorageSync('uid');
+        }
+        return Base.UID;
+    }
+
+    func client static GetSID() {
+        if (!Base.SID) {
+            Base.SID = wx.getStorageSync('sid');
+        }
+        return Base.SID;
     }
 
     func client static Start(appName, url) {
@@ -91,8 +106,18 @@ class Base{
         return new Promise(resolve => {
             wx.checkSession({
                 success: () => {
-                    this.AUTHED = true;
-                    this.UserLogin(resolve)
+                    if (Base.GetSID() || Base.GetUID()){
+                        this.AUTHED = true;
+                        this.UserLogin(resolve)
+                    }
+                    else {
+                        wx.login({
+                            success: res => {
+                                this.AUTHED = false;
+                                this.UserAuth(res.code, resolve);
+                            }
+                        })
+                    }
                 },
                 fail: res => {
                     wx.login({
@@ -115,7 +140,7 @@ class Base{
         //set data
         req.payload = {code};
         req.fetch().then( res => {
-            this.UID = res.data.uid;
+            this.UID = res.uid;
             wx.setStorageSync('uid', this.UID);
             this.UserLogin(suc);
         });
@@ -130,7 +155,6 @@ class Base{
         wx.getUserInfo({
             success: info =>{
                 let app = getApp();
-                app.globalData.userInfo = info.userInfo;
 
                 //fetch srv
                 req.info = info.userInfo;
@@ -140,6 +164,7 @@ class Base{
                         req.error(req.code);
                     }
                     else {
+                        app.globalData.userInfo = req.info;
                         this.SID = req.sid;
                         wx.setStorageSync('sid', this.SID);
                         suc(req);
