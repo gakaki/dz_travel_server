@@ -7,8 +7,10 @@ class TravelController extends Controller {
 
         //read info's prop by client
 
+
+
         //write info's prop to client
-        this.service.travelService.travelService.fillIndexInfo(info);
+        await this.service.travelService.travelService.fillIndexInfo(info);
         //send data
         info.submit();
     }

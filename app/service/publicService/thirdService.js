@@ -1,16 +1,18 @@
 const Service = require('egg').Service;
-const season = require('date-season');
+const season = require('date-season')({north: true, autumn: true});
 const holiday = require('holiday.cn');
-const weather = require('weather-china');
+const weather = require('../../utils/weather');
 
 module.exports = app => {
     return class ThirdService extends Service{
         async getSeason() {
-
+            let s = season(new Date()).toUpperCase();
+            this.logger.info('season', s);
+            return s;
         }
 
-        async getWeather() {
-
+        async getWeather(city) {
+            return await weather(city);
         }
 
         async getHoliday(date=null) {

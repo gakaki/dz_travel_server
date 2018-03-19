@@ -13,6 +13,7 @@
     "egg-socket.io": "^4.0.6",
     "holiday.cn": "^0.0.2",
     "ioredis": "^3.2.2",
+    "request": "^2.85.0",
     "tenpay": "^2.0.9",
     "weather-china": "^0.0.3",
     "ws": "^4.1.0",

@@ -8,7 +8,7 @@ module.exports = app => {
             info.isFirst = usr.isFirst;
 
             info.season = await this.ctx.service.publicService.thirdService.getSeason();
-            info.weather = await this.ctx.service.publicService.thirdService.getWeather();
+            info.weather = await this.ctx.service.publicService.thirdService.getWeather(usr.city);
             info.playerCnt = await this.ctx.service.publicService.userService.getPlayerCnt();
         }
     }
