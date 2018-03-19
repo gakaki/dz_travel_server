@@ -5,11 +5,11 @@ module.exports = app => {
         async fillIndexInfo(info) {
             //info typeof apis.IndexInfo
             let usr = await this.ctx.model.PublicModel.User.find({uid: info.uid});
-            info.isNew = usr.isNew;
+            info.isFirst = usr.isFirst;
 
             info.season = await this.ctx.service.publicService.thirdService.getSeason();
             info.weather = await this.ctx.service.publicService.thirdService.getWeather();
-            info.memberCnt = await this.ctx.service.publicService.userService.getMemberCnt();
+            info.playerCnt = await this.ctx.service.publicService.userService.getPlayerCnt();
         }
     }
 };

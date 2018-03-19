@@ -36,8 +36,8 @@ module.exports = appInfo => {
         },
     };
 
-    config.appid = "wx1c721a2e355de9ba";
-    config.appsecret = "66de48a97a8959491ac4f16dfa10e45b";
+    config.appid = "wx69595aa92bd81b00";
+    config.appsecret = "5ab876c69ee81a4ca83e477ac1905008";
     config.pubid = "wx4224663bb4f0ed80";
     config.pubmchid = "1494209122";
     config.pubkey = "shanghaidouziwangluokejigongsih5";

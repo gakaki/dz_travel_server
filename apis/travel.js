@@ -120,18 +120,18 @@ class Base  {
 class IndexInfo extends Base {
     constructor(){
         super();
-        this._isNew = null;
+        this._isFirst = null;
         this._season = null;
         this._weather = null;
-        this._memberCnt = null;
+        this._playerCnt = null;
         this._friends = null;
         this._unreadMsgCnt = null;
         this.reqFields = [];
-        this.resFields = ["isNew","season","weather","memberCnt","friends","unreadMsgCnt"];
+        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt"];
     }
     //server output, type: Boolean
-    get isNew() {return this._isNew}
-    set isNew(v) {this._isNew = v}
+    get isFirst() {return this._isFirst}
+    set isFirst(v) {this._isFirst = v}
     //server output, type: Season
     get season() {return this._season}
     set season(v) {this._season = v}
@@ -139,8 +139,8 @@ class IndexInfo extends Base {
     get weather() {return this._weather}
     set weather(v) {this._weather = v}
     //server output, type: number
-    get memberCnt() {return this._memberCnt}
-    set memberCnt(v) {this._memberCnt = v}
+    get playerCnt() {return this._playerCnt}
+    set playerCnt(v) {this._playerCnt = v}
     //server output, type: string[]
     get friends() {return this._friends}
     set friends(v) {this._friends = v}
