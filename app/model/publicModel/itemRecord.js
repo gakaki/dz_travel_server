@@ -3,8 +3,8 @@ module.exports = app => {
     const ItemRecordSchema = new mongoose.Schema({
         pid: {type: String},
         appName: {type: String},
-        time: {type: String, default: new Date().toLocaleString()},
-        index: {type: Number},
+        time: {type: String},
+        index: {type: String},
         delta: {type: Number}
 
     });

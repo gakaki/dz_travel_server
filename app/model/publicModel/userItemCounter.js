@@ -5,7 +5,7 @@ module.exports = app => {
         addup: {type: Number},//历史增量
         cost: {type: Number},//历史花费
         delta: {type: Number},//最近一次操作
-        index: {type: Number},//道具索引
+        index: {type: String},//道具索引
         pid: {type: String},
         appName: {type: String},
 

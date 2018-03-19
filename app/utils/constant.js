@@ -1,8 +1,8 @@
-const guessnumConfigs = require("../../config/guessnum/configs");
+const guessnumConfigs = require("../../config/guessnumConfig/guessnumConfigs");
+const englishConfigs = require("../../sheets/english");
 
 exports.AppName = {
-    GUESSNUM: "guessnum",
-    ENGLISH: "english"
+    TRAVEL: "travel"
 };
 
 exports.AppWithdrawCount = {
@@ -10,38 +10,56 @@ exports.AppWithdrawCount = {
 };
 
 exports.AppItem = {
-    guessnum: {
-        [guessnumConfigs.Item.MONEY]: 100,
-        [guessnumConfigs.Item.ACCELERATION]: 100,
-        [guessnumConfigs.Item.CASHCOUPON]: 100,
-    },
-    english: {}
+    travel: getItem("travel")
 
 };
+function getItem(appName) {
+    switch (appName){
+        case "english":
+            let items={};
+            for(let item of englishConfigs.items){
+                if(item.id == englishConfigs.Item.GOLD){
+                    items[item.id]=500
+                }else{
+                    items[item.id]=0
+                }
+
+            }
+            return items;
+        case "travel":
+
+    }
+}
+
 
 exports.AppCharacter = {
-    english: {
-        level: 0,      //等级
-        rank: 0,       //段位
-        star: 0,       //星星数
-        ELO: 0,        //等级分
-        experience: 0,  //经验值
-        winningStreak: 0, //连胜场数
-        friendsList: new Set() //好友列表
+    travel:{
+        gameCity:"",
+
     }
 };
 
+
+
+
+
 exports.playerStatus = {
-    online: 0,
+    offline: 0,
+    online: 1,
+    ready: 2,
+    isGaming: 3,
+
+};
+
+exports.roomStatus = {
     ready: 1,
     isGaming: 2,
-    offline: 3
 };
 
 
 exports.PID_INIT = {
-    guessnum: "0160000",
-    english: "1160000"
+    guessnum: "0",
+    english: "1"
 };
 
 
@@ -66,6 +84,7 @@ exports.Code = {
     FRIEND_WAIT: -107, // 正在等待好友通过
     REQUIREMENT_FAILED: -108, // 不满足条件
     ROOM_FULLED: -109, // 满员
+    ROOM_NEED_UPDATE:-88, //房间信息过期
     ROOM_EXPIRED: -110, // 房间过期
     ROOM_USER_EXISTS: -111, // 用户已经在房间内
     GANG_FULLED: -112, // 宝宝列表已满
@@ -94,6 +113,7 @@ exports.Code = {
     NO_MONEY: -136,//企业没钱
     EXCEED_COUNT: -137,//超过提现次数
     LESS_MONEY: -138,//低于最低限额
+    LEVEL_MAX:-140,//等级上限
     PACK_Fighing: 168, //红包可竞猜
     NEED_COUPON: 170, //代金券不足
     NEED_MONEY: 171, //金额不足
