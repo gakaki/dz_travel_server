@@ -154,7 +154,7 @@ module.exports = app => {
 
 
             // 日志
-            this.ctx.model.UserActionRecord.PublicModel.create({
+            this.ctx.model.PublicModel.UserActionRecord.create({
                 pid: pid,
                 type: constant.UserActionRecordType.REGISTER,
                 appName: appName
