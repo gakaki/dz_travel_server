@@ -22,7 +22,7 @@ class WeChatController extends Controller {
         };
 
         let resultS = await this.service.weChatService.weChatService.auth(sdkAuth);
-        if (resultS != null) {
+        if (resultS && resultS.openid) {
             result.code = 0;
             result.data.uid = resultS.openid;
         } else {
