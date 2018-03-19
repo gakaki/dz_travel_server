@@ -8,16 +8,17 @@ class UserController extends Controller {
     async login(ctx) {
         this.logger.info("我要登陆");
 
-        const {sid, uid} = ctx.query;
+
+        const {_sid, uid,info,appName} = ctx.query;
         let result = {
             data: {}
         };
-        if (!sid && !uid) {
+        if ( !info || !appName ||(!_sid && !uid )) {
             result.code = constant.Code.LOGIN_FAILED;
             ctx.body = result;
             return;
         }
-        let rs = await this.service.publicService.userService.login(ctx.query);
+        let rs = await this.service.publicService.userService.login(uid,_sid,appName,JSON.parse(info));
         if (rs.info != null) {
             result.code = 0;
             result.data.info = rs.info;
@@ -34,19 +35,24 @@ class UserController extends Controller {
             data: {}
         };
         const {_sid, itemId} = ctx.query;
-        if (!_sid || !itemId) {
+        if (!_sid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let ui = await this.service.publicService.userService.findUserBySid(ctx.query._sid);
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
         if (ui == null) {
             result.code = constant.Code.USER_NOT_FOUND;
             ctx.body = result;
             return;
         }
         result.code = constant.Code.OK;
-        result.data.stock = ui.items[ctx.query.itemId];
+        if(itemId){
+            result.data.stock = ui.items[itemId];
+        }else{
+            result.data.stock = ui.items;
+        }
+
         ctx.body = result;
 
     }
@@ -62,10 +68,11 @@ class UserController extends Controller {
         let cost = {
             ["items." + itemId]: Number(count)
         };
-        await this.ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
-        await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
+        await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
+        let ui = await ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
+        await this.service.publicService.itemService.itemChange(ui, cost, appName);
     }
+
 
 }
 

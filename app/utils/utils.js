@@ -27,4 +27,17 @@ exports.ToMap = function (obj, sort = true) {
 exports.MD5 = function (str, fmt = constant.Format.BASE64) {
     let hdl = crypto.createHash('md5').update(str);
     return fmt == constant.Format.BASE64 ? hdl.digest().toString("base64") : hdl.digest("hex");
-}
+};
+
+exports.multisort = function (array, ...compairers) {
+    return array.sort((a, b) => {
+        for (const c of compairers) {
+            const r = c(a, b);
+            if (r !== 0) {
+                return r;
+            }
+        }
+    })
+};
+
+

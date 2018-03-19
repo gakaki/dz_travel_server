@@ -1,5 +1,6 @@
 const Controller = require('egg').Controller;
 const constant = require("../../utils/constant");
+const englishConfig = require("../../../sheets/english");
 
 
 class WeChatController extends Controller {
@@ -22,6 +23,7 @@ class WeChatController extends Controller {
         };
 
         let resultS = await this.service.weChatService.weChatService.auth(sdkAuth);
+        this.logger.info("授权信息" +JSON.stringify(resultS));
         if (resultS != null) {
             result.code = 0;
             result.data.uid = resultS.openid;
@@ -35,8 +37,8 @@ class WeChatController extends Controller {
     async minapppay(ctx) {
         this.logger.info("我要付款");
         let result = {};
-        const {_sid, payCount, title, appName} = ctx.query;
-        if (!_sid || !payCount || !title || !appName) {
+        const {_sid, payCount, good, appName} = ctx.query;
+        if (!_sid || !payCount || !good || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
@@ -48,8 +50,15 @@ class WeChatController extends Controller {
             return;
         }
 
-        this.logger.info("我拿到的钱数:" + payCount);
-        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, payCount, title, appName);
+
+
+        let goods=englishConfig.Shop.Get(good);
+        if(!goods){
+            return;
+        }
+        let money = (goods.Price)*100;
+        this.logger.info("我拿到的钱数:" + money);
+        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, good, appName);
     }
 
     async minappwithdraw(ctx) {
@@ -97,12 +106,18 @@ class WeChatController extends Controller {
     async shopdone(ctx) {
         this.logger.info("支付成功回调");
         let appName = ctx.url.split("/")[3];
-        this.service.weChatService.weChatService.shopDone(appName);
-        let xmlreturn = "<xml><return_code><![CDATA[SUCCESS]]>"
-            + "</return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
+        for(let app in constant.AppName){
+            if(constant.AppName[app] == appName){
+                 this.service.weChatService.weChatService.shopDone(appName);
+                let xmlreturn = "<xml><return_code><![CDATA[SUCCESS]]>"
+                    + "</return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
 
-        ctx.res.setHeader('Content-Type', 'application/xml');
-        ctx.res.end(xmlreturn);
+                ctx.response.type = 'xml';
+                ctx.response.body = xmlreturn;
+                return
+            }
+        }
+
 
 
     }

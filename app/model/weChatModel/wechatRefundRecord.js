@@ -7,7 +7,7 @@ module.exports = app => {
         refund_fee: {type: Number},
         desc: {type: String},
         pid: {type: String},
-        createTime: {type: String, default: new Date().toLocaleString()},
+        createTime: {type: String},
         status: {type: String},
         success: {type: Boolean},
 
