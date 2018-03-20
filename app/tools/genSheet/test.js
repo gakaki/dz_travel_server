@@ -18,7 +18,12 @@ for(let i = 5;i<12;i++){
 }
 */
 
-console.log(englishConfigs.seasons);
+console.log(englishConfigs.Landingessay.Get(1));
+console.log(englishConfigs.Landingessay.Get(2));
+console.log(englishConfigs.Landingessay.Get(3));
+console.log(englishConfigs.Landingessay.Get(4));
+console.log(englishConfigs.Landingessay.Get(5));
+console.log(englishConfigs.Landingessay.Get(6));
 /*
 function setQuestions(difficulty) {
     let wordLib = englishConfigs.words;

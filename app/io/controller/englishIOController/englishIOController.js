@@ -20,10 +20,6 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
-        if(!player){
-            return;
-        }
 
         let cost =englishConfigs.Stage.Get(rankType).goldcoins1;
         if(ui.items[englishConfigs.Item.GOLD] < cost){
@@ -59,15 +55,11 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
-        if(!player){
-            return;
-        }
 
-        socket.emit("cancelSuccess",{
+      /*  socket.emit("cancelSuccess",{
             code:constant.Code.OK
-        });
-        app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:ui.uid,isCancel:true});
+        });*/
+        app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:ui.uid,isCancel:true,user:ui});
 
     }
 
@@ -86,11 +78,7 @@ class EnglishIOController extends Controller {
             return;
         }
         ctx.logger.info("我拿到的数据 "+ui.nickName ,message);
-        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
-        if(!player){
-            ctx.logger.info("没有拿到玩家信息");
-            return;
-        }
+
         let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             ctx.logger.info("没有拿到房间信息");
@@ -122,7 +110,7 @@ class EnglishIOController extends Controller {
 
         let dateStr = new Date().toLocaleDateString();
 
-        let libArr =player.user.character.wordList[dateStr] || [];
+        let libArr =ui.character.wordList[dateStr] || [];
         let lib = new Set(libArr);
 
         if(!lib.has(wid)){
@@ -153,12 +141,7 @@ class EnglishIOController extends Controller {
         }
         ctx.logger.info("入参 ："+rid);
         ctx.logger.info(ui.nickName+ "加入房间");
-        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
-        if(!player){
-            return;
-        }
-        ctx.logger.info(ui.nickName+ "当前状态 "+ player.status);
-        ctx.logger.info(ui.nickName+ "当前房主状态 "+ player.isInitiator);
+
         //没有传rid，判断在不在房间内
         let isCreate = false;
         let isExist =true;
@@ -222,19 +205,18 @@ class EnglishIOController extends Controller {
                 }
             }
 
-            app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:roomId});
+            app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:roomId,user:ui});
 
         }else{
             ctx.logger.info("创建房间 :"+roomId);
             isCreate = true;
             roomId = "11" + new Date().getTime();
-            player.setInitiator();
             let season =ctx.service.englishService.englishService.getSeason();
-            let difficulty = englishConfigs.Stage.Get(player.user.character.season[season].rank).difficulty;
+            let difficulty = englishConfigs.Stage.Get(ui.character.season[season].rank).difficulty;
             let index = utils.Rangei(0,difficulty.length);
-            let wordList=ctx.service.englishService.englishService.setQuestions(player.user.character.season[season].rank);
+            let wordList=ctx.service.englishService.englishService.setQuestions(ui.character.season[season].rank);
             socket.join(roomId);
-            app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:roomId,difficulty:difficulty[index],wordList:wordList,uid:ui.uid});
+            app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:roomId,difficulty:difficulty[index],wordList:wordList,uid:ui.uid,user:ui});
             ctx.logger.info("创建房间发送信息 :"+roomId,isCreate);
 
         }
@@ -262,10 +244,10 @@ class EnglishIOController extends Controller {
             ctx.logger.info("用户不存在");
             return;
         }
+
         let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
         if(!player){
-            ctx.logger.info("玩家不存在");
-            return;
+            app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
         }
 
 
@@ -345,12 +327,13 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        ctx.logger.info(ui.nickName+" 离开房间");
         let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
 
         if(!player){
-            return;
+            app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
         }
+        ctx.logger.info(ui.nickName+" 离开房间");
+
         let roomInfo =app.roomList.has(appName)?app.roomList.get(appName).get(rid):null;
         if(!roomInfo){
             ctx.logger.info("房间不存在 ：" + rid);
@@ -376,10 +359,10 @@ class EnglishIOController extends Controller {
         if (ui == null) {
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
 
-        if (!player) {
-            return;
+        if(!player){
+            app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
         }
         let roomInfo = app.roomList.get(appName).get(rid);
         if (!roomInfo) {
@@ -440,10 +423,10 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
 
         if(!player){
-            return;
+            app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
         }
         let roomInfo = app.roomList.get(appName).get(rid);
         if(!roomInfo){
@@ -483,10 +466,10 @@ class EnglishIOController extends Controller {
         if(ui==null){
             return;
         }
-        let player = app.userList.get(appName).get(ui.uid);
+        let player = app.userList.has(appName)?app.userList.get(appName).get(ui.uid):null;
 
         if(!player){
-            return;
+            app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
         }
         let roomInfo = app.roomList.get(appName).get(rid);
         if(!roomInfo){

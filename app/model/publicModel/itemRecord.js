@@ -5,7 +5,8 @@ module.exports = app => {
         appName: {type: String},
         time: {type: String},
         index: {type: String},
-        delta: {type: Number}
+        delta: {type: Number},
+
 
     });
 

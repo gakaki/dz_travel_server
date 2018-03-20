@@ -24,9 +24,9 @@ class EnglishService extends Service {
         this.logger.info("发送匹配信息 ：" + roomId);
         this.logger.info(matchPoolPlayer.length);
         let firstWord = englishroom.wordList[0];
-        let settime = 200000;
+        let settime = 30000;
         if(firstWord.type == 3 ){
-            settime = 270000
+            settime = 35000;
         }
         englishroom.setFirstTimeOut(settime);
         for (let player of matchPoolPlayer) {
@@ -46,12 +46,21 @@ class EnglishService extends Service {
 
 
                 let cost = {
-                    ["items." + englishConfigs.Item.GOLD]: (englishConfigs.Stage.Get(player.rankType).goldcoins1) * -1
+                    ["items." + englishConfigs.Item.GOLD]: (englishConfigs.Stage.Get(player.rankType).goldcoins1) * -1,
+
                 };
                  await this.ctx.model.PublicModel.User.update({
                     uid: player.user.uid,
                     appName: constant.AppName.ENGLISH
                 }, {$inc: cost});
+
+               let ui =  await this.ctx.model.PublicModel.User.findOne({
+                    uid: player.user.uid,
+                    appName: constant.AppName.ENGLISH
+                });
+
+                this.ctx.service.publicService.itemService.itemChange(ui, cost, constant.AppName.ENGLISH);
+
                 this.logger.info(player.user.nickName+"推送消息");
                 socket.emit("matchSuccess",{
                     code: constant.Code.OK,
@@ -59,46 +68,41 @@ class EnglishService extends Service {
                         userList: uList,
                         rid: roomId
                     }
-                })
-                 this.ctx.service.publicService.itemService.itemChange(player.user, cost, constant.AppName.ENGLISH);
-                /* socket.emit('joinSuccess', {
-                     code: constant.Code.OK,
-                 });*/
+                });
 
 
-
-
-
-                // setTimeout(function () {
-                //  this.logger.info("matchSuccess ："+englishroom.rid);
-            //    let nsp =this.app.io.of('/english');
-
-                /*     nsp.to(roomId).emit("matchSuccess", {
-
-                     })*/
-                // },500)
             }
         }
     }
 
-    matchFailed(uid) {
+    matchFailed(uid,isCancel) {
         let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, uid);
         if (socket) {
-            let roomList = this.app.roomList.has(constant.AppName.ENGLISH)?this.app.roomList.get(constant.AppName.ENGLISH):new Map();
-            if(roomList){
-                for(let room of roomList.values()){
-                    for(let userId of room.userList.keys()){
-                        if(userId == uid){
-                            this.app.messenger.sendToApp('leaveRoom',{appName:constant.AppName.ENGLISH,uid:uid});
-                            break;
+            let isGiveUp = false;
+            this.logger.info("有人退出了。。。");
+            if(isCancel){
+                let roomList = this.app.roomList.has(constant.AppName.ENGLISH)?this.app.roomList.get(constant.AppName.ENGLISH):new Map();
+                if(roomList){
+                    for(let room of roomList.values()){
+                        for(let userId of room.userList.keys()){
+                            if(userId == uid){
+                                this.logger.info(userId+"秒退了。。。");
+                                isGiveUp = true;
+                                this.app.messenger.sendToApp('leaveRoom',{appName:constant.AppName.ENGLISH,uid:uid});
+                                break;
+                            }
                         }
                     }
                 }
             }
 
             socket.emit("matchFailed", {
-                code: constant.Code.REQUIRED_LOST
-            });
+                code: constant.Code.OK,
+                data:{
+                    isCancel:isCancel,
+                    isGiveUp:isGiveUp
+                }
+            })
         }
 
     }
@@ -147,6 +151,10 @@ class EnglishService extends Service {
         // let answerCount = await this.ctx.model.EnglishModel.EnglishAnswerRecord.count({uid:ui.uid,date:date});
 
         let landingessay = ui.character.beautifulWords;
+        if(!landingessay){
+            landingessay=1
+        }
+        this.logger.info("当日美句 "+landingessay);
         let beautifulWord ={
             english :englishConfigs.Landingessay.Get(landingessay).English,
             chinese:englishConfigs.Landingessay.Get(landingessay).Chinese
@@ -221,12 +229,12 @@ class EnglishService extends Service {
             ["character.cumulativeDays"]: 1,
             ["character.beautifulWords"]: 1,
         };
-        let items = {};
-        let reward = englishConfigs.Landing.Get(day).itemid;
 
+        let reward = englishConfigs.Landing.Get(day).itemid;
+        let itemChange={};
         for (let item of reward) {
             cost["items." + item.k] = Number(item.v);
-            items["items." + item.k] = Number(item.v)
+            itemChange["items." + item.k] = Number(item.v);
         }
         await this.ctx.model.PublicModel.SignInRecord.create({
             uid: ui.uid,
@@ -235,7 +243,8 @@ class EnglishService extends Service {
             createTime: new Date().toLocaleTimeString()
         });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
-        await this.ctx.service.publicService.itemService.itemChange(ui, items, appName);
+        let user =await this.ctx.model.PublicModel.User.findOne({uid:ui.uid,appName:appName});
+        await this.ctx.service.publicService.itemService.itemChange(user, itemChange, appName);
 
         return {
             day: day,
@@ -278,7 +287,7 @@ class EnglishService extends Service {
         let season = this.getSeason();
         if (count < englishConfigs.Constant.Get(englishConfigs.Constant.SHARENUM).value) {
             let delta = {
-                ["items." + englishConfigs.Item.GOLD]: englishConfigs.Stage.Get(ui.character.season[season].rank).goldcoins1
+                ["items." + englishConfigs.Item.GOLD]: englishConfigs.Stage.Get(ui.character.season[season].rank).goldcoins1,
             };
             await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: delta});
             ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid, appName: appName});
@@ -385,8 +394,11 @@ class EnglishService extends Service {
             }
 
         }
+
+
         await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
-        await this.ctx.service.publicService.itemService.itemChange(ui, cost, constant.AppName.ENGLISH);
+        let user = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid, appName: appName});
+        await this.ctx.service.publicService.itemService.itemChange(user, cost, constant.AppName.ENGLISH);
         return result;
 
     }
@@ -408,7 +420,6 @@ class EnglishService extends Service {
                     havaG: items[englishConfigs.Item.GOLD],
                 }
             };
-
             if (sp.levelUP.haveI >= sp.levelUP.needI && sp.levelUP.havaG >= sp.levelUP.needG) {
                 sp.canUp = true;
             }
@@ -430,6 +441,10 @@ class EnglishService extends Service {
         if ((ui.items[englishConfigs.Item.GOLD] < upSpeech.consume[englishConfigs.Item.GOLD]) || (ui.items[englishConfigs.Item[upSpeech.speech.toUpperCase()]] < upSpeech.consume[englishConfigs.Item[upSpeech.speech.toUpperCase()]])) {
             return null;
         }
+        if((ui.items[englishConfigs.Item.GOLD]<=0 || (ui.items[englishConfigs.Item[upSpeech.speech.toUpperCase()]] <= 0 ))){
+            return null;
+        }
+
 
         let cost = {
             ["items." + englishConfigs.Item.GOLD]: (upSpeech.consume[englishConfigs.Item.GOLD]) * -1,
@@ -444,9 +459,13 @@ class EnglishService extends Service {
             ["items." + englishConfigs.Item.GOLD]: (upSpeech.consume[englishConfigs.Item.GOLD]) * -1,
             ["items." + englishConfigs.Item[speech.toUpperCase()]]: (upSpeech.consume[englishConfigs.Item[speech.toUpperCase()]]) * -1,
         };
-        await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
-        let user = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid, appName: appName});
-        await this.ctx.service.publicService.itemService.itemChange(ui, delta, constant.AppName.ENGLISH);
+        let upRes=await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName,["items."+englishConfigs.Item.GOLD]:{$gt:0}, ["items." + englishConfigs.Item[speech.toUpperCase()]]:{$gt:0}}, {$inc: cost});
+        let user = ui;
+        if(upRes.n){
+            user = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid, appName: appName});
+            await this.ctx.service.publicService.itemService.itemChange(ui, delta, constant.AppName.ENGLISH);
+        }
+
         let up = user.character.developSystem[id];
         let items = user.items;
         let sp = {
@@ -493,23 +512,26 @@ class EnglishService extends Service {
         });
         for (let userId of userList) {
             let user = await this.ctx.model.PublicModel.User.findOne({uid: userId, appName: appName});
-            if (user.character.season[season]) {
-                if(user.character.season[lastseason]){
-                   lastRank = user.character.season[lastseason].rank;
+            if(user){
+                if (user.character.season[season]) {
+                    if(user.character.season[lastseason]){
+                        lastRank = user.character.season[lastseason].rank;
+                    }
+                    let friend = {
+                        uid: user.uid,
+                        appName: appName,
+                        nickName: user.nickName,
+                        avatarUrl: user.avatarUrl,
+                        city: user.city,
+                        lastRank:lastRank,
+                        rank: user.character.season[season].rank,
+                        star: user.character.season[season].star,
+                        createTime: user.character.season[season].createTime
+                    };
+                    uList.push(friend);
                 }
-                let friend = {
-                    uid: user.uid,
-                    appName: appName,
-                    nickName: user.nickName,
-                    avatarUrl: user.avatarUrl,
-                    city: user.city,
-                    lastRank:lastRank,
-                    rank: user.character.season[season].rank,
-                    star: user.character.season[season].star,
-                    createTime: user.character.season[season].createTime
-                };
-                uList.push(friend);
             }
+
         }
 
         let sortList = utils.multisort(uList,
@@ -593,8 +615,8 @@ class EnglishService extends Service {
         for (let i of indexs) {
             let qword = words[i];
             let types = qword.type;
-            let type = utils.Rangei(0, types.length);
-            //  let type = 1;
+           // let type = utils.Rangei(0, types.length);
+             let type = 3;
             let word = {
                 id: qword.id,
                 english:qword.english,
@@ -619,16 +641,20 @@ class EnglishService extends Service {
        // let wordLib = englishConfigs.words;
       // let errorWords = [];
         let words = new Set();
+        let indexs = new Set();
         while(words.size <3){
             let index = utils.Rangei(0, wordLib.length);
             if(index != wid){
-                let word = {
-                    id: wordLib[index].id,
-                    english:wordLib[index].english,
-                    chinese:wordLib[index].China,
-                };
-                words.add(word);
+                indexs.add(index);
             }
+        }
+        for(let i of indexs){
+            let word = {
+                id: wordLib[i].id,
+                english:wordLib[i].english,
+                chinese:wordLib[i].China,
+            };
+            words.add(word);
         }
 
         return Array.from(words);
@@ -853,27 +879,32 @@ class EnglishService extends Service {
                         winningStreak = 0;
                     }
                     up["character.winningStreak"] = winningStreak;
-
+                    this.logger.info("用户当前星星 :" + star);
                     this.logger.info("用户选择的段位 :" + rankType);
                     this.logger.info("用户当前段位 :" + rank);
                     if (rankType == rank) {
                         //段位统计
-                        if (result.losses) {
-                            result.star = -1;
+                        let changeStar = 0;
+                        if (result.final == 0) {
+                            changeStar = -1;
                         }
-                        if (star + result.star <= 0) {
+                        if(result.final == 2){
+                            changeStar = 1;
+                        }
+                        this.logger.info("用户结算星星 :" + changeStar);
+
+                        if (star + changeStar <= 0) {
                             star = 0;
                             up["character.season." + season + ".star"] = star;
                         } else {
-                            if (englishConfigs.Stage.Get(rank).star == (star + result.star)) {
+                            if (englishConfigs.Stage.Get(rank).star <= (star + changeStar)) {
                                 isRank = true;
                                 rank++;
                                 star = 0;
                                 up["character.season." + season + ".star"] = star;
                             } else {
-                                star += result.star;
-                                isStarUp = result.star;
-                                cost["character.season." + season + ".star"] = star;
+                                isStarUp = changeStar;
+                                cost["character.season." + season + ".star"] = changeStar;
                             }
                         }
 

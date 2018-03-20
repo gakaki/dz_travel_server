@@ -52,7 +52,6 @@ module.exports = () => {
         await next();
 
         logger.info(ui.uid + ' disconnection');
-
         app.messenger.sendToApp('disconnection',{appName:appName,uid:ui.uid});
         app.messenger.sendToApp('leaveRoom',{appName:appName,uid:ui.uid});
       //  this.app.messenger.sendToApp('pkend', {appName: appName, rid: rid, leaveUid: uid});

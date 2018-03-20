@@ -1,21 +1,12 @@
-const guessnumConfigs = require("../../config/guessnumConfig/guessnumConfigs");
 const englishConfigs = require("../../sheets/english");
 
 exports.AppName = {
-    GUESSNUM: "guessnum",
     ENGLISH: "english"
 };
 
-exports.AppWithdrawCount = {
-    guessnum: guessnumConfigs.Parameter.Get("withdrawalsnum").value
-};
+
 
 exports.AppItem = {
-    guessnum: {
-        [guessnumConfigs.Item.MONEY]: 100,
-        [guessnumConfigs.Item.ACCELERATION]: 100,
-        [guessnumConfigs.Item.CASHCOUPON]: 100,
-    },
     english: getItem("english")
 
 };
@@ -81,17 +72,6 @@ function getDevelop() {
     return devs;
 }
 
-/*{
-    1:{
-    level:englishConfigs.Speech.Get(1).minlevel,
-        plus:0,
-        consume:{
-        n:englishConfigs.Speech.Get(1).consume1,
-            gold:englishConfigs.Speech.Get(1).consume2
-    }
-},
-
-}*/
 
 
 
@@ -110,7 +90,6 @@ exports.roomStatus = {
 
 
 exports.PID_INIT = {
-    guessnum: "0",
     english: "1"
 };
 
@@ -222,3 +201,14 @@ exports.Format = {
     BASE64: 0,
     HEX: 1
 };
+
+exports.ItemChangeType={
+    RECHARGE:0,   //充值
+    RANK_CONSUME:1, //排位消耗
+    RANK_GET:2,//排位获得
+    TREASUSE_CONSUME:3,//宝箱消耗
+    TREASUSE_GET:4,//宝箱获取
+    SIGN_IN:5,//签到
+    SHARE:6,//分享
+
+}

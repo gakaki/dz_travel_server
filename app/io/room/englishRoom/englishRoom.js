@@ -58,7 +58,7 @@ class EnglishRoom {
             t = 2000
         }
         (function(j) {
-            var tmp = setTimeout(function(){
+             tmp = setTimeout(function(){
                 // 该轮结束了， 最多有一个人回答题目
                 // 判断是否结束
                 if(self.round == 6){
@@ -68,7 +68,12 @@ class EnglishRoom {
                 }else{
                     if(self.round == j){
                         self.ctx.logger.info("玩家无响应，自动切题");
-                        self.nextTurn(10);
+                        if(self.wordList[j] && self.wordList[j].type==3){
+                            self.nextTurn(27000);
+                        }else{
+                            self.nextTurn(20000);
+                        }
+
                     }
                 }
 
@@ -80,7 +85,7 @@ class EnglishRoom {
 
     // 收到玩家答案
     checkAnswer(time){
-        this.ctx.logger.info("checkAnswer");
+        this.ctx.logger.info("checkAnswer"+this.round);
         let isRoundEnd =true;
         // 检查两方的答案， 判断是 游戏结束还是下一个回合，还是等待另外一方
         for(let player of this.userList.values()){
@@ -94,7 +99,7 @@ class EnglishRoom {
         }
     }
 
-    nextTurn(clockTime=10){
+    nextTurn(clockTime=15000){
         if(this.isGameOver){
             return;
         }
@@ -104,9 +109,9 @@ class EnglishRoom {
         //  广播 切题
         this.ctx.service.englishService.englishService.roundEndNotice(this.rid,this.round);
         // 设置 下个 timeout
-        this.ctx.logger.info("设置 下个 timeout");
+        this.ctx.logger.info("设置 下个 timeout"+clockTime);
         clearTimeout(tmp);
-        this.roundTO(clockTime*1000);
+        this.roundTO(clockTime);
     }
 
     // 结算

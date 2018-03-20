@@ -5,6 +5,7 @@ module.exports = app => {
     config.mongoose = {
         //url: 'mongodb://wxsrv:wxsrv@10.1.70.106:27017/wxsrv',
          url: 'mongodb://127.0.0.1:27017/test',
+        //url: 'mongodb://english:'+encodeURIComponent('Douzi#Xx@2017')+'@'+encodeURIComponent('dds-bp11161f4c3ea0a41862-pub.mongodb.rds.aliyuncs.com')+':3717/english',
     };
     config.env = "local";
 
@@ -33,14 +34,11 @@ module.exports = app => {
     };
 
 
-    config.guessnum={};
-    config.english={};
 
-    config.guessnum.appid="wx1c721a2e355de9ba";
-    config.guessnum.appsecret="66de48a97a8959491ac4f16dfa10e45b";
 
-    config.english.appid="wx4cdb3cbd1248ee5e";
-    config.english.appsecret="844c2d947f2fe69db5ad101fa9d4d871";
+
+    config.appid="wx4cdb3cbd1248ee5e";
+    config.appsecret="844c2d947f2fe69db5ad101fa9d4d871";
 
     config.pubid = "wx4224663bb4f0ed80";
     config.pubmchid = "1494209122";

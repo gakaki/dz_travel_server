@@ -289,11 +289,12 @@ class EnglishController extends Controller {
     async speechlevelup(ctx){
         const {_sid, appName,spid} = ctx.query;
         let result = {};
-        if (!_sid || !appName) {
+        if (!_sid || !appName || !spid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
+        ctx.logger.info("道具编号 ："+spid);
         let ui = await this.service.publicService.userService.findUserBySid(_sid);
         if (ui == null) {
             result.code = constant.Code.USER_NOT_FOUND;
@@ -301,10 +302,12 @@ class EnglishController extends Controller {
             return;
         }
         if(ui.character.developSystem[spid].level==englishConfigs.Speech.Get(spid).endlevel){
+            ctx.logger.info("等级最大了");
             result.code=constant.Code.LEVEL_MAX;
             ctx.body=result;
             return;
         }
+
         let r=await this.service.englishService.englishService.speechLevelUp(ui,spid,appName);
         if(r!=null){
             result.code=constant.Code.OK;

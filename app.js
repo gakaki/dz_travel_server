@@ -15,6 +15,7 @@ module.exports = app => {
         if (!app.userList.has(conPlayer.appName)) {
             app.userList.set(conPlayer.appName, new Map());
         }
+        app.logger.info(conPlayer.userInfo.nickName + "connection欢迎回来。。。");
         let player = new EnglishPlayer(conPlayer.userInfo, constant.playerStatus.online, conPlayer.appName);
         app.userList.get(conPlayer.appName).set(player.user.uid, player);
     });
@@ -42,44 +43,49 @@ module.exports = app => {
         }
         let player = app.userList.get(refreshPlayer.appName).get(refreshPlayer.uid);
         const ctx = app.createAnonymousContext();
-        if (player) {
-            if (refreshPlayer.ranking) {
-                player.setStatus(refreshPlayer.status);
-                player.setRankType(refreshPlayer.rankType);
-                player.readyWait();
-                app.logger.info(player.user.nickName+ " ranking。。。添加到匹配池。。。。");
-                app.matchPool.get(refreshPlayer.appName).add(player);
-            }
-            if (refreshPlayer.user) {
-                player.setUser(refreshPlayer.user)
-            }
-
-            if (refreshPlayer.round) {
-                let roomInfo = app.roomList.get(refreshPlayer.appName).get(refreshPlayer.rid);
-                if(!roomInfo){
-                    return
-                }
-
-                if (player.answers.length < refreshPlayer.time) {
-                    player.setAnswer(refreshPlayer.answer);
-                    player.setScore(refreshPlayer.score);
-                    player.setResult(refreshPlayer.isRight);
-                    //
-                    let word = roomInfo.wordList[refreshPlayer.time-1];
-                    let settime = 100000;
-                    if(word.type == 3 ){
-                        settime = 160000
-                    }
-                    roomInfo.checkAnswer(settime);
-                }
-
-
-                ctx.runInBackground(async () => {
-                    app.logger.info("给客户端广播发送答案了。。");
-                    await ctx.service.englishService.englishService.broadAnswer(refreshPlayer.rid, refreshPlayer.appName, refreshPlayer.time, refreshPlayer.uid);
-                });
-            }
+        if (!player) {
+            player = new EnglishPlayer(refreshPlayer.user, constant.playerStatus.online, refreshPlayer.appName);
+            app.logger.info(player.user.nickName + "refresh欢迎回来。。。");
+            app.userList.get(refreshPlayer.appName).set(player.user.uid, player);
         }
+
+        if (refreshPlayer.ranking) {
+            player.setStatus(refreshPlayer.status);
+            player.setRankType(refreshPlayer.rankType);
+            player.readyWait();
+            app.logger.info(player.user.nickName+ " ranking。。。添加到匹配池。。。。");
+            app.matchPool.get(refreshPlayer.appName).add(player);
+        }
+        if (refreshPlayer.user) {
+            player.setUser(refreshPlayer.user)
+        }
+
+        if (refreshPlayer.round) {
+            let roomInfo = app.roomList.get(refreshPlayer.appName).get(refreshPlayer.rid);
+            if(!roomInfo){
+                return
+            }
+
+            if (player.answers.length < refreshPlayer.time) {
+                player.setAnswer(refreshPlayer.answer);
+                player.setScore(refreshPlayer.score);
+                player.setResult(refreshPlayer.isRight);
+                //
+                let word = roomInfo.wordList[refreshPlayer.time];
+                let settime = 20000;
+                if(word && word.type == 3 ){
+                    settime = 25000
+                }
+                roomInfo.checkAnswer(settime);
+            }
+
+
+            ctx.runInBackground(async () => {
+                app.logger.info("给客户端广播发送答案了。。");
+                await ctx.service.englishService.englishService.broadAnswer(refreshPlayer.rid, refreshPlayer.appName, refreshPlayer.time, refreshPlayer.uid);
+            });
+        }
+
     });
 
 
@@ -87,7 +93,12 @@ module.exports = app => {
     app.messenger.on('matchSuccess', matchPoolPlayers => {
         let arr = [];
         for (let uid of matchPoolPlayers.matchPoolPlayer) {
-            arr.push(app.userList.get(matchPoolPlayers.appName).get(uid))
+            let player =app.userList.has(matchPoolPlayers.appName)? app.userList.get(matchPoolPlayers.appName).get(uid):null;
+            if(!player){
+                app.logger.info(uid +"不在线。。重新匹配。。。");
+                return
+            }
+            arr.push(player);
         }
         for (let player of arr) {
             player.finishReady();
@@ -112,20 +123,29 @@ module.exports = app => {
     });
 
     app.messenger.on('matchFailed', info => {
-        let player = app.userList.get(info.appName).get(info.uid);
+        let player = app.userList.has(info.appName)? app.userList.get(info.appName).get(info.uid):null;
+        if (!player) {
+            if(!info.isCancel){
+                app.logger.info(info.uid +"玩家不在线。。。。");
+                return
+            }
+            player = new EnglishPlayer(info.user, constant.playerStatus.online, info.appName);
+            app.logger.info(player.user.nickName + "matchFailed欢迎回来。。。");
+            app.userList.get(info.appName).set(player.user.uid, player);
+        }
         player.gameFinish();
         if (!app.matchPool.has(info.appName)) {
             app.matchPool.set(info.appName, new Set());
         }
-        let isMatch = app.matchPool.get(info.appName).delete(player);
+        app.matchPool.get(info.appName).delete(player);
         const ctx = app.createAnonymousContext();
-        if(isMatch){
-            if (!info.isCancel) {
-                ctx.runInBackground(async () => {
-                    ctx.service.englishService.englishService.matchFailed(info.uid);
-                });
-            }
-        }
+
+
+        ctx.runInBackground(async () => {
+            ctx.service.englishService.englishService.matchFailed(info.uid,info.isCancel);
+        });
+
+
 
     });
     app.messenger.on('setRoom', msg => {
@@ -134,9 +154,9 @@ module.exports = app => {
         }
         let roomInfo = app.roomList.get(msg.appName).get(msg.rid);
         let firstWord = msg.wordList[0];
-        let settime = 200000;
+        let settime = 20000;
         if(firstWord.type == 3 ){
-            settime = 270000
+            settime = 27000
         }
         roomInfo.setFirstTimeOut(settime);
         roomInfo.setWordList(msg.wordList);
@@ -154,11 +174,17 @@ module.exports = app => {
         if (!app.roomList.has(roomInfo.appName)) {
             app.roomList.set(roomInfo.appName, new Map());
         }
+        let player = app.userList.get(roomInfo.appName).get(roomInfo.uid);
+        if (!player) {
+            player = new EnglishPlayer(roomInfo.user, constant.playerStatus.online, roomInfo.appName);
+            app.logger.info(player.user.nickName + "createRoom 欢迎回来。。。");
+            app.userList.get(roomInfo.appName).set(player.user.uid, player);
+        }
         app.logger.info("我要创建房间");
         const ctx = app.createAnonymousContext();
         let englishRoom = new EnglishRoom(roomInfo.rid, roomInfo.difficulty, true,ctx);
         englishRoom.setWordList(roomInfo.wordList);
-        let player = app.userList.get(roomInfo.appName).get(roomInfo.uid);
+
         englishRoom.joinRoom(player);
         player.gameFinish();
         player.setInitiator();
@@ -175,9 +201,15 @@ module.exports = app => {
         if (!app.roomList.has(rInfo.appName)) {
             app.roomList.set(rInfo.appName, new Map());
         }
+        let player = app.userList.get(rInfo.appName).get(rInfo.uid);
+        if (!player) {
+            player = new EnglishPlayer(rInfo.user, constant.playerStatus.online, rInfo.appName);
+            app.logger.info(player.user.nickName + "joinRoom 欢迎回来。。。");
+            app.userList.get(rInfo.appName).set(player.user.uid, player);
+        }
         app.logger.info("我要加入房间");
         const ctx = app.createAnonymousContext();
-        let player = app.userList.get(rInfo.appName).get(rInfo.uid);
+
         let roomInfo = app.roomList.get(rInfo.appName).get(rInfo.rid);
         roomInfo.joinRoom(player,ctx);
         player.gameFinish();
