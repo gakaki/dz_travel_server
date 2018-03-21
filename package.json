@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "cnpm": "^5.2.0",
     "date-season": "^0.0.2",
     "egg": "^2.2.1",
     "egg-logger": "^1.6.1",
