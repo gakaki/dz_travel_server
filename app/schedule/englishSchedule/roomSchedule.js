@@ -33,7 +33,7 @@ module.exports = {
                                 await ctx.service.englishService.englishService.pkEnd(roomId, constant.AppName.ENGLISH, null);
                                 ctx.app.redis.srem("roomPool",roomId);
                                 if(!Number(roomInfo.isFriend)){
-                                    await this.app.redis.del(roomId);
+                                    await ctx.app.redis.del(roomId);
                                 }
                             }
                         }else{
