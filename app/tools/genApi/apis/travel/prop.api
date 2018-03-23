@@ -1,0 +1,39 @@
+import ../base.api
+import ./player.api
+class Rent {
+    prop rentId:number//装备id(shop表)
+}
+
+//租用道具
+api RentProp {
+    require rentId:number  //装备id
+    output rentItems:UserInfo.rentItems
+}
+
+class Specialty {
+    prop propId:number//特产id
+    prop img:string//特产图片
+    prop name:string//特产名
+    prop desc:string//特产介绍
+    prop price:number//特产价格
+}
+
+//拉取该城市的特产
+api SpeList {
+    require cityId:number//城市id
+    output specialtys:Specialty[]
+}
+
+//购买特产
+api BuySpe {
+    require propId:number//特产id
+    require count:number//购买数量
+    output items:UserInfo.items
+}
+
+//售卖特产
+api SellSpe {
+    require propId:number//特产id
+    require count:number//售卖数量
+    output specialtys:Specialty[]//金币增加数
+}
