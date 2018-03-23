@@ -1,0 +1,58 @@
+import ../base.api
+import ./player.api
+
+enum PostType {
+    //景点
+    const JINGDIAN=1
+    //特产
+    const TECHAN=2
+}
+
+class Post {
+    prop postId:number//帖子id
+    prop type:PostType//帖子类型：景点or特产
+    prop content:string//帖子内容，为景点或特产的介绍
+    prop time:number//创建时间
+    prop img:string//景点或特产图片url
+}
+
+class Comment {
+    prop postId:number//帖子id
+    prop user:UserBriefInfo//用户简单信息
+    prop commentId:string//评论id
+    prop content:string//评论内容
+    prop score:number//评论得分
+    prop thumbs:number//点赞数
+    prop time:number//创建时间
+}
+
+//拉取帖子列表
+api PostList {
+    require lastPostId:number//上一屏最后post的id
+    require limit:number//本次拉取的条数
+    require type:PostType//帖子类型：景点or特产
+
+    output posts:Post[]//服务器返回帖子列表
+}
+
+//评论景点Or特产
+api CommentPost {
+    require postId:number//帖子id
+    require content:string//评论内容
+    reruire score:number//评分
+}
+
+//拉取评论列表
+api PostComments {
+    require postId:number//帖子id
+    require lastCmtId:number//上一屏最后comment的id
+    require limit:number//本次拉取的条数
+
+    output comments:Comment[]//该帖子下的评论
+}
+
+//点赞评论
+api ThumbComment {
+    require commentId:number//评论id
+
+}
