@@ -12,8 +12,10 @@ class Post {
     prop postId:number//帖子id
     prop type:PostType//帖子类型：景点or特产
     prop content:string//帖子内容，为景点或特产的介绍
-    prop time:number//创建时间
+    prop name: string //景点或特产名
+    prop score:number//帖子的评论
     prop img:string//景点或特产图片url
+    prop commentNum:number//评论数
 }
 
 class Comment {
@@ -26,7 +28,7 @@ class Comment {
     prop time:number//创建时间
 }
 
-//拉取帖子列表
+//拉取景点/特产列表
 api PostList {
     require lastPostId:number//上一屏最后post的id
     require limit:number//本次拉取的条数

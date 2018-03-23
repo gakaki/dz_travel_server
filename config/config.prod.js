@@ -4,7 +4,7 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/wxsrv?authSource=admin',
+        url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/travel?authSource=admin',
     };
 
     config.env = "prod";
@@ -19,11 +19,11 @@ module.exports = appInfo => {
     };
 
     config.logger = {
-        dir: "/root/server/appsrv/logs/server/"
+        dir: "/root/server/travel/logs/"
     };
     config.io = {
         namespace: {
-            '/english': {
+            '/travel': {
                 connectionMiddleware: ['connection'],
                 packetMiddleware: [],
             },
