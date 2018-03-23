@@ -1,5 +1,6 @@
 //非同级目录的外部文件，才需要import; 同级目录的所有文件会打包输出到同一生成的js中，所以同级目录不用import
 import ../base.api
+import ./player.api
 
 //枚举示例-榜单类型
 enum RankType {
@@ -12,6 +13,7 @@ enum RankType {
 class RankItem {
     prop name:string
     prop rank:number
+    prop userInfo:userInfo
 }
 
 //API基本示例-请求榜单
