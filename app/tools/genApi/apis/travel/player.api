@@ -1,12 +1,14 @@
 //跟个人信息相关的
 
-class UserInfo {
+class UserBriefInfo {
     //第三方登陆，则返回UID
     prop uid:string
     //用户名
     prop nickName:string
     //头像url
     prop avatarUrl:string
+}
+class UserInfo extends UserBriefInfo{
     //用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
     prop gender:string
     //当前所在城市
@@ -22,6 +24,7 @@ class UserInfo {
     //好友uid
     prop friends:string[]
 }
+
 //拉取一个玩家的简要信息（自己或他人）
 api PlayerInfo {
     //玩家的uid，如果不传则使用自己的uid

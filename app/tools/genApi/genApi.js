@@ -367,7 +367,7 @@ class OutputProcessor extends Processor {
             parsing.resFields.push(types[0])
         }
         else {
-            console.error('非api声明内，不可出现 output 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件`)
+            console.error('非api声明内，不可出现 output 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件中的${parsing.name}声明中的行${syntax.curLine}`)
             process.exit(1);
         }
 
@@ -443,7 +443,7 @@ class ImpProcessor extends Processor {
         let realImpFl = path.resolve(pathname, impFl);
         console.log(`读取导入的文件${realImpFl}`)
         //将引入的文件放到lines中
-        lines = fs.readFileSync(realImpFl, 'utf8').split(/[\r]\n/g).reverse().concat(lines);
+        lines = fs.readFileSync(realImpFl, 'utf8').split(/[\r\n]+/g).reverse().concat(lines);
         super.parse(tags);
     }
 }
@@ -542,7 +542,7 @@ async function parseFile() {
 
         //开始读文件
 
-        lines = fs.readFileSync(curFl, 'utf8').split(/[\r]\n/g).reverse();
+        lines = fs.readFileSync(curFl, 'utf8').split(/[\r\n]+/g).reverse();
         await syntax.start();
 
         //loop
