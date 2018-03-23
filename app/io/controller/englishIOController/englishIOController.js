@@ -27,11 +27,9 @@ class EnglishIOController extends Controller {
             });
             return;
         }
-        let player = await app.redis.hgetall(ui.uid);
 
-        if (!player) {
-            player = await  this.ctx.service.redisService.redisService.init(ui);
-        }
+          let  player = await  this.ctx.service.redisService.redisService.init(ui);
+
         let roomId = Number(player.rid);
         if (roomId) {
             let roomInfo = await this.app.redis.hgetall(roomId);
@@ -267,6 +265,15 @@ class EnglishIOController extends Controller {
             if (isExist) {
                 roomId = rid;
             }
+            let userList = JSON.parse(roomInfo.userList);
+            if(userList.length > 2){
+                for(let id of userList){
+                    if(id != ui.uid){
+                        return
+                    }
+                }
+            }
+
         }
 
         //没有传rid，判断在不在房间内,用户存在rid
@@ -292,8 +299,22 @@ class EnglishIOController extends Controller {
         ctx.logger.info("当前房间号 ：" + roomId);
         ctx.logger.info("房间存不存在 ：" + isExist);
         if (isExist && roomId != null) {
-            socket.join(roomId);
-            await ctx.service.englishService.roomService.joinRoom(roomId, ui);
+            socket.join(rid);
+            this.ctx.service.englishService.englishService.notice(roomId);
+         //  let isJoin =  await ctx.service.englishService.roomService.joinRoom(roomId, ui,socket);
+           // if(!isJoin){
+           //     ctx.logger.info("创建房间 :" + roomId);
+           //     isCreate = true;
+           //     roomId = "11" + new Date().getTime();
+           //     socket.join(roomId);
+           //     let matchPoolPlayer = new Set();
+           //     matchPoolPlayer.add(player);
+           //     await this.ctx.service.redisService.redisService.initRoom(matchPoolPlayer, roomId, 1);
+           //
+           //     //app.messenger.sendToApp('createRoom',{appName:constant.AppName.ENGLISH,rid:roomId,difficulty:difficulty[index],wordList:wordList,uid:ui.uid,user:ui});
+           //     ctx.logger.info("创建房间发送信息 :" + roomId, isCreate);
+           //     this.ctx.service.englishService.englishService.notice(roomId);
+           // }
             //    app.messenger.sendToApp('joinRoom',{appName:constant.AppName.ENGLISH,uid:ui.uid,rid:roomId,user:ui});
 
         } else {

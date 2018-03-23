@@ -52,7 +52,7 @@ class RoomService extends Service {
             }
 
         } else {
-            if (owner.score > challenger.score) {
+            if (Number(owner.score) > Number(challenger.score)) {
                 if (!isFriend) {
                     result.wins = 1;
                     result.star = 1;
@@ -60,7 +60,7 @@ class RoomService extends Service {
                 }
                 result.final = 2;
             } else {
-                if (owner.score == challenger.score) {
+                if (Number(owner.score) == Number(challenger.score)) {
                     result.final = 1;
                 }
                 if (!isFriend) {
@@ -76,7 +76,7 @@ class RoomService extends Service {
     }
 
 
-    async joinRoom(rid, ui) {
+    async joinRoom(rid, ui,socket) {
         let roomInfo = await this.app.redis.hgetall(rid);
         if(!roomInfo.rid){
             return
@@ -91,46 +91,48 @@ class RoomService extends Service {
 
 
         for (let userId of userList) {
-            let play = await this.app.redis.hgetall(userId);
             if(userId !=ui.uid){
                 isJoin = true
             }
-            if (Number(play.isInitiator)) {
-                let roomMaster = userId;
-                if (ui.uid != roomMaster) {
-                    await this.ctx.model.PublicModel.User.update({
+
+        }
+
+        if(isJoin){
+            if (userList.length > 2) {
+                // let p =  await this.app.redis.hgetall(ui.uid);
+                // p.rid = rid;
+                // p.isBystander = 1;
+                // bSet.add(ui.uid);
+                // roomInfo.bystander = JSON.stringify(Array.from(bSet));
+                // await this.app.redis.hmset(ui.uid, p);
+                return false;
+            } else {
+                socket.join(rid);
+             //   let rm = await this.app.redis.hgetall();
+             //   let roomMaster = rm;
+                if (ui.uid != userList[0]) {
+                    this.ctx.model.PublicModel.User.update({
                         uid: ui.uid,
                         appName: constant.AppName.ENGLISH
-                    }, {$addToSet: {["character.friendsList"]: roomMaster}});
-                    await this.ctx.model.PublicModel.User.update({
-                        uid: roomMaster,
+                    }, {$addToSet: {["character.friendsList"]: userList[0]}});
+                    this.ctx.model.PublicModel.User.update({
+                        uid: userList[0],
                         appName: constant.AppName.ENGLISH
                     }, {$addToSet: {["character.friendsList"]: ui.uid}});
                 }
-                break;
-            }
-        }
-        if(isJoin){
-            let p =  await this.app.redis.hgetall(ui.uid);
-            p.rid = rid;
-            if (userList.length > 2) {
-                p.isBystander = 1;
-                bSet.add(ui.uid);
-                roomInfo.bystander = JSON.stringify(Array.from(bSet));
 
-            } else {
                 userList.push(ui.uid);
                 roomInfo.userList = JSON.stringify(userList);
             }
             //更新玩家信息
-            await this.app.redis.hmset(ui.uid, p);
+
             //更新房间信息
             await this.app.redis.hmset(rid, roomInfo);
         }
 
 
        this.ctx.service.englishService.englishService.notice(rid);
-
+        return true;
     }
 
     async leaveRoom(rid, ui) {

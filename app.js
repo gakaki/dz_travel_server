@@ -6,6 +6,8 @@ module.exports = app => {
         app.redis.setnx("global_userid",1000);
         app.redis.del("roomPool");
         app.redis.del("matchpool");
+        //app.redis.del("testmatchpool");
+     //   app.redis.del("testroomPool");
 
     });
 

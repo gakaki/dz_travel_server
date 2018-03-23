@@ -34,6 +34,13 @@ module.exports = app => {
 
 
 
+
+    router.get('/test/ranking', controller.testController.testController.ranking);
+    router.get('/test/getmatchinfo', controller.testController.testController.getmatchinfo);
+    router.get('/test/sendanswer', controller.testController.testController.sendanswer);
+
+
+
     io.of('/english').route('ranking', io.controller.englishIOController.englishIOController.ranking);
     io.of('/english').route('cancelmatch', io.controller.englishIOController.englishIOController.cancelmatch);
     io.of('/english').route('roundend', io.controller.englishIOController.englishIOController.roundend);

@@ -43,7 +43,12 @@ module.exports = () => {
 
 
 
-        ctx.service.redisService.redisService.init(ui);
+        let p = await app.redis.hgetall(ui.uid);
+
+        if (!p) {
+            ctx.logger.info("需要初始化？？？");
+           await this.ctx.service.redisService.redisService.init(ui);
+        }
 
 
 

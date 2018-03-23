@@ -30,7 +30,19 @@ module.exports = {
                                 round=1;
                                 roomInfo.isGameOver = 1;
                                 roomInfo.roomStatus = constant.roomStatus.ready;
-                                await ctx.service.englishService.englishService.pkEnd(roomId, constant.AppName.ENGLISH, null);
+
+                                for(let uid of userList) {
+                                    await ctx.service.englishService.englishService.pkEnd(roomId,uid, constant.AppName.ENGLISH, null);
+
+                                }
+                                for(let id of userList){
+                                    let player = await ctx.app.redis.hgetall(id);
+                                    if (!Number(roomInfo.isFriend)) {
+                                        ctx.service.redisService.redisService.init(player);
+                                    }else{
+                                        ctx.service.redisService.redisService.init(player,1);
+                                    }
+                                }
                                 ctx.app.redis.srem("roomPool",roomId);
                                 if(!Number(roomInfo.isFriend)){
                                     await ctx.app.redis.del(roomId);
@@ -42,12 +54,29 @@ module.exports = {
                             for (let userId of userList) {
                                 let player = await ctx.app.redis.hgetall(userId);
                                 //玩家状态发生改变 ，游戏结束
-                                if(!player.uid ||!Number(player.rid) || Number(player.rid) != roomId){
+                                if(!player.uid ||!Number(player.rid) || Number(player.rid) != Number(roomId)){
                                     waitTime = 0;
                                     round=1;
                                     roomInfo.isGameOver = 1;
                                     roomInfo.roomStatus = constant.roomStatus.ready;
-                                    await ctx.service.englishService.englishService.pkEnd(roomId, constant.AppName.ENGLISH, userId);
+                                  //  await ctx.service.englishService.englishService.pkEnd(roomId, constant.AppName.ENGLISH, userId);
+                                    let roomMangerLeave = false;
+                                    for(let uid of userList) {
+                                        await ctx.service.englishService.englishService.pkEnd(roomId,uid, constant.AppName.ENGLISH, userId);
+                                    }
+
+                                    for(let id of userList){
+                                        if(Number(player.isInitiator)){
+                                            roomMangerLeave = true;
+                                        }
+                                        let player = await ctx.app.redis.hgetall(id);
+                                        if (!Number(roomInfo.isFriend) || roomMangerLeave) {
+                                            ctx.service.redisService.redisService.init(player);
+                                        }else{
+                                            ctx.service.redisService.redisService.init(player,1);
+                                        }
+                                    }
+
                                     if(Number(roomInfo.isFriend) && !Number(player.isInitiator)){
                                         uSet.delete(userId);
                                         roomInfo.userList = JSON.stringify(Array.from(uSet));
