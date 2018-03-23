@@ -50,14 +50,14 @@ class WeChatController extends Controller {
             return;
         }
 
-
-
         let goods=englishConfig.Shop.Get(good);
         if(!goods){
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
             return;
         }
-       // let money = (goods.Price)*100;
-        let money = 1;
+        let money = (goods.Price)*100;
+       // let money = 1;
         this.logger.info("我拿到的钱数:" + money);
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, good, appName);
     }

@@ -42,11 +42,12 @@ class RedisService extends Service {
         this.logger.info("初始化房间");
         let mplayers = Array.from(matchPoolPlayer);
         this.logger.info(mplayers);
-        let userList = {};
+        let userList = [];
         let rankA = mplayers[0].rankType;
         let pk = rankA;
         let wordList = [];
         let difficulty = 1;
+        let roomStatus = constant.roomStatus.ready;
         if (!isFriend) {
             let rankB = mplayers[1].rankType;
             pk = Math.min(rankA, rankB);
@@ -62,15 +63,17 @@ class RedisService extends Service {
             let playerA = mplayers[0];
             playerA.rid = rid;
             playerA.isInitiator = 1;
-            userList[playerA.uid] = playerA;
+            userList.push(playerA.uid);
             await this.app.redis.hmset(playerA.uid, playerA);
         } else {
             for (let play of mplayers) {
                 play.rid = rid;
-                userList[play.uid] =play;
+                userList.push(play.uid);
+               // userList[play.uid] =play;
             //    this.logger.info(play);
                await this.app.redis.hmset(play.uid, play);
             }
+            roomStatus = constant.roomStatus.isGaming;
         }
 
         let initRoom = {
@@ -80,9 +83,10 @@ class RedisService extends Service {
             difficulty: difficulty,
             isFriend: isFriend,
             wordList: JSON.stringify(wordList),
-            roomStatus: constant.roomStatus.ready,
+            roomStatus: roomStatus,
             round: 1,
-            isGameOver: 0
+            isGameOver: 0,
+            waitTime:0
         };
   //      this.logger.info(initRoom);
        await this.app.redis.hmset(rid, initRoom);

@@ -69,7 +69,7 @@ module.exports = () => {
         if(isExist){
              app.redis.srem("matchpool", ui.uid)
         }
-        app.redis.del(ui.uid);
+      //  app.redis.del(ui.uid);
       //  app.messenger.sendToApp('disconnection',{appName:appName,uid:ui.uid});
       //  app.messenger.sendToApp('leaveRoom',{appName:appName,uid:ui.uid});
       //  this.app.messenger.sendToApp('pkend', {appName: appName, rid: rid, leaveUid: uid});

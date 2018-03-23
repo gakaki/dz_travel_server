@@ -16,9 +16,8 @@ for(let i = 5;i<12;i++){
     console.log(englishConfigs.Landing.Get(day).itemid);
 }
 */
-let a =["1","2"];
-console.log(a.remove("1"))
-console.log(a)
+
+console.log( englishConfigs.seasons);
 /*
 function setQuestions(difficulty) {
     let wordLib = englishConfigs.words;

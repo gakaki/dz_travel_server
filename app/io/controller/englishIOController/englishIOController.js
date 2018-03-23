@@ -35,7 +35,7 @@ class EnglishIOController extends Controller {
         let roomId = Number(player.rid);
         if (roomId) {
             let roomInfo = await this.app.redis.hgetall(roomId);
-            if (roomInfo && Boolean(roomInfo.isFriend)) {
+            if (roomInfo && Number(roomInfo.isFriend)) {
                 socket.emit("inRoom", {
                     code: constant.Code.OK,
                 });
@@ -71,6 +71,7 @@ class EnglishIOController extends Controller {
 
         //查看在不在匹配池
         let isExist = await app.redis.sismember("matchpool", ui.uid);
+        ctx.logger.info("查看在不在匹配池"+isExist );
         let isGiveUp = false;
         if (isExist) {
             //在匹配池 ，离开匹配池
@@ -78,10 +79,11 @@ class EnglishIOController extends Controller {
         } else {
             //不在匹配池，说明已经匹配到
             isGiveUp = true;
-            await ctx.service.englishService.englishService.pkEnd(player.rid, constant.AppName.ENGLISH, player.uid);
+
+        //    await ctx.service.englishService.englishService.pkEnd(player.rid, constant.AppName.ENGLISH, player.uid);
         }
         //更新用户信息
-        await app.redis.hmset(ui.uid, {rankType: 0, startTime: 0});
+        await this.ctx.service.redisService.redisService.init(ui);
         ctx.service.englishService.englishService.matchFailed(player.uid, true, isGiveUp);
 
     }
@@ -105,15 +107,24 @@ class EnglishIOController extends Controller {
         let roomInfo = await this.app.redis.hgetall(rid);
 
         if(!roomInfo.rid){
+            socket.emit('roundEndSettlement', {
+                code: constant.Code.ROOM_EXPIRED,
+            });
             ctx.logger.info("没有拿到房间信息");
             return;
         }
         if (Number(roomInfo.isGameOver) || roomInfo.roomStatus.ready == constant.roomStatus.ready) {
             ctx.logger.info("房间状态异常");
+            socket.emit('roundEndSettlement', {
+                code: constant.Code.REQUIRED_LOST,
+            });
             return;
         }
         if (!wid) {
             ctx.logger.info("没有拿到单词");
+            socket.emit('roundEndSettlement', {
+                code: constant.Code.REQUIRED_LOST,
+            });
             return
         }
         let player = await app.redis.hgetall(ui.uid);
@@ -168,35 +179,35 @@ class EnglishIOController extends Controller {
             player.continuousRight = 0;
         }
         //更新房间信息
-        uList[ui.uid] = player;
-        this.logger.info(player);
-        roomInfo.userList = JSON.stringify(uList);
-        this.logger.info(ui.nickName);
-        this.logger.info(uList);
-        await app.redis.hmset(rid, roomInfo);
+      //  uList[ui.uid] = player;
+    //    this.logger.info(player);
+      //  roomInfo.userList = JSON.stringify(uList);
+      //  this.logger.info(ui.nickName);
+     //   this.logger.info(uList);
+       // await app.redis.hmset(rid, roomInfo);
 
         //更新用户信息
         await this.app.redis.hmset(ui.uid, player);
 
 
 
-        let word = roomInfo.wordList[round];
-        let settime = 17000;
-        if (word && word.type == 3) {
-            settime = 25000
-        }
-        await ctx.service.englishService.roomService.checkAnswer(rid, settime);
+        // let word = roomInfo.wordList[round];
+        // let settime = 17000;
+        // if (word && word.type == 3) {
+        //     settime = 25000
+        // }
+        // await ctx.service.englishService.roomService.checkAnswer(rid, settime);
 
 
         app.logger.info("给客户端广播发送答案了。。");
         let us = [];
-        for (let uid in uList) {
-            let p = uList[uid];
+        for (let uid of uList) {
+            let p = await this.app.redis.hgetall(uid);
             let player = {
                 uid: uid,
                 score: Number(p.score),
                 answer: p.answer,
-            }
+            };
             us.push(player);
         }
 
@@ -269,6 +280,12 @@ class EnglishIOController extends Controller {
             }else{
                 roomId = player.rid;
             }
+        }
+
+        let roomInfo = await this.app.redis.hgetall(roomId);
+
+        if(!roomInfo.rid){
+            isExist = false;
         }
 
         ctx.logger.info("玩家所在房间 ："+player.rid);
@@ -361,6 +378,9 @@ class EnglishIOController extends Controller {
         let wordList = this.ctx.service.englishService.englishService.setQuestions(difficulty[index]);
         roomInfo.wordList = JSON.stringify(wordList);
         roomInfo.difficulty = difficulty;
+        roomInfo.roomStatus=constant.roomStatus.isGaming;
+        roomInfo.isGameOver = 0;
+        roomInfo.round = 1;
         await this.app.redis.hmset(rid, roomInfo);
         nsp.to(rid).emit('matchSuccess', {
             code: constant.Code.OK,
@@ -369,14 +389,16 @@ class EnglishIOController extends Controller {
             }
         });
 
-        this.logger.info("开启定时器");
-        //设置第一次定时器
-        let firstWord = JSON.parse(roomInfo.wordList)[0];
-        let settime = 27000;
-        if (firstWord && firstWord.type == 3) {
-            settime = 30000;
-        }
-        ctx.service.englishService.roomService.setFirstTimeOut(rid, settime);
+        // this.logger.info("开启定时器");
+        // //设置第一次定时器
+        // let firstWord = JSON.parse(roomInfo.wordList)[0];
+        // let settime = 27000;
+        // if (firstWord && firstWord.type == 3) {
+        //     settime = 30000;
+        // }
+
+       await app.redis.sadd("roomPool",rid);
+      //  ctx.service.englishService.roomService.setFirstTimeOut(rid, settime);
 
     }
 
@@ -441,14 +463,17 @@ class EnglishIOController extends Controller {
 
         if(!roomInfo.rid){
             ctx.logger.info("没拿到房间信息");
-            socket.emit('roomIsNotExist', {
-                code: constant.Code.OK
+            socket.emit('room', {
+                code: constant.Code.ROOM_EXPIRED
             });
             return;
         }
 
         if (!Number(roomInfo.isFriend)) {
             ctx.logger.info("不是好友房");
+            socket.emit('room', {
+                code: constant.Code.REQUIRED_LOST
+            });
             return
         }
          let season =ctx.service.englishService.englishService.getSeason();
@@ -458,8 +483,8 @@ class EnglishIOController extends Controller {
         let bSet = new Set(bystander);
         let uList = [];
 
-        for (let uid of userList) {
-            let player = userList[uid];
+        for (let uid in userList) {
+            let player =await this.app.redis.hgetall(uid);
             let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: constant.AppName.ENGLISH});
             let lastSeason = ui.character.season[season - 1];
             if (lastSeason) {
@@ -518,8 +543,8 @@ class EnglishIOController extends Controller {
         let userList = JSON.parse(roomInfo.userList);
         let uList = [];
         let lastRank = 0;
-        for (let uid in userList) {
-            let player = userList[uid];
+        for (let uid of userList) {
+            let player =await this.app.redis.hgetall(uid);
             let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: constant.AppName.ENGLISH});
             let winningStreak = ui.character.winningStreak;
             let lastSeason = ui.character.season[season - 1];
@@ -581,8 +606,8 @@ class EnglishIOController extends Controller {
         let userList = JSON.parse(roomInfo.userList);
         let uList = [];
         let lastRank = 0;
-        for (let uid in userList) {
-            let player = userList[uid];
+        for (let uid of userList) {
+            let player =await this.app.redis.hgetall(uid);
             let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: constant.AppName.ENGLISH});
             let lastSeason = ui.character.season[season - 1];
             if (lastSeason) {

@@ -50,14 +50,16 @@ class EnglishService extends Service {
             }
         }
 
-        this.logger.info("开启定时器")
-        //设置第一次定时器
-        let firstWord = JSON.parse(englishroom.wordList)[0];
-        let settime = 27000;
-        if (firstWord && firstWord.type == 3) {
-            settime = 30000;
-        }
-        this.ctx.service.englishService.roomService.setFirstTimeOut(englishroom.rid, settime);
+
+        await this.app.redis.sadd("roomPool",rid);
+        // this.logger.info("开启定时器")
+        // //设置第一次定时器
+        // let firstWord = JSON.parse(englishroom.wordList)[0];
+        // let settime = 27000;
+        // if (firstWord && firstWord.type == 3) {
+        //     settime = 30000;
+        // }
+        // this.ctx.service.englishService.roomService.setFirstTimeOut(englishroom.rid, settime);
 
 
     }
@@ -341,7 +343,7 @@ class EnglishService extends Service {
             return null;
         } else {
             let userList = JSON.parse(roomInfo.userList);
-            if (Object.keys(userList).length == 2) {
+            if (userList.length == 2) {
                 return null;
             } else {
                 return roomInfo;
@@ -703,8 +705,8 @@ class EnglishService extends Service {
         let bystander = JSON.parse(roomInfo.bystander);
         let bSet = new Set(bystander);
         let userList = JSON.parse(roomInfo.userList);
-        for (let uid in userList) {
-            let player = userList[uid];
+        for (let uid of userList) {
+            let player = await this.app.redis.hgetall(uid);
             let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: constant.AppName.ENGLISH});
             let lastSeason = ui.character.season[season - 1];
             if (lastSeason) {
@@ -771,8 +773,8 @@ class EnglishService extends Service {
             return
         }
         let userList = JSON.parse(roomInfo.userList);
-        for (let userId in userList) {
-            let player = userList[userId];
+        for (let userId of userList) {
+            let player = await this.app.redis.hgetall(userId);
             this.logger.info("不循环？？？" + player.nickName);
             let socket = this.ctx.service.socketService.socketioService.getSocket(constant.AppName.ENGLISH, player.uid);
             if (socket) {
@@ -916,9 +918,14 @@ class EnglishService extends Service {
                 season = 2;
                 let lastRank = 0;
                 let ulist = [];
-                for (let userId in userList) {
-                    let uInfo = userList[userId];
-                    let ui = await this.ctx.model.PublicModel.User.findOne({uid: uInfo.uid, appName: appName});
+                let uInfo =player;
+                for (let uid of userList) {
+                    if(userId != uid){
+                        uInfo =await this.app.redis.hgetall(uid);
+                    }else{
+                        uInfo =player;
+                    }
+                    let ui = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: appName});
                     let lastSeason = ui.character.season[season - 1];
                     if (lastSeason) {
                         lastRank = lastSeason.rank;
@@ -970,21 +977,28 @@ class EnglishService extends Service {
                             }
                         }
                     });
-                    if (!Number(roomInfo.isFriend) || roomMangerLeave) {
-                        socket.leave(rid);
-                        this.ctx.service.redisService.redisService.init(player);
-                    }
 
+                }
+                if (!Number(roomInfo.isFriend) || roomMangerLeave) {
+                    socket.leave(rid);
+                    //this.ctx.service.redisService.redisService.init(player);
                 }
 
 
             }
         }
 
-        if (!Number(roomInfo.isFriend) || roomMangerLeave) {
-           await this.app.redis.del(rid);
-            return true
+
+        for(let uid of userList) {
+            let player = await this.app.redis.hgetall(uid);
+            if (!Number(roomInfo.isFriend) || roomMangerLeave) {
+                this.ctx.service.redisService.redisService.init(player);
+            }else{
+                this.ctx.service.redisService.redisService.init(player,1);
+            }
+
         }
+
 
         return false;
 

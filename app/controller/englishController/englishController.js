@@ -24,7 +24,7 @@ class EnglishController extends Controller {
     }
 
     async getseason(ctx) {
-        const {_sid, appName, position} = ctx.query;
+        const {_sid, appName} = ctx.query;
         let result = {};
         if (!_sid || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
