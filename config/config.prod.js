@@ -4,9 +4,9 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        //url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/wxsrv?authSource=admin',
+        url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/wxsrv?authSource=admin',
         //url: 'mongodb://mongouser:' + encodeURIComponent("Douzi#Xx@2017") + '@172.17.16.3:27017/wxsrv?authSource=admin',
-        url: 'mongodb://english:'+encodeURIComponent('Douzi#Xx@2017')+'@'+encodeURIComponent('dds-bp11161f4c3ea0a41862-pub.mongodb.rds.aliyuncs.com')+':3717/english',
+        //url: 'mongodb://english:'+encodeURIComponent('Douzi#Xx@2017')+'@'+encodeURIComponent('dds-bp11161f4c3ea0a41862-pub.mongodb.rds.aliyuncs.com')+':3717/english',
 
     };
 

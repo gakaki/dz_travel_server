@@ -41,19 +41,37 @@ module.exports = () => {
 
         //  app.messenger.sendToAgent('refresh', obj);
 
-        app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
+
+
+        ctx.service.redisService.redisService.init(ui);
+
+
+
+       // app.messenger.sendToApp('connection',{appName:appName,userInfo:ui});
 
         // ctx.service.socketService.socketioService.setOnlineUser(constant.AppName.ENGLISH, player);
       //  logger.info("设置socket");
          ctx.service.socketService.socketioService.setSocket(constant.AppName.ENGLISH, ui.uid,socket);
 
-
+         socket.on('error',msg=>{
+             logger.error(msg);
+         });
 
         await next();
 
         logger.info(ui.uid + ' disconnection');
-        app.messenger.sendToApp('disconnection',{appName:appName,uid:ui.uid});
-        app.messenger.sendToApp('leaveRoom',{appName:appName,uid:ui.uid});
+        let player = await app.redis.hgetall(ui.uid);
+        if(Number(player.rid)){
+            logger.info("还在房间里。准备离开 "+player.rid);
+             ctx.service.englishService.roomService.leaveRoom(player.rid,ui);
+        }
+        let isExist = await app.redis.sismember("matchpool", ui.uid);
+        if(isExist){
+             app.redis.srem("matchpool", ui.uid)
+        }
+        app.redis.del(ui.uid);
+      //  app.messenger.sendToApp('disconnection',{appName:appName,uid:ui.uid});
+      //  app.messenger.sendToApp('leaveRoom',{appName:appName,uid:ui.uid});
       //  this.app.messenger.sendToApp('pkend', {appName: appName, rid: rid, leaveUid: uid});
 
     };

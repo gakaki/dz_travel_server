@@ -43,6 +43,5 @@ module.exports = app => {
     io.of('/english').route('getroominfo', io.controller.englishIOController.englishIOController.getroominfo);
     io.of('/english').route('getmatchinfo', io.controller.englishIOController.englishIOController.getmatchinfo);
     io.of('/english').route('getpkinfo', io.controller.englishIOController.englishIOController.getpkinfo);
-    io.of('/english').route('roomisexist', io.controller.englishIOController.englishIOController.roomisexist);
 
 };

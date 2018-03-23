@@ -5,7 +5,6 @@ const noce =require("../../utils/nonce");
 const uuid =require("uuid");
 
 const englishConfigs = require("../../../sheets/english");
-//const EnglishPlayer = require('../player/englishPlayer/englishPlayer');
 
 
 /*
@@ -17,13 +16,9 @@ for(let i = 5;i<12;i++){
     console.log(englishConfigs.Landing.Get(day).itemid);
 }
 */
-
-console.log(englishConfigs.Landingessay.Get(1));
-console.log(englishConfigs.Landingessay.Get(2));
-console.log(englishConfigs.Landingessay.Get(3));
-console.log(englishConfigs.Landingessay.Get(4));
-console.log(englishConfigs.Landingessay.Get(5));
-console.log(englishConfigs.Landingessay.Get(6));
+let a =["1","2"];
+console.log(a.remove("1"))
+console.log(a)
 /*
 function setQuestions(difficulty) {
     let wordLib = englishConfigs.words;
