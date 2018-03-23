@@ -120,6 +120,7 @@ function parseFile(flPath) {
         let validSheets = {};
         for (let i = 0; i < sheets.length; i++) {
             let sht = sheets[i];
+            sht.name = sht.name.trim();
             if (/Sheet[0-9]+/.test(sht.name)) {
                 //excel 的默认表名不处理
                 continue;
