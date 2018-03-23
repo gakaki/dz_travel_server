@@ -19,7 +19,7 @@ class UserInfo extends UserBriefInfo{
     prop country:string
     //当前是否在线
     prop online:Boolean
-    //金币等物品信息（如果查看他人的，可能不提供该数据）
+    //金币等物品信息
     prop items:KV[]
     //好友uid
     prop friends:string[]

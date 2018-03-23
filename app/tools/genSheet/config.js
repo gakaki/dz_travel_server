@@ -7,9 +7,15 @@ module.exports = {
         outFileS:'./sheets/guessnum.js',
     },
     english: {
-        enable: true,
+        enable: false,
         inDir:'../h5group/design/小程序/配置表/guessenglish.xlsx',//也可以配置到具体文件，只处理这一个文件
         outFileC:'../english/sheets.js',
         outFileS:'./sheets/english.js',
+    },
+    travel: {
+        enable: true,
+        inDir:'../H5/design/小程序/配置表/tour.xlsx',//也可以配置到具体文件，只处理这一个文件
+        outFileC:'../travel/sheets.js',
+        outFileS:'./sheets/travel.js',
     },
 }
