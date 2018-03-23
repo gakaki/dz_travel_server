@@ -12,8 +12,8 @@ class WeChatService extends Service {
 
         let appName = sdkAuth.appName;
 
-        let appid = this.config[appName].appid;
-        let appsec = this.config[appName].appsecret;
+        let appid = this.config.appid;
+        let appsec = this.config.appsecret;
         let authcode = JSON.parse(sdkAuth.payload).code;
 
         this.logger.info("我要进行微信授权登陆" +appid);
@@ -65,16 +65,16 @@ class WeChatService extends Service {
 
         await this.ctx.model.WeChatModel.RechargeRecord.create(payInfo);
         let wuo = {
-            nonce_str: nonce.NonceAlDig(10),
+            appid: this.config.appid,
             body: payInfo.desc,
+            mch_id: this.config.pubmchid,
+            nonce_str: nonce.NonceAlDig(10),
+            notify_url: this.config.noticeurl+"/"+appName,
+            openid: ui.uid,
             out_trade_no: payInfo.orderid,
+            spbill_create_ip: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
             total_fee: payInfo.price,// 正式的价格
             time_start: moment(new Date()).format("YYYYMMDDHHMMSS"),
-            spbill_create_ip: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
-            notify_url: this.config.noticeurl+"/"+appName,
-            appid: this.config[appName].appid,
-            mch_id: this.config.pubmchid,
-            openid: ui.uid,
             trade_type: "JSAPI"
         };
         let fields = utils.ToMap(wuo);
@@ -108,7 +108,7 @@ class WeChatService extends Service {
                     let prepay_id = realResult["prepay_id"][0];
                     let returnParam =
                         {
-                            appId: that.config[appName].appid,
+                            appId: that.config.appid,
                             nonceStr: nonce.NonceAlDig(10),
                             package: "prepay_id=" + prepay_id,
                             signType: "MD5",
@@ -146,7 +146,7 @@ class WeChatService extends Service {
         wtd.partner_trade_no = "withdraw" + ((new Date().getTime()) / 1000 >> 0);
         wtd.amount = Number(money); // 正式的价格
         wtd.spbill_create_ip = (this.ctx.request.socket.remoteAddress).replace("::ffff:", "");
-        wtd.mch_appid = this.config[appName].appid;
+        wtd.mch_appid = this.config.appid;
         wtd.mchid = this.config.pubmchid;
         wtd.partnerKey = this.config.pubkey;
         wtd.check_name = "NO_CHECK";
@@ -167,6 +167,22 @@ class WeChatService extends Service {
             return true
         }
 
+    }
+
+
+    async minAppReferrer(ui,appName,referrerInfo){
+        let referrer = {
+            appName: appName,
+            uid: ui.uid,
+            path: referrerInfo.path,
+            query: referrerInfo.query,
+            scene: referrerInfo.scene,
+            shareTicket:referrerInfo.shareTicket,
+            createDate:new Date().toLocaleString()
+        }
+
+        this.ctx.model.WeChatModel.Referrer.create(referrer);
+        return true;
     }
 
 
@@ -244,9 +260,8 @@ class WeChatService extends Service {
                         close: {$ne: true}
                     }, {$set: {close: true}});
 
-                    if (appName == constant.AppName.GUESSNUM) {
-                        that.service.guessnumService.guessnumService.doComplete(resultParam.out_trade_no, appName);
-                    }else if(appName == constant.AppName.ENGLISH){
+
+                    if(appName == constant.AppName.ENGLISH){
                         that.service.englishService.englishService.doComplete(resultParam.out_trade_no, appName);
                     }
 
