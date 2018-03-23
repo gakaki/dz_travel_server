@@ -4,27 +4,42 @@ import ./player.api
 
 //枚举示例-榜单类型
 enum RankType {
-    const DAY = 1
-    const MONTH = 3
-    const RECHARGE = 9
+    const THUMBS = 1
+    const FOOT = 2
+    const SCORE = 3
+}
+
+//榜单子类型：全国、好友
+enum RankSubtype {
+    const COUNTRY = 1
+    const FRIEND = 2
 }
 
 //数据结构示例-榜单项
 class RankItem {
-    prop name:string
+    //排名
     prop rank:number
-    prop userInfo:userInfo
+    //用户信息
+    prop userInfo:UserInfo
+}
+
+//自己的排行信息
+class selfRank {
+    prop rank:number
+    prop userInfo:UserInfo
 }
 
 //API基本示例-请求榜单
 api RankInfo{
     //榜单类型
     required rankType:RankType
+    //榜单子类型
+    require rankSubtype:RankSubtype
     //数据条数（可选）
     optional limit:number
 
     //返回数据-自己的排名
-    output selfRank:number
+    output selfRank:selfRank
     //返回数据-查询到的榜单列表
     output ranks:RankItem[]
 }

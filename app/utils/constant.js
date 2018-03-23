@@ -1,12 +1,10 @@
-const guessnumConfigs = require("../../config/guessnumConfig/guessnumConfigs");
-const englishConfigs = require("../../sheets/english");
 
 exports.AppName = {
     TRAVEL: "travel"
 };
 
 exports.AppWithdrawCount = {
-    guessnum: guessnumConfigs.Parameter.Get("withdrawalsnum").value
+
 };
 
 exports.AppItem = {
@@ -15,17 +13,6 @@ exports.AppItem = {
 };
 function getItem(appName) {
     switch (appName){
-        case "english":
-            let items={};
-            for(let item of englishConfigs.items){
-                if(item.id == englishConfigs.Item.GOLD){
-                    items[item.id]=500
-                }else{
-                    items[item.id]=0
-                }
-
-            }
-            return items;
         case "travel":
 
     }

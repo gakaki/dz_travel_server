@@ -50,13 +50,14 @@ class WeChatController extends Controller {
             return;
         }
 
-
-
         let goods=englishConfig.Shop.Get(good);
         if(!goods){
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
             return;
         }
         let money = (goods.Price)*100;
+       // let money = 1;
         this.logger.info("我拿到的钱数:" + money);
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, good, appName);
     }
@@ -118,8 +119,26 @@ class WeChatController extends Controller {
             }
         }
 
+    }
 
-
+    async minappreferrer(ctx){
+        let result = {};
+        const {_sid, appName,referrerInfo} = ctx.query;
+        if (!_sid || !appName ||!referrerInfo) {
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        this.logger.info("来源记录",referrerInfo);
+        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        if (ui == null) {
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+        await this.service.weChatService.weChatService.minAppReferrer(ui, appName,JSON.parse(referrerInfo));
+        result.code = constant.Code.OK;
+        ctx.body = result;
     }
 
 }

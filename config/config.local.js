@@ -5,7 +5,7 @@ module.exports = appInfo => {
     // add your config here
     config.mongoose = {
         // url: 'mongodb://admin:h5group@10.1.70.106:27017/travel',
-        url: 'mongodb://127.0.0.1:27017/test',
+        url: 'mongodb://127.0.0.1:27017/travel',
     };
     config.env = "local";
 
