@@ -8,6 +8,22 @@ class UserBriefInfo {
     //头像url
     prop avatarUrl:string
 }
+
+class otherUserInfo {
+    //累计获得的城市积分
+    prop totalIntegral:number
+    //里程数
+    prop mileage:number
+    //收集明信片总数量
+    prop postcard:number
+    //累计发表评论数
+    prop comment:number
+    //累计获得的点赞数
+    prop likeNum:number
+    //获得特产总数
+    prop specialty:numer
+}
+
 class UserInfo extends UserBriefInfo{
     //用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
     prop gender:string
@@ -27,6 +43,9 @@ class UserInfo extends UserBriefInfo{
     prop items:KV[]
     //好友uid
     prop friends:string[]
+    //其他一些个人信息
+    prop otherUserInfo:otherUserInfo
+
 }
 
 //拉取一个玩家的简要信息（自己或他人）
