@@ -32,4 +32,6 @@ api PlayerInfo {
 
     //玩家信息
     output info:UserInfo
+
+
 }
