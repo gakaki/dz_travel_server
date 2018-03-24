@@ -25,11 +25,18 @@ class Weather{
 }
 class RankType{
     
-    static get DAY() { return 1;}
+    static get THUMBS() { return 1;}
     
-    static get MONTH() { return 3;}
+    static get FOOT() { return 2;}
     
-    static get RECHARGE() { return 9;}
+    static get SCORE() { return 3;}
+    
+}
+class RankSubtype{
+    
+    static get COUNTRY() { return 1;}
+    
+    static get FRIEND() { return 2;}
     
 }
 class PostType{
@@ -71,13 +78,23 @@ class Post  {
 class RankItem  {
     constructor(){
     
-        //prop type: string
-        this.name = null;
+        //prop type: number
+        this.rank = null;
+    
+        //prop type: UserInfo
+        this.userInfo = null;
+    
+        
+        
+    }
+}
+class selfRank  {
+    constructor(){
     
         //prop type: number
         this.rank = null;
     
-        //prop type: userInfo
+        //prop type: UserInfo
         this.userInfo = null;
     
         
@@ -190,27 +207,6 @@ class City  {
         
     }
 }
-class PlayerInfo extends Base {
-    constructor(){
-        super();
-        this._playerUid = null;
-        this._info = null;
-        this.reqFields = ["playerUid"];
-        this.resFields = ["info"];
-    }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: UserInfo
-    get info() {return this._info}
-    set info(v) {this._info = v}
-    static Init(ctx) {
-    let o = new PlayerInfo();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
 class IndexInfo extends Base {
     constructor(){
         super();
@@ -248,6 +244,40 @@ class IndexInfo extends Base {
     return o;
     }
 }
+class UserInfo extends UserBriefInfo {
+    constructor(){
+        super();
+        //prop type: string
+        this.gender = null;
+    
+        //prop type: number
+        this.totalArrive = null;
+    
+        //prop type: number
+        this.overmatch = null;
+    
+        //prop type: string
+        this.city = null;
+    
+        //prop type: string
+        this.province = null;
+    
+        //prop type: string
+        this.country = null;
+    
+        //prop type: Boolean
+        this.online = null;
+    
+        //prop type: KV[]
+        this.items = null;
+    
+        //prop type: string[]
+        this.friends = null;
+    
+        
+        
+    }
+}
 class RankInfo extends Base {
     constructor(){
         super();
@@ -264,7 +294,7 @@ class RankInfo extends Base {
     //client input, optional, type: number
     get limit() {return this._limit}
     set limit(v) {this._limit = v}
-    //server output, type: number
+    //server output, type: selfRank
     get selfRank() {return this._selfRank}
     set selfRank(v) {this._selfRank = v}
     //server output, type: RankItem[]
@@ -337,32 +367,25 @@ class ThumbComment extends Base {
     return o;
     }
 }
-class UserInfo extends UserBriefInfo {
+class PlayerInfo extends Base {
     constructor(){
         super();
-        //prop type: string
-        this.gender = null;
-    
-        //prop type: string
-        this.city = null;
-    
-        //prop type: string
-        this.province = null;
-    
-        //prop type: string
-        this.country = null;
-    
-        //prop type: Boolean
-        this.online = null;
-    
-        //prop type: KV[]
-        this.items = null;
-    
-        //prop type: string[]
-        this.friends = null;
-    
-        
-        
+        this._playerUid = null;
+        this._info = null;
+        this.reqFields = ["playerUid"];
+        this.resFields = ["info"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserInfo
+    get info() {return this._info}
+    set info(v) {this._info = v}
+    static Init(ctx) {
+    let o = new PlayerInfo();
+    o.ctx = ctx;
+    o.parse(ctx.query);
+    return o;
     }
 }
 class cityList extends Base {
@@ -403,21 +426,23 @@ class RechargeRankInfo extends RankInfo {
 exports.Season = Season;
 exports.Weather = Weather;
 exports.RankType = RankType;
+exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
 exports.Post = Post;
 exports.RankItem = RankItem;
+exports.selfRank = selfRank;
 exports.Provence = Provence;
 exports.Base = Base;
 exports.UserBriefInfo = UserBriefInfo;
 exports.Comment = Comment;
 exports.City = City;
-exports.PlayerInfo = PlayerInfo;
 exports.IndexInfo = IndexInfo;
+exports.UserInfo = UserInfo;
 exports.RankInfo = RankInfo;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
-exports.UserInfo = UserInfo;
+exports.PlayerInfo = PlayerInfo;
 exports.cityList = cityList;
 exports.RechargeRankInfo = RechargeRankInfo;
