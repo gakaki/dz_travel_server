@@ -47,29 +47,33 @@ class PostType{
     
 }
 //------------classes--------------
-class Post  {
+class oneDayLog  {
     constructor(){
     
-        //prop type: number//帖子id
-        this.postId = null;
+        //prop type: string
+        this.time = null;
     
-        //prop type: PostType//帖子类型：景点or特产
-        this.type = null;
+        //prop type: string
+        this.city = null;
     
-        //prop type: string//帖子内容，为景点或特产的介绍
-        this.content = null;
+        //prop type: string[]
+        this.scenicSpots = null;
     
-        //prop type: 
-        this.name = null;
+        
+        
+    }
+}
+class UserBriefInfo  {
+    constructor(){
     
-        //prop type: number//帖子的评论
-        this.score = null;
+        //prop type: string
+        this.uid = null;
     
-        //prop type: string//景点或特产图片url
-        this.img = null;
+        //prop type: string
+        this.nickName = null;
     
-        //prop type: number//评论数
-        this.commentNum = null;
+        //prop type: string
+        this.avatarUrl = null;
     
         
         
@@ -88,7 +92,7 @@ class RankItem  {
         
     }
 }
-class selfRank  {
+class SelfRank  {
     constructor(){
     
         //prop type: number
@@ -101,17 +105,14 @@ class selfRank  {
         
     }
 }
-class Provence  {
+class Log  {
     constructor(){
     
-        //prop type: 
-        this.proLetter = null;
+        //prop type: string
+        this.year = null;
     
         //prop type: 
-        this.provence = null;
-    
-        //prop type: 
-        this.citys = null;
+        this.cityLogs = null;
     
         
         
@@ -150,17 +151,29 @@ class Base  {
         Object.assign(this, data);
     }
 }
-class UserBriefInfo  {
+class Post  {
     constructor(){
     
-        //prop type: string
-        this.uid = null;
+        //prop type: number//帖子id
+        this.postId = null;
     
-        //prop type: string
-        this.nickName = null;
+        //prop type: PostType//帖子类型：景点or特产
+        this.type = null;
     
-        //prop type: string
-        this.avatarUrl = null;
+        //prop type: string//帖子内容，为景点或特产的介绍
+        this.content = null;
+    
+        //prop type: 
+        this.name = null;
+    
+        //prop type: number//帖子的评论
+        this.score = null;
+    
+        //prop type: string//景点或特产图片url
+        this.img = null;
+    
+        //prop type: number//评论数
+        this.commentNum = null;
     
         
         
@@ -207,38 +220,34 @@ class City  {
         
     }
 }
-class IndexInfo extends Base {
+class Provence  {
+    constructor(){
+    
+        //prop type: 
+        this.proLetter = null;
+    
+        //prop type: 
+        this.provence = null;
+    
+        //prop type: 
+        this.citys = null;
+    
+        
+        
+    }
+}
+class cityList extends Base {
     constructor(){
         super();
-        this._isFirst = null;
-        this._season = null;
-        this._weather = null;
-        this._playerCnt = null;
-        this._friends = null;
-        this._unreadMsgCnt = null;
+        this._provence = null;
         this.reqFields = [];
-        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt"];
+        this.resFields = ["provence"];
     }
-    //server output, type: Boolean
-    get isFirst() {return this._isFirst}
-    set isFirst(v) {this._isFirst = v}
-    //server output, type: Season
-    get season() {return this._season}
-    set season(v) {this._season = v}
-    //server output, type: Weather
-    get weather() {return this._weather}
-    set weather(v) {this._weather = v}
-    //server output, type: number
-    get playerCnt() {return this._playerCnt}
-    set playerCnt(v) {this._playerCnt = v}
-    //server output, type: string[]
-    get friends() {return this._friends}
-    set friends(v) {this._friends = v}
-    //server output, type: number
-    get unreadMsgCnt() {return this._unreadMsgCnt}
-    set unreadMsgCnt(v) {this._unreadMsgCnt = v}
+    //server output, type: Provence[]
+    get provence() {return this._provence}
+    set provence(v) {this._provence = v}
     static Init(ctx) {
-    let o = new IndexInfo();
+    let o = new cityList();
     o.ctx = ctx;
     o.parse(ctx.query);
     return o;
@@ -278,30 +287,59 @@ class UserInfo extends UserBriefInfo {
         
     }
 }
-class RankInfo extends Base {
+class PlayerInfo extends Base {
     constructor(){
         super();
-        this._rankType = null;
-        this._limit = null;
-        this._selfRank = null;
-        this._ranks = null;
-        this.reqFields = ["rankType","limit"];
-        this.resFields = ["selfRank","ranks"];
+        this._playerUid = null;
+        this._info = null;
+        this.reqFields = ["playerUid"];
+        this.resFields = ["info"];
     }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, optional, type: number
-    get limit() {return this._limit}
-    set limit(v) {this._limit = v}
-    //server output, type: selfRank
-    get selfRank() {return this._selfRank}
-    set selfRank(v) {this._selfRank = v}
-    //server output, type: RankItem[]
-    get ranks() {return this._ranks}
-    set ranks(v) {this._ranks = v}
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserInfo
+    get info() {return this._info}
+    set info(v) {this._info = v}
     static Init(ctx) {
-    let o = new RankInfo();
+    let o = new PlayerInfo();
+    o.ctx = ctx;
+    o.parse(ctx.query);
+    return o;
+    }
+}
+class IndexInfo extends Base {
+    constructor(){
+        super();
+        this._isFirst = null;
+        this._season = null;
+        this._weather = null;
+        this._playerCnt = null;
+        this._friends = null;
+        this._unreadMsgCnt = null;
+        this.reqFields = [];
+        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt"];
+    }
+    //server output, type: Boolean
+    get isFirst() {return this._isFirst}
+    set isFirst(v) {this._isFirst = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: Weather
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: number
+    get playerCnt() {return this._playerCnt}
+    set playerCnt(v) {this._playerCnt = v}
+    //server output, type: string[]
+    get friends() {return this._friends}
+    set friends(v) {this._friends = v}
+    //server output, type: number
+    get unreadMsgCnt() {return this._unreadMsgCnt}
+    set unreadMsgCnt(v) {this._unreadMsgCnt = v}
+    static Init(ctx) {
+    let o = new IndexInfo();
     o.ctx = ctx;
     o.parse(ctx.query);
     return o;
@@ -367,39 +405,47 @@ class ThumbComment extends Base {
     return o;
     }
 }
-class PlayerInfo extends Base {
+class TravelLog extends Base {
     constructor(){
         super();
-        this._playerUid = null;
-        this._info = null;
-        this.reqFields = ["playerUid"];
-        this.resFields = ["info"];
+        this._allLogs = null;
+        this.reqFields = [];
+        this.resFields = ["allLogs"];
     }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: UserInfo
-    get info() {return this._info}
-    set info(v) {this._info = v}
+    //server output, type: Log[]
+    get allLogs() {return this._allLogs}
+    set allLogs(v) {this._allLogs = v}
     static Init(ctx) {
-    let o = new PlayerInfo();
+    let o = new TravelLog();
     o.ctx = ctx;
     o.parse(ctx.query);
     return o;
     }
 }
-class cityList extends Base {
+class RankInfo extends Base {
     constructor(){
         super();
-        this._provence = null;
-        this.reqFields = [];
-        this.resFields = ["provence"];
+        this._rankType = null;
+        this._limit = null;
+        this._selfRank = null;
+        this._ranks = null;
+        this.reqFields = ["rankType","limit"];
+        this.resFields = ["selfRank","ranks"];
     }
-    //server output, type: Provence[]
-    get provence() {return this._provence}
-    set provence(v) {this._provence = v}
+    //client input, require, type: RankType
+    get rankType() {return this._rankType}
+    set rankType(v) {this._rankType = v}
+    //client input, optional, type: number
+    get limit() {return this._limit}
+    set limit(v) {this._limit = v}
+    //server output, type: SelfRank
+    get selfRank() {return this._selfRank}
+    set selfRank(v) {this._selfRank = v}
+    //server output, type: RankItem[]
+    get ranks() {return this._ranks}
+    set ranks(v) {this._ranks = v}
     static Init(ctx) {
-    let o = new cityList();
+    let o = new RankInfo();
     o.ctx = ctx;
     o.parse(ctx.query);
     return o;
@@ -428,21 +474,24 @@ exports.Weather = Weather;
 exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
-exports.Post = Post;
-exports.RankItem = RankItem;
-exports.selfRank = selfRank;
-exports.Provence = Provence;
-exports.Base = Base;
+exports.oneDayLog = oneDayLog;
 exports.UserBriefInfo = UserBriefInfo;
+exports.RankItem = RankItem;
+exports.SelfRank = SelfRank;
+exports.Log = Log;
+exports.Base = Base;
+exports.Post = Post;
 exports.Comment = Comment;
 exports.City = City;
-exports.IndexInfo = IndexInfo;
+exports.Provence = Provence;
+exports.cityList = cityList;
 exports.UserInfo = UserInfo;
-exports.RankInfo = RankInfo;
+exports.PlayerInfo = PlayerInfo;
+exports.IndexInfo = IndexInfo;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
-exports.PlayerInfo = PlayerInfo;
-exports.cityList = cityList;
+exports.TravelLog = TravelLog;
+exports.RankInfo = RankInfo;
 exports.RechargeRankInfo = RechargeRankInfo;
