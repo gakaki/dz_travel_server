@@ -27,6 +27,14 @@ class oneDayLog {
 
 }
 
+//旅行足迹 按时间排序 从旧到新
+class Log {
+    //游玩的具体年份 eg：2018
+    prop year:string
+    //所有城市每天游玩的记录
+    prop cityLogs: oneDayLog[]
+}
+
 api IndexInfo {
     //是否为第一次进来的玩家
     output isFirst:Boolean
@@ -43,8 +51,8 @@ api IndexInfo {
 }
 
 
-//旅行足迹 按时间排序 从旧到新
+
 api TravelLog {
-    //所有城市每天游玩的记录
-    prop cityLogs: oneDayLog[]
+    //旅行日志
+    output allLogs:Log[]
 }
