@@ -52,6 +52,8 @@ class OneBriefMessage {
 
 //一条留言的具体信息
 class DetailLiveMessage extends  OneBriefMessage{
+    //和其通信的玩家的uid
+    prop friendUid:string
     //该玩家的头像图片地址
     prop avatarUrl:string
     //是否有下一条留言
@@ -87,5 +89,10 @@ api DetailPostcard {
     output lastestMessage:DetailLiveMessage[]
 }
 
+//发送明信片留言
+api sendPostcard {
+    input friendUid:string
+    input message:string
+}
 
 
