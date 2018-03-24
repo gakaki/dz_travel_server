@@ -358,12 +358,10 @@ class EnglishIOController extends Controller {
 
         let player = await app.redis.hgetall(ui.uid);
 
-        if (!player) {
-            player = await this.ctx.service.redisService.redisService.init(ui,1);
-        }
 
-
-        let roomInfo = await this.app.redis.hgetall(rid);
+        let roomInfo = await app.redis.hgetall(rid);
+        ctx.logger.info("準備開始游戲");
+        ctx.logger.info(roomInfo);
         if(!roomInfo.rid){
             ctx.logger.info("房间不存在");
             socket.emit("roomExpired", {
@@ -383,7 +381,7 @@ class EnglishIOController extends Controller {
         }
 
         let userList = JSON.parse(roomInfo.userList);
-        if (Object.keys(userList).length < 2) {
+        if (userList.length < 2) {
             ctx.logger.info("房间人数不足");
             socket.emit("needUpdate", {
                 code: constant.Code.ROOM_NEED_UPDATE,

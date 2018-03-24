@@ -346,6 +346,7 @@ class EnglishService extends Service {
             if (userList.length == 2) {
                 return null;
             } else {
+
                 let player ={
                     uid: ui.uid,
                     nickName: ui.nickName,
@@ -353,6 +354,13 @@ class EnglishService extends Service {
                     rid:rid,
                     isInitiator:0
                 };
+                let play = await this.app.redis.hgetall(ui.uid);
+
+                if(play.rid && Number(play.rid)){
+                    if(play.rid != rid){
+                        player.rankType = play.rankType;
+                    }
+                }
                 let initplayer = await this.ctx.service.redisService.redisService.init(player,1);
                 userList.push(ui.uid);
                 roomInfo.userList = JSON.stringify(userList);
@@ -970,7 +978,7 @@ class EnglishService extends Service {
                     /*   this.ctx.service.socketService.socketioService.delSocket(appName, player.user.uid);*/
                 } else {
                     this.logger.info("發送數據 ： ");
-                    this.logger.info(userList);
+                    this.logger.info(ulist);
                     socket.emit('pkEndSettlement', {
                         code: constant.Code.OK,
                         data: {

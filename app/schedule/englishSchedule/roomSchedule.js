@@ -36,11 +36,11 @@ module.exports = {
 
                                 }
                                 for(let id of userList){
-                                    let player = await ctx.app.redis.hgetall(id);
+                                    let iplayer = await ctx.app.redis.hgetall(id);
                                     if (!Number(roomInfo.isFriend)) {
-                                        ctx.service.redisService.redisService.init(player);
+                                        ctx.service.redisService.redisService.init(iplayer);
                                     }else{
-                                        ctx.service.redisService.redisService.init(player,1);
+                                        ctx.service.redisService.redisService.init(iplayer,1);
                                     }
                                 }
                                 ctx.app.redis.srem("roomPool",roomId);
@@ -64,16 +64,15 @@ module.exports = {
                                     for(let uid of userList) {
                                         await ctx.service.englishService.englishService.pkEnd(roomId,uid, constant.AppName.ENGLISH, userId);
                                     }
-
+                                    if(Number(player.isInitiator)){
+                                        roomMangerLeave = true;
+                                    }
                                     for(let id of userList){
-                                        if(Number(player.isInitiator)){
-                                            roomMangerLeave = true;
-                                        }
-                                        let player = await ctx.app.redis.hgetall(id);
+                                        let lplayer = await ctx.app.redis.hgetall(id);
                                         if (!Number(roomInfo.isFriend) || roomMangerLeave) {
-                                            ctx.service.redisService.redisService.init(player);
+                                            ctx.service.redisService.redisService.init(lplayer);
                                         }else{
-                                            ctx.service.redisService.redisService.init(player,1);
+                                            ctx.service.redisService.redisService.init(lplayer,1);
                                         }
                                     }
 
@@ -85,6 +84,9 @@ module.exports = {
 
                                     }
                                     ctx.app.redis.srem("roomPool",roomId);
+                                    roomInfo.round = round;
+                                    roomInfo.waitTime = waitTime;
+                                    await ctx.app.redis.hmset(roomId, roomInfo);
                                     break;
                                 }else{
                                     let answers = JSON.parse(player.answers);

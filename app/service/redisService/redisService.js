@@ -30,6 +30,9 @@ class RedisService extends Service {
             if(Number(ui.isInitiator)){
                 initPlayer.isInitiator = Number(ui.isInitiator)
             }
+            if(ui.rankType){
+                initPlayer.rankType = ui.rankType;
+            }
             this.logger.info("更新状态 ");
             this.logger.info(initPlayer)
         }

@@ -23,7 +23,10 @@ class RoomService extends Service {
                 challenger =await this.app.redis.hgetall(userId);
             }
         }
+        this.logger.info("挑戰者");
         this.logger.info(challenger);
+        this.logger.info("自己");
+        this.logger.info(owner);
         let result = {
             exp: Number(englishConfigs.Constant.Get(englishConfigs.Constant.EXP).value),
             total: 0,
