@@ -24,7 +24,7 @@ class RankItem {
 }
 
 //自己的排行信息
-class selfRank {
+class SelfRank {
     prop rank:number
     prop userInfo:UserInfo
 }
@@ -39,7 +39,7 @@ api RankInfo{
     optional limit:number
 
     //返回数据-自己的排名
-    output selfRank:selfRank
+    output selfRank:SelfRank
     //返回数据-查询到的榜单列表
     output ranks:RankItem[]
 }

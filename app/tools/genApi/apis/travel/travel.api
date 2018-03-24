@@ -16,6 +16,25 @@ enum Weather {
     const WINDY = '风'
 }
 
+//一天的旅行记录
+class oneDayLog {
+    //当天log的时间
+    prop time:string
+    //如果当天有刚到达到城市 输出城市 //如果没有换地方 则不显示
+    prop city:string
+    //如果当天有到达的景点 输出景点
+    prop scenicSpots:string[]
+
+}
+
+//旅行足迹 按时间排序 从旧到新
+class Log {
+    //游玩的具体年份 eg：2018
+    prop year:string
+    //所有城市每天游玩的记录
+    prop cityLogs: oneDayLog[]
+}
+
 api IndexInfo {
     //是否为第一次进来的玩家
     output isFirst:Boolean
@@ -29,4 +48,11 @@ api IndexInfo {
     output friends:string[]
     //未读系统信息条数
     output unreadMsgCnt:number
+}
+
+
+
+api TravelLog {
+    //旅行日志
+    output allLogs:Log[]
 }
