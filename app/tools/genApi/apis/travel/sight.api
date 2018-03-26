@@ -1,4 +1,5 @@
 import ../base.api
+
 class Sight {
     prop cityId:number//城市id
     prop img:string//返回明信片的图片地址

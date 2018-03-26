@@ -44,6 +44,8 @@ class Clazz extends Structor {
     constructor(name) {
         super(name);
         this.isApi = false;
+        this.wss = false;
+        this.wsr = false;
         this.action = '';//isApi为true时有值
         this.parent = '';//父类名称,读取extends，当类型为api时，无extends则默认父类为Base
         this.propsC = [];//仅客户端使用的属性
@@ -51,20 +53,34 @@ class Clazz extends Structor {
         this.requires = [];//api需要的输入字段
         this.optionals = [];//api可选的输入字段
         this.outputs = [];//api输入字段
+        this.requireFileds = [];
         this.reqFields = [];
         this.resFields = [];
+        this.requireStr = '';
         this.reqFieldStr = '';
         this.resFieldStr = '';
         this.funcs = [];//类的固有函数
+
+        this.isProto = false;//是否是协议类
     }
 
     genFieldStr() {
+        this.requireFileds = mergeParentArr(this, 'requireFileds');
         this.reqFields = mergeParentArr(this, 'reqFields');
         this.resFields = mergeParentArr(this, 'resFields');
+        this.requireStr = JSON.stringify(this.requireFileds);
         this.reqFieldStr = JSON.stringify(this.reqFields);
         this.resFieldStr = JSON.stringify(this.resFields);
-        let flname = path.basename(curFl, '.api');
-        this.action = `${flname}.${parsing.name.toLowerCase()}`;
+
+        if (this.isApi) {
+            let flname = path.basename(curFl, '.api');
+            this.action = `${flname}.${parsing.name.toLowerCase()}`;
+        }
+        else if (this.wss || this.wsr) {
+            this.action = parsing.name.toLowerCase();
+        }
+
+        this.isProto = this.isApi || this.wss || this.wsr;
     }
 
 }
@@ -106,10 +122,12 @@ const SYNTAX = {
     CLASS: 'class',
     ENUM: 'enum',
     API: 'api',
+    WSS: 'wss', // 定义websocket客户端发送数据
+    WSR: 'wsr', // 定义websocket客户端接收数据
     PROP: 'prop',
     CONST: 'const',
     FUNC: 'func',
-    REQUIRED: 'required',
+    REQUIRE: 'require',
     OPTIONAL: 'optional',
     OUTPUT: 'output',
     EXTENDS: 'extends',
@@ -266,6 +284,24 @@ class ApiProcessor extends ClzProcessor {
     }
 }
 
+class WssProcessor extends ClzProcessor {
+
+    parse(tags) {
+        super.parse(tags);
+        parsing.wss = true;
+        parsing.parent = 'WsSend';
+    }
+}
+
+class WsrProcessor extends ClzProcessor {
+
+    parse(tags) {
+        super.parse(tags);
+        parsing.wsr = true;
+        parsing.parent = 'WsReceive';
+    }
+}
+
 class EnumProcessor extends Processor {
     parse(tags) {
         super.parse(tags);
@@ -327,13 +363,14 @@ class ConstProcessor extends Processor {
 class RequireProcessor extends Processor {
     parse(tags) {
         //RequireProcessor只处理api的字段，表示该字段是客户端必需传入的
-        if (parsing.isApi) {
+        if (parsing.isApi || parsing.wss) {
             let types = tags.pop().split(':');
             parsing.requires.push(new KV(types[0], types[1]));
             parsing.reqFields.push(types[0])
+            parsing.requireFileds.push(types[0])
         }
         else {
-            console.error('非api声明内，不可出现 require 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件`)
+            console.error('非api或wss声明内，不可出现 require 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件`)
             process.exit(1);
         }
 
@@ -344,13 +381,13 @@ class RequireProcessor extends Processor {
 class OptionalProcessor extends Processor {
     parse(tags) {
         //RequireProcessor只处理api的字段，表示该字段是客户端可选传入的
-        if (parsing.isApi) {
+        if (parsing.isApi || parsing.wss) {
             let types = tags.pop().split(':');
             parsing.optionals.push(new KV(types[0], types[1]));
             parsing.reqFields.push(types[0])
         }
         else {
-            console.error('非api声明内，不可出现 optional 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件`)
+            console.error('非api或wss声明内，不可出现 optional 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件`)
             process.exit(1);
         }
 
@@ -361,13 +398,13 @@ class OptionalProcessor extends Processor {
 class OutputProcessor extends Processor {
     parse(tags) {
         //OutputProcessor只处理api的字段，表示该字段是服务器返回的数据
-        if (parsing.isApi) {
+        if (parsing.isApi || parsing.wsr) {
             let types = tags.pop().split(':');
             parsing.outputs.push(new KV(types[0], types[1]));
             parsing.resFields.push(types[0])
         }
         else {
-            console.error('非api声明内，不可出现 output 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件中的${parsing.name}声明中的行${syntax.curLine}`)
+            console.error('非api或wsr声明内，不可出现 output 语法！！！', `请检查${curFl}文件及其通过import语法引用的文件中的${parsing.name}声明中的行${syntax.curLine}`)
             process.exit(1);
         }
 
@@ -462,9 +499,11 @@ syntax.reg(SYNTAX.IMPORT, new ImpProcessor());
 syntax.reg(SYNTAX.CLASS, new ClzProcessor());
 syntax.reg(SYNTAX.API, new ApiProcessor());
 syntax.reg(SYNTAX.ENUM, new EnumProcessor());
+syntax.reg(SYNTAX.WSS, new WssProcessor());
+syntax.reg(SYNTAX.WSR, new WsrProcessor());
 syntax.reg(SYNTAX.PROP, new PropProcessor());
 syntax.reg(SYNTAX.CONST, new ConstProcessor());
-syntax.reg(SYNTAX.REQUIRED, new RequireProcessor());
+syntax.reg(SYNTAX.REQUIRE, new RequireProcessor());
 syntax.reg(SYNTAX.OPTIONAL, new OptionalProcessor());
 syntax.reg(SYNTAX.OUTPUT, new OutputProcessor());
 syntax.reg(SYNTAX.FUNC, new FuncProcessor());

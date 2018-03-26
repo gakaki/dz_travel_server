@@ -1,8 +1,12 @@
 const Controller = require('egg').Controller;
+const api = require('../../../../apis/travel')
 
 //系统消息、组队通知、事件等
 class TravelIOController extends Controller {
-
+    async test(ctx) {
+        let testWs = api.TestSend.Init(ctx);
+        testWs.test
+    }
 }
 
 module.exports = TravelIOController;

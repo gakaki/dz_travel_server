@@ -153,7 +153,7 @@ class Base{
     prop server uid:string
     prop server _sid:string
     prop server ctx:Context
-    prop server requires:string[]
+    prop requireFileds:string[]
     prop client reqFields:string[]
     prop server resFields:string[]
 
@@ -211,7 +211,7 @@ class Base{
     func parse(data, serverSide = false) {
         Object.assign(this, data);
 
-        for (let f in this.requires) {
+        for (let f in this.requireFileds) {
             if (!this[f]) {
                 break;
                 if (serverSide)
@@ -335,10 +335,23 @@ class Base{
 
     }
 
-    func client static InitWs(wss) {
+
+}
+
+class WsSend extends Base{
+    //此类仅用于标记子类是websocket客户端数据协议---发送结构
+}
+class WsReceive extends Base{
+    //此类仅用于标记子类是websocket客户端数据协议---接收结构
+}
+
+
+class Ws {
+    func client static init(wss) {
         //初始化websocket
         this.WSS = wss = wss || `wss://h5.ddz2018.com/${this.APP_NAME}`;//websocket服务器链接
-        this.IO = require('./libs/io.js')(wss + `?_sid=${this.SID}&appName=${this.APP_NAME}`);
+        this.IO = this.IO || require('./libs/io.js')(wss + `?_sid=${this.SID}&appName=${this.APP_NAME}`);
+        this._listenings = this._listenings || new Map();
 
         return new Promise(resolve => {
             this.IO.on('connect', () => {
@@ -360,17 +373,38 @@ class Base{
         });
     }
 
-    func client static WsReceive(action,suc) {
-        this.IO.on(action, res => {suc(res)});
+    func client static receive(wsReceiveCls, cb, ctx) {
+        let action = wsReceiveCls.name.toLowerCase();
+        if (!this._listenings.has(action)) {
+            this._listenings.set(action, new wsReceiveCls);
+        }
+
+        let listener = this._listenings.get(action);
+        listener.cbx = {cb, ctx};
+
+        this.IO.on(action, this._onReceive);
     }
 
-    func client static WsSend(action, data) {
-        this.IO.emit(action, data);
+    func client static _onReceive(res) {
+        let action = res.action;
+        if (!this._listenings.has(action))
+            return;
+        let listener = this._listenings.get(action);
+
+        listener.parse(res);
+
+        let cbx = listener.cbx;
+        cbx.ctx ? cbx.cb.call(cbx.ctx, listener) : cbx.cb(listener);
+
     }
 
-    func client static WsClose(...actions) {
-        actions.forEach( a=> {
-            this.IO.removeAllListeners(a);
-        });
+    func client static send(wsSend) {
+        this.IO.emit(wsSend.action, wsSend.reqData);
     }
+
+    func client static close() {
+        this.IO.close();
+        wx.closeWebsocket();
+    }
+
 }

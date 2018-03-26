@@ -45,9 +45,6 @@ class UserInfo extends UserBriefInfo{
     prop rentItems:KV[]
     //好友uid
     prop friends:string[]
-<<<<<<< HEAD
-
-=======
     //其他一些个人信息
     prop otherUserInfo:otherUserInfo
 
@@ -65,7 +62,6 @@ class RealInfo {
     prop phoneNumber:number
     //用户地址
     prop adress:string
->>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 }
 
 //拉取一个玩家的简要信息（自己或他人）

@@ -10,9 +10,9 @@ class {.name}{
 {#classes}
 class {.name} {?.parent}extends {.parent}{/.parent} {
     constructor(){~lb}
-    {?.parent}    super();{/.parent}{^server}{?.isApi}
-        this.action = '{.action}';{/.isApi}
-    {/server}{?server}{#.propsS}
+    {?.parent}    super();{/.parent}{?.isProto}
+        this.action = '{.action}';{/.isProto}
+    {?server}{#.propsS}
         //prop type: {.v|s}
         this.{.k|s} = null;
     {/.propsS}{:else}{#.propsC}
@@ -22,9 +22,9 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
         this._{.k|s} = null;{/.requires}{#.optionals}
         this._{.k|s} = null;{/.optionals}{#.outputs}
         this._{.k|s} = null;{/.outputs}
-        {?isApi}{?.requires}this.requires = {.requires|s};{/.requires}{/isApi}
-        {?isApi}{?.reqFieldStr}this.reqFields = {.reqFieldStr|s};{/.reqFieldStr}{/isApi}
-        {?isApi}{?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}{/isApi}
+        {?isProto}{?.requireStr}this.requireFileds = {.requireStr|s};{/.requireStr}{/isProto}
+        {?isProto}{?.reqFieldStr}this.reqFields = {.reqFieldStr|s};{/.reqFieldStr}{/isProto}
+        {?isProto}{?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}{/isProto}
     {~rb}{#.requires}
     //client input, require, type: {.v|s}{!客户端输入，必填字段!}
     get {.k|s}() {~lb}return this._{.k|s}{~rb}
@@ -42,13 +42,13 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
 {#.funcs}
 {?server}{^.isClient}{.contentStr|s}{/.isClient}{:else}{^.isServer}{.contentStr|s}{/.isServer}{/server}
 {/.funcs}
-{?server}{?isApi}
+{?server}{?isProto}
     static Init(ctx) {~lb}
         let o = new {.name}();
         o.ctx = ctx;
         o.parse(ctx.query，true);
         return o;
-    {~rb}{/isApi}
+    {~rb}{/isProto}
 {/server}
 }
 {/classes}

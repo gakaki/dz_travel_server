@@ -58,3 +58,14 @@ api TravelLog {
     //旅行日志
     output allLogs:Log[]
 }
+
+wss TestSend {
+    require test:string//测试字段
+}
+
+wsr SysMessage {
+    output mid:number//消息Id
+    output type:number//消息类型
+    output title:string//消息标题
+    output content:string//消息内容
+}
