@@ -11,7 +11,17 @@ class Provence {
     prop citys: City[]  //该省下去过的城市及完成度
 }
 
+//随机机票中的城市(需要除去用户已经去过的城市)
+class RandomCity {
+    prop city:string
+}
+
 //拉取城市完成度列表
 api CityList {
     output data:Provence[]
+}
+
+//拉取随机机票的城市列表(需要除去用户已经去过的城市)
+api RandomCityList {
+    output city:RandomCity[]
 }

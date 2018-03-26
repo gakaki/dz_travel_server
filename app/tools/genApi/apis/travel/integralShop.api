@@ -21,9 +21,9 @@ api IntegralShop {
 //兑换商品
 api exchangeShop {
     //兑换的商品id
-    input id:string
+    require id:string
     //兑换该商品需要的积分
-    input integral:string
+    require integral:string
 }
 
 //获取玩家地址
@@ -33,6 +33,6 @@ api getUserLocation {
     //玩家电话
     output tel:string
     //玩家地址
-    output location:string
+    output address:string
 
 }
