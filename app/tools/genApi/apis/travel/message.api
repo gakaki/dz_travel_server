@@ -1,6 +1,18 @@
 //系统消息.定义websocket协议
 
+//消息类型
+enum MessageType {
+    const POSTCARD = 1
+    const SYSTEM = 2
+    const STRATEGY = 3
+    const RANKREWARD = 4
+}
+
 class MessageItem {
+    //消息id
+    prop mid:number
+    //消息类型
+    prop type:MessageType
     //消息标题
     prop title:string
     //消息日期
@@ -11,11 +23,12 @@ class MessageItem {
 
 //客户端发给服务器的
 wss GetMessage {
-
+    //消息类型(可选，不传则接收所有类型消息)
+    optional messageType:MessageType
 }
 
 //服务器发给客户端的
 wsr MessageInfo {
-    //返回消息列表
+    //返回消息列表,最多返回最新的20条。
     output messages:MessageItem[]
 }

@@ -193,6 +193,17 @@ class PostType{
     static get TECHAN() { return 2;}
     
 }
+class MessageType{
+    
+    static get POSTCARD() { return 1;}
+    
+    static get SYSTEM() { return 2;}
+    
+    static get STRATEGY() { return 3;}
+    
+    static get RANKREWARD() { return 4;}
+    
+}
 //------------classes--------------
 class Rent  {
     constructor(){
@@ -632,6 +643,12 @@ class Comment  {
 class MessageItem  {
     constructor(){
     
+    
+        //prop type: number
+        this.mid = null;
+    
+        //prop type: MessageType
+        this.type = null;
     
         //prop type: string
         this.title = null;
@@ -1331,10 +1348,14 @@ class GetMessage extends WsSend {
         super();
         this.action = 'getmessage';
     
+        this._messageType = null;
         this.requireFileds = [];
-        this.reqFields = [];
+        this.reqFields = ["messageType"];
         this.resFields = [];
     }
+    //client input, optional, type: MessageType
+    get messageType() {return this._messageType}
+    set messageType(v) {this._messageType = v}
     static Init(ctx) {
         let o = new GetMessage();
         o.ctx = ctx;
@@ -1421,6 +1442,7 @@ exports.Code = Code;
 exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
+exports.MessageType = MessageType;
 exports.Rent = Rent;
 exports.oneDayLog = oneDayLog;
 exports.City = City;
