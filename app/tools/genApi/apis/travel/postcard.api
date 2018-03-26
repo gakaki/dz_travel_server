@@ -1,5 +1,5 @@
 import ../base.api
-
+import ./player.api
 
 //一个省的明信片简略信息
 class ProvincePostcardInfo {
@@ -44,25 +44,21 @@ class OneBriefMessage {
     prop id:number
     //发送或接受到明信片留言的时间戳
     prop time:string
-    //发送该留言人的昵称
-    prop nickname:string
+    //发送该留言的玩家的个人信息
+    prop friend: UserBriefInfo
     //留言明信片内容
     prop content:string
 }
 
 //一条留言的具体信息
-class DetailLiveMessage extends  OneBriefMessage{
-    //和其通信的玩家的uid
-    prop friendUid:string
-    //该玩家的头像图片地址
-    prop avatarUrl:string
+class DetailLiveMessage extends  OneBriefMessage {
     //是否有下一条留言
     prop hasNext:boolean
     //是否有上一条留言
     prop hasUp:boolean
 }
 
-//我的明信片
+//我的省份明信片
 api MyPostcards {
     //所有的省明信片简略信息
     output  postcardInfo:ProvincePostcardInfo[]
