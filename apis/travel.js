@@ -286,20 +286,6 @@ class RealInfo  {
         
     }
 }
-class Sight  {
-    constructor(){
-    
-        //prop type: number//城市id
-        this.cityId = null;
-    
-        //prop type: string//返回明信片的图片地址
-        this.img = null;
-    
-        
-        
-        
-    }
-}
 class Base  {
     constructor(){
     
@@ -345,6 +331,20 @@ class Base  {
                 }
             }
         }
+    }
+}
+class Sight  {
+    constructor(){
+    
+        //prop type: number//城市id
+        this.cityId = null;
+    
+        //prop type: string//返回明信片的图片地址
+        this.img = null;
+    
+        
+        
+        
     }
 }
 class RankItem  {
@@ -668,24 +668,6 @@ class CityList extends Base {
         return o;
     }
 }
-class Photograph extends Base {
-    constructor(){
-        super();
-        this._img = null;
-        
-        this.reqFields = [];
-        this.resFields = ["img"];
-    }
-    //server output, type: string
-    get img() {return this._img}
-    set img(v) {this._img = v}
-    static Init(ctx) {
-        let o = new Photograph();
-        o.ctx = ctx;
-        o.parse(ctx.query，true);
-        return o;
-    }
-}
 class IndexInfo extends Base {
     constructor(){
         super();
@@ -719,6 +701,24 @@ class IndexInfo extends Base {
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
     static Init(ctx) {
         let o = new IndexInfo();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class Photograph extends Base {
+    constructor(){
+        super();
+        this._img = null;
+        
+        this.reqFields = [];
+        this.resFields = ["img"];
+    }
+    //server output, type: string
+    get img() {return this._img}
+    set img(v) {this._img = v}
+    static Init(ctx) {
+        let o = new Photograph();
         o.ctx = ctx;
         o.parse(ctx.query，true);
         return o;
@@ -786,21 +786,13 @@ class TravelLog extends Base {
 class RankInfo extends Base {
     constructor(){
         super();
-        this._rankType = null;
-        this._rankSubtype = null;
         this._limit = null;
         this._selfRank = null;
         this._ranks = null;
-        this.requires = [object Object],[object Object];
-        this.reqFields = ["rankType","rankSubtype","limit"];
+        
+        this.reqFields = ["limit"];
         this.resFields = ["selfRank","ranks"];
     }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, require, type: RankSubtype
-    get rankSubtype() {return this._rankSubtype}
-    set rankSubtype(v) {this._rankSubtype = v}
     //client input, optional, type: number
     get limit() {return this._limit}
     set limit(v) {this._limit = v}
@@ -1080,27 +1072,11 @@ class getUserLocation extends Base {
 class ModifyRealInfo extends Base {
     constructor(){
         super();
-        this._name = null;
-        this._birthday = null;
-        this._phone = null;
-        this._adress = null;
         this._realInfo = null;
-        this.requires = [object Object],[object Object],[object Object],[object Object];
-        this.reqFields = ["name","birthday","phone","adress"];
+        
+        this.reqFields = [];
         this.resFields = ["realInfo"];
     }
-    //client input, require, type: string
-    get name() {return this._name}
-    set name(v) {this._name = v}
-    //client input, require, type: string
-    get birthday() {return this._birthday}
-    set birthday(v) {this._birthday = v}
-    //client input, require, type: string
-    get phone() {return this._phone}
-    set phone(v) {this._phone = v}
-    //client input, require, type: string
-    get adress() {return this._adress}
-    set adress(v) {this._adress = v}
     //server output, type: RealInfo
     get realInfo() {return this._realInfo}
     set realInfo(v) {this._realInfo = v}
@@ -1134,7 +1110,7 @@ class RechargeRankInfo extends RankInfo {
         super();
         this._myRecharge = null;
         
-        this.reqFields = ["rankType","rankSubtype","limit"];
+        this.reqFields = ["limit"];
         this.resFields = ["myRecharge","selfRank","ranks"];
     }
     //server output, type: number
@@ -1158,8 +1134,8 @@ exports.Specialty = Specialty;
 exports.oneDayLog = oneDayLog;
 exports.otherUserInfo = otherUserInfo;
 exports.RealInfo = RealInfo;
-exports.Sight = Sight;
 exports.Base = Base;
+exports.Sight = Sight;
 exports.RankItem = RankItem;
 exports.SelfRank = SelfRank;
 exports.Provence = Provence;
@@ -1178,8 +1154,8 @@ exports.City = City;
 exports.SpeList = SpeList;
 exports.BuySpe = BuySpe;
 exports.CityList = CityList;
-exports.Photograph = Photograph;
 exports.IndexInfo = IndexInfo;
+exports.Photograph = Photograph;
 exports.UserInfo = UserInfo;
 exports.TravelLog = TravelLog;
 exports.RankInfo = RankInfo;

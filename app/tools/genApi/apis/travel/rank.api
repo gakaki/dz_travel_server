@@ -32,9 +32,9 @@ class SelfRank {
 //API基本示例-请求榜单
 api RankInfo{
     //榜单类型
-    required rankType:RankType
+    require rankType:RankType
     //榜单子类型
-    required rankSubtype:RankSubtype
+    require rankSubtype:RankSubtype
     //数据条数（可选）
     optional limit:number
 

@@ -1,5 +1,5 @@
 //跟个人信息相关的
-
+import ../base.api
 class UserBriefInfo {
     //第三方登陆，则返回UID
     prop uid:string
@@ -83,13 +83,13 @@ api GetRealInfo{
 //修改用户收货信息（只能修改自己的收货信息）
 api ModifyRealInfo{
     //用户名字
-    required name:string
+    require name:string
     //用户生日
-    required birthday:string
+    require birthday:string
     //用户手机号
-    required phone:string
+    require phone:string
     //用户地址
-    required adress:string
+    require adress:string
 
     //玩家收货信息
     output realInfo:RealInfo
