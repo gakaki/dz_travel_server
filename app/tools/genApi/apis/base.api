@@ -342,7 +342,16 @@ class WsSend extends Base{
     //此类仅用于标记子类是websocket客户端数据协议---发送结构
 }
 class WsReceive extends Base{
-    //此类仅用于标记子类是websocket客户端数据协议---接收结构
+    //此类用于标记子类是websocket客户端数据协议---接收结构
+    func server submit() {
+        let tmp = {};
+        tmp.action = this.action;
+        this.resFields.forEach(k => {
+            tmp[k] = this[k]
+        });
+
+        this.ctx.io.emit(this.action, tmp);
+    }
 }
 
 
@@ -373,7 +382,7 @@ class Ws {
         });
     }
 
-    func client static receive(wsReceiveCls, cb, ctx) {
+    func client static listen(wsReceiveCls, cb, ctx) {
         let action = wsReceiveCls.name.toLowerCase();
         if (!this._listenings.has(action)) {
             this._listenings.set(action, new wsReceiveCls);
@@ -385,6 +394,14 @@ class Ws {
         this.IO.on(action, this._onReceive);
     }
 
+    func client static unlisten(wsReceiveCls, cb, ctx) {
+        let action = wsReceiveCls.name.toLowerCase();
+        if (this._listenings.has(action)) {
+            let listener = this._listenings.get(action);
+            listener.cbx = null;
+        }
+    }
+
     func client static _onReceive(res) {
         let action = res.action;
         if (!this._listenings.has(action))
@@ -394,7 +411,7 @@ class Ws {
         listener.parse(res);
 
         let cbx = listener.cbx;
-        cbx.ctx ? cbx.cb.call(cbx.ctx, listener) : cbx.cb(listener);
+        cbx && cbx.ctx ? cbx.cb.call(cbx.ctx, listener) : cbx.cb(listener);
 
     }
 
