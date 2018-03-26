@@ -15,6 +15,8 @@ class TravelIOController extends Controller {
         res.mid = 1;
         res.title = 'haha';
         res.content = 'test system message';
+        //if failed ,set code
+        // res.code = api.Code.FAILED;
         res.submit();
     }
 }
