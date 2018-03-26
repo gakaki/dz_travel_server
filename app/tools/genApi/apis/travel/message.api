@@ -1,22 +1,21 @@
 //系统消息.定义websocket协议
-// import ../base.api
-//
-// class MessageItem {
-//     //消息标题
-//     prop title:string
-//     //消息日期
-//     prop time:string
-//     //消息内容
-//     prop content:string
-// }
-//
-// //客户端发给服务器的
-// ws GetMessage extends WsSend {
-//
-// }
-//
-// //服务器发给客户端的
-// ws MessageInfo extends WsReceive {
-//     //返回消息列表
-//     output messages:MessageItem[]
-// }
+
+class MessageItem {
+    //消息标题
+    prop title:string
+    //消息日期
+    prop time:string
+    //消息内容
+    prop content:string
+}
+
+//客户端发给服务器的
+wss GetMessage {
+
+}
+
+//服务器发给客户端的
+wsr MessageInfo {
+    //返回消息列表
+    output messages:MessageItem[]
+}
