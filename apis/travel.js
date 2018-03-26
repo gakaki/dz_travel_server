@@ -657,7 +657,7 @@ class MessageItem  {
         this.title = null;
     
         //prop type: string
-        this.time = null;
+        this.date = null;
     
         //prop type: string
         this.content = null;
@@ -699,7 +699,7 @@ class GetRealInfo extends Base {
         let o = new GetRealInfo();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -724,7 +724,7 @@ class RentProp extends Base {
         let o = new RentProp();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -761,7 +761,7 @@ class ModifyRealInfo extends Base {
         let o = new ModifyRealInfo();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -786,7 +786,7 @@ class SpeList extends Base {
         let o = new SpeList();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -807,7 +807,7 @@ class TravelLog extends Base {
         let o = new TravelLog();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -836,7 +836,7 @@ class SellSpe extends Base {
         let o = new SellSpe();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -883,7 +883,7 @@ class CityList extends Base {
         let o = new CityList();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -950,7 +950,7 @@ class Photograph extends Base {
         let o = new Photograph();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -971,7 +971,7 @@ class MyPostcards extends Base {
         let o = new MyPostcards();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -992,7 +992,7 @@ class CityPostcards extends Base {
         let o = new CityPostcards();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1017,7 +1017,7 @@ class DetailPostcard extends Base {
         let o = new DetailPostcard();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1034,7 +1034,7 @@ class sendPostcard extends Base {
         let o = new sendPostcard();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1075,7 +1075,7 @@ class IndexInfo extends Base {
         let o = new IndexInfo();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1100,7 +1100,7 @@ class PlayerInfo extends Base {
         let o = new PlayerInfo();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1133,7 +1133,7 @@ class PostList extends Base {
         let o = new PostList();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1158,7 +1158,7 @@ class CommentPost extends Base {
         let o = new CommentPost();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1191,7 +1191,7 @@ class PostComments extends Base {
         let o = new PostComments();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1212,7 +1212,7 @@ class ThumbComment extends Base {
         let o = new ThumbComment();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1249,7 +1249,32 @@ class RankInfo extends Base {
         let o = new RankInfo();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class GetMessage extends Base {
+    constructor(){
+        super();
+        this.action = 'message.getmessage';
+    
+        this._messageType = null;
+        this._messages = null;
+        this.requireFileds = [];
+        this.reqFields = ["messageType"];
+        this.resFields = ["messages"];
+    }
+    //client input, optional, type: MessageType
+    get messageType() {return this._messageType}
+    set messageType(v) {this._messageType = v}
+    //server output, type: MessageItem[]
+    get messages() {return this._messages}
+    set messages(v) {this._messages = v}
+    static Init(ctx) {
+        let o = new GetMessage();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1266,7 +1291,7 @@ class exchangeShop extends Base {
         let o = new exchangeShop();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1295,7 +1320,7 @@ class IntegralShop extends Base {
         let o = new IntegralShop();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1324,7 +1349,7 @@ class getUserLocation extends Base {
         let o = new getUserLocation();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1353,49 +1378,45 @@ class BuySpe extends Base {
         let o = new BuySpe();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
-class MessageInfo extends WsReceive {
+class MessageNum extends WsReceive {
     constructor(){
         super();
-        this.action = 'messageinfo';
+        this.action = 'messagenum';
     
-        this._messages = null;
+        this._number = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["messages"];
+        this.resFields = ["number"];
     }
-    //server output, type: MessageItem[]
-    get messages() {return this._messages}
-    set messages(v) {this._messages = v}
+    //server output, type: number
+    get number() {return this._number}
+    set number(v) {this._number = v}
     static Init(ctx) {
-        let o = new MessageInfo();
+        let o = new MessageNum();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
-class GetMessage extends WsSend {
+class HasMessage extends WsSend {
     constructor(){
         super();
-        this.action = 'getmessage';
+        this.action = 'hasmessage';
     
-        this._messageType = null;
         this.requireFileds = [];
-        this.reqFields = ["messageType"];
+        this.reqFields = [];
         this.resFields = [];
     }
-    //client input, optional, type: MessageType
-    get messageType() {return this._messageType}
-    set messageType(v) {this._messageType = v}
     static Init(ctx) {
-        let o = new GetMessage();
+        let o = new HasMessage();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1416,7 +1437,7 @@ class RechargeRankInfo extends RankInfo {
         let o = new RechargeRankInfo();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1449,7 +1470,7 @@ class SysMessage extends WsReceive {
         let o = new SysMessage();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1470,7 +1491,7 @@ class TestSend extends WsSend {
         let o = new TestSend();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     }
 }
@@ -1527,12 +1548,13 @@ exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
 exports.RankInfo = RankInfo;
+exports.GetMessage = GetMessage;
 exports.exchangeShop = exchangeShop;
 exports.IntegralShop = IntegralShop;
 exports.getUserLocation = getUserLocation;
 exports.BuySpe = BuySpe;
-exports.MessageInfo = MessageInfo;
-exports.GetMessage = GetMessage;
+exports.MessageNum = MessageNum;
+exports.HasMessage = HasMessage;
 exports.RechargeRankInfo = RechargeRankInfo;
 exports.SysMessage = SysMessage;
 exports.TestSend = TestSend;
