@@ -57,7 +57,7 @@ class RealInfo {
     //用户生日
     prop birthday:string
     //用户手机号
-    prop phoneNumber:number
+    prop phoneNumber:string
     //用户地址
     prop adress:string
 }
@@ -73,8 +73,22 @@ api PlayerInfo {
 
 }
 
+//拉取用户收货信息
+api GetRealInfo{
+    output realInfo:RealInfo
+}
+
 //修改用户收货信息（只能修改自己的收货信息）
-api ModifRealInfo{
+api ModifyRealInfo{
+    //用户名字
+    required name:string
+    //用户生日
+    required birthday:string
+    //用户手机号
+    required phone:string
+    //用户地址
+    required adress:string
+
     //玩家收货信息
     output realInfo:RealInfo
 }

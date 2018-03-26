@@ -34,7 +34,7 @@ api RankInfo{
     //榜单类型
     required rankType:RankType
     //榜单子类型
-    require rankSubtype:RankSubtype
+    required rankSubtype:RankSubtype
     //数据条数（可选）
     optional limit:number
 
