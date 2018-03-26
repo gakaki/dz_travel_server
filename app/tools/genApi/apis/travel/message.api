@@ -21,7 +21,7 @@ class MessageItem {
     prop content:string
 }
 
-//客户端发给服务器的
+//客户端发给服务器的,获取消息列表
 wss GetMessage {
     //消息类型(可选，不传则接收所有类型消息)
     optional messageType:MessageType
@@ -31,4 +31,16 @@ wss GetMessage {
 wsr MessageInfo {
     //返回消息列表,最多返回最新的20条。
     output messages:MessageItem[]
+}
+
+//----------------------------------------------
+
+//是否有消息
+wss HasMessage {
+
+}
+
+wsr MessageNum {
+    //返回消息条数
+    output number:number
 }

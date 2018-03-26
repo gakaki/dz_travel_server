@@ -783,6 +783,34 @@ class SpeList extends Base {
         return o;
     }
 }
+class BuySpe extends Base {
+    constructor(){
+        super();
+        this.action = 'prop.buyspe';
+    
+        this._propId = null;
+        this._count = null;
+        this._items = null;
+        this.requireFileds = ["propId","count"];
+        this.reqFields = ["propId","count"];
+        this.resFields = ["items"];
+    }
+    //client input, require, type: number//特产id
+    get propId() {return this._propId}
+    set propId(v) {this._propId = v}
+    //client input, require, type: number//购买数量
+    get count() {return this._count}
+    set count(v) {this._count = v}
+    //server output, type: UserInfo.items
+    get items() {return this._items}
+    set items(v) {this._items = v}
+    static Init(ctx) {
+        let o = new BuySpe();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
 class TravelLog extends Base {
     constructor(){
         super();
@@ -798,34 +826,6 @@ class TravelLog extends Base {
     set allLogs(v) {this._allLogs = v}
     static Init(ctx) {
         let o = new TravelLog();
-        o.ctx = ctx;
-        o.parse(ctx.query，true);
-        return o;
-    }
-}
-class SellSpe extends Base {
-    constructor(){
-        super();
-        this.action = 'prop.sellspe';
-    
-        this._propId = null;
-        this._count = null;
-        this._specialtys = null;
-        this.requireFileds = ["propId","count"];
-        this.reqFields = ["propId","count"];
-        this.resFields = ["specialtys"];
-    }
-    //client input, require, type: number//特产id
-    get propId() {return this._propId}
-    set propId(v) {this._propId = v}
-    //client input, require, type: number//售卖数量
-    get count() {return this._count}
-    set count(v) {this._count = v}
-    //server output, type: Specialty[]//金币增加数
-    get specialtys() {return this._specialtys}
-    set specialtys(v) {this._specialtys = v}
-    static Init(ctx) {
-        let o = new SellSpe();
         o.ctx = ctx;
         o.parse(ctx.query，true);
         return o;
@@ -847,6 +847,14 @@ class WsReceive extends Base {
         
         
         
+    }
+   submit() {
+        let tmp ={};
+        tmp.action=this.action;
+        this.resFields.forEach(k => {
+            tmp[k]=this[k]
+        });
+        this.ctx.io.emit(this.action, tmp);
     }
 }
 class CityList extends Base {
@@ -1295,29 +1303,65 @@ class getUserLocation extends Base {
         return o;
     }
 }
-class BuySpe extends Base {
+class SellSpe extends Base {
     constructor(){
         super();
-        this.action = 'prop.buyspe';
+        this.action = 'prop.sellspe';
     
         this._propId = null;
         this._count = null;
-        this._items = null;
+        this._specialtys = null;
         this.requireFileds = ["propId","count"];
         this.reqFields = ["propId","count"];
-        this.resFields = ["items"];
+        this.resFields = ["specialtys"];
     }
     //client input, require, type: number//特产id
     get propId() {return this._propId}
     set propId(v) {this._propId = v}
-    //client input, require, type: number//购买数量
+    //client input, require, type: number//售卖数量
     get count() {return this._count}
     set count(v) {this._count = v}
-    //server output, type: UserInfo.items
-    get items() {return this._items}
-    set items(v) {this._items = v}
+    //server output, type: Specialty[]//金币增加数
+    get specialtys() {return this._specialtys}
+    set specialtys(v) {this._specialtys = v}
     static Init(ctx) {
-        let o = new BuySpe();
+        let o = new SellSpe();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class MessageNum extends WsReceive {
+    constructor(){
+        super();
+        this.action = 'messagenum';
+    
+        this._number = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["number"];
+    }
+    //server output, type: number
+    get number() {return this._number}
+    set number(v) {this._number = v}
+    static Init(ctx) {
+        let o = new MessageNum();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class HasMessage extends WsSend {
+    constructor(){
+        super();
+        this.action = 'hasmessage';
+    
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = [];
+    }
+    static Init(ctx) {
+        let o = new HasMessage();
         o.ctx = ctx;
         o.parse(ctx.query，true);
         return o;
@@ -1470,8 +1514,8 @@ exports.GetRealInfo = GetRealInfo;
 exports.RentProp = RentProp;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.SpeList = SpeList;
+exports.BuySpe = BuySpe;
 exports.TravelLog = TravelLog;
-exports.SellSpe = SellSpe;
 exports.WsSend = WsSend;
 exports.WsReceive = WsReceive;
 exports.CityList = CityList;
@@ -1491,7 +1535,9 @@ exports.RankInfo = RankInfo;
 exports.exchangeShop = exchangeShop;
 exports.IntegralShop = IntegralShop;
 exports.getUserLocation = getUserLocation;
-exports.BuySpe = BuySpe;
+exports.SellSpe = SellSpe;
+exports.MessageNum = MessageNum;
+exports.HasMessage = HasMessage;
 exports.MessageInfo = MessageInfo;
 exports.GetMessage = GetMessage;
 exports.RechargeRankInfo = RechargeRankInfo;
