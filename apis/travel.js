@@ -329,6 +329,9 @@ class Base  {
         //prop type: string
         this.action = null;
     
+        //prop type: number//服务器返回的状态码
+        this.code = null;
+    
         //prop type: string
         this.uid = null;
     
@@ -654,7 +657,7 @@ class MessageItem  {
         this.title = null;
     
         //prop type: string
-        this.time = null;
+        this.date = null;
     
         //prop type: string
         this.content = null;
@@ -695,6 +698,7 @@ class GetRealInfo extends Base {
     static Init(ctx) {
         let o = new GetRealInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -719,6 +723,7 @@ class RentProp extends Base {
     static Init(ctx) {
         let o = new RentProp();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -755,6 +760,7 @@ class ModifyRealInfo extends Base {
     static Init(ctx) {
         let o = new ModifyRealInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -779,34 +785,7 @@ class SpeList extends Base {
     static Init(ctx) {
         let o = new SpeList();
         o.ctx = ctx;
-        o.parse(ctx.query，true);
-        return o;
-    }
-}
-class BuySpe extends Base {
-    constructor(){
-        super();
-        this.action = 'prop.buyspe';
-    
-        this._propId = null;
-        this._count = null;
-        this._items = null;
-        this.requireFileds = ["propId","count"];
-        this.reqFields = ["propId","count"];
-        this.resFields = ["items"];
-    }
-    //client input, require, type: number//特产id
-    get propId() {return this._propId}
-    set propId(v) {this._propId = v}
-    //client input, require, type: number//购买数量
-    get count() {return this._count}
-    set count(v) {this._count = v}
-    //server output, type: UserInfo.items
-    get items() {return this._items}
-    set items(v) {this._items = v}
-    static Init(ctx) {
-        let o = new BuySpe();
-        o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -827,6 +806,36 @@ class TravelLog extends Base {
     static Init(ctx) {
         let o = new TravelLog();
         o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class SellSpe extends Base {
+    constructor(){
+        super();
+        this.action = 'prop.sellspe';
+    
+        this._propId = null;
+        this._count = null;
+        this._specialtys = null;
+        this.requireFileds = ["propId","count"];
+        this.reqFields = ["propId","count"];
+        this.resFields = ["specialtys"];
+    }
+    //client input, require, type: number//特产id
+    get propId() {return this._propId}
+    set propId(v) {this._propId = v}
+    //client input, require, type: number//售卖数量
+    get count() {return this._count}
+    set count(v) {this._count = v}
+    //server output, type: Specialty[]//金币增加数
+    get specialtys() {return this._specialtys}
+    set specialtys(v) {this._specialtys = v}
+    static Init(ctx) {
+        let o = new SellSpe();
+        o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -873,6 +882,7 @@ class CityList extends Base {
     static Init(ctx) {
         let o = new CityList();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -939,6 +949,7 @@ class Photograph extends Base {
     static Init(ctx) {
         let o = new Photograph();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -959,6 +970,7 @@ class MyPostcards extends Base {
     static Init(ctx) {
         let o = new MyPostcards();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -979,6 +991,7 @@ class CityPostcards extends Base {
     static Init(ctx) {
         let o = new CityPostcards();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1003,6 +1016,7 @@ class DetailPostcard extends Base {
     static Init(ctx) {
         let o = new DetailPostcard();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1019,6 +1033,7 @@ class sendPostcard extends Base {
     static Init(ctx) {
         let o = new sendPostcard();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1059,6 +1074,7 @@ class IndexInfo extends Base {
     static Init(ctx) {
         let o = new IndexInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1083,6 +1099,7 @@ class PlayerInfo extends Base {
     static Init(ctx) {
         let o = new PlayerInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1115,6 +1132,7 @@ class PostList extends Base {
     static Init(ctx) {
         let o = new PostList();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1139,6 +1157,7 @@ class CommentPost extends Base {
     static Init(ctx) {
         let o = new CommentPost();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1171,6 +1190,7 @@ class PostComments extends Base {
     static Init(ctx) {
         let o = new PostComments();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1191,6 +1211,7 @@ class ThumbComment extends Base {
     static Init(ctx) {
         let o = new ThumbComment();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1227,6 +1248,32 @@ class RankInfo extends Base {
     static Init(ctx) {
         let o = new RankInfo();
         o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class GetMessage extends Base {
+    constructor(){
+        super();
+        this.action = 'message.getmessage';
+    
+        this._messageType = null;
+        this._messages = null;
+        this.requireFileds = [];
+        this.reqFields = ["messageType"];
+        this.resFields = ["messages"];
+    }
+    //client input, optional, type: MessageType
+    get messageType() {return this._messageType}
+    set messageType(v) {this._messageType = v}
+    //server output, type: MessageItem[]
+    get messages() {return this._messages}
+    set messages(v) {this._messages = v}
+    static Init(ctx) {
+        let o = new GetMessage();
+        o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1243,6 +1290,7 @@ class exchangeShop extends Base {
     static Init(ctx) {
         let o = new exchangeShop();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1271,6 +1319,7 @@ class IntegralShop extends Base {
     static Init(ctx) {
         let o = new IntegralShop();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1299,34 +1348,36 @@ class getUserLocation extends Base {
     static Init(ctx) {
         let o = new getUserLocation();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
 }
-class SellSpe extends Base {
+class BuySpe extends Base {
     constructor(){
         super();
-        this.action = 'prop.sellspe';
+        this.action = 'prop.buyspe';
     
         this._propId = null;
         this._count = null;
-        this._specialtys = null;
+        this._items = null;
         this.requireFileds = ["propId","count"];
         this.reqFields = ["propId","count"];
-        this.resFields = ["specialtys"];
+        this.resFields = ["items"];
     }
     //client input, require, type: number//特产id
     get propId() {return this._propId}
     set propId(v) {this._propId = v}
-    //client input, require, type: number//售卖数量
+    //client input, require, type: number//购买数量
     get count() {return this._count}
     set count(v) {this._count = v}
-    //server output, type: Specialty[]//金币增加数
-    get specialtys() {return this._specialtys}
-    set specialtys(v) {this._specialtys = v}
+    //server output, type: UserInfo.items
+    get items() {return this._items}
+    set items(v) {this._items = v}
     static Init(ctx) {
-        let o = new SellSpe();
+        let o = new BuySpe();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1347,6 +1398,7 @@ class MessageNum extends WsReceive {
     static Init(ctx) {
         let o = new MessageNum();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1363,46 +1415,7 @@ class HasMessage extends WsSend {
     static Init(ctx) {
         let o = new HasMessage();
         o.ctx = ctx;
-        o.parse(ctx.query，true);
-        return o;
-    }
-}
-class MessageInfo extends WsReceive {
-    constructor(){
-        super();
-        this.action = 'messageinfo';
-    
-        this._messages = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["messages"];
-    }
-    //server output, type: MessageItem[]
-    get messages() {return this._messages}
-    set messages(v) {this._messages = v}
-    static Init(ctx) {
-        let o = new MessageInfo();
-        o.ctx = ctx;
-        o.parse(ctx.query，true);
-        return o;
-    }
-}
-class GetMessage extends WsSend {
-    constructor(){
-        super();
-        this.action = 'getmessage';
-    
-        this._messageType = null;
-        this.requireFileds = [];
-        this.reqFields = ["messageType"];
-        this.resFields = [];
-    }
-    //client input, optional, type: MessageType
-    get messageType() {return this._messageType}
-    set messageType(v) {this._messageType = v}
-    static Init(ctx) {
-        let o = new GetMessage();
-        o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1423,6 +1436,7 @@ class RechargeRankInfo extends RankInfo {
     static Init(ctx) {
         let o = new RechargeRankInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1455,6 +1469,7 @@ class SysMessage extends WsReceive {
     static Init(ctx) {
         let o = new SysMessage();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1475,6 +1490,7 @@ class TestSend extends WsSend {
     static Init(ctx) {
         let o = new TestSend();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1514,8 +1530,8 @@ exports.GetRealInfo = GetRealInfo;
 exports.RentProp = RentProp;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.SpeList = SpeList;
-exports.BuySpe = BuySpe;
 exports.TravelLog = TravelLog;
+exports.SellSpe = SellSpe;
 exports.WsSend = WsSend;
 exports.WsReceive = WsReceive;
 exports.CityList = CityList;
@@ -1532,14 +1548,13 @@ exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
 exports.RankInfo = RankInfo;
+exports.GetMessage = GetMessage;
 exports.exchangeShop = exchangeShop;
 exports.IntegralShop = IntegralShop;
 exports.getUserLocation = getUserLocation;
-exports.SellSpe = SellSpe;
+exports.BuySpe = BuySpe;
 exports.MessageNum = MessageNum;
 exports.HasMessage = HasMessage;
-exports.MessageInfo = MessageInfo;
-exports.GetMessage = GetMessage;
 exports.RechargeRankInfo = RechargeRankInfo;
 exports.SysMessage = SysMessage;
 exports.TestSend = TestSend;
