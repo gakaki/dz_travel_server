@@ -1,0 +1,10 @@
+import ../base.api
+class Sight {
+    prop cityId:number//城市id
+
+}
+
+api Photograph {
+    require cityId:number//城市id
+}
+

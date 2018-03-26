@@ -8,6 +8,22 @@ class UserBriefInfo {
     //头像url
     prop avatarUrl:string
 }
+
+class otherUserInfo {
+    //累计获得的城市积分
+    prop totalIntegral:number
+    //里程数
+    prop mileage:number
+    //收集明信片总数量
+    prop postcard:number
+    //累计发表评论数
+    prop comment:number
+    //累计获得的点赞数
+    prop likeNum:number
+    //获得特产总数
+    prop specialty:numer
+}
+
 class UserInfo extends UserBriefInfo{
     //用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
     prop gender:string
@@ -29,7 +45,27 @@ class UserInfo extends UserBriefInfo{
     prop rentItems:KV[]
     //好友uid
     prop friends:string[]
+<<<<<<< HEAD
 
+=======
+    //其他一些个人信息
+    prop otherUserInfo:otherUserInfo
+
+}
+
+//用户收货信息，用于发送奖品
+class RealInfo {
+    //用户uid
+    prop uid:string
+    //用户真实姓名
+    prop name:string
+    //用户生日
+    prop birthday:string
+    //用户手机号
+    prop phoneNumber:number
+    //用户地址
+    prop adress:string
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 }
 
 //拉取一个玩家的简要信息（自己或他人）
@@ -41,4 +77,10 @@ api PlayerInfo {
     output info:UserInfo
 
 
+}
+
+//修改用户收货信息（只能修改自己的收货信息）
+api ModifRealInfo{
+    //玩家收货信息
+    output realInfo:RealInfo
 }

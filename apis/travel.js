@@ -48,16 +48,28 @@ class PostType{
 }
 //------------classes--------------
 <<<<<<< HEAD
+<<<<<<< HEAD
 class Rent  {
     constructor(){
     
         //prop type: number//装备id(shop表)
         this.rentId = null;
+=======
+class Log  {
+    constructor(){
+    
+        //prop type: string
+        this.year = null;
+    
+        //prop type: 
+        this.cityLogs = null;
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
     
         
         
     }
 }
+<<<<<<< HEAD
 class City  {
     constructor(){
     
@@ -67,6 +79,8 @@ class City  {
         //prop type: 
         this.cityper = null;
 =======
+=======
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 class oneDayLog  {
     constructor(){
     
@@ -83,18 +97,28 @@ class oneDayLog  {
         
     }
 }
-class UserBriefInfo  {
+class RealInfo  {
     constructor(){
     
         //prop type: string
         this.uid = null;
     
         //prop type: string
-        this.nickName = null;
+        this.name = null;
     
         //prop type: string
+<<<<<<< HEAD
         this.avatarUrl = null;
 >>>>>>> 09c04214e14367e123bcc1565f9f796ad45f478f
+=======
+        this.birthday = null;
+    
+        //prop type: number
+        this.phoneNumber = null;
+    
+        //prop type: string
+        this.adress = null;
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
     
         
         
@@ -126,14 +150,33 @@ class SelfRank  {
         
     }
 }
-class Log  {
+class UserBriefInfo  {
     constructor(){
     
         //prop type: string
-        this.year = null;
+        this.uid = null;
+    
+        //prop type: string
+        this.nickName = null;
+    
+        //prop type: string
+        this.avatarUrl = null;
+    
+        
+        
+    }
+}
+class Provence  {
+    constructor(){
     
         //prop type: 
-        this.cityLogs = null;
+        this.proLetter = null;
+    
+        //prop type: 
+        this.provence = null;
+    
+        //prop type: 
+        this.citys = null;
     
         
         
@@ -341,39 +384,6 @@ class RankInfo extends Base {
     return o;
     }
 }
-class Provence  {
-    constructor(){
-    
-        //prop type: 
-        this.proLetter = null;
-    
-        //prop type: 
-        this.provence = null;
-    
-        //prop type: 
-        this.citys = null;
-    
-        
-        
-    }
-}
-class cityList extends Base {
-    constructor(){
-        super();
-        this._provence = null;
-        this.reqFields = [];
-        this.resFields = ["provence"];
-    }
-    //server output, type: Provence[]
-    get provence() {return this._provence}
-    set provence(v) {this._provence = v}
-    static Init(ctx) {
-    let o = new cityList();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
 class UserInfo extends UserBriefInfo {
     constructor(){
         super();
@@ -408,6 +418,7 @@ class UserInfo extends UserBriefInfo {
         
     }
 }
+<<<<<<< HEAD
 class PlayerInfo extends Base {
     constructor(){
         super();
@@ -463,6 +474,8 @@ class SellSpe extends Base {
     return o;
     }
 }
+=======
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 class IndexInfo extends Base {
     constructor(){
         super();
@@ -501,6 +514,7 @@ class IndexInfo extends Base {
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 class UserInfo extends UserBriefInfo {
     constructor(){
         super();
@@ -534,6 +548,63 @@ class UserInfo extends UserBriefInfo {
 }
 =======
 >>>>>>> 09c04214e14367e123bcc1565f9f796ad45f478f
+=======
+class PlayerInfo extends Base {
+    constructor(){
+        super();
+        this._playerUid = null;
+        this._info = null;
+        this.reqFields = ["playerUid"];
+        this.resFields = ["info"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserInfo
+    get info() {return this._info}
+    set info(v) {this._info = v}
+    static Init(ctx) {
+    let o = new PlayerInfo();
+    o.ctx = ctx;
+    o.parse(ctx.query);
+    return o;
+    }
+}
+class ModifRealInfo extends Base {
+    constructor(){
+        super();
+        this._realInfo = null;
+        this.reqFields = [];
+        this.resFields = ["realInfo"];
+    }
+    //server output, type: RealInfo
+    get realInfo() {return this._realInfo}
+    set realInfo(v) {this._realInfo = v}
+    static Init(ctx) {
+    let o = new ModifRealInfo();
+    o.ctx = ctx;
+    o.parse(ctx.query);
+    return o;
+    }
+}
+class TravelLog extends Base {
+    constructor(){
+        super();
+        this._allLogs = null;
+        this.reqFields = [];
+        this.resFields = ["allLogs"];
+    }
+    //server output, type: Log[]
+    get allLogs() {return this._allLogs}
+    set allLogs(v) {this._allLogs = v}
+    static Init(ctx) {
+    let o = new TravelLog();
+    o.ctx = ctx;
+    o.parse(ctx.query);
+    return o;
+    }
+}
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 class PostList extends Base {
     constructor(){
         super();
@@ -595,6 +666,7 @@ class ThumbComment extends Base {
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 class RentProp extends Base {
     constructor(){
         super();
@@ -609,18 +681,25 @@ class RentProp extends Base {
     let o = new RentProp();
 =======
 class TravelLog extends Base {
+=======
+class cityList extends Base {
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
     constructor(){
         super();
-        this._allLogs = null;
+        this._provence = null;
         this.reqFields = [];
-        this.resFields = ["allLogs"];
+        this.resFields = ["provence"];
     }
-    //server output, type: Log[]
-    get allLogs() {return this._allLogs}
-    set allLogs(v) {this._allLogs = v}
+    //server output, type: Provence[]
+    get provence() {return this._provence}
+    set provence(v) {this._provence = v}
     static Init(ctx) {
+<<<<<<< HEAD
     let o = new TravelLog();
 >>>>>>> 09c04214e14367e123bcc1565f9f796ad45f478f
+=======
+    let o = new cityList();
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
     o.ctx = ctx;
     o.parse(ctx.query);
     return o;
@@ -694,6 +773,7 @@ exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
 <<<<<<< HEAD
+<<<<<<< HEAD
 exports.Rent = Rent;
 exports.City = City;
 exports.selfRank = selfRank;
@@ -707,18 +787,21 @@ exports.Comment = Comment;
 exports.SpeList = SpeList;
 exports.RankInfo = RankInfo;
 =======
+=======
+exports.Log = Log;
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 exports.oneDayLog = oneDayLog;
-exports.UserBriefInfo = UserBriefInfo;
+exports.RealInfo = RealInfo;
 exports.RankItem = RankItem;
 exports.SelfRank = SelfRank;
-exports.Log = Log;
+exports.UserBriefInfo = UserBriefInfo;
+exports.Provence = Provence;
 exports.Base = Base;
 exports.Post = Post;
 exports.Comment = Comment;
 exports.City = City;
-exports.Provence = Provence;
-exports.cityList = cityList;
 exports.UserInfo = UserInfo;
+<<<<<<< HEAD
 >>>>>>> 09c04214e14367e123bcc1565f9f796ad45f478f
 exports.PlayerInfo = PlayerInfo;
 exports.BuySpe = BuySpe;
@@ -728,15 +811,25 @@ exports.IndexInfo = IndexInfo;
 exports.UserInfo = UserInfo;
 =======
 >>>>>>> 09c04214e14367e123bcc1565f9f796ad45f478f
+=======
+exports.IndexInfo = IndexInfo;
+exports.PlayerInfo = PlayerInfo;
+exports.ModifRealInfo = ModifRealInfo;
+exports.TravelLog = TravelLog;
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
 <<<<<<< HEAD
+<<<<<<< HEAD
 exports.RentProp = RentProp;
 exports.CityList = CityList;
 =======
 exports.TravelLog = TravelLog;
+=======
+exports.cityList = cityList;
+>>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 exports.RankInfo = RankInfo;
 >>>>>>> 09c04214e14367e123bcc1565f9f796ad45f478f
 exports.RechargeRankInfo = RechargeRankInfo;
