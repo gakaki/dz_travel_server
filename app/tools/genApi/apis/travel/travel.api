@@ -18,12 +18,14 @@ enum Weather {
 
 //一天的旅行记录
 class oneDayLog {
-    //当天log的时间
+    //当天log的时间戳
     prop time:string
-    //如果当天有刚到达到城市 输出城市 //如果没有换地方 则不显示
+    //如果当天有刚飞到到的城市 输出城市 //如果没有换地方 则不显示
     prop city:string
     //如果当天有到达的景点 输出景点
     prop scenicSpots:string[]
+    //租用汽车类型  0为未租用
+    prop rentCarType:number
 
 }
 

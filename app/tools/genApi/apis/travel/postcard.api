@@ -1,0 +1,98 @@
+import ../base.api
+
+
+//一个省的明信片简略信息
+class ProvincePostcardInfo {
+    //省logo
+    prop logo:string
+    //省份名
+    prop province:string
+    //收集的该省明信片张数
+    prop collectPostcardNum:number
+    //该省明信片总张数
+    prop allPostcardNum:number
+
+}
+
+//一个城市所有的明信片
+class CityPostcardInfo {
+    //城市名
+    prop city:string
+    //是否已经被留言
+    prop hasLiveMessage:boolean
+    //收集的该城市明信片张数
+    prop collectPostcardNum:number
+    //该城市明信片总张数
+    prop allPostcardNum:number
+    //该城市所有明信片建简单信息
+    prop postcardsDetail:PostcardBriefDetail[]
+}
+
+//明信片简单详情
+class PostcardBriefDetail {
+    //明信片id
+    prop id:string
+    //明信片图片
+    prop url:string
+    //明信片最新一条留言
+    prop lastestLiveMessage:OneBriefMessage
+}
+
+
+class OneBriefMessage {
+    //该留言的id
+    prop id:number
+    //发送或接受到明信片留言的时间戳
+    prop time:string
+    //发送该留言人的昵称
+    prop nickname:string
+    //留言明信片内容
+    prop content:string
+}
+
+//一条留言的具体信息
+class DetailLiveMessage extends  OneBriefMessage{
+    //和其通信的玩家的uid
+    prop friendUid:string
+    //该玩家的头像图片地址
+    prop avatarUrl:string
+    //是否有下一条留言
+    prop hasNext:boolean
+    //是否有上一条留言
+    prop hasUp:boolean
+}
+
+//我的明信片
+api MyPostcards {
+    //所有的省明信片简略信息
+    output  postcardInfo:ProvincePostcardInfo[]
+}
+
+
+//全部明信片和留言明信片共用这一个接口
+api CityPostcards {
+    //省份名
+    input province:string
+    //所有的城市明信片相关信息
+    output postcardInfo:CityPostcardInfo[]
+}
+
+//查看某明信片详情
+api DetailPostcard {
+    //明信片id
+    input id:number
+    //明信片的主图
+    output url:string
+    //留言开始id
+    input start:number
+    //最新10条留言
+    output lastestMessage:DetailLiveMessage[]
+}
+
+//发送明信片留言
+api sendPostcard {
+    input friendUid:string
+    input message:string
+}
+
+
