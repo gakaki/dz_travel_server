@@ -1,5 +1,5 @@
 //跟个人信息相关的
-
+import ../base.api
 class UserBriefInfo {
     //第三方登陆，则返回UID
     prop uid:string
@@ -45,9 +45,6 @@ class UserInfo extends UserBriefInfo{
     prop rentItems:KV[]
     //好友uid
     prop friends:string[]
-<<<<<<< HEAD
-
-=======
     //其他一些个人信息
     prop otherUserInfo:otherUserInfo
 
@@ -62,10 +59,9 @@ class RealInfo {
     //用户生日
     prop birthday:string
     //用户手机号
-    prop phoneNumber:number
+    prop phoneNumber:string
     //用户地址
     prop adress:string
->>>>>>> 739e2701fe59cedaf397eac84ecc7a1d8687ac81
 }
 
 //拉取一个玩家的简要信息（自己或他人）
@@ -79,8 +75,22 @@ api PlayerInfo {
 
 }
 
+//拉取用户收货信息
+api GetRealInfo{
+    output realInfo:RealInfo
+}
+
 //修改用户收货信息（只能修改自己的收货信息）
-api ModifRealInfo{
+api ModifyRealInfo{
+    //用户名字
+    require name:string
+    //用户生日
+    require birthday:string
+    //用户手机号
+    require phone:string
+    //用户地址
+    require adress:string
+
     //玩家收货信息
     output realInfo:RealInfo
 }
