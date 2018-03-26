@@ -1,10 +1,13 @@
 import ../base.api
 class Sight {
     prop cityId:number//城市id
-
+    prop img:string//返回明信片的图片地址
 }
 
+
+//拍照获得明信片(每个城市可拍照2次，每个景点可拍照1次。购买单反相机可增加城市拍照次数，不能增加景点拍照次数。)
 api Photograph {
     require cityId:number//城市id
+    output img:string
 }
 
