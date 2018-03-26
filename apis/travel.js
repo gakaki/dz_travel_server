@@ -329,6 +329,9 @@ class Base  {
         //prop type: string
         this.action = null;
     
+        //prop type: number//服务器返回的状态码
+        this.code = null;
+    
         //prop type: string
         this.uid = null;
     
@@ -695,6 +698,7 @@ class GetRealInfo extends Base {
     static Init(ctx) {
         let o = new GetRealInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -719,6 +723,7 @@ class RentProp extends Base {
     static Init(ctx) {
         let o = new RentProp();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -755,6 +760,7 @@ class ModifyRealInfo extends Base {
     static Init(ctx) {
         let o = new ModifyRealInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -779,6 +785,7 @@ class SpeList extends Base {
     static Init(ctx) {
         let o = new SpeList();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -799,6 +806,7 @@ class TravelLog extends Base {
     static Init(ctx) {
         let o = new TravelLog();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -827,6 +835,7 @@ class SellSpe extends Base {
     static Init(ctx) {
         let o = new SellSpe();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -848,6 +857,14 @@ class WsReceive extends Base {
         
         
     }
+   submit() {
+        let tmp ={};
+        tmp.action=this.action;
+        this.resFields.forEach(k => {
+            tmp[k]=this[k]
+        });
+        this.ctx.io.emit(this.action, tmp);
+    }
 }
 class CityList extends Base {
     constructor(){
@@ -865,6 +882,7 @@ class CityList extends Base {
     static Init(ctx) {
         let o = new CityList();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -931,6 +949,7 @@ class Photograph extends Base {
     static Init(ctx) {
         let o = new Photograph();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -951,6 +970,7 @@ class MyPostcards extends Base {
     static Init(ctx) {
         let o = new MyPostcards();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -971,6 +991,7 @@ class CityPostcards extends Base {
     static Init(ctx) {
         let o = new CityPostcards();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -995,6 +1016,7 @@ class DetailPostcard extends Base {
     static Init(ctx) {
         let o = new DetailPostcard();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1011,6 +1033,7 @@ class sendPostcard extends Base {
     static Init(ctx) {
         let o = new sendPostcard();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1051,6 +1074,7 @@ class IndexInfo extends Base {
     static Init(ctx) {
         let o = new IndexInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1075,6 +1099,7 @@ class PlayerInfo extends Base {
     static Init(ctx) {
         let o = new PlayerInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1107,6 +1132,7 @@ class PostList extends Base {
     static Init(ctx) {
         let o = new PostList();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1131,6 +1157,7 @@ class CommentPost extends Base {
     static Init(ctx) {
         let o = new CommentPost();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1163,6 +1190,7 @@ class PostComments extends Base {
     static Init(ctx) {
         let o = new PostComments();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1183,6 +1211,7 @@ class ThumbComment extends Base {
     static Init(ctx) {
         let o = new ThumbComment();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1219,6 +1248,7 @@ class RankInfo extends Base {
     static Init(ctx) {
         let o = new RankInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1235,6 +1265,7 @@ class exchangeShop extends Base {
     static Init(ctx) {
         let o = new exchangeShop();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1263,6 +1294,7 @@ class IntegralShop extends Base {
     static Init(ctx) {
         let o = new IntegralShop();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1291,6 +1323,7 @@ class getUserLocation extends Base {
     static Init(ctx) {
         let o = new getUserLocation();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1319,6 +1352,7 @@ class BuySpe extends Base {
     static Init(ctx) {
         let o = new BuySpe();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1339,6 +1373,7 @@ class MessageInfo extends WsReceive {
     static Init(ctx) {
         let o = new MessageInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1359,6 +1394,7 @@ class GetMessage extends WsSend {
     static Init(ctx) {
         let o = new GetMessage();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1379,6 +1415,7 @@ class RechargeRankInfo extends RankInfo {
     static Init(ctx) {
         let o = new RechargeRankInfo();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1411,6 +1448,7 @@ class SysMessage extends WsReceive {
     static Init(ctx) {
         let o = new SysMessage();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }
@@ -1431,6 +1469,7 @@ class TestSend extends WsSend {
     static Init(ctx) {
         let o = new TestSend();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     }

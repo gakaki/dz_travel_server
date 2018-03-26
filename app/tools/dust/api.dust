@@ -47,7 +47,7 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
         let o = new {.name}();
         o.ctx = ctx;
         o.code = 0;
-        o.parse(ctx.query，true);
+        o.parse(ctx.query, true);
         return o;
     {~rb}{/isProto}
 {/server}
