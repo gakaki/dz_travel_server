@@ -1,11 +1,11 @@
 import ../base.api
 
-class City {
+class CityPer {
     prop cityname: string   //城市名
     prop cityper: number   //城市完成度
 }
 
-class Provence {
+class ProvencePer {
     prop proLetter: string //该省份的首字母（大写）
     prop provence: string   //省名称
     prop citys: City[]  //该省下去过的城市及完成度
@@ -17,7 +17,7 @@ class RandomCity {
 }
 
 //拉取城市完成度列表
-api CityList {
+api CityListPer {
     output data:Provence[]
 }
 
