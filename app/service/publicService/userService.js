@@ -3,32 +3,32 @@ const Service = require('egg').Service;
 const constant = require('../../utils/constant');
 const crypto = require("crypto");
 
-const PID_INIT=160000;
+const PID_INIT = 160000;
 
 class UserService extends Service {
 
-    async login(uid,sid,appName,info) {
+    async login(uid, sid, appName, info) {
         this.logger.info("登陆时的参数 ：" + uid + " " + sid);
         let result = {};
         //老用户登陆
         if (sid) {
             let authUi = await this.collect(sid, appName);
             if (authUi == null) {
-                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
+                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: appName});
                 if (loginUser != null) {
-                    this.logger.info("通过openid查库 ：" + loginUser.uid +"昵称 ：" +loginUser.nickName);
+                    this.logger.info("通过openid查库 ：" + loginUser.uid + "昵称 ：" + loginUser.nickName);
                     let _sid = this.GEN_SID();
                     this.recruitSid(_sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + _sid);
 
-                    await this.ctx.model.PublicModel.User.update({pid: loginUser.pid,appName:appName}, {
+                    await this.ctx.model.PublicModel.User.update({pid: loginUser.pid, appName: appName}, {
                         $set: {
-                            nickName:info.nickName,
-                            avatarUrl:info.avatarUrl,
-                            gender:info.gender,
-                            city:info.city,
-                            province:info.province,
-                            country:info.country,
+                            nickName: info.nickName,
+                            avatarUrl: info.avatarUrl,
+                            gender: info.gender,
+                            city: info.city,
+                            province: info.province,
+                            country: info.country,
                         }
                     });
                     result.sid = _sid;
@@ -38,19 +38,19 @@ class UserService extends Service {
 
             } else {
 
-                this.logger.info("老用户登陆  uid：" +authUi.uid +" 老用户的昵称 ：" +authUi.nickName);
-                if(uid && authUi.uid != uid){
+                this.logger.info("老用户登陆  uid：" + authUi.uid + " 老用户的昵称 ：" + authUi.nickName);
+                if (uid && authUi.uid != uid) {
                     result.info = null;
                     return result;
                 }
-                await this.ctx.model.PublicModel.User.update({pid: authUi.pid,appName:appName}, {
+                await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName}, {
                     $set: {
-                        nickName:info.nickName,
-                        avatarUrl:info.avatarUrl,
-                        gender:info.gender,
-                        city:info.city,
-                        province:info.province,
-                        country:info.country,
+                        nickName: info.nickName,
+                        avatarUrl: info.avatarUrl,
+                        gender: info.gender,
+                        city: info.city,
+                        province: info.province,
+                        country: info.country,
                     }
                 });
 
@@ -74,7 +74,7 @@ class UserService extends Service {
             // 因为以后登陆仅仅通过sid，所以安全问题能得以提高
             ui = await this.ctx.model.PublicModel.User.findOne({
                 uid: uid,
-                appName:appName,
+                appName: appName,
                 third: true
             });
 
@@ -86,19 +86,19 @@ class UserService extends Service {
                 this.recruitSid(sid, ui.pid);
             } else {
                 //更新一次userInfo
-                await this.ctx.model.PublicModel.User.update({pid: ui.pid,appName:appName}, {
+                await this.ctx.model.PublicModel.User.update({pid: ui.pid, appName: appName}, {
                     $set: {
-                        nickName:info.nickName,
-                        avatarUrl:info.avatarUrl,
-                        gender:info.gender,
-                        city:info.city,
-                        province:info.province,
-                        country:info.country,
+                        nickName: info.nickName,
+                        avatarUrl: info.avatarUrl,
+                        gender: info.gender,
+                        city: info.city,
+                        province: info.province,
+                        country: info.country,
                     }
                 });
                 ui = await this.ctx.model.PublicModel.User.findOne({
                     uid: uid,
-                    appName:appName,
+                    appName: appName,
                     third: true
                 });
             }
@@ -140,7 +140,6 @@ class UserService extends Service {
     }
 
 
-
     async collect(sid, appName) {
         let ui = await this.findUserBySid(sid);
         if (ui) {
@@ -174,7 +173,7 @@ class UserService extends Service {
 
         let pid = await this.app.redis.incr("global_userid");
 
-        this.logger.info("注册信息 ：uid: " + uid +" pid :" +pid +"昵称 ： "+info.nickName);
+        this.logger.info("注册信息 ：uid: " + uid + " pid :" + pid + "昵称 ： " + info.nickName);
         //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};
@@ -185,10 +184,10 @@ class UserService extends Service {
             appName: appName,
             nickName: info.nickName,
             avatarUrl: info.avatarUrl,
-            gender:info.gender,
-            city:info.city,
-            province:info.province,
-            country:info.country,
+            gender: info.gender,
+            city: info.city,
+            province: info.province,
+            country: info.country,
             registertime: new Date().toLocaleString(),
             third: third,
             pid: pidStr,
@@ -229,6 +228,11 @@ class UserService extends Service {
         }
         this.logger.info("用户PID: " + ses.pid);
         return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
+    }
+
+    async getPlayerCnt() {
+        let cnt = await this.ctx.model.UserActionRecord.PublicModel.count();
+        return cnt;
     }
 
 
