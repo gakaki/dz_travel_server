@@ -46,6 +46,7 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
     static Init(ctx) {~lb}
         let o = new {.name}();
         o.ctx = ctx;
+        o.code = 0;
         o.parse(ctx.query，true);
         return o;
     {~rb}{/isProto}
