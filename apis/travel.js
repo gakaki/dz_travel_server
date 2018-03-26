@@ -694,6 +694,27 @@ class exchangeShopDetail  {
         
     }
 }
+class GetRealInfo extends Base {
+    constructor(){
+        super();
+        this.action = 'travel.getrealinfo';
+    
+        this._realInfo = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["realInfo"];
+    }
+    //server output, type: RealInfo
+    get realInfo() {return this._realInfo}
+    set realInfo(v) {this._realInfo = v}
+    static Init(ctx) {
+        let o = new GetRealInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 class RentProp extends Base {
     constructor(){
         super();
@@ -900,6 +921,31 @@ class IndexInfo extends Base {
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
     static Init(ctx) {
         let o = new IndexInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class StartGame extends Base {
+    constructor(){
+        super();
+        this.action = 'startGame.startgame';
+    
+        this._terminal = null;
+        this._rid = null;
+        this.requireFileds = ["terminal"];
+        this.reqFields = ["terminal"];
+        this.resFields = ["rid"];
+    }
+    //client input, require, type: string
+    get terminal() {return this._terminal}
+    set terminal(v) {this._terminal = v}
+    //server output, type: string
+    get rid() {return this._rid}
+    set rid(v) {this._rid = v}
+    static Init(ctx) {
+        let o = new StartGame();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1352,6 +1398,7 @@ class getUserLocation extends Base {
     }
 }
 class exchangeShop extends Base {
+<<<<<<< HEAD
     constructor(){
         super();
         this.action = 'integralShop.exchangeshop';
@@ -1377,20 +1424,51 @@ class exchangeShop extends Base {
     }
 }
 class GetRealInfo extends Base {
+=======
+>>>>>>> 0ca0376551a04f04f1a554558b964e53e3cf9740
     constructor(){
         super();
-        this.action = 'travel.getrealinfo';
+        this.action = 'integralShop.exchangeshop';
     
-        this._realInfo = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["realInfo"];
+        this._id = null;
+        this._integral = null;
+        this.requireFileds = ["id","integral"];
+        this.reqFields = ["id","integral"];
+        this.resFields = [];
     }
-    //server output, type: RealInfo
-    get realInfo() {return this._realInfo}
-    set realInfo(v) {this._realInfo = v}
+    //client input, require, type: string
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: string
+    get integral() {return this._integral}
+    set integral(v) {this._integral = v}
     static Init(ctx) {
-        let o = new GetRealInfo();
+        let o = new exchangeShop();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class PlayerInfo extends Base {
+    constructor(){
+        super();
+        this.action = 'travel.playerinfo';
+    
+        this._playerUid = null;
+        this._info = null;
+        this.requireFileds = [];
+        this.reqFields = ["playerUid"];
+        this.resFields = ["info"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserInfo
+    get info() {return this._info}
+    set info(v) {this._info = v}
+    static Init(ctx) {
+        let o = new PlayerInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1613,6 +1691,7 @@ exports.Post = Post;
 exports.Comment = Comment;
 exports.MessageItem = MessageItem;
 exports.exchangeShopDetail = exchangeShopDetail;
+exports.GetRealInfo = GetRealInfo;
 exports.RentProp = RentProp;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.mySpe = mySpe;
@@ -1622,6 +1701,7 @@ exports.RandomCityList = RandomCityList;
 exports.WsSend = WsSend;
 exports.WsReceive = WsReceive;
 exports.IndexInfo = IndexInfo;
+exports.StartGame = StartGame;
 exports.TravelLog = TravelLog;
 exports.Photograph = Photograph;
 exports.UserInfo = UserInfo;
@@ -1635,11 +1715,19 @@ exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
+<<<<<<< HEAD
 exports.PlayerInfo = PlayerInfo;
 exports.GetMessage = GetMessage;
 exports.getUserLocation = getUserLocation;
 exports.exchangeShop = exchangeShop;
 exports.GetRealInfo = GetRealInfo;
+=======
+exports.RankInfo = RankInfo;
+exports.GetMessage = GetMessage;
+exports.getUserLocation = getUserLocation;
+exports.exchangeShop = exchangeShop;
+exports.PlayerInfo = PlayerInfo;
+>>>>>>> 0ca0376551a04f04f1a554558b964e53e3cf9740
 exports.IntegralShop = IntegralShop;
 exports.MessageNum = MessageNum;
 exports.HasMessage = HasMessage;

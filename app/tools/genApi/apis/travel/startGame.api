@@ -1,0 +1,11 @@
+//开始游戏
+import ../base.api
+
+//开始旅行
+api StartGame{
+    //目的地
+    require terminal:string
+
+    //返回rid
+    output rid:string
+}
