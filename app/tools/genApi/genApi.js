@@ -393,17 +393,17 @@ class MustacheRProcessor extends Processor {
         if (parsing.mustcacheOpening == 0) {
             //一个类或enum已闭合
             parsing.mustcacheClosed = true;
-            if (parsing instanceof Enumm) {
-                parsedData.enums.push(parsing);
-            }
-            else {
-                if (parsing instanceof Clazz) {
-                    parsing.genFieldStr();
+            if (!parsedData.classDic[parsing.name]) {
+                parsedData.classDic[parsing.name] = parsing;
+
+                if (parsing instanceof Enumm) {
+                    parsedData.enums.push(parsing);
                 }
-                if (!parsedData.classDic[parsing.name]) {
-                    parsedData.classDic[parsing.name] = parsing;
+                else if (parsing instanceof Clazz){
+                    parsing.genFieldStr();
                     parsedData.classes.push(parsing);
                 }
+
             }
         }
 

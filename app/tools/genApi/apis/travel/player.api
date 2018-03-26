@@ -41,6 +41,8 @@ class UserInfo extends UserBriefInfo{
     prop online:Boolean
     //金币等物品信息
     prop items:KV[]
+    //租用物品信息（为一次性道具）（如果查看他人的，可能不提供该数据）
+    prop rentItems:KV[]
     //好友uid
     prop friends:string[]
     //其他一些个人信息

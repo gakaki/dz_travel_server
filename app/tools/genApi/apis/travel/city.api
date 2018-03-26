@@ -12,6 +12,6 @@ class Provence {
 }
 
 //拉取城市完成度列表
-api cityList {
-    output provence:Provence[]
+api CityList {
+    output data:Provence[]
 }
