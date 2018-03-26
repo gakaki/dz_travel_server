@@ -18,22 +18,26 @@ class Specialty {
     prop price:number//特产价格
 }
 
+class mySpe extends Specialty{
+    prop num:number//我的某个特产的数量
+}
 //拉取该城市的特产
 api SpeList {
     require cityId:number//城市id
     output specialtys:Specialty[]
 }
 
-//购买特产
-api BuySpe {
+api Spe {
     require propId:number//特产id
     require count:number//购买数量
+}
+
+//购买特产
+api BuySpe extends Spe{
     output items:UserInfo.items
 }
 
 //售卖特产
-api SellSpe {
-    require propId:number//特产id
-    require count:number//售卖数量
+api SellSpe extends Spe{
     output specialtys:Specialty[]//金币增加数
 }
