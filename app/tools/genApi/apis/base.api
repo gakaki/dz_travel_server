@@ -1,3 +1,150 @@
+enum Code {
+    //授权失败
+    const AUTH_FAILED = -99
+    // 登陆失败
+    const LOGIN_FAILED = -100
+    // 用户已经存在
+    const USER_EXISTS = -101
+    // 登陆过期需要重新登陆
+    const LOGIN_EXPIRED = -102
+    // 匿名无权
+    const ANNOYMOUS_DENY = -103
+    // 没有找到用户
+    const USER_NOT_FOUND = -104
+    // 验证失败
+    const VERIFY_FAILED = -105
+    // 分派房间id失败
+    const ROOMID_FAILED = -106
+    // 正在等待好友通过
+    const FRIEND_WAIT = -107
+    // 不满足条件
+    const REQUIREMENT_FAILED = -108
+    // 满员
+    const ROOM_FULLED = -109
+    //房间信息过期
+    const ROOM_NEED_UPDATE = -88
+    // 房间过期
+    const ROOM_EXPIRED = -110
+    // 用户已经在房间内
+    const ROOM_USER_EXISTS = -111
+    // 宝宝列表已满
+    const GANG_FULLED = -112
+    // 道具不足
+    const NEED_ITEMS = -113
+    // 正在等待自己通过
+    const FRIEND_APPLY = -114
+    // 已经是好友
+    const FRIEND_DONE = -115
+    // 已经领取
+    const PICKED = -117
+    // 条件未满足
+    const REQUIRED_LOST = -118
+    // 用户不在线
+    const USER_OFFLINE = -119
+    // 用户已经组队
+    const USER_INTEAM = -120
+    // 回答错误
+    const ANSWER_WRONG = -121
+    // 是自己
+    const CANNOT_BE_SELF = -122
+    // 必须是好友
+    const MUST_FRIEND = -127
+    // 红包消息通道失败
+    const PACKID_MQ_CREATE_FAILED = -128
+    //竞猜次数用尽
+    const COUNT_OVER = -129
+    //红包不存在
+    const PACK_EMPTY = -130
+    //红包已过期
+    const PACK_EXPIRED = -131
+    //红包竞猜结束
+    const PACK_FINSH = -132
+    //红包竞猜CD中
+    const PACK_ISCD = -133
+    //不是首次分享
+    const PACK_ISSHARED = -134
+    //企业没钱
+    const NO_MONEY = -136
+    //超过提现次数
+    const EXCEED_COUNT = -137
+    //低于最低限额
+    const LESS_MONEY = -138
+    //等级上限
+    const LEVEL_MAX = -140
+    //红包可竞猜
+    const PACK_Fighing = 168
+    //代金券不足
+    const NEED_COUPON = 170
+    //金额不足
+    const NEED_MONEY = 171
+    const UNKNOWN = -1000
+    // 遇到了未处理的异常
+    const EXCEPTION = -999
+    // 没有找到路由
+    const ROUTER_NOT_FOUND = -998
+    // 上下文丢失
+    const CONTEXT_LOST = -997
+    // 恢复模型失败
+    const MODEL_ERROR = -996
+    // 参数不符合要求
+    const PARAMETER_NOT_MATCH = -995
+    // 需要登陆
+    const NEED_AUTH = -994
+    // 参数类型错误
+    const TYPE_MISMATCH = -993
+    // 文件系统失败
+    const FILESYSTEM_FAILED = -992
+    // 文件不存在
+    const FILE_NOT_FOUND = -991
+    // 代码不符合标准架构
+    const ARCHITECT_DISMATCH = -990
+    // 没有找到服务器
+    const SERVER_NOT_FOUND = -989
+    // 长度超过限制
+    const LENGTH_OVERFLOW = -988
+    // 目标对象没有找到
+    const TARGET_NOT_FOUND = -987
+    // 没有权限
+    const PERMISSIO_FAILED = -986
+    // 等待实现
+    const WAIT_IMPLEMENTION = -985
+    // 没有找到动作
+    const ACTION_NOT_FOUND = -984
+    // 已经存在
+    const TARGET_EXISTS = -983
+    // 状态错误
+    const STATE_FAILED = -982
+    // 上传失败
+    const UPLOAD_FAILED = -981
+    // 有敏感词
+    const MASK_WORD = -980
+    // 验证码匹配失败
+    const PASS_FAILED = -978
+    // 数据溢出
+    const OVERFLOW = -977
+    // 授权过期
+    const AUTH_EXPIRED = -976
+    // 签名错误
+    const SIGNATURE_ERROR = -975
+
+    // 第三方出错
+    const THIRD_FAILED = -5
+    // 多端登陆
+    const MULTIDEVICE = -4
+    // 高频调用被拒绝（之前的访问还没有结束) high frequency deny
+    const HFDENY = -3
+    // 超时
+    const TIMEOUT = -2
+    // 一般失败
+    const FAILED = -1
+    // 成功
+    const OK = 0
+    // 延迟响应
+    const DELAY_RESPOND = 10000
+    // rest访问需要重新启动监听
+    const REST_NEED_RELISTEN = 10001
+}
+
 //该Base类会在实际中作为所有api的基类
 class Base{
     prop client _app:App
@@ -6,6 +153,7 @@ class Base{
     prop server uid:string
     prop server _sid:string
     prop server ctx:Context
+    prop server requires:string[]
     prop client reqFields:string[]
     prop server resFields:string[]
 
@@ -60,8 +208,19 @@ class Base{
         return tmp;
     }
 
-    func parse(data) {
+    func parse(data, serverSide = false) {
         Object.assign(this, data);
+
+        for (let f in this.requires) {
+            if (!this[f]) {
+                break;
+                if (serverSide)
+                    ctx.body = {code: Code.PARAMETER_NOT_MATCH}
+                else {
+                    throw new Error('参数不全')
+                }
+            }
+        }
     }
 
     func client error(err) {

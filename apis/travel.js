@@ -39,6 +39,153 @@ class RankSubtype{
     static get FRIEND() { return 2;}
     
 }
+class Code{
+    
+    static get AUTH_FAILED() { return -99;}
+    
+    static get LOGIN_FAILED() { return -100;}
+    
+    static get USER_EXISTS() { return -101;}
+    
+    static get LOGIN_EXPIRED() { return -102;}
+    
+    static get ANNOYMOUS_DENY() { return -103;}
+    
+    static get USER_NOT_FOUND() { return -104;}
+    
+    static get VERIFY_FAILED() { return -105;}
+    
+    static get ROOMID_FAILED() { return -106;}
+    
+    static get FRIEND_WAIT() { return -107;}
+    
+    static get REQUIREMENT_FAILED() { return -108;}
+    
+    static get ROOM_FULLED() { return -109;}
+    
+    static get ROOM_NEED_UPDATE() { return -88;}
+    
+    static get ROOM_EXPIRED() { return -110;}
+    
+    static get ROOM_USER_EXISTS() { return -111;}
+    
+    static get GANG_FULLED() { return -112;}
+    
+    static get NEED_ITEMS() { return -113;}
+    
+    static get FRIEND_APPLY() { return -114;}
+    
+    static get FRIEND_DONE() { return -115;}
+    
+    static get PICKED() { return -117;}
+    
+    static get REQUIRED_LOST() { return -118;}
+    
+    static get USER_OFFLINE() { return -119;}
+    
+    static get USER_INTEAM() { return -120;}
+    
+    static get ANSWER_WRONG() { return -121;}
+    
+    static get CANNOT_BE_SELF() { return -122;}
+    
+    static get MUST_FRIEND() { return -127;}
+    
+    static get PACKID_MQ_CREATE_FAILED() { return -128;}
+    
+    static get COUNT_OVER() { return -129;}
+    
+    static get PACK_EMPTY() { return -130;}
+    
+    static get PACK_EXPIRED() { return -131;}
+    
+    static get PACK_FINSH() { return -132;}
+    
+    static get PACK_ISCD() { return -133;}
+    
+    static get PACK_ISSHARED() { return -134;}
+    
+    static get NO_MONEY() { return -136;}
+    
+    static get EXCEED_COUNT() { return -137;}
+    
+    static get LESS_MONEY() { return -138;}
+    
+    static get LEVEL_MAX() { return -140;}
+    
+    static get PACK_Fighing() { return 168;}
+    
+    static get NEED_COUPON() { return 170;}
+    
+    static get NEED_MONEY() { return 171;}
+    
+    static get UNKNOWN() { return -1000;}
+    
+    static get EXCEPTION() { return -999;}
+    
+    static get ROUTER_NOT_FOUND() { return -998;}
+    
+    static get CONTEXT_LOST() { return -997;}
+    
+    static get MODEL_ERROR() { return -996;}
+    
+    static get PARAMETER_NOT_MATCH() { return -995;}
+    
+    static get NEED_AUTH() { return -994;}
+    
+    static get TYPE_MISMATCH() { return -993;}
+    
+    static get FILESYSTEM_FAILED() { return -992;}
+    
+    static get FILE_NOT_FOUND() { return -991;}
+    
+    static get ARCHITECT_DISMATCH() { return -990;}
+    
+    static get SERVER_NOT_FOUND() { return -989;}
+    
+    static get LENGTH_OVERFLOW() { return -988;}
+    
+    static get TARGET_NOT_FOUND() { return -987;}
+    
+    static get PERMISSIO_FAILED() { return -986;}
+    
+    static get WAIT_IMPLEMENTION() { return -985;}
+    
+    static get ACTION_NOT_FOUND() { return -984;}
+    
+    static get TARGET_EXISTS() { return -983;}
+    
+    static get STATE_FAILED() { return -982;}
+    
+    static get UPLOAD_FAILED() { return -981;}
+    
+    static get MASK_WORD() { return -980;}
+    
+    static get PASS_FAILED() { return -978;}
+    
+    static get OVERFLOW() { return -977;}
+    
+    static get AUTH_EXPIRED() { return -976;}
+    
+    static get SIGNATURE_ERROR() { return -975;}
+    
+    static get THIRD_FAILED() { return -5;}
+    
+    static get MULTIDEVICE() { return -4;}
+    
+    static get HFDENY() { return -3;}
+    
+    static get TIMEOUT() { return -2;}
+    
+    static get FAILED() { return -1;}
+    
+    static get OK() { return 0;}
+    
+    static get DELAY_RESPOND() { return 10000;}
+    
+    static get REST_NEED_RELISTEN() { return 10001;}
+    
+}
 class PostType{
     
     static get JINGDIAN() { return 1;}
@@ -47,6 +194,23 @@ class PostType{
     
 }
 //------------classes--------------
+class PostcardBriefDetail  {
+    constructor(){
+    
+        //prop type: string
+        this.id = null;
+    
+        //prop type: string
+        this.url = null;
+    
+        //prop type: OneBriefMessage
+        this.lastestLiveMessage = null;
+    
+        
+        
+        
+    }
+}
 class oneDayLog  {
     constructor(){
     
@@ -59,6 +223,41 @@ class oneDayLog  {
         //prop type: string[]
         this.scenicSpots = null;
     
+        //prop type: number
+        this.rentCarType = null;
+    
+        
+        
+        
+    }
+}
+class Provence  {
+    constructor(){
+    
+        //prop type: 
+        this.proLetter = null;
+    
+        //prop type: 
+        this.provence = null;
+    
+        //prop type: 
+        this.citys = null;
+    
+        
+        
+        
+    }
+}
+class City  {
+    constructor(){
+    
+        //prop type: 
+        this.cityname = null;
+    
+        //prop type: 
+        this.cityper = null;
+    
+        
         
         
     }
@@ -77,104 +276,31 @@ class UserBriefInfo  {
     
         
         
+        
     }
 }
-class RankItem  {
+class otherUserInfo  {
     constructor(){
     
         //prop type: number
-        this.rank = null;
-    
-        //prop type: UserInfo
-        this.userInfo = null;
-    
-        
-        
-    }
-}
-class SelfRank  {
-    constructor(){
+        this.totalIntegral = null;
     
         //prop type: number
-        this.rank = null;
+        this.mileage = null;
     
-        //prop type: UserInfo
-        this.userInfo = null;
+        //prop type: number
+        this.postcard = null;
     
-        
-        
-    }
-}
-class Log  {
-    constructor(){
+        //prop type: number
+        this.comment = null;
     
-        //prop type: string
-        this.year = null;
+        //prop type: number
+        this.likeNum = null;
     
-        //prop type: 
-        this.cityLogs = null;
+        //prop type: numer
+        this.specialty = null;
     
         
-        
-    }
-}
-class Base  {
-    constructor(){
-    
-        //prop type: string
-        this.action = null;
-    
-        //prop type: string
-        this.uid = null;
-    
-        //prop type: string
-        this._sid = null;
-    
-        //prop type: Context
-        this.ctx = null;
-    
-        //prop type: string[]
-        this.resFields = null;
-    
-        
-        
-    }
-   submit() {
-        let tmp ={};
-        tmp.action=this.action;
-        this.resFields.forEach(k => {
-           tmp[k]=this[k]
-        });
-        this.ctx.body=tmp;
-    }
-   parse(data) {
-        Object.assign(this, data);
-    }
-}
-class Post  {
-    constructor(){
-    
-        //prop type: number//帖子id
-        this.postId = null;
-    
-        //prop type: PostType//帖子类型：景点or特产
-        this.type = null;
-    
-        //prop type: string//帖子内容，为景点或特产的介绍
-        this.content = null;
-    
-        //prop type: 
-        this.name = null;
-    
-        //prop type: number//帖子的评论
-        this.score = null;
-    
-        //prop type: string//景点或特产图片url
-        this.img = null;
-    
-        //prop type: number//评论数
-        this.commentNum = null;
-    
         
         
     }
@@ -205,52 +331,188 @@ class Comment  {
     
         
         
-    }
-}
-class City  {
-    constructor(){
-    
-        //prop type: 
-        this.cityname = null;
-    
-        //prop type: 
-        this.cityper = null;
-    
-        
         
     }
 }
-class Provence  {
+class Post  {
     constructor(){
     
-        //prop type: 
-        this.proLetter = null;
+        //prop type: number//帖子id
+        this.postId = null;
+    
+        //prop type: PostType//帖子类型：景点or特产
+        this.type = null;
+    
+        //prop type: string//帖子内容，为景点或特产的介绍
+        this.content = null;
     
         //prop type: 
-        this.provence = null;
+        this.name = null;
     
-        //prop type: 
-        this.citys = null;
+        //prop type: number//帖子的评论
+        this.score = null;
     
+        //prop type: string//景点或特产图片url
+        this.img = null;
+    
+        //prop type: number//评论数
+        this.commentNum = null;
+    
+        
         
         
     }
 }
-class cityList extends Base {
+class RankItem  {
     constructor(){
-        super();
-        this._provence = null;
-        this.reqFields = [];
-        this.resFields = ["provence"];
+    
+        //prop type: number
+        this.rank = null;
+    
+        //prop type: UserInfo
+        this.userInfo = null;
+    
+        
+        
+        
     }
-    //server output, type: Provence[]
-    get provence() {return this._provence}
-    set provence(v) {this._provence = v}
-    static Init(ctx) {
-    let o = new cityList();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
+}
+class SelfRank  {
+    constructor(){
+    
+        //prop type: number
+        this.rank = null;
+    
+        //prop type: UserInfo
+        this.userInfo = null;
+    
+        
+        
+        
+    }
+}
+class OneBriefMessage  {
+    constructor(){
+    
+        //prop type: number
+        this.id = null;
+    
+        //prop type: string
+        this.time = null;
+    
+        //prop type: string
+        this.nickname = null;
+    
+        //prop type: string
+        this.content = null;
+    
+        
+        
+        
+    }
+}
+class Log  {
+    constructor(){
+    
+        //prop type: string
+        this.year = null;
+    
+        //prop type: 
+        this.cityLogs = null;
+    
+        
+        
+        
+    }
+}
+class Base  {
+    constructor(){
+    
+        //prop type: string
+        this.action = null;
+    
+        //prop type: string
+        this.uid = null;
+    
+        //prop type: string
+        this._sid = null;
+    
+        //prop type: Context
+        this.ctx = null;
+    
+        //prop type: string[]
+        this.requires = null;
+    
+        //prop type: string[]
+        this.resFields = null;
+    
+        
+        
+        
+    }
+   submit() {
+        let tmp ={};
+        tmp.action=this.action;
+        this.resFields.forEach(k => {
+           tmp[k]=this[k]
+        });
+        this.ctx.body=tmp;
+    }
+   parse(data, serverSide=false) {
+        Object.assign(this, data);
+        for (let f in this.requires) {
+            if (!this[f]) {
+                break;
+                if (serverSide)
+                    ctx.body ={code: Code.PARAMETER_NOT_MATCH}
+                else {
+                    throw new Error('参数不全')
+                }
+            }
+        }
+    }
+}
+class ProvincePostcardInfo  {
+    constructor(){
+    
+        //prop type: string
+        this.logo = null;
+    
+        //prop type: string
+        this.province = null;
+    
+        //prop type: number
+        this.collectPostcardNum = null;
+    
+        //prop type: number
+        this.allPostcardNum = null;
+    
+        
+        
+        
+    }
+}
+class CityPostcardInfo  {
+    constructor(){
+    
+        //prop type: string
+        this.city = null;
+    
+        //prop type: boolean
+        this.hasLiveMessage = null;
+    
+        //prop type: number
+        this.collectPostcardNum = null;
+    
+        //prop type: number
+        this.allPostcardNum = null;
+    
+        //prop type: PostcardBriefDetail[]
+        this.postcardsDetail = null;
+    
+        
+        
+        
     }
 }
 class UserInfo extends UserBriefInfo {
@@ -283,8 +545,102 @@ class UserInfo extends UserBriefInfo {
         //prop type: string[]
         this.friends = null;
     
+        //prop type: otherUserInfo
+        this.otherUserInfo = null;
+    
         
         
+        
+    }
+}
+class cityList extends Base {
+    constructor(){
+        super();
+        this._provence = null;
+        
+        this.reqFields = [];
+        this.resFields = ["provence"];
+    }
+    //server output, type: Provence[]
+    get provence() {return this._provence}
+    set provence(v) {this._provence = v}
+    static Init(ctx) {
+        let o = new cityList();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class MyPostcards extends Base {
+    constructor(){
+        super();
+        this._ = null;
+        
+        this.reqFields = [];
+        this.resFields = [""];
+    }
+    //server output, type: 
+    get () {return this._}
+    set (v) {this._ = v}
+    static Init(ctx) {
+        let o = new MyPostcards();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class CityPostcards extends Base {
+    constructor(){
+        super();
+        this._postcardInfo = null;
+        
+        this.reqFields = [];
+        this.resFields = ["postcardInfo"];
+    }
+    //server output, type: CityPostcardInfo[]
+    get postcardInfo() {return this._postcardInfo}
+    set postcardInfo(v) {this._postcardInfo = v}
+    static Init(ctx) {
+        let o = new CityPostcards();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class DetailPostcard extends Base {
+    constructor(){
+        super();
+        this._url = null;
+        this._lastestMessage = null;
+        
+        this.reqFields = [];
+        this.resFields = ["url","lastestMessage"];
+    }
+    //server output, type: string
+    get url() {return this._url}
+    set url(v) {this._url = v}
+    //server output, type: DetailLiveMessage[]
+    get lastestMessage() {return this._lastestMessage}
+    set lastestMessage(v) {this._lastestMessage = v}
+    static Init(ctx) {
+        let o = new DetailPostcard();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class sendPostcard extends Base {
+    constructor(){
+        super();
+        
+        this.reqFields = [];
+        this.resFields = [];
+    }
+    static Init(ctx) {
+        let o = new sendPostcard();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
     }
 }
 class PlayerInfo extends Base {
@@ -292,6 +648,7 @@ class PlayerInfo extends Base {
         super();
         this._playerUid = null;
         this._info = null;
+        
         this.reqFields = ["playerUid"];
         this.resFields = ["info"];
     }
@@ -302,10 +659,122 @@ class PlayerInfo extends Base {
     get info() {return this._info}
     set info(v) {this._info = v}
     static Init(ctx) {
-    let o = new PlayerInfo();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
+        let o = new PlayerInfo();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class RankInfo extends Base {
+    constructor(){
+        super();
+        this._rankType = null;
+        this._limit = null;
+        this._selfRank = null;
+        this._ranks = null;
+        this.requires = [object Object];
+        this.reqFields = ["rankType","limit"];
+        this.resFields = ["selfRank","ranks"];
+    }
+    //client input, require, type: RankType
+    get rankType() {return this._rankType}
+    set rankType(v) {this._rankType = v}
+    //client input, optional, type: number
+    get limit() {return this._limit}
+    set limit(v) {this._limit = v}
+    //server output, type: SelfRank
+    get selfRank() {return this._selfRank}
+    set selfRank(v) {this._selfRank = v}
+    //server output, type: RankItem[]
+    get ranks() {return this._ranks}
+    set ranks(v) {this._ranks = v}
+    static Init(ctx) {
+        let o = new RankInfo();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class PostList extends Base {
+    constructor(){
+        super();
+        this._posts = null;
+        
+        this.reqFields = [];
+        this.resFields = ["posts"];
+    }
+    //server output, type: Post[]//服务器返回帖子列表
+    get posts() {return this._posts}
+    set posts(v) {this._posts = v}
+    static Init(ctx) {
+        let o = new PostList();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class CommentPost extends Base {
+    constructor(){
+        super();
+        
+        this.reqFields = [];
+        this.resFields = [];
+    }
+    static Init(ctx) {
+        let o = new CommentPost();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class PostComments extends Base {
+    constructor(){
+        super();
+        this._comments = null;
+        
+        this.reqFields = [];
+        this.resFields = ["comments"];
+    }
+    //server output, type: Comment[]//该帖子下的评论
+    get comments() {return this._comments}
+    set comments(v) {this._comments = v}
+    static Init(ctx) {
+        let o = new PostComments();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class ThumbComment extends Base {
+    constructor(){
+        super();
+        
+        this.reqFields = [];
+        this.resFields = [];
+    }
+    static Init(ctx) {
+        let o = new ThumbComment();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
+    }
+}
+class TravelLog extends Base {
+    constructor(){
+        super();
+        this._allLogs = null;
+        
+        this.reqFields = [];
+        this.resFields = ["allLogs"];
+    }
+    //server output, type: Log[]
+    get allLogs() {return this._allLogs}
+    set allLogs(v) {this._allLogs = v}
+    static Init(ctx) {
+        let o = new TravelLog();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
     }
 }
 class IndexInfo extends Base {
@@ -317,6 +786,7 @@ class IndexInfo extends Base {
         this._playerCnt = null;
         this._friends = null;
         this._unreadMsgCnt = null;
+        
         this.reqFields = [];
         this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt"];
     }
@@ -339,122 +809,17 @@ class IndexInfo extends Base {
     get unreadMsgCnt() {return this._unreadMsgCnt}
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
     static Init(ctx) {
-    let o = new IndexInfo();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
-class PostList extends Base {
-    constructor(){
-        super();
-        this._posts = null;
-        this.reqFields = [];
-        this.resFields = ["posts"];
-    }
-    //server output, type: Post[]//服务器返回帖子列表
-    get posts() {return this._posts}
-    set posts(v) {this._posts = v}
-    static Init(ctx) {
-    let o = new PostList();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
-class CommentPost extends Base {
-    constructor(){
-        super();
-        this.reqFields = [];
-        this.resFields = [];
-    }
-    static Init(ctx) {
-    let o = new CommentPost();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
-class PostComments extends Base {
-    constructor(){
-        super();
-        this._comments = null;
-        this.reqFields = [];
-        this.resFields = ["comments"];
-    }
-    //server output, type: Comment[]//该帖子下的评论
-    get comments() {return this._comments}
-    set comments(v) {this._comments = v}
-    static Init(ctx) {
-    let o = new PostComments();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
-class ThumbComment extends Base {
-    constructor(){
-        super();
-        this.reqFields = [];
-        this.resFields = [];
-    }
-    static Init(ctx) {
-    let o = new ThumbComment();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
-class TravelLog extends Base {
-    constructor(){
-        super();
-        this._allLogs = null;
-        this.reqFields = [];
-        this.resFields = ["allLogs"];
-    }
-    //server output, type: Log[]
-    get allLogs() {return this._allLogs}
-    set allLogs(v) {this._allLogs = v}
-    static Init(ctx) {
-    let o = new TravelLog();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
-    }
-}
-class RankInfo extends Base {
-    constructor(){
-        super();
-        this._rankType = null;
-        this._limit = null;
-        this._selfRank = null;
-        this._ranks = null;
-        this.reqFields = ["rankType","limit"];
-        this.resFields = ["selfRank","ranks"];
-    }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, optional, type: number
-    get limit() {return this._limit}
-    set limit(v) {this._limit = v}
-    //server output, type: SelfRank
-    get selfRank() {return this._selfRank}
-    set selfRank(v) {this._selfRank = v}
-    //server output, type: RankItem[]
-    get ranks() {return this._ranks}
-    set ranks(v) {this._ranks = v}
-    static Init(ctx) {
-    let o = new RankInfo();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
+        let o = new IndexInfo();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
     }
 }
 class RechargeRankInfo extends RankInfo {
     constructor(){
         super();
         this._myRecharge = null;
+        
         this.reqFields = ["rankType","limit"];
         this.resFields = ["myRecharge","selfRank","ranks"];
     }
@@ -462,10 +827,10 @@ class RechargeRankInfo extends RankInfo {
     get myRecharge() {return this._myRecharge}
     set myRecharge(v) {this._myRecharge = v}
     static Init(ctx) {
-    let o = new RechargeRankInfo();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
+        let o = new RechargeRankInfo();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
     }
 }
 //-------------exports---------------
@@ -473,25 +838,35 @@ exports.Season = Season;
 exports.Weather = Weather;
 exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
+exports.Code = Code;
 exports.PostType = PostType;
+exports.PostcardBriefDetail = PostcardBriefDetail;
 exports.oneDayLog = oneDayLog;
+exports.Provence = Provence;
+exports.City = City;
 exports.UserBriefInfo = UserBriefInfo;
+exports.otherUserInfo = otherUserInfo;
+exports.Comment = Comment;
+exports.Post = Post;
 exports.RankItem = RankItem;
 exports.SelfRank = SelfRank;
+exports.OneBriefMessage = OneBriefMessage;
 exports.Log = Log;
 exports.Base = Base;
-exports.Post = Post;
-exports.Comment = Comment;
-exports.City = City;
-exports.Provence = Provence;
-exports.cityList = cityList;
+exports.ProvincePostcardInfo = ProvincePostcardInfo;
+exports.CityPostcardInfo = CityPostcardInfo;
 exports.UserInfo = UserInfo;
+exports.cityList = cityList;
+exports.MyPostcards = MyPostcards;
+exports.CityPostcards = CityPostcards;
+exports.DetailPostcard = DetailPostcard;
+exports.sendPostcard = sendPostcard;
 exports.PlayerInfo = PlayerInfo;
-exports.IndexInfo = IndexInfo;
+exports.RankInfo = RankInfo;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
 exports.TravelLog = TravelLog;
-exports.RankInfo = RankInfo;
+exports.IndexInfo = IndexInfo;
 exports.RechargeRankInfo = RechargeRankInfo;

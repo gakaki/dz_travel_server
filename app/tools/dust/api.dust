@@ -22,6 +22,7 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
         this._{.k|s} = null;{/.requires}{#.optionals}
         this._{.k|s} = null;{/.optionals}{#.outputs}
         this._{.k|s} = null;{/.outputs}
+        {?isApi}{?.requires}this.requires = {.requires|s};{/.requires}{/isApi}
         {?isApi}{?.reqFieldStr}this.reqFields = {.reqFieldStr|s};{/.reqFieldStr}{/isApi}
         {?isApi}{?.resFieldStr}this.resFields = {.resFieldStr|s};{/.resFieldStr}{/isApi}
     {~rb}{#.requires}
@@ -43,10 +44,10 @@ class {.name} {?.parent}extends {.parent}{/.parent} {
 {/.funcs}
 {?server}{?isApi}
     static Init(ctx) {~lb}
-    let o = new {.name}();
-    o.ctx = ctx;
-    o.parse(ctx.query);
-    return o;
+        let o = new {.name}();
+        o.ctx = ctx;
+        o.parse(ctx.query，true);
+        return o;
     {~rb}{/isApi}
 {/server}
 }
