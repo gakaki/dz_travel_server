@@ -29,7 +29,7 @@ class oneDayLog {
 
 }
 
-//旅行足迹 按时间排序 从旧到新
+//旅行足迹 按时间排序
 class Log {
     //游玩的具体年份 eg：2018
     prop year:string
@@ -56,7 +56,11 @@ api IndexInfo {
 
 api TravelLog {
     //用户uid,如果没填,默认为用户自己uid
-    optional uid:string
+    optional playerUid:string
+    //从第几页开始读取日志，默认为1
+    optional page:number
+    //获取日志的长度，默认为20
+    optional length:number
     //旅行日志
     output allLogs:Log[]
 }

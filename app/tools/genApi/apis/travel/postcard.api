@@ -75,8 +75,8 @@ api CityPostcards {
 api DetailPostcard {
     //明信片id
     require id:number
-    //留言开始id,默认为0
-    optional start:number
+    //留言开始页码,默认为1
+    optional page:number
     //返回的明信片留言条数,默认为10
     optional messageLength:number
     //明信片的主图

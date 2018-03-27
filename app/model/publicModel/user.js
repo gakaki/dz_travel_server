@@ -18,6 +18,7 @@ module.exports = app => {
         items: {type: JSON}, //道具
         friendList:{type:Array},
         isFirst:{type:Boolean,default:true},
+        mileage:{type:Number,default:0},  //里程数
         name:{type:String},
         birth:{type:String},
         mobile:{type:String},
