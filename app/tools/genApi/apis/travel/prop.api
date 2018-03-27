@@ -1,13 +1,10 @@
 import ../base.api
 import ./player.api
-class Rent {
-    prop rentId:number//装备id(shop表)
-}
 
 //租用道具
 api RentProp {
     require rentId:number  //装备id
-    output rentItems:UserInfo.rentItems
+    output rentItems:KV[]//已租用的所有道具。
 }
 
 class Specialty {
@@ -34,10 +31,11 @@ api Spe {
 
 //购买特产
 api BuySpe extends Spe{
-    output items:UserInfo.items
+    output items:KV[]
+    output goldNum:number//返回剩余的金币数
 }
 
 //售卖特产
 api SellSpe extends Spe{
-    output specialtys:Specialty[]//金币增加数
+    output goldNum:number//返回剩余的金币数
 }
