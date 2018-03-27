@@ -33,6 +33,8 @@ api FlyInfo{
     output doubleCost:number
     //现在所在城市
     output location:string
+    //节日信息
+    output holiday:string
 
 }
 
