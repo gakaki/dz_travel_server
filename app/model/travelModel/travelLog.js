@@ -3,7 +3,10 @@ module.exports = app => {
     const TravelLogSchema = new mongoose.Schema({
         uid:{type:String},
         date:{type:String},
-        scenicspot:{type:Array}
+        city:{type:String},
+        rentCarType:{type:Number},
+        scenicspot:{type:Array},
+        createDate:{type:Date}
 
     });
 
