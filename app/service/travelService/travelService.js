@@ -1,6 +1,6 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
-
+const holidayCn = require('holiday.cn').default;
 class TravelService extends Service {
     async fillIndexInfo(info,ui) {
         // info typeof apis.IndexInfo
@@ -13,17 +13,17 @@ class TravelService extends Service {
           };
           let visit =  await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
           info.season = await this.ctx.service.publicService.thirdService.getSeason();
-          if(visit.city){
+        let outw = 1;
+          if(visit && visit.city){
             let weather =  (await this.ctx.service.publicService.thirdService.getWeather(visit.city)).now.text;
-            let outw = 1;
             for(let we of travelConfig.weathers){
                 if(we.weather == weather){
                     outw = weather;
                     break;
                 }
             }
-              info.weather = outw;
           }
+         info.weather = outw;
           info.playerCnt = (await this.app.redis.get("travel_userid"))-1000;
           info.friend = user.friendList;
 
@@ -36,7 +36,7 @@ class TravelService extends Service {
             uid:ui.uid,
             nickName:ui.nickName,
             avatarUrl:ui.avatarUrl,
-            gold:ui.ui[travelConfig.Item.GOLD]
+            gold:ui.items[travelConfig.Item.GOLD]
         };
         let visit =  await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
@@ -51,14 +51,59 @@ class TravelService extends Service {
             }
             info.weather = outw;
         }
-        info.festival
-        info.date
-        info.cost
+        info.date = new Date().toLocaleDateString();
+        let holiday = holidayCn(new Date());
+        if(info.random){
+            info.cost
+        }else{
+            info.cost
+            info.cost
+        }
+
+        if(holiday.length>0){
+            info.holiday = holiday[0];
+            info.cost
+        }
+
+
+
     }
 
 
-    visit(info,ui){
-        info.cid
+    async visit(info,ui){
+        let cid =info.cid;
+        let fid =info.fid;
+        let ttype = 1;
+        if(fid){
+            ttype = 2;
+        }
+        if(!cid){
+            let cityPool = travelConfig.citys;
+            let footprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$cid"});
+           for(let city of cityPool){
+               for(let cid of footprints){
+                   if(cid._id != city.id){
+                       cid = city.id;
+                       break;
+                   }
+               }
+           }
+
+            cid = "?";
+            ttype = 0;
+        }
+
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+        this.ctx.model.TravelModel.FlightRecord.create({
+            uid:ui.uid,      //用户ID
+            from:visit?visit.city:"初次旅行",           //出发地
+            destination:travelConfig.City.Get(cid).city,   //目的地
+            ticketType:ttype,//机票类型
+            isDoublue:fid ? true :false,//是否双人旅行
+            friend:fid,                    //双人旅行同伴
+            cost:Number(info.cost),                        //花费的金币
+            createDate:new Date()
+        })
     }
 
     async goTravel(info){
