@@ -9,6 +9,7 @@ const SHEET_HEADS = 3; //表头所占据的行数
 //支持的字段类型
 const TYPE_TAG  = {
     STR: "Str",
+    STRS: "Strs",
     INT: "Int",
     INTS: "Ints",
     ITEM: "Item",
@@ -245,6 +246,8 @@ function parseType(type, data) {
             return parseInt(data);
         case TYPE_TAG.INTS:
             return data.split(',').map(d => parseInt(d));
+        case TYPE_TAG.STRS:
+            return data.split(',').map(d => parseType(TYPE_TAG.STR, d));
         case TYPE_TAG.ITEM:
             let kv = {};
             let arr = data.split(':');
