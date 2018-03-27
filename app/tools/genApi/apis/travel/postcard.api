@@ -63,13 +63,16 @@ api MyPostcards {
 }
 
 
-//全部明信片和留言明信片共用这一个接口
+//全部明信片和留言明信片
 api CityPostcards {
+    //是否为留言明信片,没有则默认为false,获取全部明信片
+    optional LM:boolean
     //省份名
     require province:string
     //所有的城市明信片相关信息
     output postcardInfo:CityPostcardInfo[]
 }
+
 
 //查看某明信片详情
 api DetailPostcard {
