@@ -55,6 +55,8 @@ api IndexInfo {
 
 
 api TravelLog {
+    //用户uid,如果没填,默认为用户自己uid
+    optional uid:string
     //旅行日志
     output allLogs:Log[]
 }
