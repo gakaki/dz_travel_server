@@ -7,8 +7,8 @@ class CityPer {
 
 class ProvencePer {
     prop proLetter: string //该省份的首字母（大写）
-    prop provence: string   //省名称
-    prop citys: City[]  //该省下去过的城市及完成度
+    prop proName: string   //省名称
+    prop citys: CityPer[]  //该省下去过的城市及完成度
 }
 
 //随机机票中的城市(需要除去用户已经去过的城市)

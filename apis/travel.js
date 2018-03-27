@@ -424,7 +424,7 @@ class SelfRank  {
         
     }
 }
-class Provence  {
+class ProvencePer  {
     constructor(){
     
     
@@ -432,7 +432,7 @@ class Provence  {
         this.proLetter = null;
     
         //prop type: 
-        this.provence = null;
+        this.proName = null;
     
         //prop type: 
         this.citys = null;
@@ -481,7 +481,7 @@ class Log  {
         
     }
 }
-class City  {
+class CityPer  {
     constructor(){
     
     
@@ -998,48 +998,6 @@ class Photograph extends Base {
         return o;
     }
 }
-class UserInfo extends UserBriefInfo {
-    constructor(){
-        super();
-    
-        //prop type: string
-        this.gender = null;
-    
-        //prop type: number
-        this.totalArrive = null;
-    
-        //prop type: number
-        this.overmatch = null;
-    
-        //prop type: string
-        this.city = null;
-    
-        //prop type: string
-        this.province = null;
-    
-        //prop type: string
-        this.country = null;
-    
-        //prop type: Boolean
-        this.online = null;
-    
-        //prop type: KV[]
-        this.items = null;
-    
-        //prop type: KV[]
-        this.rentItems = null;
-    
-        //prop type: string[]
-        this.friends = null;
-    
-        //prop type: otherUserInfo
-        this.otherUserInfo = null;
-    
-        
-        
-        
-    }
-}
 class MyPostcards extends Base {
     constructor(){
         super();
@@ -1148,10 +1106,52 @@ class sendPostcard extends Base {
         return o;
     }
 }
-class CityList extends Base {
+class UserInfo extends UserBriefInfo {
     constructor(){
         super();
-        this.action = 'city.citylist';
+    
+        //prop type: string
+        this.gender = null;
+    
+        //prop type: number
+        this.totalArrive = null;
+    
+        //prop type: number
+        this.overmatch = null;
+    
+        //prop type: string
+        this.city = null;
+    
+        //prop type: string
+        this.province = null;
+    
+        //prop type: string
+        this.country = null;
+    
+        //prop type: Boolean
+        this.online = null;
+    
+        //prop type: KV[]
+        this.items = null;
+    
+        //prop type: KV[]
+        this.rentItems = null;
+    
+        //prop type: string[]
+        this.friends = null;
+    
+        //prop type: otherUserInfo
+        this.otherUserInfo = null;
+    
+        
+        
+        
+    }
+}
+class CityListPer extends Base {
+    constructor(){
+        super();
+        this.action = 'city.citylistper';
     
         this._data = null;
         this.requireFileds = [];
@@ -1162,44 +1162,7 @@ class CityList extends Base {
     get data() {return this._data}
     set data(v) {this._data = v}
     static Init(ctx) {
-        let o = new CityList();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
-class RankInfo extends Base {
-    constructor(){
-        super();
-        this.action = 'rank.rankinfo';
-    
-        this._rankType = null;
-        this._rankSubtype = null;
-        this._limit = null;
-        this._selfRank = null;
-        this._ranks = null;
-        this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","limit"];
-        this.resFields = ["selfRank","ranks"];
-    }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, require, type: RankSubtype
-    get rankSubtype() {return this._rankSubtype}
-    set rankSubtype(v) {this._rankSubtype = v}
-    //client input, optional, type: number
-    get limit() {return this._limit}
-    set limit(v) {this._limit = v}
-    //server output, type: SelfRank
-    get selfRank() {return this._selfRank}
-    set selfRank(v) {this._selfRank = v}
-    //server output, type: RankItem[]
-    get ranks() {return this._ranks}
-    set ranks(v) {this._ranks = v}
-    static Init(ctx) {
-        let o = new RankInfo();
+        let o = new CityListPer();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1318,25 +1281,37 @@ class ThumbComment extends Base {
         return o;
     }
 }
-class PlayerInfo extends Base {
+class RankInfo extends Base {
     constructor(){
         super();
-        this.action = 'travel.playerinfo';
+        this.action = 'rank.rankinfo';
     
-        this._playerUid = null;
-        this._info = null;
-        this.requireFileds = [];
-        this.reqFields = ["playerUid"];
-        this.resFields = ["info"];
+        this._rankType = null;
+        this._rankSubtype = null;
+        this._limit = null;
+        this._selfRank = null;
+        this._ranks = null;
+        this.requireFileds = ["rankType","rankSubtype"];
+        this.reqFields = ["rankType","rankSubtype","limit"];
+        this.resFields = ["selfRank","ranks"];
     }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: UserInfo
-    get info() {return this._info}
-    set info(v) {this._info = v}
+    //client input, require, type: RankType
+    get rankType() {return this._rankType}
+    set rankType(v) {this._rankType = v}
+    //client input, require, type: RankSubtype
+    get rankSubtype() {return this._rankSubtype}
+    set rankSubtype(v) {this._rankSubtype = v}
+    //client input, optional, type: number
+    get limit() {return this._limit}
+    set limit(v) {this._limit = v}
+    //server output, type: SelfRank
+    get selfRank() {return this._selfRank}
+    set selfRank(v) {this._selfRank = v}
+    //server output, type: RankItem[]
+    get ranks() {return this._ranks}
+    set ranks(v) {this._ranks = v}
     static Init(ctx) {
-        let o = new PlayerInfo();
+        let o = new RankInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1398,34 +1373,6 @@ class getUserLocation extends Base {
     }
 }
 class exchangeShop extends Base {
-<<<<<<< HEAD
-    constructor(){
-        super();
-        this.action = 'integralShop.exchangeshop';
-    
-        this._id = null;
-        this._integral = null;
-        this.requireFileds = ["id","integral"];
-        this.reqFields = ["id","integral"];
-        this.resFields = [];
-    }
-    //client input, require, type: string
-    get id() {return this._id}
-    set id(v) {this._id = v}
-    //client input, require, type: string
-    get integral() {return this._integral}
-    set integral(v) {this._integral = v}
-    static Init(ctx) {
-        let o = new exchangeShop();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
-class GetRealInfo extends Base {
-=======
->>>>>>> 0ca0376551a04f04f1a554558b964e53e3cf9740
     constructor(){
         super();
         this.action = 'integralShop.exchangeshop';
@@ -1677,11 +1624,11 @@ exports.Ws = Ws;
 exports.Sight = Sight;
 exports.RankItem = RankItem;
 exports.SelfRank = SelfRank;
-exports.Provence = Provence;
+exports.ProvencePer = ProvencePer;
 exports.Rent = Rent;
 exports.RandomCity = RandomCity;
 exports.Log = Log;
-exports.City = City;
+exports.CityPer = CityPer;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.CityPostcardInfo = CityPostcardInfo;
 exports.PostcardBriefDetail = PostcardBriefDetail;
@@ -1704,30 +1651,21 @@ exports.IndexInfo = IndexInfo;
 exports.StartGame = StartGame;
 exports.TravelLog = TravelLog;
 exports.Photograph = Photograph;
-exports.UserInfo = UserInfo;
 exports.MyPostcards = MyPostcards;
 exports.CityPostcards = CityPostcards;
 exports.DetailPostcard = DetailPostcard;
 exports.sendPostcard = sendPostcard;
-exports.CityList = CityList;
-exports.RankInfo = RankInfo;
+exports.UserInfo = UserInfo;
+exports.CityListPer = CityListPer;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
-<<<<<<< HEAD
-exports.PlayerInfo = PlayerInfo;
-exports.GetMessage = GetMessage;
-exports.getUserLocation = getUserLocation;
-exports.exchangeShop = exchangeShop;
-exports.GetRealInfo = GetRealInfo;
-=======
 exports.RankInfo = RankInfo;
 exports.GetMessage = GetMessage;
 exports.getUserLocation = getUserLocation;
 exports.exchangeShop = exchangeShop;
 exports.PlayerInfo = PlayerInfo;
->>>>>>> 0ca0376551a04f04f1a554558b964e53e3cf9740
 exports.IntegralShop = IntegralShop;
 exports.MessageNum = MessageNum;
 exports.HasMessage = HasMessage;

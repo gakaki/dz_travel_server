@@ -147,6 +147,7 @@ enum Code {
 
 //该Base类会在实际中作为所有api的基类
 class Base{
+    prop client _timestamp:number
     prop client _app:App
     prop action:string
     prop code:number//服务器返回的状态码
@@ -326,6 +327,8 @@ class Base{
                     else {
                         app.globalData.userInfo = req.info;
                         this.SID = req.sid;
+                       // this._timestamp = req.timestamp;
+                        this._timestamp = 0;
                         wx.setStorageSync('sid', this.SID);
                         suc(req);
                     }
