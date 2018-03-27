@@ -9,9 +9,9 @@ enum FlyType{
 
 enum Season {
     const SPRING = '春'
-const SUMMER = '夏'
-const AUTUMN = '秋'
-const WINTER = '冬'
+    const SUMMER = '夏'
+    const AUTUMN = '秋'
+    const WINTER = '冬'
 }
 
 //进入起飞界面需要的数据
