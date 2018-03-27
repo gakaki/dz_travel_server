@@ -18,8 +18,6 @@ class ProvincePostcardInfo {
 class CityPostcardInfo {
     //城市名
     prop city:string
-    //是否已经被留言
-    prop hasLiveMessage:boolean
     //收集的该城市明信片张数
     prop collectPostcardNum:number
     //该城市明信片总张数
@@ -45,9 +43,9 @@ class OneBriefMessage {
     //发送或接受到明信片留言的时间戳
     prop time:string
     //发送该留言的玩家的个人信息
-    prop friend: UserBriefInfo
+    prop userInfo: UserBriefInfo
     //留言明信片内容
-    prop content:string
+    prop message:string
 }
 
 //一条留言的具体信息
@@ -77,8 +75,8 @@ api CityPostcards {
 api DetailPostcard {
     //明信片id
     require id:number
-    //留言开始id,默认为0
-    optional start:number
+    //留言开始页码,默认为1
+    optional page:number
     //返回的明信片留言条数,默认为10
     optional messageLength:number
     //明信片的主图

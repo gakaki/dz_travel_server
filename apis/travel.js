@@ -531,9 +531,6 @@ class CityPostcardInfo  {
         //prop type: string
         this.city = null;
     
-        //prop type: boolean
-        this.hasLiveMessage = null;
-    
         //prop type: number
         this.collectPostcardNum = null;
     
@@ -577,10 +574,10 @@ class OneBriefMessage  {
         this.time = null;
     
         //prop type: 
-        this.friend = null;
+        this.userInfo = null;
     
         //prop type: string
-        this.content = null;
+        this.message = null;
     
         
         
@@ -1046,15 +1043,23 @@ class TravelLog extends Base {
         super();
         this.action = 'travel.travellog';
     
-        this._uid = null;
+        this._playerUid = null;
+        this._page = null;
+        this._length = null;
         this._allLogs = null;
         this.requireFileds = [];
-        this.reqFields = ["uid"];
+        this.reqFields = ["playerUid","page","length"];
         this.resFields = ["allLogs"];
     }
     //client input, optional, type: string
-    get uid() {return this._uid}
-    set uid(v) {this._uid = v}
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: number
+    get page() {return this._page}
+    set page(v) {this._page = v}
+    //client input, optional, type: number
+    get length() {return this._length}
+    set length(v) {this._length = v}
     //server output, type: Log[]
     get allLogs() {return this._allLogs}
     set allLogs(v) {this._allLogs = v}
@@ -1118,20 +1123,20 @@ class DetailPostcard extends Base {
         this.action = 'postcard.detailpostcard';
     
         this._id = null;
-        this._start = null;
+        this._page = null;
         this._messageLength = null;
         this._url = null;
         this._lastestMessage = null;
         this.requireFileds = ["id"];
-        this.reqFields = ["id","start","messageLength"];
+        this.reqFields = ["id","page","messageLength"];
         this.resFields = ["url","lastestMessage"];
     }
     //client input, require, type: number
     get id() {return this._id}
     set id(v) {this._id = v}
     //client input, optional, type: number
-    get start() {return this._start}
-    set start(v) {this._start = v}
+    get page() {return this._page}
+    set page(v) {this._page = v}
     //client input, optional, type: number
     get messageLength() {return this._messageLength}
     set messageLength(v) {this._messageLength = v}
