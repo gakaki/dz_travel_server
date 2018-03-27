@@ -1,6 +1,6 @@
 const Service = require('egg').Service;
 const season = require('date-season')({north: true, autumn: true});
-const holiday = require('holiday.cn');
+const holiday = require('holiday.cn').default;
 const weather = require('../../utils/weather');
 
 module.exports = app => {
@@ -16,7 +16,8 @@ module.exports = app => {
         }
 
         async getHoliday(date=null) {
-
+            let h = holiday(new Date('2018-2-15'));
+            this.logger.info('got holiday info test', h)
         }
     }
 }
