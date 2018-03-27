@@ -7,12 +7,18 @@ class TravelController extends Controller {
 
         //read info's prop by client
 
-
-
         //write info's prop to client
         await this.service.travelService.travelService.fillIndexInfo(info);
         //send data
         info.submit();
+    }
+
+    async gotravel(ctx){
+        ctx.service.travelService.travelService.goTravel(info);
+    }
+
+    async letsgo(ctx){
+        ctx.service.travelService.travelService.letsGo(info);
     }
 }
 

@@ -3,7 +3,7 @@ const Service = require('egg').Service;
 const constant = require('../../utils/constant');
 const crypto = require("crypto");
 
-const PID_INIT = 160000;
+
 
 class UserService extends Service {
 
@@ -171,14 +171,13 @@ class UserService extends Service {
     async register(uid, info, third, appName) {
         // 生成pid
 
-        let pid = await this.app.redis.incr("global_userid");
+        let pid = await this.app.redis.incr("travel_userid");
 
         this.logger.info("注册信息 ：uid: " + uid + " pid :" + pid + "昵称 ： " + info.nickName);
         //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
-        let character = constant.AppCharacter[appName] || {};
         let ui = await this.ctx.model.PublicModel.User.create({
             uid: uid,
             appName: appName,
@@ -192,7 +191,6 @@ class UserService extends Service {
             third: third,
             pid: pidStr,
             items: items,
-            character: character
         });
 
 
@@ -231,7 +229,7 @@ class UserService extends Service {
     }
 
     async getPlayerCnt() {
-        let cnt = await this.ctx.model.UserActionRecord.PublicModel.count();
+        let cnt = await this.ctx.model.PublicModel.UserActionRecord.count();
         return cnt;
     }
 
