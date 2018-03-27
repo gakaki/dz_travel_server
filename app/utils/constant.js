@@ -1,4 +1,4 @@
-
+const travelConfig = require("../../sheets/travel");
 exports.AppName = {
     TRAVEL: "travel"
 };
@@ -8,23 +8,18 @@ exports.AppWithdrawCount = {
 };
 
 exports.AppItem = {
-    travel: getItem("travel")
+    travel: getItem()
 
 };
-function getItem(appName) {
-    switch (appName){
-        case "travel":
-
+function getItem() {
+    let items={};
+    for(let index of  travelConfig.items){
+        items["items."+index] = 0
     }
+    return items;
+
 }
 
-
-exports.AppCharacter = {
-    travel:{
-        gameCity:"",
-
-    }
-};
 
 
 
@@ -46,7 +41,8 @@ exports.roomStatus = {
 
 exports.PID_INIT = {
     guessnum: "0",
-    english: "1"
+    english: "1",
+    travel:"2"
 };
 
 

@@ -2450,12 +2450,13 @@ function getCityCode(city) {
 async function reqWeather(city) {
     return new Promise(resolve => {
         request(url + `city=${getCityCode(city)}`, (err, res, body) => {
-            if (body.status != 'OK') {
+            let getWeather = JSON.parse(body);
+            if (getWeather.status != 'OK') {
                 resolve({err:'获取天气失败'});
                 return;
             }
 
-            let weather = body.weather[0];
+            let weather = getWeather.weather[0];
             resolve(weather);
         })
     })

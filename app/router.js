@@ -14,8 +14,7 @@ module.exports = app => {
     router.get('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
 
-
-
+    router.get('/travel/index', controller.travelController.travelController.index);
 
 
 };

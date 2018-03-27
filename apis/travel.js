@@ -890,39 +890,39 @@ class CityList extends Base {
 class UserInfo extends UserBriefInfo {
     constructor(){
         super();
-    
         //prop type: string
         this.gender = null;
-    
+
         //prop type: number
         this.totalArrive = null;
-    
+
         //prop type: number
         this.overmatch = null;
-    
+
         //prop type: string
         this.city = null;
-    
+
         //prop type: string
         this.province = null;
-    
+
         //prop type: string
         this.country = null;
-    
+
         //prop type: Boolean
         this.online = null;
-    
+
         //prop type: KV[]
         this.items = null;
-    
+
         //prop type: KV[]
         this.rentItems = null;
-    
+
         //prop type: string[]
         this.friends = null;
-    
+
         //prop type: otherUserInfo
         this.otherUserInfo = null;
+
     
         
         
@@ -980,11 +980,15 @@ class CityPostcards extends Base {
         super();
         this.action = 'postcard.citypostcards';
     
+        this._province = null;
         this._postcardInfo = null;
-        this.requireFileds = [];
-        this.reqFields = [];
+        this.requireFileds = ["province"];
+        this.reqFields = ["province"];
         this.resFields = ["postcardInfo"];
     }
+    //client input, require, type: string
+    get province() {return this._province}
+    set province(v) {this._province = v}
     //server output, type: CityPostcardInfo[]
     get postcardInfo() {return this._postcardInfo}
     set postcardInfo(v) {this._postcardInfo = v}
@@ -1001,12 +1005,20 @@ class DetailPostcard extends Base {
         super();
         this.action = 'postcard.detailpostcard';
     
+        this._id = null;
+        this._start = null;
         this._url = null;
         this._lastestMessage = null;
-        this.requireFileds = [];
-        this.reqFields = [];
+        this.requireFileds = ["id","start"];
+        this.reqFields = ["id","start"];
         this.resFields = ["url","lastestMessage"];
     }
+    //client input, require, type: number
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: number
+    get start() {return this._start}
+    set start(v) {this._start = v}
     //server output, type: string
     get url() {return this._url}
     set url(v) {this._url = v}
@@ -1026,10 +1038,22 @@ class sendPostcard extends Base {
         super();
         this.action = 'postcard.sendpostcard';
     
-        this.requireFileds = [];
-        this.reqFields = [];
+        this._id = null;
+        this._friendUid = null;
+        this._message = null;
+        this.requireFileds = ["id","friendUid","message"];
+        this.reqFields = ["id","friendUid","message"];
         this.resFields = [];
     }
+    //client input, require, type: number
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: string
+    get friendUid() {return this._friendUid}
+    set friendUid(v) {this._friendUid = v}
+    //client input, require, type: string
+    get message() {return this._message}
+    set message(v) {this._message = v}
     static Init(ctx) {
         let o = new sendPostcard();
         o.ctx = ctx;
@@ -1283,10 +1307,18 @@ class exchangeShop extends Base {
         super();
         this.action = 'integralShop.exchangeshop';
     
-        this.requireFileds = [];
-        this.reqFields = [];
+        this._id = null;
+        this._integral = null;
+        this.requireFileds = ["id","integral"];
+        this.reqFields = ["id","integral"];
         this.resFields = [];
     }
+    //client input, require, type: string
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: string
+    get integral() {return this._integral}
+    set integral(v) {this._integral = v}
     static Init(ctx) {
         let o = new exchangeShop();
         o.ctx = ctx;
@@ -1331,10 +1363,10 @@ class getUserLocation extends Base {
     
         this._nickname = null;
         this._tel = null;
-        this._location = null;
+        this._address = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["nickname","tel","location"];
+        this.resFields = ["nickname","tel","address"];
     }
     //server output, type: string
     get nickname() {return this._nickname}
@@ -1343,8 +1375,8 @@ class getUserLocation extends Base {
     get tel() {return this._tel}
     set tel(v) {this._tel = v}
     //server output, type: string
-    get location() {return this._location}
-    set location(v) {this._location = v}
+    get address() {return this._address}
+    set address(v) {this._address = v}
     static Init(ctx) {
         let o = new getUserLocation();
         o.ctx = ctx;

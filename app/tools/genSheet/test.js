@@ -1,7 +1,5 @@
-const engConfig = require("../../../sheets/english")
+const trConfig = require("../../../sheets/travel")
 
-let stg = engConfig.Stage.Get(1)
-console.log(stg.frame);
 
-let arr = engConfig.stages;
-console.log('stagearr', arr)
+console.log(
+trConfig.Item.POINT);
