@@ -8,7 +8,6 @@ module.exports = app => {
         index: {type: String},//道具索引
         pid: {type: String},
         appName: {type: String},
-
     });
 
     return mongoose.model('UserItemCounter', UserItemCounterSchema);

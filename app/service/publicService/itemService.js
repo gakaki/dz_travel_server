@@ -21,7 +21,7 @@ class ItemService extends Service {
                     appName: appMame,
                     delta: delta[indexs],
                     time: new Date().toLocaleString(),
-
+                    createDateTime:new Date()
                 });
 
                 this.logger.info("用户道具 " + index +" 更新记录 ：" + JSON.stringify(r));

@@ -28,6 +28,7 @@ module.exports = app => {
         return_code: {type: String},//"
         return_msg: {type: String},//"
         status: {type: Number},//"处理状态码
+        createDateTime:{type:Date}
 
     });
 

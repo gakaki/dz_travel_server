@@ -5,6 +5,8 @@ module.exports = app => {
         rankType: {type: String},
         date: {type: String},
         rid: {type: String},
+        isMatch:{type:Boolean,default:false},
+        isOver:{type:Boolean,default:false}
 
     });
 

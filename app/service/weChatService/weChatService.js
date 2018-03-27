@@ -52,6 +52,7 @@ class WeChatService extends Service {
             desc: "豆子网络-" + appName + "游戏",
             appName: appName,
             time: new Date().toLocaleString(),
+            createDateTime:new Date()
         };
         this.logger.info("我准备入库的金额 ：" + payInfo.price);
 
@@ -132,6 +133,7 @@ class WeChatService extends Service {
 
         }
         wuo.appName = appName;
+        wuo.createDateTime = new Date();
         this.ctx.model.WeChatModel.WechatUnifiedOrder.create(wuo);
 
         return result;
@@ -157,6 +159,7 @@ class WeChatService extends Service {
         wtd.createTime = new Date().toLocaleTimeString();
         let res = await this.ReqPaytoUser(wtd);
         wtd.appName = appName;
+        wtd.createDateTime=new Date();
         if (!res) {
             wtd.success = false;
             this.ctx.model.WeChatModel.WechatPaytoUser.create(wtd);
@@ -178,7 +181,8 @@ class WeChatService extends Service {
             query: referrerInfo.query,
             scene: referrerInfo.scene,
             shareTicket:referrerInfo.shareTicket,
-            createDate:new Date().toLocaleString()
+            createDate:new Date().toLocaleString(),
+            createDateTime:new Date()
         }
 
         this.ctx.model.WeChatModel.Referrer.create(referrer);
@@ -376,6 +380,7 @@ class WeChatService extends Service {
     }
 
     async payCheck(WechatPayResults) {
+        WechatPayResults.createDateTime=new Date();
         await this.ctx.model.WeChatModel.WechatPayResult.create(WechatPayResults);
         return true;
     }

@@ -212,7 +212,8 @@ class EnglishService extends Service {
             uid: ui.uid,
             appName: appName,
             createDate: new Date().toLocaleDateString(),
-            createTime: new Date().toLocaleTimeString()
+            createTime: new Date().toLocaleTimeString(),
+            createDateTime:new Date()
         });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid, appName: appName}, {$inc: cost});
         let user = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid, appName: appName});
@@ -255,6 +256,7 @@ class EnglishService extends Service {
             appName: appName,
             createTime: new Date().toLocaleTimeString(),
             createDate: new Date().toLocaleDateString(),
+            createDateTime:new Date()
         };
         let season = this.getSeason();
         if (count < englishConfigs.Constant.Get(englishConfigs.Constant.SHARENUM).value) {
@@ -940,7 +942,8 @@ class EnglishService extends Service {
                     rid: rid,
                     result: result.final,
                     date: new Date().toLocaleDateString(),
-                    time: new Date().toLocaleTimeString()
+                    time: new Date().toLocaleTimeString(),
+                    createDateTime:new Date()
                 };
                 this.ctx.model.EnglishModel.EnglishPKRecord.create(englishPKRecord);
 

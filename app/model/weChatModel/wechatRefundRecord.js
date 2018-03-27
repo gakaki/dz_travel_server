@@ -10,6 +10,7 @@ module.exports = app => {
         createTime: {type: String},
         status: {type: String},
         success: {type: Boolean},
+        createDateTime:{type:Date}
 
 
     });

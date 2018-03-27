@@ -8,6 +8,7 @@ module.exports = app => {
         scene: {type: Number},//打开小程序的场景值
         shareTicket: {type: String},//转发信息
         createDate: {type: String},
+        createDateTime:{type:Date}
 
 });
 

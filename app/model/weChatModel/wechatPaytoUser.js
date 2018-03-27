@@ -15,7 +15,8 @@ module.exports = app => {
         created: {type: String},
         createTime: {type: String},
         success: {type: Boolean},
-        appName: {type: String}
+        appName: {type: String},
+        createDateTime:{type:Date}
 
 
     });

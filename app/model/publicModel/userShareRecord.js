@@ -7,7 +7,8 @@ module.exports = app => {
         createDate: {type: String},
         num: {type: Number},
         getItem: {type: Boolean},
-        itemId: {type: Number}
+        itemId: {type: Number},
+        createDateTime:{type:Date}
     });
 
     return mongoose.model('UserShareRecord', UserShareRecordSchema);

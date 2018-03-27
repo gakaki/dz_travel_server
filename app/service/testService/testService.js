@@ -25,12 +25,12 @@ class TestService extends Service {
         await this.app.redis.sadd("testmatchpool", ui.uid);
     }
     async matchSuccess(matchPoolPlayer){
-        console.log("success");
         let rid = "99"+new Date().getTime();
         for(let player of matchPoolPlayer){
             await this.app.redis.srem("testmatchpool", player.uid);
             await this.ctx.model.TestModel.TestMatch.update({uid:player.uid},{$set:{
-                    rid:rid
+                    rid:rid,
+                    isMatch:true
                 }});
         }
         await this.ctx.service.redisService.redisService.initRoom(matchPoolPlayer, rid);

@@ -8,7 +8,8 @@ module.exports = app => {
         isRight:{type:Boolean},
         wid:{type:Number},
         date:{type:String},
-        time:{type:String}
+        time:{type:String},
+        createDateTime:{type:Date}
 
     });
 

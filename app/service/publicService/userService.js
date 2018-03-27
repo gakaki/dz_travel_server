@@ -130,7 +130,8 @@ class UserService extends Service {
                 agent: this.ctx.request.header['user-agent'],
                 host: this.ctx.request.header.host,
                 addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
-            }
+            },
+            createDateTime:new Date()
         });
 
         result.sid = ses.sid;
@@ -157,7 +158,8 @@ class UserService extends Service {
                     agent: this.ctx.request.header['user-agent'],
                     host: this.ctx.request.header.host,
                     addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
-                }
+                },
+                createDateTime:new Date()
             });
             return ui;
         }
@@ -193,7 +195,8 @@ class UserService extends Service {
             third: third,
             pid: pidStr,
             items: items,
-            character: character
+            character: character,
+            createDateTime:new Date()
         });
 
 
@@ -204,6 +207,7 @@ class UserService extends Service {
             appName: appName,
             time: new Date().toLocaleTimeString(),
             date: new Date().toLocaleDateString(),
+            createDateTime:new Date()
         });
 
         return ui;

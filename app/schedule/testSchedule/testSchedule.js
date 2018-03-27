@@ -17,7 +17,7 @@ module.exports = {
                 ctx.logger.warn(player.uid + "在匹配池中是时间超过 30 s，直接移除");
                 //    ctx.app.messenger.sendToApp('matchFailed',{appName:constant.AppName.ENGLISH,uid:player.user.uid,isCancel:false});
                 await ctx.app.redis.srem("testmatchpool", player.uid);
-                ctx.service.testService.testService.ranking(player.uid,player.rankType);
+                //ctx.service.testService.testService.ranking(player.uid,player.rankType);
               //  ctx.service.englishService.englishService.matchFailed(player.uid, false);
                 continue;
             }

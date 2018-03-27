@@ -5,6 +5,7 @@ module.exports = app => {
         appName: {type: String},
         createDate: {type: String},
         createTime: {type: String},
+        createDateTime:{type:Date}
     });
 
     return mongoose.model('SignInRecord', SignInRecordSchema);

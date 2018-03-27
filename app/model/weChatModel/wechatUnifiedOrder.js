@@ -27,6 +27,7 @@ module.exports = app => {
         code_url: {type: String},//""trade_type为NATIVE时有返回，用于生成二维码，展示给用户进行扫码支付
         success: {type: Boolean},//"订单下单成功还是失败
         appName: {type: String},//"小程序名字
+        createDateTime:{type:Date}
     });
 
     return mongoose.model('WechatUnifiedOrder', WechatUnifiedOrderSchema);

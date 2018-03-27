@@ -140,7 +140,8 @@ class EnglishIOController extends Controller {
             isRight: isRight,
             wid: wid,//单词id
             date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString()
+            time: new Date().toLocaleTimeString(),
+            createDateTime:new Date()
 
         };
         ctx.model.EnglishModel.EnglishAnswerRecord.create(englishAnswerRecord);
@@ -264,15 +265,16 @@ class EnglishIOController extends Controller {
             //要加入的房间存在
             if (isExist) {
                 roomId = rid;
-            }
-            let userList = JSON.parse(roomInfo.userList);
-            if(userList.length > 2){
-                for(let id of userList){
-                    if(id != ui.uid){
-                        return
+                let userList = JSON.parse(roomInfo.userList);
+                if(userList.length > 2){
+                    for(let id of userList){
+                        if(id != ui.uid){
+                            return
+                        }
                     }
                 }
             }
+
 
         }
 

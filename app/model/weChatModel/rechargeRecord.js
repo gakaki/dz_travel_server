@@ -10,6 +10,7 @@ module.exports = app => {
         desc: {type: String},
         type: {type: String},
         close: {type: Boolean, default: false},
+        createDateTime:{type:Date}
 
     });
 

@@ -7,6 +7,7 @@ module.exports = app => {
         time: {type: String},
         date: {type: String},
         data: {type: JSON},
+        createDateTime:{type:Date}
 
     });
 

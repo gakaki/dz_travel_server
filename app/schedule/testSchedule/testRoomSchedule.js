@@ -37,9 +37,10 @@ module.exports = {
                                     let player = await ctx.app.redis.hgetall(uid);
                                     player.rid = 0;
                                     await ctx.app.redis.hmset(uid,player);
-                                    await ctx.model.TestModel.TestUser.update({uid:uid},{$set:{
+                                    await ctx.model.TestModel.TestMatch.update({uid:uid},{$set:{
                                             uid:uid,
-                                            rid:0,
+                                            rid:"0",
+                                            isOver:true
                                         }});
                                 }
                                 await ctx.app.redis.del(roomId);
