@@ -18,8 +18,6 @@ class ProvincePostcardInfo {
 class CityPostcardInfo {
     //城市名
     prop city:string
-    //是否已经被留言
-    prop hasLiveMessage:boolean
     //收集的该城市明信片张数
     prop collectPostcardNum:number
     //该城市明信片总张数
