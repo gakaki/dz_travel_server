@@ -14,7 +14,7 @@ module.exports = {
     },
     travel: {
         enable: true,
-        inDir:'../H5/design/小程序/配置表/tour.xlsx',//也可以配置到具体文件，只处理这一个文件
+        inDir:'../../../svn/design/小程序/配置表/tour.xlsx',//也可以配置到具体文件，只处理这一个文件
         outFileC:'../travel/sheets.js',
         outFileS:'./sheets/travel.js',
     },
