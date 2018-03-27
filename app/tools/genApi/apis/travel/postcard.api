@@ -45,7 +45,7 @@ class OneBriefMessage {
     //发送该留言的玩家的个人信息
     prop userInfo: UserBriefInfo
     //留言明信片内容
-    prop content:string
+    prop message:string
 }
 
 //一条留言的具体信息
