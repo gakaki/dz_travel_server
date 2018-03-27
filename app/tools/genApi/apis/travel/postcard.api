@@ -43,7 +43,7 @@ class OneBriefMessage {
     //发送或接受到明信片留言的时间戳
     prop time:string
     //发送该留言的玩家的个人信息
-    prop friend: UserBriefInfo
+    prop userInfo: UserBriefInfo
     //留言明信片内容
     prop content:string
 }
