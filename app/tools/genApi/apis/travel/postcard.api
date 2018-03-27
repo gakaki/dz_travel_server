@@ -77,12 +77,15 @@ api CityPostcards {
 api DetailPostcard {
     //明信片id
     require id:number
-    //留言开始id
-    require start:number
+    //留言开始id,默认为0
+    optional start:number
+    //返回的明信片留言条数,默认为10
+    optional messageLength:number
     //明信片的主图
     output url:string
     //最新10条留言
     output lastestMessage:DetailLiveMessage[]
+
 }
 
 //发送明信片留言
