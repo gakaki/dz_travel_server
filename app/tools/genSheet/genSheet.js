@@ -237,7 +237,7 @@ function mergeToJson(sht, sheetName, fl) {
 
 
 function parseType(type, data) {
-    if (data)
+    if (data || data == 0)
         data +=''//转字符串
     else
         data = '';
