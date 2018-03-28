@@ -19,11 +19,12 @@ class UserController extends Controller {
             return;
         }
         let rs = await this.service.publicService.userService.login(uid,_sid,appName,JSON.parse(info));
+        ctx.logger.info(rs);
         if (rs.info != null) {
             result.code = 0;
-            result.info = rs.info;
-            result.sid = rs.sid;
-            result.timestamp = (Date.now() / 1000) >> 0;
+            result.data.info = rs.info;
+            result.data.sid = rs.sid;
+            result.data.timestamp = (Date.now() / 1000) >> 0;
         } else {
             result.code = constant.Code.LOGIN_FAILED;
         }
@@ -32,7 +33,7 @@ class UserController extends Controller {
 
     async getiteminfo(ctx) {
         this.logger.info("我要查询道具");
-        let result = {};
+        let result = {data:{}};
         const {_sid, itemId} = ctx.query;
         if (!_sid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
@@ -47,9 +48,9 @@ class UserController extends Controller {
         }
         result.code = constant.Code.OK;
         if(itemId){
-            result.stock = ui.items[itemId];
+            result.data.stock = ui.items[itemId];
         }else{
-            result.stock = ui.items;
+            result.data.stock = ui.items;
         }
 
         ctx.body = result;
