@@ -113,9 +113,16 @@ class PlayerService extends Service {
                     city:travelConfig.City.Get(postcard.cid).city,
                     collectPostcardNum:postcard.collectPostcardNum,
                     allPostcardNum : travelConfig.City.Get(postcard.cid).postcardnum,
-                    PostcardBriefDetail:[]
                 };
-
+                let postcardBriefDetails = [];
+                for(let pt of postcard.postcard){
+                    let postcardBriefDetail ={
+                        id : pt.ptid,
+                        url: pt.pscid,
+                    };
+                    postcardBriefDetails.push(postcardBriefDetail)
+                }
+                postcardInfo.postcardsDetail = postcardBriefDetails;
 
                 postcardInfos.push(postcardInfo);
 
