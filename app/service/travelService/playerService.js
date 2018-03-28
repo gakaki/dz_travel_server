@@ -78,7 +78,7 @@ class PlayerService extends Service {
       let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
           {$match: {uid: ui.uid}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
-          {$project : {_id: 0, province :"$_id.province", collectPostcardNum : 1}}
+          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1}}
             ]);
       let postcardInfos = [];
       for(let postcard of postcards){
@@ -98,23 +98,31 @@ class PlayerService extends Service {
         info.postcardInfo = postcardInfos;
     }
     async showCityPostcards(info,ui){
-        if(info.LM){
+        if(!Number(info.LM)){
 
         }else{
             let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
                 {$match: {uid: ui.uid,province:info.province}},
-                {$group:{_id:{cid:"$cid",city:"$city"},collectPostcardNum:{$sum:1}}},
-                {$project:{_id:0,cid:"$_id.cid",collectPostcardNum:1}}
-            ]);
+                {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
+                {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
+            ]).sort({cid:1,"postcard.createDate":-1});
 
             let postcardInfos = [];
             for(let postcard of postcards){
                 let postcardInfo ={
                     city:travelConfig.City.Get(postcard.cid).city,
                     collectPostcardNum:postcard.collectPostcardNum,
-                    allPostcardNum : postcardnum
+                    allPostcardNum : travelConfig.City.Get(postcard.cid).postcardnum,
                 };
-
+                let postcardBriefDetails = [];
+                for(let pt of postcard.postcard){
+                    let postcardBriefDetail ={
+                        id : pt.ptid,
+                        url: pt.pscid,
+                    };
+                    postcardBriefDetails.push(postcardBriefDetail)
+                }
+                postcardInfo.postcardsDetail = postcardBriefDetails;
 
                 postcardInfos.push(postcardInfo);
 

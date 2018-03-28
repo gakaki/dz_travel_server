@@ -6,8 +6,8 @@ module.exports = app => {
         country:{type:String},
         province:{type:String},
         city:{type:String},
-        ptid:{type:String},  //明信片样式ID
-        pscid:{type:String},//明信片ID
+        ptid:{type:String},  //明信片配表ID
+        pscid:{type:String},//明信片专有ID
         createDate:{type:Date} //创建时间
     });
 

@@ -31,7 +31,7 @@ class PostcardBriefDetail {
     //明信片id
     prop id:string
     //明信片图片
-    prop url:string
+    prop postid:string
     //明信片最新一条留言
     prop lastestLiveMessage:OneBriefMessage
 }
@@ -65,8 +65,8 @@ api MyPostcards {
 
 //全部明信片和留言明信片
 api CityPostcards {
-    //是否为留言明信片,没有则默认为false,获取全部明信片
-    optional LM:boolean
+    //0为全部明信片,1位留言明信片
+    optional LM:number
     //省份名
     require province:string
     //所有的城市明信片相关信息
