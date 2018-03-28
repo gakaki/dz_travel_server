@@ -78,7 +78,7 @@ class PlayerService extends Service {
       let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
           {$match: {uid: ui.uid}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
-          {$project : {_id: 0, province :"$_id.province", collectPostcardNum : 1}}
+          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1}}
             ]);
       let postcardInfos = [];
       for(let postcard of postcards){
@@ -103,9 +103,9 @@ class PlayerService extends Service {
         }else{
             let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
                 {$match: {uid: ui.uid,province:info.province}},
-                {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid"}}}},
-                {$project:{_id:0,cid:"$_id.cid",collectPostcardNum:1}}
-            ]);
+                {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
+                {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
+            ]).sort({cid:1,"postcard.createDate":-1});
 
             let postcardInfos = [];
             for(let postcard of postcards){

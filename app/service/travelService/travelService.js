@@ -18,6 +18,7 @@ class TravelService extends Service {
                     break;
                 }
             }
+            info.location = visit.city;
           }
          info.weather = outw;
           info.playerCnt = (await this.app.redis.get("travel_userid"));
@@ -169,10 +170,10 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : 20;
         let logs = await this.ctx.model.TravelModel.TravelLog.aggregate([
             { $match: {"uid":ui.uid} },
-            {$group:{ _id: "$date", onedaylog: {$push: {city:"$city",rentCarType:"$rentCarType",scenicspot:"$scenicspot"}}}},
-            {$project:{time:"$_id.date",onedaylog:1}}
+            {$group:{ _id: "$date", onedaylog: {$push: {city:"$city",rentCarType:"$rentCarType",scenicspot:"$scenicspot",createDate:"$createDate"}}}},
+            {$project:{time:"$_id",onedaylog:1}}
             ])
-            .sort({date:-1})
+            .sort({time:-1,["onedaylog.createDate"]:-1})
             .skip((page-1)*limit)
             .limit(limit);
         info.allLogs = logs;
