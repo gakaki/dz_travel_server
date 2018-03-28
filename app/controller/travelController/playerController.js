@@ -23,7 +23,7 @@ class PlayerController extends Controller {
 
     async showflyticket(ctx){
         let info = apis.LookTicket.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -37,7 +37,7 @@ class PlayerController extends Controller {
 
     async setrealinfo(ctx){
         let info = apis.ModifyRealInfo.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -51,7 +51,7 @@ class PlayerController extends Controller {
 
     async getrealinfo(ctx){
         let info = apis.GetRealInfo.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -65,7 +65,7 @@ class PlayerController extends Controller {
 
     async showmypostcards(ctx){
         let info = apis.MyPostcards.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -78,7 +78,7 @@ class PlayerController extends Controller {
 
     async showcitypostcards(ctx){
         let info =apis.CityPostcards.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();

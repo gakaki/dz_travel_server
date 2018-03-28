@@ -6,7 +6,7 @@ const travelConfig = require("../../../sheets/travel");
 class TravelController extends Controller {
     async index(ctx) {
         let info = apis.IndexInfo.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -23,7 +23,7 @@ class TravelController extends Controller {
     //选择城市
     async selectcity(ctx){
         let info = apis.FlyInfo.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info._sid);
         if(!ui) {
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();

@@ -98,12 +98,12 @@ class PlayerService extends Service {
         info.postcardInfo = postcardInfos;
     }
     async showCityPostcards(info,ui){
-        if(info.LM){
+        if(!Number(info.LM)){
 
         }else{
             let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
                 {$match: {uid: ui.uid,province:info.province}},
-                {$group:{_id:{cid:"$cid",city:"$city"},collectPostcardNum:{$sum:1}}},
+                {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid"}}}},
                 {$project:{_id:0,cid:"$_id.cid",collectPostcardNum:1}}
             ]);
 
@@ -112,7 +112,8 @@ class PlayerService extends Service {
                 let postcardInfo ={
                     city:travelConfig.City.Get(postcard.cid).city,
                     collectPostcardNum:postcard.collectPostcardNum,
-                    allPostcardNum : postcardnum
+                    allPostcardNum : travelConfig.City.Get(postcard.cid).postcardnum,
+                    PostcardBriefDetail:[]
                 };
 
 
