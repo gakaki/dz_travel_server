@@ -1122,14 +1122,14 @@ class MyPostcards extends Base {
         super();
         this.action = 'postcard.mypostcards';
     
-        this._ = null;
+        this._postcardInfo = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = [""];
+        this.resFields = ["postcardInfo"];
     }
-    //server output, type: 
-    get () {return this._}
-    set (v) {this._ = v}
+    //server output, type: ProvincePostcardInfo[]
+    get postcardInfo() {return this._postcardInfo}
+    set postcardInfo(v) {this._postcardInfo = v}
     static Init(ctx) {
         let o = new MyPostcards();
         o.ctx = ctx;

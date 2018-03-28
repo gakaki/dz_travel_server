@@ -6,12 +6,13 @@ const travelConfig = require("../../../sheets/travel");
 class TravelController extends Controller {
     async index(ctx) {
         let info = apis.IndexInfo.Init(ctx);
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
+        let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await this.service.travelService.travelService.fillIndexInfo(info,ui);
+            info.submit();
+            return;
         }
+        await this.service.travelService.travelService.fillIndexInfo(info,ui);
 
         //send data
         info.submit();
@@ -21,12 +22,13 @@ class TravelController extends Controller {
     //选择城市
     async selectcity(ctx){
         let info = apis.FlyInfo.Init(ctx);
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
+        let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
         if(!ui) {
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await this.service.travelService.travelService.selectCity(info);
+            info.submit();
+            return;
         }
+        await this.service.travelService.travelService.selectCity(info);
 
         info.submit();
     }
@@ -34,7 +36,7 @@ class TravelController extends Controller {
     async visit(ctx){
         let info = apis.StartGame.Init(ctx);
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
-        let fui = await this.ctx.model.PublicModel.User.findOne({uid: info.fid});
+        let fui = await this.ctx.model.PublicModel.User.findOne({uid: info.partnerUid});
         this.logger.info("访问城市");
         //用户不存在
         if(!ui){

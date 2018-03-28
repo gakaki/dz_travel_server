@@ -20,7 +20,7 @@ module.exports = appInfo => {
 
     config.io = {
         namespace: {
-            '/english': {
+            '/travel': {
                 connectionMiddleware: ['connection'],
                 packetMiddleware: [],
             },

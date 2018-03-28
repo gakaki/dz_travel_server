@@ -59,7 +59,7 @@ class DetailLiveMessage extends  OneBriefMessage {
 //我的省份明信片
 api MyPostcards {
     //所有的省明信片简略信息
-    output  postcardInfo:ProvincePostcardInfo[]
+    output postcardInfo:ProvincePostcardInfo[]
 }
 
 

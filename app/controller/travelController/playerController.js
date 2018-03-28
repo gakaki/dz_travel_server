@@ -13,22 +13,24 @@ class PlayerController extends Controller {
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await ctx.service.travelService.playerService.showPlayerInfo(info,ui);
+            info.submit();
+            return;
         }
-
+        await ctx.service.travelService.playerService.showPlayerInfo(info,ui);
         //send data
         info.submit();
     }
 
     async showflyticket(ctx){
         let info = apis.LookTicket.Init(ctx);
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
+        let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await ctx.service.travelService.playerService.showFlyTicket(info,ui);
+            info.submit();
+            return;
         }
+        await ctx.service.travelService.playerService.showFlyTicket(info,ui);
+
         info.submit();
     }
 
@@ -38,9 +40,12 @@ class PlayerController extends Controller {
         let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await ctx.service.travelService.playerService.setRealInfo(info,ui);
+            info.submit();
+            return;
         }
+
+        await ctx.service.travelService.playerService.setRealInfo(info,ui);
+
         info.submit();
     }
 
@@ -49,9 +54,37 @@ class PlayerController extends Controller {
         let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await ctx.service.travelService.playerService.getRealInfo(info,ui);
+            info.submit();
+            return;
         }
+
+        await ctx.service.travelService.playerService.getRealInfo(info,ui);
+
+        info.submit();
+    }
+
+    async showmypostcards(ctx){
+        let info = apis.MyPostcards.Init(ctx);
+        let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.showMyPostcards(info,ui);
+        info.submit();
+
+    }
+
+    async showcitypostcards(ctx){
+        let info =apis.CityPostcards.Init(ctx);
+        let ui = ctx.service.PublicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.showCityPostcards(info,ui);
         info.submit();
     }
 

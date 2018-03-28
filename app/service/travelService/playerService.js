@@ -1,5 +1,5 @@
 const Service = require('egg').Service;
-const travelConfog = require("../../../sheets/travel");
+const travelConfig = require("../../../sheets/travel");
 class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
@@ -9,7 +9,7 @@ class PlayerService extends Service {
         let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid);
         let total = totalFootprints.length;
         let overMatch = Math.floor(((total-playerIndex) / total)*100);
-        let addScore = await this.ctx.model.publicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfog.Item.POINT});
+        let addScore = await this.ctx.model.publicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
         let postCards = await this.ctx.model.TravelModel.PostCard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: "$likes"}});
@@ -73,6 +73,40 @@ class PlayerService extends Service {
             phoneNumber: ui.mobile,
             adress: ui.address
         }
+    }
+    async showMyPostcards(info,ui) {
+      let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
+          {$match: {uid: ui.uid}},
+          {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
+          {$project : {_id: 0, province :"$_id.province", collectPostcardNum : 1}}
+            ]);
+      let postcardInfos = [];
+      for(let postcard of postcards){
+          let citys = postcard.citys;
+          let postcardnum = 0;
+          let postcardInfo ={
+              province:postcard.province,
+              collectPostcardNum:postcard.collectPostcardNum
+          };
+          for(let city of citys){
+              postcardnum += travelConfig.City.Get(city.cid).postcardnum;
+          }
+          postcardInfo.allPostcardNum = postcardnum;
+          postcardInfos.push(postcardInfo);
+
+      }
+        info.postcardInfo = postcardInfos;
+    }
+    async showCityPostcards(info,ui){
+        if(info.LM){
+
+        }else{
+            let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
+                {$match: {uid: ui.uid,province:info.province}},
+                {$group:{_id:"$cid",collectPostcardNum:{$sum:1}}}
+            ])
+        }
+
     }
 
 }
