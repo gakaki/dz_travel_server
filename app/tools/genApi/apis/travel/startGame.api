@@ -50,5 +50,5 @@ api StartGame{
     //花费的金币
     require cost:number
     //小伙伴uid
-    optional uid:string
+    optional partnerUid:string
 }

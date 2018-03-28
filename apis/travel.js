@@ -1235,9 +1235,9 @@ class StartGame extends Base {
         this._type = null;
         this._cid = null;
         this._cost = null;
-        this._uid = null;
+        this._partnerUid = null;
         this.requireFileds = ["type","cid","cost"];
-        this.reqFields = ["type","cid","cost","uid"];
+        this.reqFields = ["type","cid","cost","partnerUid"];
         this.resFields = [];
     }
     //client input, require, type: TicketType
@@ -1250,8 +1250,8 @@ class StartGame extends Base {
     get cost() {return this._cost}
     set cost(v) {this._cost = v}
     //client input, optional, type: string
-    get uid() {return this._uid}
-    set uid(v) {this._uid = v}
+    get partnerUid() {return this._partnerUid}
+    set partnerUid(v) {this._partnerUid = v}
     static Init(ctx) {
         let o = new StartGame();
         o.ctx = ctx;
