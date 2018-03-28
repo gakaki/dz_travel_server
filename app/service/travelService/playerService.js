@@ -6,10 +6,10 @@ class PlayerService extends Service {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         let totalFootprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $sortByCount: "$uid" }]);
         let playerFootprints  =  totalFootprints.find((n) => n._id == ui.uid);
-        let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid);
+        let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid) || 0;
         let total = totalFootprints.length;
         let overMatch = Math.floor(((total-playerIndex) / total)*100);
-        let addScore = await this.ctx.model.publicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
+        let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
         let postCards = await this.ctx.model.TravelModel.PostCard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: "$likes"}});
@@ -19,14 +19,14 @@ class PlayerService extends Service {
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
             gender: ui.gender,
-            totalArrive: playerFootprints.count,
+            totalArrive: playerFootprints?playerFootprints.count:0,
             overmatch: overMatch,
-            city: visit.city,
-            province: visit.province,
-            country: visit.country,
+            city: visit?visit.city:"初次旅行",
+            province: visit?visit.province:"初次旅行",
+            country: visit?visit.country:"初次旅行",
             online: ui.online,
             items: ui.items,
-            rentItems: visit.rentItems,
+            rentItems: visit?visit.rentItems:{},
             friends: ui.friendList,
             otherUserInfo: {
                 totalIntegral: addScore ? addScore :0,
@@ -115,17 +115,32 @@ class PlayerService extends Service {
 
                 let postcardBriefDetails = [];
                 for(let pt of postcard.postcard){
-                    let postcardBriefDetail ={
-                        id : pt.ptid,
-                        postid: pt.pscid,
-                    };
-                    if(!Number(info.LM)){
-                        let chats = await this.ctx.model.TravelModel.Chat.find({uid:uid.uid,pscid:pt.pscid}).sort({createDate:-1});
+                    let postcardBriefDetail={};
+                    if(Number(info.LM)){
+                        let chats = await this.ctx.model.TravelModel.Chat.find({uid:ui.uid,pscid:pt.pscid}).sort({createDate:-1});
                         if(chats.length>0){
+                             postcardBriefDetail ={
+                                id : pt.ptid,
+                                postid: pt.pscid,
+                            };
+                            let chat = chats[0];
+                            let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
                             postcardBriefDetail.lastestLiveMessage= {
-
+                                id:chat.chatid,
+                                time:new Date(chat.createDate).toLocaleString(),
+                                userInfo:{
+                                    uid:sender.uid,
+                                    nickName:sender.nickName,
+                                    avatarUrl:sender.avatarUrl
+                                },
+                                message:chat.context
                             }
                         }
+                    }else{
+                        postcardBriefDetail ={
+                            id : pt.ptid,
+                            postid: pt.pscid,
+                        };
                     }
 
                     postcardBriefDetails.push(postcardBriefDetail)
