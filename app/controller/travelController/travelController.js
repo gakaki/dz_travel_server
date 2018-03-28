@@ -12,7 +12,6 @@ class TravelController extends Controller {
         }else{
             await this.service.travelService.travelService.fillIndexInfo(info,ui);
         }
-
         //send data
         info.submit();
     }

@@ -5,7 +5,7 @@ const travelConfig = require("../../../sheets/travel");
 class TravelService extends Service {
     async fillIndexInfo(info,ui) {
         // info typeof apis.IndexInfo
-          info.isFirst = ui.isFirst;
+        info.isFirst = ui.isFirst;
           info.playerInfo = {
               uid:ui.uid,
               nickName:ui.nickName,

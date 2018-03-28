@@ -172,14 +172,13 @@ class Base{
                 url: Base.SRV,
                 data: this.reqData,
                 success: res => {
-                  this.parse(res.data.data);
-                  this.code = res.data.code;
+                  this.parse(res.data);
                   if (this.code != Code.OK) {
                       console.log('fetch got an error code',this.code);
                       reject(this.code);
                   }
                   else {
-                      Base._try(resolve);
+                      resolve(this);
                   }
                 },
                 fail: err => {
@@ -193,6 +192,7 @@ class Base{
     func server submit() {
         let tmp = {};
         tmp.action = this.action;
+        tmp.code = this.code;
         this.resFields.forEach(k => {
            tmp[k] = this[k]
         });
@@ -249,21 +249,12 @@ class Base{
         return Base.SID;
     }
     
-    func client static _try(resolve) {
-        try {
-            resolve();
-        }
-        catch (e) {
-            console.log('promise resolve exe err')
-        }
-    }
-
     func client static Start(appName, url) {
         return new Promise((resolve,reject) => {
             let app = getApp();
             if (this.LOGINED) {
                 //已经有用户数据
-                this._try(resolve);
+                resolve();
             }
             else {
                 this.DoStart(appName, url).then(resolve).catch(reject);
@@ -365,6 +356,7 @@ class WsReceive extends Base{
     func server submit() {
         let tmp = {};
         tmp.action = this.action;
+        tmp.code = this.code;
         this.resFields.forEach(k => {
             tmp[k] = this[k]
         });

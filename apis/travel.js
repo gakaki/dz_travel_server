@@ -10,19 +10,6 @@ class Season{
     static get WINTER() { return '冬';}
     
 }
-class Weather{
-    
-    static get SUNNY() { return '晴';}
-    
-    static get CLOUDY() { return '阴';}
-    
-    static get RAIN() { return '雨';}
-    
-    static get SNOW() { return '雪';}
-    
-    static get WINDY() { return '风';}
-    
-}
 class Code{
     
     static get AUTH_FAILED() { return -99;}
@@ -375,6 +362,7 @@ class Base  {
    submit() {
         let tmp ={};
         tmp.action=this.action;
+        tmp.code=this.code;
         this.resFields.forEach(k => {
            tmp[k]=this[k]
         });
@@ -989,7 +977,7 @@ class IndexInfo extends Base {
     //server output, type: Season
     get season() {return this._season}
     set season(v) {this._season = v}
-    //server output, type: Weather
+    //server output, type: number
     get weather() {return this._weather}
     set weather(v) {this._weather = v}
     //server output, type: number
@@ -1733,7 +1721,6 @@ class TestSend extends WsSend {
 }
 //-------------exports---------------
 exports.Season = Season;
-exports.Weather = Weather;
 exports.Code = Code;
 exports.TicketType = TicketType;
 exports.RankType = RankType;
