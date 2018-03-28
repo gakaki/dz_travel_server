@@ -362,11 +362,10 @@ class Base  {
    submit() {
         let tmp ={};
         tmp.action=this.action;
-        tmp.code=this.code;
         this.resFields.forEach(k => {
            tmp[k]=this[k]
         });
-        this.ctx.body=tmp;
+        this.ctx.body ={data: tmp, code: this.code};
     }
    parse(data, serverSide=false) {
         Object.assign(this, data);
@@ -552,7 +551,7 @@ class PostcardBriefDetail  {
         this.id = null;
     
         //prop type: string
-        this.url = null;
+        this.postid = null;
     
         //prop type: OneBriefMessage
         this.lastestLiveMessage = null;
@@ -1076,9 +1075,11 @@ class IndexInfo extends Base {
         this._playerCnt = null;
         this._friends = null;
         this._unreadMsgCnt = null;
+        this._location = null;
+        this._gold = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt"];
+        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
     //server output, type: Boolean
     get isFirst() {return this._isFirst}
@@ -1098,6 +1099,12 @@ class IndexInfo extends Base {
     //server output, type: number
     get unreadMsgCnt() {return this._unreadMsgCnt}
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
+    //server output, type: number
+    get location() {return this._location}
+    set location(v) {this._location = v}
+    //server output, type: number
+    get gold() {return this._gold}
+    set gold(v) {this._gold = v}
     static Init(ctx) {
         let o = new IndexInfo();
         o.ctx = ctx;
@@ -1257,11 +1264,10 @@ class WsReceive extends Base {
    submit() {
         let tmp ={};
         tmp.action=this.action;
-        tmp.code=this.code;
         this.resFields.forEach(k => {
             tmp[k]=this[k]
         });
-        this.ctx.io.emit(this.action, tmp);
+        this.ctx.io.emit(this.action, {data: tmp, code: this.code});
     }
 }
 class TravelLog extends Base {

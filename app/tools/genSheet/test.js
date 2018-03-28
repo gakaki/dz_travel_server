@@ -4,4 +4,4 @@ const holidayCn = require('holiday.cn').default;
 
 
 
-console.log(travelConfig.City.Get(6))
+console.log(travelConfig.items)

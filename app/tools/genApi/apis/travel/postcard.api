@@ -31,7 +31,7 @@ class PostcardBriefDetail {
     //明信片id
     prop id:string
     //明信片图片
-    prop url:string
+    prop postid:string
     //明信片最新一条留言
     prop lastestLiveMessage:OneBriefMessage
 }
