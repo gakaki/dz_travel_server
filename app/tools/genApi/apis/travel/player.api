@@ -64,6 +64,14 @@ class RealInfo {
     prop adress:string
 }
 
+//赠送用户的机票信息
+class TicketInfo{
+    //城市id
+    prop cid:string
+    //机票数量
+    prop num:number
+}
+
 //拉取一个玩家的简要信息（自己或他人）
 api PlayerInfo {
     //玩家的uid，如果不传则使用自己的uid
@@ -93,4 +101,10 @@ api ModifyRealInfo{
 
     //玩家收货信息
     output realInfo:RealInfo
+}
+
+//查询用户赠送的机票
+api LookTicket{
+    //机票信息
+    output ticket:TicketInfo[]
 }

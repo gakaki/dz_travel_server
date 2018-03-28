@@ -1,11 +1,14 @@
 //开始游戏
 import ../base.api
 
-//旅行类型：随机  不随机
-enum FlyType{
-    const RANDOM = 1
-    const NORMAL = 2
+//机票类型 (第一位0代表买的，1代表赠送的；第二位1代表单人，2代表双人)
+enum TicketType{
+    const SINGLEBUY = '01'
+    const DOUBLEBUY = '02'
+    const SINGLEPRESENT = '11'
+    const DOUBLEPRESENT = '12'
 }
+
 
 enum Season {
     const SPRING = '春'
@@ -17,7 +20,7 @@ enum Season {
 //进入起飞界面需要的数据
 api FlyInfo{
     //旅行类型
-    require type:FlyType
+    require type:TicketType
 
     //返回个人的金币
     output gold:number
@@ -27,9 +30,9 @@ api FlyInfo{
     output season:Season
     //天气(返回weather表中对应的id，由客户端读表选择图片)
     output weather:number
-    //需要话费的金币
+    //需要花费的金币
     output cost:number
-    //双人旅行话费的金币
+    //双人旅行花费的金币
     output doubleCost:number
     //现在所在城市
     output location:string
@@ -40,6 +43,8 @@ api FlyInfo{
 
 //开始旅行
 api StartGame{
+    //机票类型
+    require type:TicketType
     //目的地城市id
     require cid:number
     //花费的金币
