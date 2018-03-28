@@ -1072,9 +1072,10 @@ class FlyInfo extends Base {
         this._doubleCost = null;
         this._location = null;
         this._holiday = null;
+        this._cid = null;
         this.requireFileds = ["type"];
         this.reqFields = ["type"];
-        this.resFields = ["gold","isFirst","season","weather","cost","doubleCost","location","holiday"];
+        this.resFields = ["gold","isFirst","season","weather","cost","doubleCost","location","holiday","cid"];
     }
     //client input, require, type: TicketType
     get type() {return this._type}
@@ -1103,6 +1104,9 @@ class FlyInfo extends Base {
     //server output, type: string
     get holiday() {return this._holiday}
     set holiday(v) {this._holiday = v}
+    //server output, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
     static Init(ctx) {
         let o = new FlyInfo();
         o.ctx = ctx;

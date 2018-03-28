@@ -38,6 +38,8 @@ api FlyInfo{
     output location:string
     //节日信息
     output holiday:string
+    //城市id(如果是随机旅行，type为10时返回cid)
+    output cid:string
 
 }
 
