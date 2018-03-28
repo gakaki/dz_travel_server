@@ -98,38 +98,44 @@ class PlayerService extends Service {
         info.postcardInfo = postcardInfos;
     }
     async showCityPostcards(info,ui){
-        if(!Number(info.LM)){
 
-        }else{
-            let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
-                {$match: {uid: ui.uid,province:info.province}},
-                {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
-                {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
-            ]).sort({cid:1,"postcard.createDate":-1});
+        let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
+            {$match: {uid: ui.uid,province:info.province}},
+            {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
+            {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
+        ]).sort({cid:1,"postcard.createDate":-1});
 
-            let postcardInfos = [];
-            for(let postcard of postcards){
-                let postcardInfo ={
-                    city:travelConfig.City.Get(postcard.cid).city,
-                    collectPostcardNum:postcard.collectPostcardNum,
-                    allPostcardNum : travelConfig.City.Get(postcard.cid).postcardnum,
-                };
+        let postcardInfos = [];
+        for(let postcard of postcards){
+            let postcardInfo ={
+                city:travelConfig.City.Get(postcard.cid).city,
+                collectPostcardNum:postcard.collectPostcardNum,
+                allPostcardNum : travelConfig.City.Get(postcard.cid).postcardnum,
+            };
+
                 let postcardBriefDetails = [];
                 for(let pt of postcard.postcard){
                     let postcardBriefDetail ={
                         id : pt.ptid,
-                        url: pt.pscid,
+                        postid: pt.pscid,
                     };
+                    if(!Number(info.LM)){
+                        let chats = await this.ctx.model.TravelModel.Chat.find({uid:uid.uid,pscid:pt.pscid}).sort({createDate:-1});
+                        if(chats.length>0){
+                            postcardBriefDetail.lastestLiveMessage= {
+
+                            }
+                        }
+                    }
+
                     postcardBriefDetails.push(postcardBriefDetail)
                 }
                 postcardInfo.postcardsDetail = postcardBriefDetails;
 
-                postcardInfos.push(postcardInfo);
 
-            }
-            info.postcardInfo = postcardInfos;
-
+            postcardInfos.push(postcardInfo);
         }
+        info.postcardInfo = postcardInfos;
 
     }
 
