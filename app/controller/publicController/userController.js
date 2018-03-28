@@ -21,8 +21,9 @@ class UserController extends Controller {
         let rs = await this.service.publicService.userService.login(uid,_sid,appName,JSON.parse(info));
         if (rs.info != null) {
             result.code = 0;
-            result.data.info = rs.info;
-            result.data.sid = rs.sid;
+            result.info = rs.info;
+            result.sid = rs.sid;
+            result.timestamp = (Date.now() / 1000) >> 0;
         } else {
             result.code = constant.Code.LOGIN_FAILED;
         }
@@ -31,9 +32,7 @@ class UserController extends Controller {
 
     async getiteminfo(ctx) {
         this.logger.info("我要查询道具");
-        let result = {
-            data: {}
-        };
+        let result = {};
         const {_sid, itemId} = ctx.query;
         if (!_sid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
@@ -48,9 +47,9 @@ class UserController extends Controller {
         }
         result.code = constant.Code.OK;
         if(itemId){
-            result.data.stock = ui.items[itemId];
+            result.stock = ui.items[itemId];
         }else{
-            result.data.stock = ui.items;
+            result.stock = ui.items;
         }
 
         ctx.body = result;

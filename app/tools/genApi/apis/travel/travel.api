@@ -8,14 +8,6 @@ enum Season {
     const WINTER = '冬'
 }
 
-enum Weather {
-    const SUNNY = '晴'
-    const CLOUDY = '阴'
-    const RAIN = '雨'
-    const SNOW = '雪'
-    const WINDY = '风'
-}
-
 //一天的旅行记录
 class oneDayLog {
     //当天log的时间戳
@@ -43,7 +35,7 @@ api IndexInfo {
     //季节
     output season:Season
     //天气
-    output weather:Weather
+    output weather:number
     //旅行人数
     output playerCnt:number
     //好友uid
