@@ -23,6 +23,7 @@ class UserController extends Controller {
             result.code = 0;
             result.data.info = rs.info;
             result.data.sid = rs.sid;
+            result.data.timestamp = (Date.now() / 1000) >> 0;
         } else {
             result.code = constant.Code.LOGIN_FAILED;
         }

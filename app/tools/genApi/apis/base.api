@@ -126,7 +126,8 @@ enum Code {
     const AUTH_EXPIRED = -976
     // 签名错误
     const SIGNATURE_ERROR = -975
-
+    //微信请求失败
+    const WX_REQUEST_ERR = -6
     // 第三方出错
     const THIRD_FAILED = -5
     // 多端登陆
@@ -173,11 +174,17 @@ class Base{
                 success: res => {
                   this.parse(res.data.data);
                   this.code = res.data.code;
-                  resolve(this)
+                  if (this.code != Code.OK) {
+                      console.log('fetch got an error code',this.code);
+                      reject(this.code);
+                  }
+                  else {
+                      Base._try(resolve);
+                  }
                 },
                 fail: err => {
                     this.error(err)
-                    reject(err);
+                    reject(Code.WX_REQUEST_ERR);
                 }
               })
         })
@@ -241,16 +248,25 @@ class Base{
         }
         return Base.SID;
     }
+    
+    func client static _try(resolve) {
+        try {
+            resolve();
+        }
+        catch (e) {
+            console.log('promise resolve exe err')
+        }
+    }
 
     func client static Start(appName, url) {
-        return new Promise(resolve => {
+        return new Promise((resolve,reject) => {
             let app = getApp();
-            if (Base.LOGINED) {
+            if (this.LOGINED) {
                 //已经有用户数据
-                resolve();
+                this._try(resolve);
             }
             else {
-                this.DoStart(appName, url).then(resolve);
+                this.DoStart(appName, url).then(resolve).catch(reject);
             }
         });
     }
@@ -321,22 +337,21 @@ class Base{
                 req.info = info.userInfo;
                 req.fetch().then(()=>{
                     this.AUTHED = true;
-                    if (req.code != 0) {
-                        req.error(req.code);
-                    }
-                    else {
-                        this.LOGINED = true;
-                        app.globalData.userInfo = req.info;
-                        this.SID = req.sid;
-                       // this._timestamp = req.timestamp;
-                        this._timestamp = 0;
-                        wx.setStorageSync('sid', this.SID);
-                        suc(req);
-                    }
+                    this.LOGINED = true;
+                    app.globalData.userInfo = req.info;
+                    this.SID = req.sid;
+                    this._timestamp = req.timestamp;
+                    this._timestampD = (Date.now() / 1000) >> 0 - this._timestamp;
+                    wx.setStorageSync('sid', this.SID);
+                    suc(req);
                 });
             }
         });
 
+    }
+
+    func client static get servertime() {
+        return (Date.now() - this._timestampD)
     }
 
 

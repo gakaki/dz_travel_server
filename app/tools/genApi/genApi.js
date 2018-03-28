@@ -102,6 +102,18 @@ function mergeParentArr(from, field) {
     return Array.from(new Set(arr));
 }
 
+function getTrimedTag(tags) {
+    let tag;
+    do {
+        tag = tags.pop();
+        if (tag) {
+            tag = tag.trim();
+        }
+    }
+    while (!tag && tags.length)
+    return tag;
+}
+
 class Enumm extends Structor {
     constructor(name) {
         super(name);
@@ -134,7 +146,8 @@ const SYNTAX = {
     MS_LEFT: '{',
     MS_RIGHT: '}',
     FUNC_OUT_CLIENT: 'client',
-    FUNC_OUT_SERVER: 'server'
+    FUNC_OUT_SERVER: 'server',
+    IMP_TAG: 'IMPORT_FILE'
 };
 
 
@@ -175,9 +188,16 @@ class Syntax {
             return;
         }
         let ln = lines.pop();
+
+        //导入文件标记，需要更新curFl，以便生成正确的action
+        if (ln == SYNTAX.IMP_TAG) {
+            curFl = lines.pop();
+        }
+
         //兼容字符与大括号有/无空格
         ln = ln.replace(new RegExp(SYNTAX.MS_LEFT, 'g'), ' ' + SYNTAX.MS_LEFT + ' ');
         ln = ln.replace(new RegExp(SYNTAX.MS_RIGHT, 'g'), ' ' + SYNTAX.MS_RIGHT + ' ');
+
 
         //兼容:/=前后空格
         ln = ln.replace(/\s+=\s+/g, "=");
@@ -197,8 +217,7 @@ class Syntax {
             this.readLine();
         }
         else {
-            let tag = tags.pop();
-            let synt = tag.trim();
+            let synt = getTrimedTag(tags);
             if (synt) {
                 this.process(synt, tags);
             }
@@ -272,7 +291,7 @@ class ClzProcessor extends Processor {
     parse(tags) {
         super.parse(tags);
 
-        parsing = new Clazz(tags.pop());
+        parsing = new Clazz(getTrimedTag(tags));
     }
 }
 
@@ -305,14 +324,14 @@ class WsrProcessor extends ClzProcessor {
 class EnumProcessor extends Processor {
     parse(tags) {
         super.parse(tags);
-        parsing = new Enumm(tags.pop());
+        parsing = new Enumm(getTrimedTag(tags));
     }
 }
 
 class ExtendsProcessor extends Processor {
     parse(tags) {
         super.parse(tags);
-        parsing.parent = tags.pop();
+        parsing.parent = getTrimedTag(tags);
     }
 }
 
@@ -320,14 +339,15 @@ class PropProcessor extends Processor {
     parse(tags) {
         //PropProcessor只处理Class内的字段声明
         if (parsing instanceof Clazz) {
-            let typeTag = tags.pop();
+
+            let typeTag = getTrimedTag(tags);
             let types;
             if (typeTag == SYNTAX.FUNC_OUT_CLIENT) {
-                types = tags.pop().split(':');
+                types = getTrimedTag(tags).split(':');
                 parsing.propsC.push(new KV(types[0], types[1]));
             }
             else if (typeTag == SYNTAX.FUNC_OUT_SERVER) {
-                types = tags.pop().split(':');
+                types = getTrimedTag(tags).split(':');
                 parsing.propsS.push(new KV(types[0], types[1]));
             }
             else {
@@ -349,7 +369,7 @@ class ConstProcessor extends Processor {
     parse(tags) {
         //constProcessor只处理 Enum内的声明
         if (parsing instanceof Enumm) {
-            let types = tags.pop().split('=');
+            let types = getTrimedTag(tags).split('=');
             parsing.consts.push(new KV(types[0], types[1]));
         }
         else {
@@ -364,7 +384,7 @@ class RequireProcessor extends Processor {
     parse(tags) {
         //RequireProcessor只处理api的字段，表示该字段是客户端必需传入的
         if (parsing.isApi || parsing.wss) {
-            let types = tags.pop().split(':');
+            let types = getTrimedTag(tags).split(':');
             parsing.requires.push(new KV(types[0], types[1]));
             parsing.reqFields.push(types[0])
             parsing.requireFileds.push(types[0])
@@ -382,7 +402,7 @@ class OptionalProcessor extends Processor {
     parse(tags) {
         //RequireProcessor只处理api的字段，表示该字段是客户端可选传入的
         if (parsing.isApi || parsing.wss) {
-            let types = tags.pop().split(':');
+            let types = getTrimedTag(tags).split(':');
             parsing.optionals.push(new KV(types[0], types[1]));
             parsing.reqFields.push(types[0])
         }
@@ -399,7 +419,7 @@ class OutputProcessor extends Processor {
     parse(tags) {
         //OutputProcessor只处理api的字段，表示该字段是服务器返回的数据
         if (parsing.isApi || parsing.wsr) {
-            let types = tags.pop().split(':');
+            let types = getTrimedTag(tags).split(':');
             parsing.outputs.push(new KV(types[0], types[1]));
             parsing.resFields.push(types[0])
         }
@@ -461,7 +481,7 @@ class FuncProcessor extends Processor {
 class ImpProcessor extends Processor {
     parse(tags) {
         let pathname = path.dirname(curFl);
-        let impFl = tags.pop();
+        let impFl = getTrimedTag(tags);
         let impFlPath = path.dirname(impFl);
 
         if (impFlPath == pathname) {
@@ -477,10 +497,13 @@ class ImpProcessor extends Processor {
             return; //已经引入过
         }
 
+        imports[flName] = true;
         let realImpFl = path.resolve(pathname, impFl);
         console.log(`读取导入的文件${realImpFl}`)
         //将引入的文件放到lines中
-        lines = fs.readFileSync(realImpFl, 'utf8').split(/[\r\n]+/g).reverse().concat(lines);
+        lines = fs.readFileSync(realImpFl, 'utf8').split(/[\r\n]+/g).reverse()
+            .concat([realImpFl, SYNTAX.IMP_TAG])
+            .concat(lines);
         super.parse(tags);
     }
 }
