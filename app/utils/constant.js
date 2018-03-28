@@ -14,7 +14,7 @@ exports.AppItem = {
 function getItem() {
     let items={};
     for(let index of  travelConfig.items){
-        items["items."+index] = 0
+        items[index] = 0
     }
     return items;
 
