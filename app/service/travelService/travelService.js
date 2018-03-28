@@ -6,12 +6,7 @@ class TravelService extends Service {
     async fillIndexInfo(info,ui) {
         // info typeof apis.IndexInfo
         info.isFirst = ui.isFirst;
-          info.playerInfo = {
-              uid:ui.uid,
-              nickName:ui.nickName,
-              avatarUrl:ui.avatarUrl,
-              gold:ui.items[travelConfig.Item.GOLD]
-          };
+          info.gold=ui.items[travelConfig.Item.GOLD];
           let visit =  await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
           info.season = await this.ctx.service.publicService.thirdService.getSeason();
         let outw = 1;
