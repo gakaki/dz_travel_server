@@ -172,7 +172,8 @@ class Base{
                 url: Base.SRV,
                 data: this.reqData,
                 success: res => {
-                  this.parse(res.data);
+                  this.parse(res.data.data);
+                  this.code = res.data.code;
                   if (this.code != Code.OK) {
                       console.log('fetch got an error code',this.code);
                       reject(this.code);
@@ -192,12 +193,11 @@ class Base{
     func server submit() {
         let tmp = {};
         tmp.action = this.action;
-        tmp.code = this.code;
         this.resFields.forEach(k => {
            tmp[k] = this[k]
         });
 
-        this.ctx.body = tmp;
+        this.ctx.body = {data: tmp, code: this.code};
     }
 
     func client get reqData() {
@@ -356,12 +356,11 @@ class WsReceive extends Base{
     func server submit() {
         let tmp = {};
         tmp.action = this.action;
-        tmp.code = this.code;
         this.resFields.forEach(k => {
             tmp[k] = this[k]
         });
 
-        this.ctx.io.emit(this.action, tmp);
+        this.ctx.io.emit(this.action, {data: tmp, code: this.code});
     }
 }
 

@@ -42,6 +42,10 @@ api IndexInfo {
     output friends:string[]
     //未读系统信息条数
     output unreadMsgCnt:number
+    //当前所在城市
+    output location:number
+    //用户金币
+    output gold:number
 }
 
 
