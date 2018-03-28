@@ -14,7 +14,22 @@ module.exports = app => {
     router.get('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
 
+
+
+
+
+
+    router.get('/travel/showflyticket', controller.travelController.playerController.showflyticket);
+    router.get('/travel/showplayerinfo', controller.travelController.playerController.showplayerinfo);
+    router.get('/travel/setrealinfo', controller.travelController.playerController.setrealinfo);
+    router.get('/travel/getrealinfo', controller.travelController.playerController.getrealinfo);
+
+
     router.get('/travel/index', controller.travelController.travelController.index);
+    router.get('/travel/selectcity', controller.travelController.travelController.selectcity);
+    router.get('/travel/visit', controller.travelController.travelController.visit);
+    router.get('/travel/gettravellog', controller.travelController.travelController.gettravellog);
+
 
 
 };

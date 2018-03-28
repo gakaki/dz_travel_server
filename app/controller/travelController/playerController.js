@@ -21,6 +21,17 @@ class PlayerController extends Controller {
         info.submit();
     }
 
+    async showflyticket(ctx){
+        let info = apis.LookTicket.Init(ctx);
+        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+        }else{
+            await ctx.service.travelService.playerService.showFlyTicket(info,ui);
+        }
+        info.submit();
+    }
+
 
     async setrealinfo(ctx){
         let info = apis.ModifyRealInfo.Init(ctx);
@@ -46,3 +57,4 @@ class PlayerController extends Controller {
 
 
 }
+module.exports = PlayerController;

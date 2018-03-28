@@ -10,10 +10,10 @@ class PlayerService extends Service {
         let total = totalFootprints.length;
         let overMatch = Math.floor(((total-playerIndex) / total)*100);
         let addScore = await this.ctx.model.publicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfog.Item.POINT});
-        let postCards = await this.ctx.model.TravelModel.PostCard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: 1}});
+        let postCards = await this.ctx.model.TravelModel.PostCard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
-        let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: 1}});
-        let specialty = await this.ctx.model.TravelModel.Specialty.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: 1}});
+        let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: "$likes"}});
+        let specialty = await this.ctx.model.TravelModel.Specialty.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         info.info = {
             uid: ui.uid,
             nickName: ui.nickName,
@@ -38,6 +38,11 @@ class PlayerService extends Service {
             }
         }
 
+    }
+
+    async showFlyTicket(info,ui){
+        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid});
+        info.ticket = tickets;
     }
 
     async setRealInfo(info, ui) {
