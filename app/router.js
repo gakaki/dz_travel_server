@@ -19,7 +19,7 @@ module.exports = app => {
 
 
 
-    router.get('/travel/lookticket', controller.travelController.playerController.showflyticket);
+    router.get('/player/lookticket', controller.travelController.playerController.showflyticket);
     router.get('/travel/playerinfo', controller.travelController.playerController.showplayerinfo);
     router.get('/travel/modifyrealinfo', controller.travelController.playerController.setrealinfo);
     router.get('/travel/getrealinfo', controller.travelController.playerController.getrealinfo);
