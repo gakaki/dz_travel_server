@@ -12,7 +12,7 @@
     "egg-redis": "^1.0.2",
     "egg-scripts": "^2.5.0",
     "egg-socket.io": "^4.0.6",
-    "holiday.cn": "^0.0.2",
+    "holiday.cn": "0.0.2",
     "ioredis": "^3.2.2",
     "moment": "^2.21.0",
     "request": "^2.85.0",
