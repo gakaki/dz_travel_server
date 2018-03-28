@@ -108,3 +108,12 @@ api LookTicket{
     //机票信息
     output ticket:TicketInfo[]
 }
+
+api SignInfo {
+    //第几天签到
+    output theDay:number
+}
+
+api ToSign {
+    optional theDay:number
+}
