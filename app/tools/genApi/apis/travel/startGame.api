@@ -1,8 +1,9 @@
 //开始游戏
 import ../base.api
 
-//机票类型 (第一位0代表买的，1代表赠送的；第二位1代表单人，2代表双人)
+//机票类型 (第一位0代表买的，1代表赠送的；第二位1代表单人，2代表双人,0代表随机)
 enum TicketType{
+    const RANDOMBUY = '00'
     const SINGLEBUY = '01'
     const DOUBLEBUY = '02'
     const SINGLEPRESENT = '11'
@@ -38,7 +39,7 @@ api FlyInfo{
     output location:string
     //节日信息
     output holiday:string
-    //城市id(如果是随机旅行，type为10时返回cid)
+    //城市id(如果是随机旅行，type为00时返回cid)
     output cid:string
 
 }

@@ -172,6 +172,8 @@ class Code{
 }
 class TicketType{
     
+    static get RANDOMBUY() { return '00';}
+    
     static get SINGLEBUY() { return '01';}
     
     static get DOUBLEBUY() { return '02';}
