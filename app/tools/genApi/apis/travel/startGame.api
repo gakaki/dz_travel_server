@@ -1,11 +1,49 @@
 //开始游戏
 import ../base.api
 
+//旅行类型：随机  不随机
+enum FlyType{
+    const RANDOM = 1
+    const NORMAL = 2
+}
+
+enum Season {
+    const SPRING = '春'
+    const SUMMER = '夏'
+    const AUTUMN = '秋'
+    const WINTER = '冬'
+}
+
+//进入起飞界面需要的数据
+api FlyInfo{
+    //旅行类型
+    require type:FlyType
+
+    //返回个人的金币
+    output gold:number
+    //是否为第一次进来的玩家
+    output isFirst:Boolean
+    //季节
+    output season:Season
+    //天气(返回weather表中对应的id，由客户端读表选择图片)
+    output weather:number
+    //需要话费的金币
+    output cost:number
+    //双人旅行话费的金币
+    output doubleCost:number
+    //现在所在城市
+    output location:string
+    //节日信息
+    output holiday:string
+
+}
+
 //开始旅行
 api StartGame{
-    //目的地
-    require terminal:string
-
-    //返回rid
-    output rid:string
+    //目的地城市id
+    require cid:number
+    //花费的金币
+    require cost:number
+    //小伙伴uid
+    optional uid:string
 }
