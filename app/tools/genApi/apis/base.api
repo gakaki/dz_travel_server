@@ -204,7 +204,7 @@ class Base{
         let tmp = {};
         let sid = Base.GetSID();
         if (sid)
-            tmp._sid = sid;
+            tmp.sid = sid;
         let uid = Base.GetUID();
         if (uid)
             tmp.uid = uid;
