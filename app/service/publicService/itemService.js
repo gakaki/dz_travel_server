@@ -2,7 +2,7 @@ const Service = require('egg').Service;
 
 
 class ItemService extends Service {
-    async itemChange(ui, delta, appMame) {
+    async itemChange(ui, delta, appMame="travel") {
         for (let indexs in delta) {
             let daddup = delta[indexs] > 0 ? delta[indexs] : 0;
             let dcost = delta[indexs] > 0 ? 0 : -delta[indexs];  // cost统计时按照正数统计
@@ -11,8 +11,8 @@ class ItemService extends Service {
                 let r = await this.ctx.model.PublicModel.UserItemCounter.update({
                     pid: ui.pid, index: index, appName: appMame
                 }, {
-                    $set: {total: ui.items[index], delta: delta[indexs]},
-                    $inc: {addup: daddup, cost: dcost}
+                    $set: {delta: delta[indexs]},
+                    $inc: {total: delta[indexs] ,addup: daddup, cost: dcost}
                 }, {upsert: true});
 
                 await this.ctx.model.PublicModel.ItemRecord.create({
