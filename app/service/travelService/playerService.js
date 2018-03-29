@@ -245,13 +245,14 @@ class PlayerService extends Service {
         if (day == 0) {
             day = 7
         }
+        let cost ={
+            cumulativeDays:1
+        };
+        cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
+        let itemChange = {
+            ["items."+travelConfig.Item.GOLD] : travelConfig.Login.Get(day).gold
+        };
 
-        let reward = englishConfigs.Landing.Get(day).itemid;
-        let itemChange = {};
-        for (let item of reward) {
-            cost["items." + item.k] = Number(item.v);
-            itemChange["items." + item.k] = Number(item.v);
-        }
         await this.ctx.model.PublicModel.SignInRecord.create({
             uid: ui.uid,
             appName: "travel",
@@ -259,12 +260,8 @@ class PlayerService extends Service {
             createDateTime:new Date()
         });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
-        await this.ctx.service.publicService.itemService.itemChange(user, itemChange, appName);
+        this.ctx.service.publicService.itemService.itemChange(ui, itemChange, "travel");
 
-        return {
-            day: day,
-            reward: reward
-        };
     }
 
 }
