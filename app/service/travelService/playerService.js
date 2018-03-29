@@ -49,6 +49,35 @@ class PlayerService extends Service {
     }
 
     async travelFootprint(info,ui){
+        let userfootprints = await this.ctx.model.TravelModel.Footprints.aggregate([
+            {$match:{uid:ui.uid}},
+            {$group:{_id:"$province",citys:{$addToSet:{cid:"$cid"}},scenicspots:{$addToSet:{scenicspot:"$scenicspot"}}}},
+            {$project:{_id:0,province:"$_id",citys:1,scenicspots:1}}
+            ]);
+        let travelFootprint = {
+            items:ui.items,
+            reachrovince:userfootprints.length,
+        };
+        let totalCitys = travelConfig.citys.length;
+        let totalscenicspots = travelConfig.scenicspots.length;
+        let totalArrive = 0;
+        let userscenicspots = 0;
+        for(let footprint of userfootprints){
+            let citys = footprint.citys;
+            let scenicspots = footprint.scenicspots;
+            totalArrive += citys.length;
+            userscenicspots += scenicspots.length;
+        }
+        let totalArrivePercent = Math.floor((totalArrive/totalCitys)*100);
+        travelFootprint.totalArrive = totalArrive;
+        travelFootprint.totalArrivePercent = totalArrivePercent;
+        //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
+        // let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+        //     {$match:{uid:ui.uid}},
+        //     {$group:{_id:"$eid",uevents:{$sum:1}}}
+        //     ]);
+        // userscenicspots +
+
 
     }
 
@@ -132,8 +161,8 @@ class PlayerService extends Service {
                     let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:pt.pscid}).sort({createDate:-1});
                     if(chats.length>0){
                         postcardBriefDetail ={
-                            id : pt.ptid,
-                            postid: pt.pscid,
+                            id : pt.pscid,
+                            postid: pt.ptid,
                         };
                         let chat = chats[0];
                         let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
@@ -150,8 +179,8 @@ class PlayerService extends Service {
                     }
                 }else{
                     postcardBriefDetail ={
-                        id : pt.ptid,
-                        postid: pt.pscid,
+                        id : pt.pscid,
+                        postid: pt.ptid,
                     };
                 }
 
