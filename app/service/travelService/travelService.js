@@ -11,7 +11,7 @@ class TravelService extends Service {
           info.season = await this.ctx.service.publicService.thirdService.getSeason();
         let outw = 1;
           if(visit && visit.city){
-            let weather =  (await this.ctx.service.publicService.thirdService.getWeather(visit.city)).now.text;
+            let weather =  await this.ctx.service.publicService.thirdService.getWeather(visit.city);
             for(let we of travelConfig.weathers){
                 if(we.weather == weather){
                     outw = weather;
