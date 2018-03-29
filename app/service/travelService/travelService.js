@@ -73,8 +73,9 @@ class TravelService extends Service {
             info.doubleCost = 0;
         }
 
+
         if(info.type == "00"){
-            info.cid =  this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid);
+            info.cid =  await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid);
         }
 
         info.weather = outw;
