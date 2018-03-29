@@ -209,7 +209,7 @@ class Base{
         if (uid)
             tmp.uid = uid;
         this.reqFields.forEach(k => {
-            tmp[k] = this[k] || ''
+            tmp[k] = this[k] === null ? '' : this[k];
         });
         tmp.appName = Base.APP_NAME;
         tmp.action = this.action;
