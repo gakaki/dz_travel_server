@@ -189,7 +189,37 @@ class PlayerService extends Service {
         info.detailLiveMessage=detailLiveMessages;
     }
 
-    async sendPostcard(){
+    async sendPostcardMsg(info,ui,postcard){
+        let chatid = "chat"+new Date().getTime();
+        this.ctx.model.TravelModel.Chat.create({
+            uid:postcard.uid,//拥有者
+            pscid:postcard.pscid,//明信片
+            chatid:chatid,
+            sender:ui.uid,//回复者
+            context:info.message,
+            createDate:new Date()
+        });
+        let chats = await this.ctx.model.TravelModel.Chat.find({psccid:postcard.psccid});
+        let senders = new Set();
+        for(let chat of chats){
+            senders.add(chat.sender);
+        }
+        if(!senders.has(postcard.uid)){
+            senders.add(postcard.uid)
+        }
+        //给所有人发送留言
+        for(let senderid of senders){
+            let sender = await this.ctx.model.PublicModel.User.findOne({uid:senderid});
+            let senderNickName = sender.nickName;
+            let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
+            let content = context.replace("s%",senderNickName);
+            await this.ctx.model.TravelModel.UserMsg.create({
+                uid:senderid,
+                title:travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).topic,
+                context:content,
+                date:new Date()
+            })
+        }
 
     }
 

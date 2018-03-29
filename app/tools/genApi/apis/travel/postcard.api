@@ -90,11 +90,9 @@ api DetailPostcard {
 }
 
 //发送明信片留言
-api sendPostcard {
+api SendPostcard {
     //明信片的id
     require id:number
-    //好友的uid
-    require friendUid:string
     //具体的留言信息
     require message:string
 }

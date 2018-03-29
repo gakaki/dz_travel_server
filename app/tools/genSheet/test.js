@@ -4,4 +4,7 @@ const holidayCn = require('holiday.cn').default;
 
 
 
-console.log(travelConfig.items)
+let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
+let content = context.replace("s%","haha");
+console.log(context);
+console.log(content);

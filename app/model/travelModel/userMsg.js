@@ -4,6 +4,7 @@ module.exports = app => {
         uid:{type:String},
         title:{type:String},
         context:{type:String},
+        isRead:{type:Boolean,default:false},
         date:{type:Date}
 
     });
