@@ -3,7 +3,8 @@ module.exports = app => {
     const SignInRecordSchema = new mongoose.Schema({
         uid: {type: String},
         appName: {type: String},
-        createDateTime:{type:Date}
+        createDate:{type:String},
+        createDateTime:{type:Date},
     });
 
     return mongoose.model('SignInRecord', SignInRecordSchema);

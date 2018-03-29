@@ -86,7 +86,7 @@ class PlayerService extends Service {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
-          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1}}
+          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1}}
             ]);
       let postcardInfos = [];
       for(let postcard of postcards){
@@ -228,7 +228,44 @@ class PlayerService extends Service {
                 date:new Date()
             })
         }
+    }
 
+    async signInfo(info,ui){
+        info.hasSign = await this.ctx.model.PublicModel.SignInRecord.count({uid: ui.uid, createDate: new Date().toLocaleDateString()});
+        let cumulativeDays = (ui.cumulativeDays + 1);
+        let day = cumulativeDays % 7;
+        if (day == 0) {
+            day = 7
+        }
+        info.theDay = day;
+    }
+    async toSign(info,ui){
+        let cumulativeDays = (ui.cumulativeDays + 1);
+        let day = cumulativeDays % 7;
+        if (day == 0) {
+            day = 7
+        }
+
+        // let reward = englishConfigs.Landing.Get(day).itemid;
+        // let itemChange = {};
+        // for (let item of reward) {
+        //     cost["items." + item.k] = Number(item.v);
+        //     itemChange["items." + item.k] = Number(item.v);
+        // }
+        // await this.ctx.model.PublicModel.SignInRecord.create({
+        //     uid: ui.uid,
+        //     appName: appName,
+        //     createDate: new Date().toLocaleDateString(),
+        //     createTime: new Date().toLocaleTimeString(),
+        //     createDateTime:new Date()
+        // });
+        // await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
+        // await this.ctx.service.publicService.itemService.itemChange(user, itemChange, appName);
+        //
+        // return {
+        //     day: day,
+        //     reward: reward
+        // };
     }
 
 }

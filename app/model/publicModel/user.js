@@ -19,6 +19,7 @@ module.exports = app => {
         friendList:{type:Array},
         isFirst:{type:Boolean,default:true},
         mileage:{type:Number,default:0},  //里程数
+        cumulativeDays:{type:Number},//累计登陆天数
         name:{type:String},
         birth:{type:String},
         mobile:{type:String},

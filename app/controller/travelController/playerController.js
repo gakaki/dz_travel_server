@@ -118,14 +118,37 @@ class PlayerController extends Controller {
         info.submit();
     }
 
-    async signin(ctx){
-        let info =apis.SendPostcard.Init(ctx);
+    async signinfo(ctx){
+        let info =apis.SignInfo.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
         }
+        await ctx.service.travelService.playerService.signInfo(info,ui);
+        info.submit();
+    }
+
+    async tosign(ctx){
+        let info =apis.ToSign.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        let signCount = await ctx.model.PublicModel.SignInRecord.count({
+            uid: ui.uid,
+            createDate: new Date().toLocaleDateString()
+        });
+        if (signCount > 0) {
+            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.toSign(info,ui);
+        info.submit();
     }
 
 

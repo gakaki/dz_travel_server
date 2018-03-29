@@ -113,6 +113,8 @@ api LookTicket{
 api SignInfo {
     //第几天签到
     output theDay:number
+    //是否已经签到
+    output hasSign:number
 }
 
 //用户签到
