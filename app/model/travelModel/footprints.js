@@ -6,6 +6,7 @@ module.exports = app => {
         country:{type:String},
         province:{type:String},
         city:{type:String},
+        scenicspot:{type:String},
         createDate:{type:Date}
     });
 

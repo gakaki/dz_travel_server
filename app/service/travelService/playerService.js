@@ -5,10 +5,18 @@ class PlayerService extends Service {
     async showPlayerInfo(info, ui) {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         let totalFootprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $sortByCount: "$uid" }]);
-        let playerFootprints  =  totalFootprints.find((n) => n._id == ui.uid);
-        let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid) || 0;
+        let playerFootprints = totalFootprints.find((n) => n._id == ui.uid);
+        let playerIndex = totalFootprints.findIndex((n) => n._id == ui.uid);
         let total = totalFootprints.length;
-        let overMatch = Math.floor(((total-playerIndex) / total)*100);
+        this.logger.info(totalFootprints);
+        this.logger.info(playerIndex + '   6666666666666666');
+        let overMatch = 0;
+        if (playerIndex == -1) {
+           playerIndex = total;
+        }
+        if (total) {
+            overMatch = Math.floor(((total - playerIndex) / total) * 100);
+        }
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
@@ -78,7 +86,7 @@ class PlayerService extends Service {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
-          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1}}
+          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1}}
             ]);
       let postcardInfos = [];
       for(let postcard of postcards){
@@ -117,7 +125,7 @@ class PlayerService extends Service {
             for(let pt of postcard.postcard){
                 let postcardBriefDetail={};
                 if(Number(info.LM)){
-                    let chats = await this.ctx.model.TravelModel.Chat.find({pscid:pt.pscid}).sort({createDate:-1});
+                    let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:pt.pscid}).sort({createDate:-1});
                     if(chats.length>0){
                         postcardBriefDetail ={
                             id : pt.ptid,
@@ -157,7 +165,7 @@ class PlayerService extends Service {
     async showDetailPostcard(info,ui){
         let page = Number(info.page)?Number(info.page):1;
         let limit = Number(info.messageLength)?Number(info.messageLength):10;
-        let chats = await this.ctx.model.TravelModel.Chat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
+        let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.postid = postcard.ptid;
         let detailLiveMessages = [];
@@ -189,8 +197,74 @@ class PlayerService extends Service {
         info.detailLiveMessage=detailLiveMessages;
     }
 
-    async sendPostcard(){
+    async sendPostcardMsg(info,ui,postcard){
+        let chatid = "chat"+new Date().getTime();
+        this.ctx.model.TravelModel.PostcardChat.create({
+            uid:postcard.uid,//拥有者
+            pscid:postcard.pscid,//明信片
+            chatid:chatid,
+            sender:ui.uid,//回复者
+            context:info.message,
+            createDate:new Date()
+        });
+        let chats = await this.ctx.model.TravelModel.PostcardChat.find({psccid:postcard.psccid});
+        let senders = new Set();
+        for(let chat of chats){
+            senders.add(chat.sender);
+        }
+        if(!senders.has(postcard.uid)){
+            senders.add(postcard.uid)
+        }
+        //给所有人发送留言
+        for(let senderid of senders){
+            let sender = await this.ctx.model.PublicModel.User.findOne({uid:senderid});
+            let senderNickName = sender.nickName;
+            let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
+            let content = context.replace("s%",senderNickName);
+            await this.ctx.model.TravelModel.UserMsg.create({
+                uid:senderid,
+                title:travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).topic,
+                context:content,
+                date:new Date()
+            })
+        }
+    }
 
+    async signInfo(info,ui){
+        info.hasSign = await this.ctx.model.PublicModel.SignInRecord.count({uid: ui.uid, createDate: new Date().toLocaleDateString()});
+        let cumulativeDays = (ui.cumulativeDays + 1);
+        let day = cumulativeDays % 7;
+        if (day == 0) {
+            day = 7
+        }
+        info.theDay = day;
+    }
+    async toSign(info,ui){
+        let cumulativeDays = (ui.cumulativeDays + 1);
+        let day = cumulativeDays % 7;
+        if (day == 0) {
+            day = 7
+        }
+
+        let reward = englishConfigs.Landing.Get(day).itemid;
+        let itemChange = {};
+        for (let item of reward) {
+            cost["items." + item.k] = Number(item.v);
+            itemChange["items." + item.k] = Number(item.v);
+        }
+        await this.ctx.model.PublicModel.SignInRecord.create({
+            uid: ui.uid,
+            appName: "travel",
+            createDate: new Date().toLocaleDateString(),
+            createDateTime:new Date()
+        });
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
+        await this.ctx.service.publicService.itemService.itemChange(user, itemChange, appName);
+
+        return {
+            day: day,
+            reward: reward
+        };
     }
 
 }

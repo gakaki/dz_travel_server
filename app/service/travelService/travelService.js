@@ -24,7 +24,7 @@ class TravelService extends Service {
           info.playerCnt = (await this.app.redis.get("travel_userid"));
           info.friend = ui.friendList;
 
-          let msgs = await this.ctx.model.TravelModel.UserMsg.find({uid:ui.uid}).sort({date:-1}).limit(20);
+          let msgs = await this.ctx.model.TravelModel.UserMsg.count({uid:ui.uid,isRead:false});
           info.unreadMsgCnt=msgs
     }
 

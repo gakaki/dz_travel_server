@@ -4,9 +4,8 @@ module.exports = app => {
         pid: {type: String},
         appName: {type: String},
         type: {type: Number, enum: [0, 1, 2, 3, 4, 5]},
-        time: {type: String},
-        date: {type: String},
         data: {type: JSON},
+        createDate:{type:Date}
 
     });
 

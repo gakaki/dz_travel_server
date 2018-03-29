@@ -51,7 +51,7 @@ class WeChatService extends Service {
             orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
             appName: appName,
-            time: new Date().toLocaleString(),
+            time: new Date(),
         };
         this.logger.info("我准备入库的金额 ：" + payInfo.price);
 
@@ -178,8 +178,8 @@ class WeChatService extends Service {
             query: referrerInfo.query,
             scene: referrerInfo.scene,
             shareTicket:referrerInfo.shareTicket,
-            createDate:new Date().toLocaleString()
-        }
+            createDate:new Date()
+        };
 
         this.ctx.model.WeChatModel.Referrer.create(referrer);
         return true;

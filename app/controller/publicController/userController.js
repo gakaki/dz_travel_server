@@ -65,11 +65,17 @@ class UserController extends Controller {
             ctx.body = result;
             return;
         }
+        let ui = await ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
+        if(!ui){
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
         let cost = {
             ["items." + itemId]: Number(count)
         };
         await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
-        let ui = await ctx.model.PublicModel.User.findOne({uid: uid,appName:appName});
+
         await this.service.publicService.itemService.itemChange(ui, cost, appName);
     }
 
