@@ -143,7 +143,7 @@ class PlayerService extends Service {
           let citys = postcard.citys;
           let postcardnum = 0;
           let postcardInfo ={
-              logo:postcard.pcards[0].ptid,
+              postid:postcard.pcards[0].ptid,
               province:postcard.province,
               collectPostcardNum:postcard.collectPostcardNum
           };
@@ -194,6 +194,7 @@ class PlayerService extends Service {
                             },
                             message:chat.context
                         }
+                        this.logger.info("时间 ：" ,new Date(chat.createDate).toLocaleDateString() )
                     }
                 }else{
                     postcardBriefDetail ={
