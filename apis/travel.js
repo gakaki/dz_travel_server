@@ -86,9 +86,11 @@ class Code{
     
     static get PACK_Fighing() { return 168;}
     
-    static get NEED_COUPON() { return 170;}
+    static get NEED_COUPON() { return -170;}
     
-    static get NEED_MONEY() { return 171;}
+    static get NEED_MONEY() { return -171;}
+    
+    static get HAS_SIGNIN() { return -144;}
     
     static get UNKNOWN() { return -1000;}
     
