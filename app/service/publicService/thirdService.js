@@ -20,7 +20,7 @@ class ThirdService extends Service{
              this.logger.info('weather', weathers);
              return weathers;
          }catch(err){
-             this.logger.error(err);
+             this.logger.error("获取天气失败",err);
              return "晴"
          }
 

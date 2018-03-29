@@ -2451,7 +2451,7 @@ async function reqWeather(city) {
     return new Promise((resolve,reject) => {
         request(url + `city=${getCityCode(city)}`, (err, res, body) => {
             if(err){
-                reject({err:'获取天气失败'});
+                reject(err);
                 return;
             }
           try{
@@ -2464,8 +2464,7 @@ async function reqWeather(city) {
               let weather = getWeather.weather[0];
               resolve(weather);
           }catch(err){
-              console.error(err);
-              reject({err:'获取天气失败'})
+              reject(err)
           }
 
         })

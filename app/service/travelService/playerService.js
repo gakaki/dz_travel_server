@@ -104,7 +104,7 @@ class PlayerService extends Service {
     }
 
     async setRealInfo(info, ui) {
-        this.ctx.model.PublicModel.User.update({uid: ui.uid}, {
+       await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {
             $set: {
                 name: info.name,
                 birth: info.birthday,
@@ -251,7 +251,7 @@ class PlayerService extends Service {
 
     async sendPostcardMsg(info,ui,postcard){
         let chatid = "chat"+new Date().getTime();
-        this.ctx.model.TravelModel.PostcardChat.create({
+        await this.ctx.model.TravelModel.PostcardChat.create({
             uid:postcard.uid,//拥有者
             pscid:postcard.pscid,//明信片
             chatid:chatid,
