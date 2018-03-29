@@ -135,14 +135,15 @@ class PlayerService extends Service {
     async showMyPostcards(info,ui) {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
-          {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
-          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1}}
-            ]);
+          {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}},pcards:{$push:{ptid:"$ptid",createDate:"$createDate"}}}},
+          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1,pcards:1}}
+            ]).sort({"pcards.createDate":-1});
       let postcardInfos = [];
       for(let postcard of postcards){
           let citys = postcard.citys;
           let postcardnum = 0;
           let postcardInfo ={
+              logo:postcard.pcards[0].ptid,
               province:postcard.province,
               collectPostcardNum:postcard.collectPostcardNum
           };
