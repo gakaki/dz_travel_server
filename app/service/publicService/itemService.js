@@ -20,7 +20,7 @@ class ItemService extends Service {
                     index: index,
                     appName: appMame,
                     delta: delta[indexs],
-                    time: new Date().toLocaleString(),
+                    time: new Date(),
 
                 });
 

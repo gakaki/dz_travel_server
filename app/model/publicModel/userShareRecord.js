@@ -3,8 +3,7 @@ module.exports = app => {
     const UserShareRecordSchema = new mongoose.Schema({
         uid: {type: String},
         appName: {type: String},
-        createTime: {type: String},
-        createDate: {type: String},
+        createDate:{type:Date},
         num: {type: Number},
         getItem: {type: Boolean},
         itemId: {type: Number}

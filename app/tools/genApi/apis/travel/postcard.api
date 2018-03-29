@@ -83,18 +83,16 @@ api DetailPostcard {
     //返回的明信片留言条数,默认为10
     optional messageLength:number
     //明信片的主图
-    output url:string
+    output postid:string
     //最新10条留言
     output lastestMessage:DetailLiveMessage[]
 
 }
 
 //发送明信片留言
-api sendPostcard {
+api SendPostcard {
     //明信片的id
     require id:number
-    //好友的uid
-    require friendUid:string
     //具体的留言信息
     require message:string
 }

@@ -21,7 +21,7 @@ class otherUserInfo {
     //累计获得的点赞数
     prop likeNum:number
     //获得特产总数
-    prop specialty:numer
+    prop specialty:number
 }
 
 class UserInfo extends UserBriefInfo{
@@ -109,11 +109,29 @@ api LookTicket{
     output ticket:TicketInfo[]
 }
 
+//用户签到第几天
 api SignInfo {
     //第几天签到
     output theDay:number
+    //是否已经签到
+    output hasSign:number
 }
 
+//用户签到
 api ToSign {
     optional theDay:number
+}
+
+api TravelFootprint {
+    optional playerUid:string
+    output items:KV[]
+    //用户去过了多少个省份
+    output reachrovince:number
+    //用户去过了多少个城市
+    output totalArrive:number
+    //用户去的城市占据总城市的百分比,以百分比计算。如果为50%为50
+    output totalArrivePercent:number
+    //用户去的城市占据总城市的百分比,以百分比计算。如果为50%为50
+    output travelPercent:number
+
 }

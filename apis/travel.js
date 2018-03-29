@@ -1195,11 +1195,11 @@ class DetailPostcard extends Base {
         this._id = null;
         this._page = null;
         this._messageLength = null;
-        this._url = null;
+        this._postid = null;
         this._lastestMessage = null;
         this.requireFileds = ["id"];
         this.reqFields = ["id","page","messageLength"];
-        this.resFields = ["url","lastestMessage"];
+        this.resFields = ["postid","lastestMessage"];
     }
     //client input, require, type: number
     get id() {return this._id}
@@ -1211,8 +1211,8 @@ class DetailPostcard extends Base {
     get messageLength() {return this._messageLength}
     set messageLength(v) {this._messageLength = v}
     //server output, type: string
-    get url() {return this._url}
-    set url(v) {this._url = v}
+    get postid() {return this._postid}
+    set postid(v) {this._postid = v}
     //server output, type: DetailLiveMessage[]
     get lastestMessage() {return this._lastestMessage}
     set lastestMessage(v) {this._lastestMessage = v}

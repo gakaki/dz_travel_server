@@ -1,6 +1,6 @@
 module.exports = app => {
     const mongoose = app.mongoose;
-    const ChatSchema = new mongoose.Schema({
+    const PostcardChatSchema = new mongoose.Schema({
         uid:{type:String},//拥有者
         pscid:{type:String},//明信片
         chatid:{type:String},
@@ -9,6 +9,6 @@ module.exports = app => {
         createDate:{type:Date}
     });
 
-    return mongoose.model('Chat', ChatSchema);
+    return mongoose.model('PostcardChat', PostcardChatSchema);
 };
 
