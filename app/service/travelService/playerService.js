@@ -5,10 +5,18 @@ class PlayerService extends Service {
     async showPlayerInfo(info, ui) {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         let totalFootprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $sortByCount: "$uid" }]);
-        let playerFootprints  =  totalFootprints.find((n) => n._id == ui.uid);
-        let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid) || 0;
+        let playerFootprints = totalFootprints.find((n) => n._id == ui.uid);
+        let playerIndex = totalFootprints.findIndex((n) => n._id == ui.uid);
         let total = totalFootprints.length;
-        let overMatch = Math.floor(((total-playerIndex) / total)*100);
+        this.logger.info(totalFootprints);
+        this.logger.info(playerIndex + '   6666666666666666');
+        let overMatch = 0;
+        if (playerIndex == -1) {
+           playerIndex = total;
+        }
+        if (total) {
+            overMatch = Math.floor(((total - playerIndex) / total) * 100);
+        }
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
