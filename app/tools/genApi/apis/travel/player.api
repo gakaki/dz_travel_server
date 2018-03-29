@@ -1,5 +1,13 @@
 //跟个人信息相关的
 import ../base.api
+
+enum PresentTktType {
+    //单人机票
+    const SINGLE = 1
+    //双人机票
+    const DOUBLE = 2
+}
+
 class UserBriefInfo {
     //第三方登陆，则返回UID
     prop uid:string
@@ -68,8 +76,8 @@ class RealInfo {
 class TicketInfo{
     //城市id
     prop cid:string
-    //机票数量
-    prop num:number
+    //机票type
+    prop type:PresentTktType
 }
 
 //拉取一个玩家的简要信息（自己或他人）

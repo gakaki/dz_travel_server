@@ -30,15 +30,9 @@ api GetMessage {
     output messages:MessageItem[]
 }
 
-//-------------以下定义的为websocket协议--------------
-
-//客户端发给服务器的,是否有消息
-wss HasMessage {
-
+//查看消息条数
+api CheckMsgCnt {
+    //返回未读消息条数
+    output unreadMsgCnt:number
 }
 
-//服务器发给客户端的
-wsr MessageNum {
-    //返回消息条数
-    output number:number
-}
