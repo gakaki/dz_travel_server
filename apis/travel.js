@@ -283,7 +283,7 @@ class otherUserInfo  {
         //prop type: number
         this.likeNum = null;
     
-        //prop type: numer
+        //prop type: number
         this.specialty = null;
     
         
@@ -681,6 +681,39 @@ class exchangeShopDetail  {
         
     }
 }
+class StartGame extends Base {
+    constructor(){
+        super();
+        this.action = 'startGame.startgame';
+    
+        this._type = null;
+        this._cid = null;
+        this._cost = null;
+        this._partnerUid = null;
+        this.requireFileds = ["type","cid","cost"];
+        this.reqFields = ["type","cid","cost","partnerUid"];
+        this.resFields = [];
+    }
+    //client input, require, type: TicketType
+    get type() {return this._type}
+    set type(v) {this._type = v}
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: number
+    get cost() {return this._cost}
+    set cost(v) {this._cost = v}
+    //client input, optional, type: string
+    get partnerUid() {return this._partnerUid}
+    set partnerUid(v) {this._partnerUid = v}
+    static Init(ctx) {
+        let o = new StartGame();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 class UserInfo extends UserBriefInfo {
     constructor(){
         super();
@@ -898,18 +931,6 @@ class GetRealInfo extends Base {
         return o;
     }
 }
-class mySpe extends Specialty {
-    constructor(){
-        super();
-    
-        //prop type: number//我的某个特产的数量
-        this.num = null;
-    
-        
-        
-        
-    }
-}
 class ModifyRealInfo extends Base {
     constructor(){
         super();
@@ -941,6 +962,31 @@ class ModifyRealInfo extends Base {
     set realInfo(v) {this._realInfo = v}
     static Init(ctx) {
         let o = new ModifyRealInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class SpeList extends Base {
+    constructor(){
+        super();
+        this.action = 'prop.spelist';
+    
+        this._cityId = null;
+        this._specialtys = null;
+        this.requireFileds = ["cityId"];
+        this.reqFields = ["cityId"];
+        this.resFields = ["specialtys"];
+    }
+    //client input, require, type: number//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
+    //server output, type: Specialty[]
+    get specialtys() {return this._specialtys}
+    set specialtys(v) {this._specialtys = v}
+    static Init(ctx) {
+        let o = new SpeList();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1028,13 +1074,17 @@ class SignInfo extends Base {
         this.action = 'player.signinfo';
     
         this._theDay = null;
+        this._hasSign = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["theDay"];
+        this.resFields = ["theDay","hasSign"];
     }
     //server output, type: number
     get theDay() {return this._theDay}
     set theDay(v) {this._theDay = v}
+    //server output, type: number
+    get hasSign() {return this._hasSign}
+    set hasSign(v) {this._hasSign = v}
     static Init(ctx) {
         let o = new SignInfo();
         o.ctx = ctx;
@@ -1058,6 +1108,47 @@ class ToSign extends Base {
     set theDay(v) {this._theDay = v}
     static Init(ctx) {
         let o = new ToSign();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class TravelFootprint extends Base {
+    constructor(){
+        super();
+        this.action = 'player.travelfootprint';
+    
+        this._playerUid = null;
+        this._items = null;
+        this._reachrovince = null;
+        this._totalArrive = null;
+        this._totalArrivePercent = null;
+        this._travelPercent = null;
+        this.requireFileds = [];
+        this.reqFields = ["playerUid"];
+        this.resFields = ["items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: KV[]
+    get items() {return this._items}
+    set items(v) {this._items = v}
+    //server output, type: number
+    get reachrovince() {return this._reachrovince}
+    set reachrovince(v) {this._reachrovince = v}
+    //server output, type: number
+    get totalArrive() {return this._totalArrive}
+    set totalArrive(v) {this._totalArrive = v}
+    //server output, type: number
+    get totalArrivePercent() {return this._totalArrivePercent}
+    set totalArrivePercent(v) {this._totalArrivePercent = v}
+    //server output, type: number
+    get travelPercent() {return this._travelPercent}
+    set travelPercent(v) {this._travelPercent = v}
+    static Init(ctx) {
+        let o = new TravelFootprint();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1111,15 +1202,6 @@ class IndexInfo extends Base {
         o.code = 0;
         o.parse(ctx.query, true);
         return o;
-    }
-}
-class WsSend extends Base {
-    constructor(){
-        super();
-    
-        
-        
-        
     }
 }
 class DetailLiveMessage extends OneBriefMessage {
@@ -1224,33 +1306,38 @@ class DetailPostcard extends Base {
         return o;
     }
 }
-class sendPostcard extends Base {
+class SendPostcard extends Base {
     constructor(){
         super();
         this.action = 'postcard.sendpostcard';
     
         this._id = null;
-        this._friendUid = null;
         this._message = null;
-        this.requireFileds = ["id","friendUid","message"];
-        this.reqFields = ["id","friendUid","message"];
+        this.requireFileds = ["id","message"];
+        this.reqFields = ["id","message"];
         this.resFields = [];
     }
     //client input, require, type: number
     get id() {return this._id}
     set id(v) {this._id = v}
     //client input, require, type: string
-    get friendUid() {return this._friendUid}
-    set friendUid(v) {this._friendUid = v}
-    //client input, require, type: string
     get message() {return this._message}
     set message(v) {this._message = v}
     static Init(ctx) {
-        let o = new sendPostcard();
+        let o = new SendPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
         return o;
+    }
+}
+class WsSend extends Base {
+    constructor(){
+        super();
+    
+        
+        
+        
     }
 }
 class WsReceive extends Base {
@@ -1268,39 +1355,6 @@ class WsReceive extends Base {
             tmp[k]=this[k]
         });
         this.ctx.io.emit(this.action, {data: tmp, code: this.code});
-    }
-}
-class TravelLog extends Base {
-    constructor(){
-        super();
-        this.action = 'travel.travellog';
-    
-        this._playerUid = null;
-        this._page = null;
-        this._length = null;
-        this._allLogs = null;
-        this.requireFileds = [];
-        this.reqFields = ["playerUid","page","length"];
-        this.resFields = ["allLogs"];
-    }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //client input, optional, type: number
-    get page() {return this._page}
-    set page(v) {this._page = v}
-    //client input, optional, type: number
-    get length() {return this._length}
-    set length(v) {this._length = v}
-    //server output, type: Log[]
-    get allLogs() {return this._allLogs}
-    set allLogs(v) {this._allLogs = v}
-    static Init(ctx) {
-        let o = new TravelLog();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
     }
 }
 class PostList extends Base {
@@ -1415,57 +1469,33 @@ class ThumbComment extends Base {
         return o;
     }
 }
-class FlyInfo extends Base {
+class TravelLog extends Base {
     constructor(){
         super();
-        this.action = 'startGame.flyinfo';
+        this.action = 'travel.travellog';
     
-        this._type = null;
-        this._gold = null;
-        this._isFirst = null;
-        this._season = null;
-        this._weather = null;
-        this._cost = null;
-        this._doubleCost = null;
-        this._location = null;
-        this._holiday = null;
-        this._cid = null;
-        this.requireFileds = ["type"];
-        this.reqFields = ["type"];
-        this.resFields = ["gold","isFirst","season","weather","cost","doubleCost","location","holiday","cid"];
+        this._playerUid = null;
+        this._page = null;
+        this._length = null;
+        this._allLogs = null;
+        this.requireFileds = [];
+        this.reqFields = ["playerUid","page","length"];
+        this.resFields = ["allLogs"];
     }
-    //client input, require, type: TicketType
-    get type() {return this._type}
-    set type(v) {this._type = v}
-    //server output, type: number
-    get gold() {return this._gold}
-    set gold(v) {this._gold = v}
-    //server output, type: Boolean
-    get isFirst() {return this._isFirst}
-    set isFirst(v) {this._isFirst = v}
-    //server output, type: Season
-    get season() {return this._season}
-    set season(v) {this._season = v}
-    //server output, type: number
-    get weather() {return this._weather}
-    set weather(v) {this._weather = v}
-    //server output, type: number
-    get cost() {return this._cost}
-    set cost(v) {this._cost = v}
-    //server output, type: number
-    get doubleCost() {return this._doubleCost}
-    set doubleCost(v) {this._doubleCost = v}
-    //server output, type: string
-    get location() {return this._location}
-    set location(v) {this._location = v}
-    //server output, type: string
-    get holiday() {return this._holiday}
-    set holiday(v) {this._holiday = v}
-    //server output, type: string
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: number
+    get page() {return this._page}
+    set page(v) {this._page = v}
+    //client input, optional, type: number
+    get length() {return this._length}
+    set length(v) {this._length = v}
+    //server output, type: Log[]
+    get allLogs() {return this._allLogs}
+    set allLogs(v) {this._allLogs = v}
     static Init(ctx) {
-        let o = new FlyInfo();
+        let o = new TravelLog();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1551,62 +1581,73 @@ class IntegralShop extends Base {
         return o;
     }
 }
-class StartGame extends Base {
+class FlyInfo extends Base {
     constructor(){
         super();
-        this.action = 'startGame.startgame';
+        this.action = 'startGame.flyinfo';
     
         this._type = null;
-        this._cid = null;
+        this._gold = null;
+        this._isFirst = null;
+        this._season = null;
+        this._weather = null;
         this._cost = null;
-        this._partnerUid = null;
-        this.requireFileds = ["type","cid","cost"];
-        this.reqFields = ["type","cid","cost","partnerUid"];
-        this.resFields = [];
+        this._doubleCost = null;
+        this._location = null;
+        this._holiday = null;
+        this._cid = null;
+        this.requireFileds = ["type"];
+        this.reqFields = ["type"];
+        this.resFields = ["gold","isFirst","season","weather","cost","doubleCost","location","holiday","cid"];
     }
     //client input, require, type: TicketType
     get type() {return this._type}
     set type(v) {this._type = v}
-    //client input, require, type: number
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //client input, require, type: number
+    //server output, type: number
+    get gold() {return this._gold}
+    set gold(v) {this._gold = v}
+    //server output, type: Boolean
+    get isFirst() {return this._isFirst}
+    set isFirst(v) {this._isFirst = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: number
     get cost() {return this._cost}
     set cost(v) {this._cost = v}
-    //client input, optional, type: string
-    get partnerUid() {return this._partnerUid}
-    set partnerUid(v) {this._partnerUid = v}
+    //server output, type: number
+    get doubleCost() {return this._doubleCost}
+    set doubleCost(v) {this._doubleCost = v}
+    //server output, type: string
+    get location() {return this._location}
+    set location(v) {this._location = v}
+    //server output, type: string
+    get holiday() {return this._holiday}
+    set holiday(v) {this._holiday = v}
+    //server output, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
     static Init(ctx) {
-        let o = new StartGame();
+        let o = new FlyInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
         return o;
     }
 }
-class SpeList extends Base {
+class mySpe extends Specialty {
     constructor(){
         super();
-        this.action = 'prop.spelist';
     
-        this._cityId = null;
-        this._specialtys = null;
-        this.requireFileds = ["cityId"];
-        this.reqFields = ["cityId"];
-        this.resFields = ["specialtys"];
-    }
-    //client input, require, type: number//城市id
-    get cityId() {return this._cityId}
-    set cityId(v) {this._cityId = v}
-    //server output, type: Specialty[]
-    get specialtys() {return this._specialtys}
-    set specialtys(v) {this._specialtys = v}
-    static Init(ctx) {
-        let o = new SpeList();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
+        //prop type: number//我的某个特产的数量
+        this.num = null;
+    
+        
+        
+        
     }
 }
 class MessageNum extends WsReceive {
@@ -1799,6 +1840,7 @@ exports.Post = Post;
 exports.Comment = Comment;
 exports.MessageItem = MessageItem;
 exports.exchangeShopDetail = exchangeShopDetail;
+exports.StartGame = StartGame;
 exports.UserInfo = UserInfo;
 exports.Photograph = Photograph;
 exports.CityListPer = CityListPer;
@@ -1807,32 +1849,32 @@ exports.RankInfo = RankInfo;
 exports.PlayerInfo = PlayerInfo;
 exports.RentProp = RentProp;
 exports.GetRealInfo = GetRealInfo;
-exports.mySpe = mySpe;
 exports.ModifyRealInfo = ModifyRealInfo;
+exports.SpeList = SpeList;
 exports.Spe = Spe;
 exports.LookTicket = LookTicket;
 exports.getUserLocation = getUserLocation;
 exports.SignInfo = SignInfo;
 exports.ToSign = ToSign;
+exports.TravelFootprint = TravelFootprint;
 exports.IndexInfo = IndexInfo;
-exports.WsSend = WsSend;
 exports.DetailLiveMessage = DetailLiveMessage;
 exports.MyPostcards = MyPostcards;
 exports.CityPostcards = CityPostcards;
 exports.DetailPostcard = DetailPostcard;
-exports.sendPostcard = sendPostcard;
+exports.SendPostcard = SendPostcard;
+exports.WsSend = WsSend;
 exports.WsReceive = WsReceive;
-exports.TravelLog = TravelLog;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
-exports.FlyInfo = FlyInfo;
+exports.TravelLog = TravelLog;
 exports.GetMessage = GetMessage;
 exports.exchangeShop = exchangeShop;
 exports.IntegralShop = IntegralShop;
-exports.StartGame = StartGame;
-exports.SpeList = SpeList;
+exports.FlyInfo = FlyInfo;
+exports.mySpe = mySpe;
 exports.MessageNum = MessageNum;
 exports.HasMessage = HasMessage;
 exports.SellSpe = SellSpe;

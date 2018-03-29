@@ -77,9 +77,12 @@ class TravelController extends Controller {
         }
         //非法传参
         if(!Number(info.cost)){
-            info.code = apis.Code.PARAMETER_NOT_MATCH;
-            info.submit();
-            return;
+            if(Number(info.cost) != 0){
+                info.code = apis.Code.PARAMETER_NOT_MATCH;
+                info.submit();
+                return;
+            }
+
         }
 
         await this.service.travelService.travelService.visit(info,ui);
