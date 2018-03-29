@@ -54,11 +54,14 @@ class TravelController extends Controller {
             }
         }
         //金币不足
-        if(ui.items[travelConfig.Item.GOLD] <= 0 ){
-            info.code = apis.Code.NEED_ITEMS;
-            info.submit();
-            return
+        if(!ui.isFirst){
+            if(ui.items[travelConfig.Item.GOLD] <= 0 ){
+                info.code = apis.Code.NEED_ITEMS;
+                info.submit();
+                return
+            }
         }
+
         //城市不存在
         if(!travelConfig.City.Get(info.cid)){
             info.code = apis.Code.PARAMETER_NOT_MATCH;

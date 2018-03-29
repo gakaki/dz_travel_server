@@ -49,7 +49,7 @@ class TravelService extends Service {
                 let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.city);
                 for(let we of travelConfig.weathers){
                     if(we.weather == weather){
-                        outw = weather;
+                        outw = we.id;
                         break;
                     }
                 }
@@ -106,7 +106,8 @@ class TravelService extends Service {
         await this.ctx.model.PublicModel.User.update({uid:ui.uid,["items."+travelConfig.Item.GOLD]:{$gt:0}},{$inc:{ ["items."+travelConfig.Item.GOLD] :(Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui,cost);
         //飞行消耗为0 ，为首次登陆
-        if(!info.cost){
+        if(!Number(info.cost)){
+            this.logger.info("首次飞行");
             await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$set:{isFirst:false}});
         }
         let flyRecord = {
