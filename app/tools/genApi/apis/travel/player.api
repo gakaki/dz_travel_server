@@ -22,6 +22,10 @@ class otherUserInfo {
     prop likeNum:number
     //获得特产总数
     prop specialty:numer
+    //金币数
+    prop gold:number
+    //积分数
+    prop Integral:number
 }
 
 class UserInfo extends UserBriefInfo{
