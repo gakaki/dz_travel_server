@@ -135,3 +135,11 @@ api TravelFootprint {
     output travelPercent:number
 
 }
+
+//点亮的地方列表
+api TraveledPlaces {
+    optional playerUid:string//用户uid，不传则是自己的
+
+    output provinces:string[]//点亮的省名数组,如[‘江苏’]
+    output citys:string[]//点亮的城市名数组，如[‘苏州’]
+}
