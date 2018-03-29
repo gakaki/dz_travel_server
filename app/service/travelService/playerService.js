@@ -125,7 +125,7 @@ class PlayerService extends Service {
             for(let pt of postcard.postcard){
                 let postcardBriefDetail={};
                 if(Number(info.LM)){
-                    let chats = await this.ctx.model.TravelModel.Chat.find({pscid:pt.pscid}).sort({createDate:-1});
+                    let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:pt.pscid}).sort({createDate:-1});
                     if(chats.length>0){
                         postcardBriefDetail ={
                             id : pt.ptid,
@@ -165,7 +165,7 @@ class PlayerService extends Service {
     async showDetailPostcard(info,ui){
         let page = Number(info.page)?Number(info.page):1;
         let limit = Number(info.messageLength)?Number(info.messageLength):10;
-        let chats = await this.ctx.model.TravelModel.Chat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
+        let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.postid = postcard.ptid;
         let detailLiveMessages = [];
@@ -199,7 +199,7 @@ class PlayerService extends Service {
 
     async sendPostcardMsg(info,ui,postcard){
         let chatid = "chat"+new Date().getTime();
-        this.ctx.model.TravelModel.Chat.create({
+        this.ctx.model.TravelModel.PostcardChat.create({
             uid:postcard.uid,//拥有者
             pscid:postcard.pscid,//明信片
             chatid:chatid,
@@ -207,7 +207,7 @@ class PlayerService extends Service {
             context:info.message,
             createDate:new Date()
         });
-        let chats = await this.ctx.model.TravelModel.Chat.find({psccid:postcard.psccid});
+        let chats = await this.ctx.model.TravelModel.PostcardChat.find({psccid:postcard.psccid});
         let senders = new Set();
         for(let chat of chats){
             senders.add(chat.sender);
@@ -246,26 +246,25 @@ class PlayerService extends Service {
             day = 7
         }
 
-        // let reward = englishConfigs.Landing.Get(day).itemid;
-        // let itemChange = {};
-        // for (let item of reward) {
-        //     cost["items." + item.k] = Number(item.v);
-        //     itemChange["items." + item.k] = Number(item.v);
-        // }
-        // await this.ctx.model.PublicModel.SignInRecord.create({
-        //     uid: ui.uid,
-        //     appName: appName,
-        //     createDate: new Date().toLocaleDateString(),
-        //     createTime: new Date().toLocaleTimeString(),
-        //     createDateTime:new Date()
-        // });
-        // await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
-        // await this.ctx.service.publicService.itemService.itemChange(user, itemChange, appName);
-        //
-        // return {
-        //     day: day,
-        //     reward: reward
-        // };
+        let reward = englishConfigs.Landing.Get(day).itemid;
+        let itemChange = {};
+        for (let item of reward) {
+            cost["items." + item.k] = Number(item.v);
+            itemChange["items." + item.k] = Number(item.v);
+        }
+        await this.ctx.model.PublicModel.SignInRecord.create({
+            uid: ui.uid,
+            appName: "travel",
+            createDate: new Date().toLocaleDateString(),
+            createDateTime:new Date()
+        });
+        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
+        await this.ctx.service.publicService.itemService.itemChange(user, itemChange, appName);
+
+        return {
+            day: day,
+            reward: reward
+        };
     }
 
 }
