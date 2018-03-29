@@ -2448,16 +2448,26 @@ function getCityCode(city) {
 }
 
 async function reqWeather(city) {
-    return new Promise(resolve => {
+    return new Promise((resolve,reject) => {
         request(url + `city=${getCityCode(city)}`, (err, res, body) => {
-            let getWeather = JSON.parse(body);
-            if (getWeather.status != 'OK') {
-                resolve({err:'获取天气失败'});
+            if(err){
+                reject({err:'获取天气失败'});
                 return;
             }
+          try{
+              let getWeather = JSON.parse(body);
+              if (getWeather.status != 'OK') {
+                  reject({err:'获取天气失败'});
+                  return;
+              }
 
-            let weather = getWeather.weather[0];
-            resolve(weather);
+              let weather = getWeather.weather[0];
+              resolve(weather);
+          }catch(err){
+              console.error(err);
+              reject({err:'获取天气失败'})
+          }
+
         })
     })
 }

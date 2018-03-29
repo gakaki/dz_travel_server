@@ -14,10 +14,16 @@ class ThirdService extends Service{
     }
 
     async getWeather(city) {
-         let meteorological =await weather(city);
-        let weathers = meteorological.now.text;
-        this.logger.info('weather', weathers);
-        return weathers;
+         try{
+             let meteorological =await weather(city);
+             let weathers = meteorological.now.text;
+             this.logger.info('weather', weathers);
+             return weathers;
+         }catch(err){
+             this.logger.error(err);
+             return "晴"
+         }
+
     }
 
      getHoliday(date=new Date()) {
