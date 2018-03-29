@@ -62,7 +62,7 @@ class TravelController extends Controller {
             }
 
         }
-        
+
         //金币不足
         if(!ui.isFirst){
             if(ui.items[travelConfig.Item.GOLD] <= 0 || ui.items[travelConfig.Item.GOLD] < Number(info.cost)){

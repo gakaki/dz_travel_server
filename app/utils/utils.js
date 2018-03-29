@@ -29,6 +29,7 @@ exports.MD5 = function (str, fmt = constant.Format.BASE64) {
     return fmt == constant.Format.BASE64 ? hdl.digest().toString("base64") : hdl.digest("hex");
 };
 
+//对象排序
 exports.multisort = function (array, ...compairers) {
     return array.sort((a, b) => {
         for (const c of compairers) {
@@ -40,4 +41,14 @@ exports.multisort = function (array, ...compairers) {
     })
 };
 
+//数组随机
+exports.shuffle = function(arr) {
+    let  newArr = [];
+    while (arr.length > 0) {
+        let index = parseInt(Math.random() * (arr.length - 1));
+        newArr.push(arr[index]);
+        arr.splice(index, 1);
+    }
+    return newArr;
+}
 
