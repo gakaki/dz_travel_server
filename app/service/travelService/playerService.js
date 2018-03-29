@@ -1,5 +1,6 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
+const utils = require("../../utils/utils");
 class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
@@ -186,7 +187,7 @@ class PlayerService extends Service {
                         let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
                         postcardBriefDetail.lastestLiveMessage= {
                             id:chat.chatid,
-                            time:new Date(chat.createDate).toLocaleDateString(),
+                            time:(chat.createDate).format("yyyy-MM-dd"),
                             userInfo:{
                                 uid:sender.uid,
                                 nickName:sender.nickName,
@@ -194,7 +195,7 @@ class PlayerService extends Service {
                             },
                             message:chat.context
                         }
-                        this.logger.info("时间 ：" ,new Date(chat.createDate).toLocaleDateString() )
+                        this.logger.info("时间 ：" ,(chat.createDate).format("yyyy-MM-dd") )
                     }
                 }else{
                     postcardBriefDetail ={
@@ -226,7 +227,7 @@ class PlayerService extends Service {
             let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
             let detailLiveMessage ={
                 id:chat.chatid,
-                time:new Date(chat.createDate).toLocaleString(),
+                time:(chat.createDate).format("yyyy-MM-dd hh:mm:ss"),
                 userInfo:{
                     uid:sender.uid,
                     nickName:sender.nickName,
@@ -283,7 +284,7 @@ class PlayerService extends Service {
     }
 
     async signInfo(info,ui){
-        info.hasSign = await this.ctx.model.PublicModel.SignInRecord.count({uid: ui.uid, createDate: new Date().toLocaleDateString()});
+        info.hasSign = await this.ctx.model.PublicModel.SignInRecord.count({uid: ui.uid, createDate: new Date().format("yyyy-MM-dd")});
         let cumulativeDays = (ui.cumulativeDays + 1);
         let day = cumulativeDays % 7;
         if (day == 0) {
@@ -308,7 +309,7 @@ class PlayerService extends Service {
         await this.ctx.model.PublicModel.SignInRecord.create({
             uid: ui.uid,
             appName: "travel",
-            createDate: new Date().toLocaleDateString(),
+            createDate: new Date().format("yyyy-MM-dd"),
             createDateTime:new Date()
         });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});

@@ -1,7 +1,6 @@
-const apis = require("../../../apis/travel");
-
 const Controller = require('egg').Controller;
-
+const apis = require("../../../apis/travel");
+const utils = require("../../utils/utils");
 //玩家个人页相关
 class PlayerController extends Controller {
     async showplayerinfo(ctx) {
@@ -158,7 +157,7 @@ class PlayerController extends Controller {
         }
         let signCount = await ctx.model.PublicModel.SignInRecord.count({
             uid: ui.uid,
-            createDate: new Date().toLocaleDateString()
+            createDate: new Date().format("yyyy-MM-dd")
         });
         if (signCount) {
             info.code = apis.Code.HAS_SIGNIN;

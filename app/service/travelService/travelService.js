@@ -1,6 +1,6 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
-
+const utils = require("../../utils/utils");
 
 class TravelService extends Service {
     async fillIndexInfo(info,ui) {
@@ -82,7 +82,7 @@ class TravelService extends Service {
 
         info.weather = outw;
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
-        info.date = new Date().toLocaleDateString();
+        info.date = new Date().format("yyyy-MM-dd");
 
     }
 
