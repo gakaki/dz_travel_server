@@ -98,8 +98,9 @@ exports.Code = {
     LESS_MONEY: -138,//低于最低限额
     LEVEL_MAX:-140,//等级上限
     PACK_Fighing: 168, //红包可竞猜
-    NEED_COUPON: 170, //代金券不足
-    NEED_MONEY: 171, //金额不足
+    NEED_COUPON: -170, //代金券不足
+    NEED_MONEY: -171, //金额不足
+    HAS_SIGNIN:-144,//已经签到了
     UNKNOWN: -1000,
     EXCEPTION: -999, // 遇到了未处理的异常
     ROUTER_NOT_FOUND: -998, // 没有找到路由
