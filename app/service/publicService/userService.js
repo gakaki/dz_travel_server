@@ -124,13 +124,12 @@ class UserService extends Service {
             pid: ui.pid,
             appName: appName,
             type: constant.UserActionRecordType.LOGIN,
-            time: new Date().toLocaleTimeString(),
-            date: new Date().toLocaleDateString(),
             data: {
                 agent: this.ctx.request.header['user-agent'],
                 host: this.ctx.request.header.host,
                 addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
-            }
+            },
+            createDate:new Date()
         });
 
         result.sid = ses.sid;
@@ -150,13 +149,12 @@ class UserService extends Service {
                 pid: ui.pid,
                 appName: appName,
                 type: constant.UserActionRecordType.LOGIN,
-                time: new Date().toLocaleTimeString(),
-                date: new Date().toLocaleDateString(),
                 data: {
                     agent: this.ctx.request.header['user-agent'],
                     host: this.ctx.request.header.host,
                     addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
-                }
+                },
+                createDate:new Date()
             });
             return ui;
         }
@@ -187,7 +185,7 @@ class UserService extends Service {
             city: info.city,
             province: info.province,
             country: info.country,
-            registertime: new Date().toLocaleString(),
+            registertime: new Date(),
             third: third,
             pid: pidStr,
             items: items,
@@ -199,8 +197,7 @@ class UserService extends Service {
             pid: pid,
             type: constant.UserActionRecordType.REGISTER,
             appName: appName,
-            time: new Date().toLocaleTimeString(),
-            date: new Date().toLocaleDateString(),
+            createDate:new Date()
         });
 
         return ui;
@@ -226,11 +223,6 @@ class UserService extends Service {
         }
         this.logger.info("用户PID: " + ses.pid);
         return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
-    }
-
-    async getPlayerCnt() {
-        let cnt = await this.ctx.model.PublicModel.UserActionRecord.count();
-        return cnt;
     }
 
 

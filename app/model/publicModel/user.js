@@ -14,7 +14,7 @@ module.exports = app => {
         language: {type: String},//用户的语言，简体中文为zh_CN
         online: {type: Boolean},//是否在线
         third: {type: Boolean, default: false},//第三方
-        registertime: {type: String},//注册时间
+        registertime: {type: Date},//注册时间
         items: {type: JSON}, //道具
         friendList:{type:Array},
         isFirst:{type:Boolean,default:true},

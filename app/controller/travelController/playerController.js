@@ -118,6 +118,16 @@ class PlayerController extends Controller {
         info.submit();
     }
 
+    async signin(ctx){
+        let info =apis.SendPostcard.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+    }
+
 
 }
 module.exports = PlayerController;
