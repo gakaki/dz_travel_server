@@ -88,6 +88,30 @@ class PlayerController extends Controller {
         info.submit();
     }
 
+    async showdetailpostcard(ctx){
+        let info =apis.DetailPostcard.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.showDetailPostcard(info,ui);
+        info.submit();
+    }
+
+    async sendpostcard(ctx){
+        let info =apis.DetailPostcard.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.sendPostcard(info,ui);
+        info.submit();
+    }
+
 
 }
 module.exports = PlayerController;

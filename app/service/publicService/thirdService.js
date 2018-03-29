@@ -1,3 +1,5 @@
+const travelConfig = require("../../../sheets/travel");
+
 const Service = require('egg').Service;
 const season = require('date-season')({north: true, autumn: true});
 const holiday = require('holiday.cn').default;
@@ -19,15 +21,18 @@ class ThirdService extends Service{
     }
 
      getHoliday(date=new Date()) {
-         let holiday = holiday(date);
-         this.logger.info('holiday', holiday);
-        return holiday
+         let holidays = holiday(date);
+         this.logger.info('holiday', holidays);
+        return holidays
     }
 
     async getRandomTicket(uid){
         let cityPool = travelConfig.citys;
         let footprints = await this.ctx.model.TravelModel.FlightRecord.aggregate([{ $match: {"uid":uid} }]).group({ _id: "$destination"});
-        if(cityPool.length == footprints.length){
+        this.logger.info(cityPool.length);
+        this.logger.info(footprints);
+
+        if(footprints.length == 0 || cityPool.length == footprints.length){
             let index = utils.Rangei(0,cityPool.length);
             return (index+1).toString();
         }else{

@@ -18,15 +18,14 @@ module.exports = app => {
 
 
 
-
-    router.get('/travel/lookticket', controller.travelController.playerController.showflyticket);
     router.get('/player/playerinfo', controller.travelController.playerController.showplayerinfo);
+    router.get('/player/lookticket', controller.travelController.playerController.showflyticket);
     router.get('/travel/modifyrealinfo', controller.travelController.playerController.setrealinfo);
     router.get('/travel/getrealinfo', controller.travelController.playerController.getrealinfo);
 
 
     router.get('/travel/indexinfo', controller.travelController.travelController.index);
-    router.get('/travel/flyinfo', controller.travelController.travelController.selectcity);
+    router.get('/startGame/flyinfo', controller.travelController.travelController.selectcity);
     router.get('/travel/startgame', controller.travelController.travelController.visit);
     router.get('/travel/travellog', controller.travelController.travelController.gettravellog);
 

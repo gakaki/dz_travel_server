@@ -29,7 +29,7 @@ class TravelController extends Controller {
             info.submit();
             return;
         }
-        await this.service.travelService.travelService.selectCity(info);
+        await this.service.travelService.travelService.selectCity(info,ui);
 
         info.submit();
     }
