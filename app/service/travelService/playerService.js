@@ -54,12 +54,15 @@ class PlayerService extends Service {
             {$group:{_id:"$province",citys:{$addToSet:{cid:"$cid"}},scenicspots:{$addToSet:{scenicspot:"$scenicspot"}}}},
             {$project:{_id:0,province:"$_id",citys:1,scenicspots:1}}
             ]);
-        let travelFootprint = {
-            items:ui.items,
-            reachrovince:userfootprints.length,
-        };
+
         let totalCitys = travelConfig.citys.length;
-        let totalscenicspots = travelConfig.scenicspots.length;
+        let totalScenicspots = travelConfig.scenicspots.length;
+        let totalEvents = travelConfig.events.length;
+        let totalPostcards = travelConfig.postcards.length;
+        this.logger.info("总城市 "+ totalCitys);
+        this.logger.info("总景点 "+ totalCitys);
+        this.logger.info("总事件 "+ totalCitys);
+        this.logger.info("总明信片 "+ totalCitys);
         let totalArrive = 0;
         let userscenicspots = 0;
         for(let footprint of userfootprints){
@@ -68,15 +71,29 @@ class PlayerService extends Service {
             totalArrive += citys.length;
             userscenicspots += scenicspots.length;
         }
+        this.logger.info("用户去过的城市 "+ totalArrive);
         let totalArrivePercent = Math.floor((totalArrive/totalCitys)*100);
-        travelFootprint.totalArrive = totalArrive;
-        travelFootprint.totalArrivePercent = totalArrivePercent;
+        this.logger.info("城市百分比 "+ totalArrivePercent);
+        info.items = ui.items;
+        info.reachrovince = userfootprints.length;
+        info.totalArrive = totalArrive;
+        info.totalArrivePercent = totalArrivePercent;
         //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
-        // let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
-        //     {$match:{uid:ui.uid}},
-        //     {$group:{_id:"$eid",uevents:{$sum:1}}}
-        //     ]);
-        // userscenicspots +
+        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+            {$match:{uid:ui.uid}},
+            {$group:{_id:"$eid"}}
+        ]);
+        let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
+            {$match:{uid:ui.uid}},
+            {$group:{_id:"$ptid"}}
+        ]);
+        let userProgress = userscenicspots + userEvents.length + userPostcards.length;
+        this.logger.info("用户进度 "+ userProgress);
+        let totalProgress = totalScenicspots + totalEvents + totalPostcards;
+        this.logger.info("总进度 "+ totalProgress);
+        let travelPercent = Math.floor((userProgress/totalProgress)*100);
+        this.logger.info("进度百分比 "+ travelPercent);
+        info.travelPercent = travelPercent;
 
 
     }
@@ -87,7 +104,7 @@ class PlayerService extends Service {
     }
 
     async setRealInfo(info, ui) {
-        this.ctx.model.PublicModel.User.update({uid: ui.uid}, {
+       await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {
             $set: {
                 name: info.name,
                 birth: info.birthday,
@@ -118,14 +135,15 @@ class PlayerService extends Service {
     async showMyPostcards(info,ui) {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
-          {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
-          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1}}
-            ]);
+          {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}},pcards:{$push:{ptid:"$ptid",createDate:"$createDate"}}}},
+          {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1,pcards:1}}
+            ]).sort({"pcards.createDate":-1});
       let postcardInfos = [];
       for(let postcard of postcards){
           let citys = postcard.citys;
           let postcardnum = 0;
           let postcardInfo ={
+              postid:postcard.pcards[0].ptid,
               province:postcard.province,
               collectPostcardNum:postcard.collectPostcardNum
           };
@@ -168,7 +186,7 @@ class PlayerService extends Service {
                         let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
                         postcardBriefDetail.lastestLiveMessage= {
                             id:chat.chatid,
-                            time:new Date(chat.createDate).toLocaleString(),
+                            time:new Date(chat.createDate).toLocaleDateString(),
                             userInfo:{
                                 uid:sender.uid,
                                 nickName:sender.nickName,
@@ -176,6 +194,7 @@ class PlayerService extends Service {
                             },
                             message:chat.context
                         }
+                        this.logger.info("时间 ：" ,new Date(chat.createDate).toLocaleDateString() )
                     }
                 }else{
                     postcardBriefDetail ={
@@ -232,7 +251,7 @@ class PlayerService extends Service {
 
     async sendPostcardMsg(info,ui,postcard){
         let chatid = "chat"+new Date().getTime();
-        this.ctx.model.TravelModel.PostcardChat.create({
+        await this.ctx.model.TravelModel.PostcardChat.create({
             uid:postcard.uid,//拥有者
             pscid:postcard.pscid,//明信片
             chatid:chatid,

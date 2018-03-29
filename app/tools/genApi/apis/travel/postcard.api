@@ -3,8 +3,8 @@ import ./player.api
 
 //一个省的明信片简略信息
 class ProvincePostcardInfo {
-    //省logo
-    prop logo:string
+    //省postid
+    prop postid:string
     //省份名
     prop province:string
     //收集的该省明信片张数

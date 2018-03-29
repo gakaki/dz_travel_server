@@ -75,7 +75,9 @@ class TravelService extends Service {
 
 
         if(info.type == "00"){
-            info.cid =  await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid);
+            let randomcity = await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid);
+            this.logger.info("随机城市 "+ randomcity);
+            info.cid =  randomcity
         }
 
         info.weather = outw;
