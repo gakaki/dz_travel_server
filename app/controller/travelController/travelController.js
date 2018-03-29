@@ -53,9 +53,19 @@ class TravelController extends Controller {
                 return
             }
         }
+        //非法传参
+        if(!Number(info.cost)){
+            if(Number(info.cost) != 0){
+                info.code = apis.Code.PARAMETER_NOT_MATCH;
+                info.submit();
+                return;
+            }
+
+        }
+        
         //金币不足
         if(!ui.isFirst){
-            if(ui.items[travelConfig.Item.GOLD] <= 0 ){
+            if(ui.items[travelConfig.Item.GOLD] <= 0 || ui.items[travelConfig.Item.GOLD] < Number(info.cost)){
                 info.code = apis.Code.NEED_ITEMS;
                 info.submit();
                 return
@@ -78,15 +88,8 @@ class TravelController extends Controller {
                 return
             }
         }
-        //非法传参
-        if(!Number(info.cost)){
-            if(Number(info.cost) != 0){
-                info.code = apis.Code.PARAMETER_NOT_MATCH;
-                info.submit();
-                return;
-            }
 
-        }
+
 
         await this.service.travelService.travelService.visit(info,ui);
 
