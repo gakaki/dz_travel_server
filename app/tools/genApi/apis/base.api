@@ -334,7 +334,7 @@ class Base{
                     app.globalData.userInfo = req.info;
                     this.SID = req.sid;
                     this._timestamp = req.timestamp;
-                    this._timestampD = (Date.now() / 1000) >> 0 - this._timestamp;
+                    this._timestampD = Date.now() / 1000 - this._timestamp;
                     wx.setStorageSync('sid', this.SID);
                     suc(req);
                 });
