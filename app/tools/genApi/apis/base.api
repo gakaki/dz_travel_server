@@ -344,7 +344,7 @@ class Base{
     }
 
     func client static get servertime() {
-        return (Date.now()/1000 - this._timestampD)
+        return (Date.now()/1000 - this._timestampD) >> 0
     }
 
 
