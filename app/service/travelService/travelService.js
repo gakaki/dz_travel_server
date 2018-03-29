@@ -14,7 +14,7 @@ class TravelService extends Service {
             let weather =  await this.ctx.service.publicService.thirdService.getWeather(visit.city);
             for(let we of travelConfig.weathers){
                 if(we.weather == weather){
-                    outw = weather;
+                    outw = we.id;
                     break;
                 }
             }
