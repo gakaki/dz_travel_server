@@ -15,9 +15,9 @@ class ThirdService extends Service{
 
     async getWeather(city) {
          let meteorological =await weather(city);
-        let weather = meteorological.now.text;
-        this.logger.info('weather', weather);
-        return weather;
+        let weathers = meteorological.now.text;
+        this.logger.info('weather', weathers);
+        return weathers;
     }
 
      getHoliday(date=new Date()) {

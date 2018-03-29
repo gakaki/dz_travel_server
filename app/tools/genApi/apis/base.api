@@ -74,9 +74,11 @@ enum Code {
     //红包可竞猜
     const PACK_Fighing = 168
     //代金券不足
-    const NEED_COUPON = 170
+    const NEED_COUPON = -170
     //金额不足
-    const NEED_MONEY = 171
+    const NEED_MONEY = -171
+    //已经签到了
+    const HAS_SIGNIN = -144
     const UNKNOWN = -1000
     // 遇到了未处理的异常
     const EXCEPTION = -999

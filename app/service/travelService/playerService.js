@@ -48,6 +48,10 @@ class PlayerService extends Service {
 
     }
 
+    async travelFootprint(info,ui){
+
+    }
+
     async showFlyTicket(info,ui){
         let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid});
         info.ticket = tickets;

@@ -11,10 +11,10 @@ class TravelService extends Service {
           info.season = await this.ctx.service.publicService.thirdService.getSeason();
         let outw = 1;
           if(visit && visit.city){
-            let weather =  (await this.ctx.service.publicService.thirdService.getWeather(visit.city)).now.text;
+            let weather =  await this.ctx.service.publicService.thirdService.getWeather(visit.city);
             for(let we of travelConfig.weathers){
                 if(we.weather == weather){
-                    outw = weather;
+                    outw = we.id;
                     break;
                 }
             }
@@ -49,7 +49,7 @@ class TravelService extends Service {
                 let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.city);
                 for(let we of travelConfig.weathers){
                     if(we.weather == weather){
-                        outw = weather;
+                        outw = we.id;
                         break;
                     }
                 }
@@ -99,15 +99,16 @@ class TravelService extends Service {
         //使用赠送机票
         if(info.type == "11" || info.type =="12"){
             let flyType = info.type.indexOf("2") !=-1 ? 2 :1;
-            this.ctx.model.TravelModel.FlyTicket.update({uid:ui.uid,isGive:1,flyType:flyType,cid:info.cid,number: {$gt: 0}},{$inc:{number:-1}});
+            await this.ctx.model.TravelModel.FlyTicket.update({uid:ui.uid,isGive:1,flyType:flyType,cid:info.cid,number: {$gt: 0}},{$inc:{number:-1}});
 
         }
         //道具更新
-        this.ctx.model.PublicModel.User.update({uid:ui.uid,["items."+travelConfig.Item.GOLD]:{$gt:0}},{$inc:{ ["items."+travelConfig.Item.GOLD] :(Number(info.cost)) * -1}});
+        await this.ctx.model.PublicModel.User.update({uid:ui.uid,["items."+travelConfig.Item.GOLD]:{$gt:0}},{$inc:{ ["items."+travelConfig.Item.GOLD] :(Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui,cost);
         //飞行消耗为0 ，为首次登陆
-        if(!info.cost){
-            this.ctx.model.PublicModel.User.update({uid:ui.uid},{$set:{isFirst:false}});
+        if(!Number(info.cost)){
+            this.logger.info("首次飞行");
+            await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$set:{isFirst:false}});
         }
         let flyRecord = {
             uid:ui.uid,      //用户ID
@@ -120,7 +121,7 @@ class TravelService extends Service {
         };
         let rentItems={};
         for(let rentItem of travelConfig.shops){
-            rentItems[rentItem] = 0;
+            rentItems[rentItem.id] = 0;
         }
         let currentCity = {
                 uid: ui.uid,
@@ -134,24 +135,24 @@ class TravelService extends Service {
         if(fid){
             flyRecord.friend=fid;
             currentCity.friend=fid;
-            this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
-            this.ctx.model.TravelModel.CurrentCity.update({uid:ui.uid},currentCity,{upsert:true});
+            await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
+            await this.ctx.model.TravelModel.CurrentCity.update({uid:ui.uid},currentCity,{upsert:true});
             //更新好友
-            this.ctx.model.PublicModel.User.update({uid:ui.uid},{$addToSet: {friendsList: fid}});
+            await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$addToSet: {friendsList: fid}});
             let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: fid});
             flyRecord.uid = fid;
             flyRecord.friend = ui.uid;
             flyRecord.from = fvisit?fvisit.cid:"初次旅行";
             currentCity.uid =fid;
             currentCity.friend = ui.uid;
-            this.ctx.model.PublicModel.User.update({uid:fid},{$addToSet: {friendsList: ui.uid}});
+            await this.ctx.model.PublicModel.User.update({uid:fid},{$addToSet: {friendsList: ui.uid}});
 
         }
 
       //添加飞行记录
-        this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
+      await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
         //更新玩家所在地
-        this.ctx.model.TravelModel.CurrentCity.update({uid:ui.uid},currentCity,{upsert:true})
+        await this.ctx.model.TravelModel.CurrentCity.update({uid:ui.uid},currentCity,{upsert:true})
     }
 
     async goTravel(info){

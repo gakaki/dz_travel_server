@@ -21,6 +21,24 @@ class PlayerController extends Controller {
         info.submit();
     }
 
+    async travelfootprint(ctx){
+        let info = apis.TravelFootprint.Init(ctx);
+        let info = apis.PlayerInfo.Init(ctx);
+        let userId = info.uid;
+        if(info.playerUid){
+            userId = info.playerUid;
+        }
+        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.travelFootprint(info,ui);
+        //send data
+        info.submit();
+    }
+
     async showflyticket(ctx){
         let info = apis.LookTicket.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
@@ -143,7 +161,7 @@ class PlayerController extends Controller {
             createDate: new Date().toLocaleDateString()
         });
         if (signCount) {
-            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            info.code = apis.Code.HAS_SIGNIN;
             info.submit();
             return;
         }
