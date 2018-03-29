@@ -37,7 +37,6 @@ class TravelController extends Controller {
     async visit(ctx){
         let info = apis.StartGame.Init(ctx);
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
-        let fui = await this.ctx.model.PublicModel.User.findOne({uid: info.partnerUid});
         this.logger.info("访问城市");
         //用户不存在
         if(!ui){
@@ -46,10 +45,13 @@ class TravelController extends Controller {
             return
         }
         //好友不存在
-        if(!fui){
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return
+        if(info.partnerUid){
+            let fui = await this.ctx.model.PublicModel.User.findOne({uid: info.partnerUid});
+            if(!fui){
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return
+            }
         }
         //金币不足
         if(ui.items[travelConfig.Item.GOLD] <= 0 ){

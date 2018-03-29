@@ -27,7 +27,7 @@ module.exports = app => {
 
     router.get('/travel/indexinfo', controller.travelController.travelController.index);
     router.get('/startGame/flyinfo', controller.travelController.travelController.selectcity);
-    router.get('/travel/startgame', controller.travelController.travelController.visit);
+    router.get('/startGame/startgame', controller.travelController.travelController.visit);
     router.get('/travel/travellog', controller.travelController.travelController.gettravellog);
 
 
