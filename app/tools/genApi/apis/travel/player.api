@@ -131,7 +131,7 @@ api TravelFootprint {
     output totalArrive:number
     //用户去的城市占据总城市的百分比,以百分比计算。如果为50%为50
     output totalArrivePercent:number
-    //用户去的城市占据总城市的百分比,以百分比计算。如果为50%为50
+    //用户旅游完成度的百分比,以百分比计算。如果为50%为50
     output travelPercent:number
 
 }
