@@ -19,9 +19,9 @@ class ThirdService extends Service{
     }
 
      getHoliday(date=new Date()) {
-         let holiday = holiday(date);
-         this.logger.info('holiday', holiday);
-        return holiday
+         let holidays = holiday(date);
+         this.logger.info('holiday', holidays);
+        return holidays
     }
 
     async getRandomTicket(uid){
