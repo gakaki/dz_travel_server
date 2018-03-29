@@ -6,11 +6,11 @@ class PlayerService extends Service {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         let totalFootprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $sortByCount: "$uid" }]);
         let playerFootprints  =  totalFootprints.find((n) => n._id == ui.uid);
-        let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid);
+        let playerIndex  =  totalFootprints.findIndex((n) => n._id == ui.uid) || 0;
         let total = totalFootprints.length;
         let overMatch = Math.floor(((total-playerIndex) / total)*100);
-        let addScore = await this.ctx.model.publicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
-        let postCards = await this.ctx.model.TravelModel.PostCard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
+        let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
+        let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: "$likes"}});
         let specialty = await this.ctx.model.TravelModel.Specialty.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
@@ -19,14 +19,14 @@ class PlayerService extends Service {
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
             gender: ui.gender,
-            totalArrive: playerFootprints.count,
+            totalArrive: playerFootprints?playerFootprints.count:0,
             overmatch: overMatch,
-            city: visit.city,
-            province: visit.province,
-            country: visit.country,
+            city: visit?visit.city:"初次旅行",
+            province: visit?visit.province:"初次旅行",
+            country: visit?visit.country:"初次旅行",
             online: ui.online,
             items: ui.items,
-            rentItems: visit.rentItems,
+            rentItems: visit?visit.rentItems:{},
             friends: ui.friendList,
             otherUserInfo: {
                 totalIntegral: addScore ? addScore :0,
@@ -75,7 +75,7 @@ class PlayerService extends Service {
         }
     }
     async showMyPostcards(info,ui) {
-      let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
+      let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}}}},
           {$project : {_id: 0, province :"$_id", collectPostcardNum : 1}}
@@ -99,7 +99,7 @@ class PlayerService extends Service {
     }
     async showCityPostcards(info,ui){
 
-        let postcards = await  this.ctx.model.TravelModel.PostCard.aggregate([
+        let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
             {$match: {uid: ui.uid,province:info.province}},
             {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
             {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
@@ -113,29 +113,83 @@ class PlayerService extends Service {
                 allPostcardNum : travelConfig.City.Get(postcard.cid).postcardnum,
             };
 
-                let postcardBriefDetails = [];
-                for(let pt of postcard.postcard){
-                    let postcardBriefDetail ={
+            let postcardBriefDetails = [];
+            for(let pt of postcard.postcard){
+                let postcardBriefDetail={};
+                if(Number(info.LM)){
+                    let chats = await this.ctx.model.TravelModel.Chat.find({pscid:pt.pscid}).sort({createDate:-1});
+                    if(chats.length>0){
+                        postcardBriefDetail ={
+                            id : pt.ptid,
+                            postid: pt.pscid,
+                        };
+                        let chat = chats[0];
+                        let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
+                        postcardBriefDetail.lastestLiveMessage= {
+                            id:chat.chatid,
+                            time:new Date(chat.createDate).toLocaleString(),
+                            userInfo:{
+                                uid:sender.uid,
+                                nickName:sender.nickName,
+                                avatarUrl:sender.avatarUrl
+                            },
+                            message:chat.context
+                        }
+                    }
+                }else{
+                    postcardBriefDetail ={
                         id : pt.ptid,
                         postid: pt.pscid,
                     };
-                    if(!Number(info.LM)){
-                        let chats = await this.ctx.model.TravelModel.Chat.find({uid:uid.uid,pscid:pt.pscid}).sort({createDate:-1});
-                        if(chats.length>0){
-                            postcardBriefDetail.lastestLiveMessage= {
-
-                            }
-                        }
-                    }
-
-                    postcardBriefDetails.push(postcardBriefDetail)
                 }
-                postcardInfo.postcardsDetail = postcardBriefDetails;
+
+                postcardBriefDetails.push(postcardBriefDetail)
+            }
+            postcardInfo.postcardsDetail = postcardBriefDetails;
 
 
             postcardInfos.push(postcardInfo);
         }
         info.postcardInfo = postcardInfos;
+
+    }
+
+    async showDetailPostcard(info,ui){
+        let page = Number(info.page)?Number(info.page):1;
+        let limit = Number(info.messageLength)?Number(info.messageLength):10;
+        let chats = await this.ctx.model.TravelModel.Chat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
+        let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
+        info.postid = postcard.ptid;
+        let detailLiveMessages = [];
+        for(let i = 0 ;i < chats.length ; i++){
+            let chat = chats[i];
+            let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
+            let detailLiveMessage ={
+                id:chat.chatid,
+                time:new Date(chat.createDate).toLocaleString(),
+                userInfo:{
+                    uid:sender.uid,
+                    nickName:sender.nickName,
+                    avatarUrl:sender.avatarUrl
+                },
+                message:chat.context
+            };
+            if( i == 0){
+                detailLiveMessage.hasNext = false;
+                detailLiveMessage.hasUp = true;
+            }else if(i == chats.length-1){
+                detailLiveMessage.hasNext = true;
+                detailLiveMessage.hasUp = false;
+            }else{
+                detailLiveMessage.hasNext = true;
+                detailLiveMessage.hasUp = true;
+            }
+            detailLiveMessages.push(detailLiveMessage);
+        }
+        info.detailLiveMessage=detailLiveMessages;
+    }
+
+    async sendPostcard(){
 
     }
 
