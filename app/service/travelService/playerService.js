@@ -227,7 +227,7 @@ class PlayerService extends Service {
             }
             detailLiveMessages.push(detailLiveMessage);
         }
-        info.detailLiveMessage=detailLiveMessages;
+        info.lastestMessage=detailLiveMessages;
     }
 
     async sendPostcardMsg(info,ui,postcard){
