@@ -142,7 +142,7 @@ class PlayerController extends Controller {
             uid: ui.uid,
             createDate: new Date().toLocaleDateString()
         });
-        if (signCount > 0) {
+        if (signCount) {
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
             return;
