@@ -112,6 +112,28 @@ class PlayerService extends Service {
         info.ticket = flyTickets;
     }
 
+    async getMessage(info,ui,type){
+        let page = Number(info.page)?Number(info.page):1;
+        let limit = Number(info.limit)?Number(info.limit):20;
+        let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
+        let messages = [];
+        for(let msg of msgs){
+            let message ={
+                 mid:msg.mid,
+                type:msg.type,
+                title:msg.title,
+                date:msg.date.format("yyyy-MM-dd"),
+                content:msg.content
+            };
+            messages.push(message);
+         // await this.ctx.model.TravelModel.UserMsg.update({mid:msg.mid},{$set:{isRead:true}});
+        }
+        info.messages = messages
+    }
+    async checkMsgCnt(info,ui){
+        info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+    }
+
     async setRealInfo(info, ui) {
        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {
             $set: {
@@ -202,7 +224,7 @@ class PlayerService extends Service {
                                 avatarUrl:sender.avatarUrl
                             },
                             message:chat.context
-                        }
+                        };
                         this.logger.info("时间 ：" ,(chat.createDate).format("yyyy-MM-dd") )
                     }
                 }else{
@@ -211,8 +233,10 @@ class PlayerService extends Service {
                         postid: pt.ptid,
                     };
                 }
+                if(postcardBriefDetail && postcardBriefDetail.id){
+                    postcardBriefDetails.push(postcardBriefDetail)
+                }
 
-                postcardBriefDetails.push(postcardBriefDetail)
             }
             postcardInfo.postcardsDetail = postcardBriefDetails;
 
@@ -284,8 +308,10 @@ class PlayerService extends Service {
             let content = context.replace("s%",senderNickName);
             await this.ctx.model.TravelModel.UserMsg.create({
                 uid:senderid,
+                mid:"msg"+travelConfig.Message.POSTCARDMESSAGE+new Date().getTime(),
+                type:travelConfig.Message.POSTCARDMESSAGE,
                 title:travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).topic,
-                context:content,
+                content:content,
                 date:new Date()
             })
         }

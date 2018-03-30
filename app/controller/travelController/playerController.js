@@ -52,6 +52,40 @@ class PlayerController extends Controller {
     }
 
 
+    async getmessage(ctx){
+        let info = apis.GetMessage.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        let mtype = info.messageType;
+        if(mtype){
+            ctx.logger.info("接收到的消息类型 "+ typeof mtype , mtype);
+            if(mtype.constructor !== Array){
+                info.code = apis.Code.PARAMETER_NOT_MATCH;
+                return;
+            }
+        }
+        await ctx.service.travelService.playerService.getMessage(info,ui,mtype);
+
+        info.submit();
+    }
+    async checkmsgcnt(ctx){
+        let info = apis.CheckMsgCnt.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+        await ctx.service.travelService.playerService.checkMsgCnt(info,ui);
+
+        info.submit();
+    }
+
     async setrealinfo(ctx){
         let info = apis.ModifyRealInfo.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);

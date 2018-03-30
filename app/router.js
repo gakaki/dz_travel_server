@@ -28,6 +28,8 @@ module.exports = app => {
     router.get('/postcard/citypostcards', controller.travelController.playerController.showcitypostcards);
     router.get('/postcard/detailpostcard', controller.travelController.playerController.showdetailpostcard);
     router.get('/postcard/sendpostcard', controller.travelController.playerController.sendpostcard);
+    router.get('/message/getmessage', controller.travelController.playerController.getmessage);
+    router.get('/message/checkmsgcnt', controller.travelController.playerController.checkmsgcnt);
 
 
 
