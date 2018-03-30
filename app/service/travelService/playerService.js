@@ -101,7 +101,37 @@ class PlayerService extends Service {
 
     async showFlyTicket(info,ui){
         let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid});
-        info.ticket = tickets;
+        let flyTickets = [];
+        for(let ticket of tickets){
+            let flyTicket ={
+                cid : ticket.cid,
+                type : ticket.flyType
+            };
+            flyTickets.push(flyTicket);
+        }
+        info.ticket = flyTickets;
+    }
+
+    async getMessage(info,ui,type){
+        let page = Number(info.page)?Number(info.page):1;
+        let limit = Number(info.limit)?Number(info.limit):20;
+        let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
+        let messages = [];
+        for(let msg of msgs){
+            let message ={
+                 mid:msg.mid,
+                type:msg.type,
+                title:msg.title,
+                date:msg.date.format("yyyy-MM-dd"),
+                content:msg.content
+            };
+            messages.push(message);
+         // await this.ctx.model.TravelModel.UserMsg.update({mid:msg.mid},{$set:{isRead:true}});
+        }
+        info.messages = messages
+    }
+    async checkMsgCnt(info,ui){
+        info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
     async setRealInfo(info, ui) {
@@ -194,7 +224,7 @@ class PlayerService extends Service {
                                 avatarUrl:sender.avatarUrl
                             },
                             message:chat.context
-                        }
+                        };
                         this.logger.info("时间 ：" ,(chat.createDate).format("yyyy-MM-dd") )
                     }
                 }else{
@@ -203,8 +233,10 @@ class PlayerService extends Service {
                         postid: pt.ptid,
                     };
                 }
+                if(postcardBriefDetail && postcardBriefDetail.id){
+                    postcardBriefDetails.push(postcardBriefDetail)
+                }
 
-                postcardBriefDetails.push(postcardBriefDetail)
             }
             postcardInfo.postcardsDetail = postcardBriefDetails;
 
@@ -217,7 +249,7 @@ class PlayerService extends Service {
 
     async showDetailPostcard(info,ui){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.messageLength)?Number(info.messageLength):10;
+        let limit = Number(info.messageLength)?Number(info.messageLength):99;
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.postid = postcard.ptid;
@@ -276,8 +308,10 @@ class PlayerService extends Service {
             let content = context.replace("s%",senderNickName);
             await this.ctx.model.TravelModel.UserMsg.create({
                 uid:senderid,
+                mid:"msg"+travelConfig.Message.POSTCARDMESSAGE+new Date().getTime(),
+                type:travelConfig.Message.POSTCARDMESSAGE,
                 title:travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).topic,
-                context:content,
+                content:content,
                 date:new Date()
             })
         }

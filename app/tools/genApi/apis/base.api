@@ -49,20 +49,8 @@ enum Code {
     const CANNOT_BE_SELF = -122
     // 必须是好友
     const MUST_FRIEND = -127
-    // 红包消息通道失败
-    const PACKID_MQ_CREATE_FAILED = -128
-    //竞猜次数用尽
-    const COUNT_OVER = -129
-    //红包不存在
-    const PACK_EMPTY = -130
-    //红包已过期
-    const PACK_EXPIRED = -131
-    //红包竞猜结束
-    const PACK_FINSH = -132
-    //红包竞猜CD中
-    const PACK_ISCD = -133
     //不是首次分享
-    const PACK_ISSHARED = -134
+    const ISSHARED = -134
     //企业没钱
     const NO_MONEY = -136
     //超过提现次数
@@ -71,8 +59,8 @@ enum Code {
     const LESS_MONEY = -138
     //等级上限
     const LEVEL_MAX = -140
-    //红包可竞猜
-    const PACK_Fighing = 168
+    //道具上限
+    const ITEM_MAX = -141
     //代金券不足
     const NEED_COUPON = -170
     //金额不足

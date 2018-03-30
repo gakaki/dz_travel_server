@@ -1,17 +1,23 @@
 const Service = require('egg').Service;
 
-module.exports = app => {
-    return class MsgService extends Service {
-        async unreadMsgCnt(uid) {
-            return 1;
-        }
 
-        async unreadMsgs(uid) {
-            return [{title:'test',content:'test msg'}]
-        }
-
-        async readMsg(msgId) {
-            
-        }
+class MsgService extends Service {
+    async unreadMsgCnt(uid) {
+        return  await this.ctx.model.TravelModel.UserMsg.count({uid:uid,isRead:false});
     }
+
+    async unreadMsgs(uid,type,page,limit) {
+        let query = this.ctx.model.TravelModel.UserMsg.find({uid:uid,isRead:false}).sort({date:-1}).skip((page-1)*limit).limit(limit);
+        if(type && type.length >0){
+            query.where({type:type})
+        }
+        return await query.exec();
+    }
+
+    async readMsg(msgId) {
+       return await this.ctx.model.TravelModel.UserMsg.findOne({mid:msgId});
+
 }
+
+
+module.exports = MsgService;
