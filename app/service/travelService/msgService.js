@@ -15,8 +15,8 @@ class MsgService extends Service {
     }
 
     async readMsg(msgId) {
+       return await this.ctx.model.TravelModel.UserMsg.findOne({mid:msgId});
 
-    }
 }
 
 

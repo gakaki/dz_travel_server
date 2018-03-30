@@ -22,7 +22,6 @@ class PlayerController extends Controller {
 
     async travelfootprint(ctx){
         let info = apis.TravelFootprint.Init(ctx);
-        let info = apis.PlayerInfo.Init(ctx);
         let userId = info.uid;
         if(info.playerUid){
             userId = info.playerUid;
@@ -42,6 +41,7 @@ class PlayerController extends Controller {
         let info = apis.LookTicket.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -56,6 +56,7 @@ class PlayerController extends Controller {
         let info = apis.GetMessage.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -90,6 +91,7 @@ class PlayerController extends Controller {
         let info = apis.ModifyRealInfo.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -104,6 +106,7 @@ class PlayerController extends Controller {
         let info = apis.GetRealInfo.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -118,10 +121,12 @@ class PlayerController extends Controller {
         let info = apis.MyPostcards.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
         }
+
         await ctx.service.travelService.playerService.showMyPostcards(info,ui);
         info.submit();
 
@@ -131,6 +136,7 @@ class PlayerController extends Controller {
         let info =apis.CityPostcards.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -143,6 +149,7 @@ class PlayerController extends Controller {
         let info =apis.DetailPostcard.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -155,12 +162,20 @@ class PlayerController extends Controller {
         let info =apis.SendPostcard.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
         }
         let postcard = await ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         if(!postcard){
+            this.logger.info("明信片不存在");
+            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            info.submit();
+            return;
+        }
+        if(!info.message){
+            this.logger.info("留言信息为空");
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
             return;

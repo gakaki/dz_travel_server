@@ -168,21 +168,6 @@ class TravelService extends Service {
         await this.ctx.model.TravelModel.CurrentCity.update({uid: ui.uid}, currentCity, {upsert: true})
     }
 
-    async goTravel(info) {
-        let invitation = info.invitation;
-        let iv = await this.app.redis.hgetall(invitation);
-        if (!iv.ivp) {
-            iv.ivp = invitation.uid;
-            await this.app.redis.hmset(invitation, iv);
-        }
-    }
-
-    async letsGo(info) {
-        let friend = info.friend;
-        if (friend) {
-
-        }
-    }
 
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
