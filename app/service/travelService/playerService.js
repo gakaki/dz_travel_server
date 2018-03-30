@@ -267,16 +267,22 @@ class PlayerService extends Service {
                 },
                 message:chat.context
             };
-            if( i == 0){
-                detailLiveMessage.hasNext = false;
-                detailLiveMessage.hasUp = true;
-            }else if(i == chats.length-1){
-                detailLiveMessage.hasNext = true;
-                detailLiveMessage.hasUp = false;
+            if(chats.length > 1){
+                if( i == 0){
+                    detailLiveMessage.hasNext = false;
+                    detailLiveMessage.hasUp = true;
+                }else if(i == chats.length-1){
+                    detailLiveMessage.hasNext = true;
+                    detailLiveMessage.hasUp = false;
+                }else{
+                    detailLiveMessage.hasNext = true;
+                    detailLiveMessage.hasUp = true;
+                }
             }else{
-                detailLiveMessage.hasNext = true;
-                detailLiveMessage.hasUp = true;
+                detailLiveMessage.hasNext = false;
+                detailLiveMessage.hasUp = false;
             }
+
             detailLiveMessages.push(detailLiveMessage);
         }
         info.lastestMessage=detailLiveMessages;
