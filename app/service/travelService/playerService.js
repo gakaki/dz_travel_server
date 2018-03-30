@@ -249,7 +249,7 @@ class PlayerService extends Service {
 
     async showDetailPostcard(info,ui){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.messageLength)?Number(info.messageLength):10;
+        let limit = Number(info.messageLength)?Number(info.messageLength):99;
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.postid = postcard.ptid;
