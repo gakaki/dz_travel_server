@@ -1,0 +1,7 @@
+import ../base.api
+
+class Event {
+    prop cityname: string   //城市名
+    prop cityper: number   //城市完成度
+}
+
