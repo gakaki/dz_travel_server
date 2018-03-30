@@ -61,9 +61,9 @@ class PlayerService extends Service {
         let totalEvents = travelConfig.events.length;
         let totalPostcards = travelConfig.postcards.length;
         this.logger.info("总城市 "+ totalCitys);
-        this.logger.info("总景点 "+ totalCitys);
-        this.logger.info("总事件 "+ totalCitys);
-        this.logger.info("总明信片 "+ totalCitys);
+        this.logger.info("总景点 "+ totalScenicspots);
+        this.logger.info("总事件 "+ totalEvents);
+        this.logger.info("总明信片 "+ totalPostcards);
         let totalArrive = 0;
         let userscenicspots = 0;
         for(let footprint of userfootprints){

@@ -56,8 +56,8 @@ class ThirdService extends Service{
           let random = utils.shuffle(Array.from(difference));
           return random[0];
         }
-
     }
+
 }
 
 

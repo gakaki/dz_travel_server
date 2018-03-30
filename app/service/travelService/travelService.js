@@ -195,6 +195,90 @@ class TravelService extends Service {
         info.allLogs = logs;
     }
 
+    async getCityCompletionList(info,ui){
+        let provinces = travelConfig.finds;
+        let data =[];
+        let userfootprints = await this.ctx.model.TravelModel.Footprints.aggregate([
+            {$match:{uid:ui.uid}},
+            {$group:{_id:"$province",citys:{$addToSet:{cid:"$cid"}}}},
+            {$project:{_id:0,province:"$_id",citys:1}}
+        ]);
+        let userProvinces = new Set();
+        let userProCitys = new Map();
+        let totalProvinces = new Set();
+        let totalFind = new Map();
+        for(let userProvince of userfootprints){
+            //用户去过的省
+            userProvinces.add(userProvince.province);
+            //用户去过的该省的城市
+            userProCitys.set(userProvince.province,userProvince.citys)
+        }
+        for(let province of provinces){
+            totalProvinces.add(province.province);
+            totalFind.set(province.province,province.id);
+        }
+        //按顺序查找用户去过的省
+        let intersectPro  = new Set([...totalProvinces].filter(x => userProvinces.has(x)));
+
+        for(let inPro of intersectPro){
+            let proFind =totalFind.get(inPro);
+            let province = travelConfig.Find.Get(proFind);
+            let provencePer = {
+                proLetter : province.pword,
+                proName : province.province
+            };
+            let pcityids = province.cityid;
+            let proCityId = new Set(pcityids);
+            let userProCityId = new Set(userProCitys.get(inPro));
+            //按顺序查找用户去过的城市
+            let intersectCity = new Set([...proCityId].filter(x => userProCityId.has(x.toString())));
+            let cityPs = [];
+            for(let cid of intersectCity){
+                let index = pcityids.findIndex((n) => n == cid);
+                let cityPer ={
+                    cityname : province.citys[index]
+                };
+                //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
+                let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
+                    {$match:{uid:ui.uid,cid:cid}},
+                    {$group:{_id:"$scenicspot"}},
+                ]);
+                let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+                    {$match:{uid:ui.uid,cid:cid}},
+                    {$group:{_id:"$eid"}}
+                ]);
+                let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
+                    {$match:{uid:ui.uid,cid:cid}},
+                    {$group:{_id:"$ptid"}}
+                ]);
+                let totalCitys = travelConfig.citys;
+                let totalScenicspots = 0;
+                let totalEvents = 0;
+                let totalPostcards = 0;
+                for(let city of totalCitys){
+                    if(city.id == cid){
+                        totalScenicspots = city.scenicspot.length;
+                        totalEvents = city.eventnum;
+                        totalPostcards = city.postcardnum;
+                        break;
+                    }
+                }
+                this .logger.info("城市 "+ cid);
+                let userPro = userScenicspots.length + userEvents.length + userPostcards.length;
+                this.logger.info("玩家该城市进度 " + userPro);
+                let totalPro = totalScenicspots + totalEvents + totalPostcards;
+                this.logger.info("该城市总进度 " + totalPro);
+                let cp = Math.floor((userPro/totalPro)*100);
+                this.logger.info("完成度 " + cp);
+                cityPer.cityper = cp;
+                cityPs.push(cityPer);
+            }
+            provencePer.citys=cityPs;
+            data.push(provencePer)
+        }
+        info.data = data;
+    }
+
 }
 
 

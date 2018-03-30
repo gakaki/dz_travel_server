@@ -39,7 +39,7 @@ class TravelController extends Controller {
 
     async visit(ctx){
         let info = apis.StartGame.Init(ctx);
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         this.logger.info("访问城市");
         //用户不存在
         if(!ui){
@@ -120,6 +120,20 @@ class TravelController extends Controller {
             return;
         }
         await ctx.service.travelService.travelService.getTravelLog(info,ui);
+        info.submit();
+
+    }
+
+    async getcitycompletionlist(ctx){
+        let info = apis.CityListPer.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            this.logger.info("用户不存在");
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.travelService.getCityCompletionList(info,ui);
         info.submit();
 
     }

@@ -69,19 +69,7 @@ class Code{
     
     static get MUST_FRIEND() { return -127;}
     
-    static get PACKID_MQ_CREATE_FAILED() { return -128;}
-    
-    static get COUNT_OVER() { return -129;}
-    
-    static get PACK_EMPTY() { return -130;}
-    
-    static get PACK_EXPIRED() { return -131;}
-    
-    static get PACK_FINSH() { return -132;}
-    
-    static get PACK_ISCD() { return -133;}
-    
-    static get PACK_ISSHARED() { return -134;}
+    static get ISSHARED() { return -134;}
     
     static get NO_MONEY() { return -136;}
     
@@ -91,7 +79,7 @@ class Code{
     
     static get LEVEL_MAX() { return -140;}
     
-    static get PACK_Fighing() { return 168;}
+    static get ITEM_MAX() { return -141;}
     
     static get NEED_COUPON() { return -170;}
     
@@ -1456,7 +1444,7 @@ class CityListPer extends Base {
         this.reqFields = [];
         this.resFields = ["data"];
     }
-    //server output, type: Provence[]
+    //server output, type: ProvencePer[]
     get data() {return this._data}
     set data(v) {this._data = v}
     static Init(ctx) {
