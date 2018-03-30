@@ -132,6 +132,7 @@ api ToSign {
 
 api TravelFootprint {
     optional playerUid:string
+    output userInfo:UserBriefInfo
     output items:KV[]
     //用户去过了多少个省份
     output reachrovince:number
