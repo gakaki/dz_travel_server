@@ -23,22 +23,20 @@ class MessageItem {
 
 //获取消息列表
 api GetMessage {
+    //第几页的消息(从1开始计算)
+    require page:number
+    //拉取信息条数
+    require limit:number
     //消息类型(可选，不传则接收所有类型消息)
     optional messageType:MessageType
 
-    //返回消息列表,最多返回最新的20条。
+    //返回消息列表。
     output messages:MessageItem[]
 }
 
-//-------------以下定义的为websocket协议--------------
-
-//客户端发给服务器的,是否有消息
-wss HasMessage {
-
+//查看消息条数
+api CheckMsgCnt {
+    //返回未读消息条数
+    output unreadMsgCnt:number
 }
 
-//服务器发给客户端的
-wsr MessageNum {
-    //返回消息条数
-    output number:number
-}

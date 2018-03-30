@@ -14,10 +14,16 @@ class ThirdService extends Service{
     }
 
     async getWeather(city) {
-         let meteorological =await weather(city);
-        let weathers = meteorological.now.text;
-        this.logger.info('weather', weathers);
-        return weathers;
+         try{
+             let meteorological =await weather(city);
+             let weathers = meteorological.now.text;
+             this.logger.info('weather', weathers);
+             return weathers;
+         }catch(err){
+             this.logger.error("获取天气失败",err);
+             return "晴"
+         }
+
     }
 
      getHoliday(date=new Date()) {
@@ -26,27 +32,32 @@ class ThirdService extends Service{
         return holidays
     }
 
-    async getRandomTicket(uid){
+    async getRandomTicket(uid,localcid){
         let cityPool = travelConfig.citys;
         let footprints = await this.ctx.model.TravelModel.FlightRecord.aggregate([{ $match: {"uid":uid} }]).group({ _id: "$destination"});
         this.logger.info(cityPool.length);
         this.logger.info(footprints);
-
         if(footprints.length == 0 || cityPool.length == footprints.length){
             let index = utils.Rangei(0,cityPool.length);
-            return (index+1).toString();
-        }else{
-            for(let city of cityPool){
-                for(let cid of footprints){
-                    if(cid._id != city.id){
-                        cid = city.id;
-                        return (city.id).toString();
-                    }
-                }
+            while( (index+1) == localcid){
+                index =  utils.Rangei(0,cityPool.length)
             }
+            return (index+1);
+        }else{
+          let fpsSet = new Set();
+          for(let cid of footprints){
+              fpsSet.add(Number(cid._id));
+          }
+          let totalSet = new Set();
+          for(let city of cityPool){
+              totalSet.add(city.id)
+          }
+          let difference = new Set([...totalSet].filter(x => !fpsSet.has(x)));
+          let random = utils.shuffle(Array.from(difference));
+          return random[0];
         }
-
     }
+
 }
 
 
