@@ -204,7 +204,7 @@ class MessageType{
     
 }
 //------------classes--------------
-class SelfRank  {
+class RankItem  {
     constructor(){
     
     
@@ -219,21 +219,42 @@ class SelfRank  {
         
     }
 }
-class oneDayLog  {
+class oneSpot  {
+    constructor(){
+    
+    
+        
+        
+        
+    }
+}
+class Log  {
     constructor(){
     
     
         //prop type: string
-        this.time = null;
+        this.year = null;
     
-        //prop type: string
-        this.city = null;
+        //prop type: oneCityLog[]
+        this.oneCityLog = null;
     
-        //prop type: string[]
-        this.scenicSpots = null;
+        
+        
+        
+    }
+}
+class ProvencePer  {
+    constructor(){
     
-        //prop type: number
-        this.rentCarType = null;
+    
+        //prop type: 
+        this.proLetter = null;
+    
+        //prop type: 
+        this.proName = null;
+    
+        //prop type: 
+        this.citys = null;
     
         
         
@@ -414,7 +435,25 @@ class Sight  {
         
     }
 }
-class RankItem  {
+class oneCityLog  {
+    constructor(){
+    
+    
+        //prop type: string
+        this.city = null;
+    
+        //prop type: string
+        this.time = null;
+    
+        //prop type: 
+        this.cityLogs = null;
+    
+        
+        
+        
+    }
+}
+class SelfRank  {
     constructor(){
     
     
@@ -429,33 +468,18 @@ class RankItem  {
         
     }
 }
-class ProvencePer  {
-    constructor(){
-    
-    
-        //prop type: 
-        this.proLetter = null;
-    
-        //prop type: 
-        this.proName = null;
-    
-        //prop type: 
-        this.citys = null;
-    
-        
-        
-        
-    }
-}
-class Log  {
+class oneLog  {
     constructor(){
     
     
         //prop type: string
-        this.year = null;
+        this.time = null;
     
-        //prop type: 
-        this.cityLogs = null;
+        //prop type: number
+        this.rentCarType = null;
+    
+        //prop type: string[]
+        this.scenicSpots = null;
     
         
         
@@ -967,35 +991,6 @@ class RankInfo extends Base {
         return o;
     }
 }
-class getUserLocation extends Base {
-    constructor(){
-        super();
-        this.action = 'integralShop.getuserlocation';
-    
-        this._nickname = null;
-        this._tel = null;
-        this._address = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["nickname","tel","address"];
-    }
-    //server output, type: string
-    get nickname() {return this._nickname}
-    set nickname(v) {this._nickname = v}
-    //server output, type: string
-    get tel() {return this._tel}
-    set tel(v) {this._tel = v}
-    //server output, type: string
-    get address() {return this._address}
-    set address(v) {this._address = v}
-    static Init(ctx) {
-        let o = new getUserLocation();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
 class GetRealInfo extends Base {
     constructor(){
         super();
@@ -1011,6 +1006,31 @@ class GetRealInfo extends Base {
     set realInfo(v) {this._realInfo = v}
     static Init(ctx) {
         let o = new GetRealInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class RentProp extends Base {
+    constructor(){
+        super();
+        this.action = 'prop.rentprop';
+    
+        this._rentId = null;
+        this._rentItems = null;
+        this.requireFileds = ["rentId"];
+        this.reqFields = ["rentId"];
+        this.resFields = ["rentItems"];
+    }
+    //client input, require, type: number
+    get rentId() {return this._rentId}
+    set rentId(v) {this._rentId = v}
+    //server output, type: KV[]//已租用的所有道具。
+    get rentItems() {return this._rentItems}
+    set rentItems(v) {this._rentItems = v}
+    static Init(ctx) {
+        let o = new RentProp();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1116,6 +1136,35 @@ class Spe extends Base {
         return o;
     }
 }
+class getUserLocation extends Base {
+    constructor(){
+        super();
+        this.action = 'integralShop.getuserlocation';
+    
+        this._nickname = null;
+        this._tel = null;
+        this._address = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["nickname","tel","address"];
+    }
+    //server output, type: string
+    get nickname() {return this._nickname}
+    set nickname(v) {this._nickname = v}
+    //server output, type: string
+    get tel() {return this._tel}
+    set tel(v) {this._tel = v}
+    //server output, type: string
+    get address() {return this._address}
+    set address(v) {this._address = v}
+    static Init(ctx) {
+        let o = new getUserLocation();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 class exchangeShop extends Base {
     constructor(){
         super();
@@ -1135,35 +1184,6 @@ class exchangeShop extends Base {
     set integral(v) {this._integral = v}
     static Init(ctx) {
         let o = new exchangeShop();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
-class IntegralShop extends Base {
-    constructor(){
-        super();
-        this.action = 'integralShop.integralshop';
-    
-        this._integral = null;
-        this._rank = null;
-        this._exchangeDetail = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["integral","rank","exchangeDetail"];
-    }
-    //server output, type: number
-    get integral() {return this._integral}
-    set integral(v) {this._integral = v}
-    //server output, type: number
-    get rank() {return this._rank}
-    set rank(v) {this._rank = v}
-    //server output, type: exchangeShopDetail[]
-    get exchangeDetail() {return this._exchangeDetail}
-    set exchangeDetail(v) {this._exchangeDetail = v}
-    static Init(ctx) {
-        let o = new IntegralShop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1243,6 +1263,7 @@ class TravelFootprint extends Base {
         this.action = 'player.travelfootprint';
     
         this._playerUid = null;
+        this._userInfo = null;
         this._items = null;
         this._reachrovince = null;
         this._totalArrive = null;
@@ -1250,11 +1271,14 @@ class TravelFootprint extends Base {
         this._travelPercent = null;
         this.requireFileds = [];
         this.reqFields = ["playerUid"];
-        this.resFields = ["items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
+        this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //server output, type: UserBriefInfo
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
     //server output, type: KV[]
     get items() {return this._items}
     set items(v) {this._items = v}
@@ -1647,25 +1671,29 @@ class WsReceive extends Base {
         this.ctx.io.emit(this.action, {data: tmp, code: this.code});
     }
 }
-class RentProp extends Base {
+class IntegralShop extends Base {
     constructor(){
         super();
-        this.action = 'prop.rentprop';
+        this.action = 'integralShop.integralshop';
     
-        this._rentId = null;
-        this._rentItems = null;
-        this.requireFileds = ["rentId"];
-        this.reqFields = ["rentId"];
-        this.resFields = ["rentItems"];
+        this._integral = null;
+        this._rank = null;
+        this._exchangeDetail = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["integral","rank","exchangeDetail"];
     }
-    //client input, require, type: number
-    get rentId() {return this._rentId}
-    set rentId(v) {this._rentId = v}
-    //server output, type: KV[]//已租用的所有道具。
-    get rentItems() {return this._rentItems}
-    set rentItems(v) {this._rentItems = v}
+    //server output, type: number
+    get integral() {return this._integral}
+    set integral(v) {this._integral = v}
+    //server output, type: number
+    get rank() {return this._rank}
+    set rank(v) {this._rank = v}
+    //server output, type: exchangeShopDetail[]
+    get exchangeDetail() {return this._exchangeDetail}
+    set exchangeDetail(v) {this._exchangeDetail = v}
     static Init(ctx) {
-        let o = new RentProp();
+        let o = new IntegralShop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1712,27 +1740,6 @@ class BuySpe extends Spe {
     set goldNum(v) {this._goldNum = v}
     static Init(ctx) {
         let o = new BuySpe();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
-class RechargeRankInfo extends RankInfo {
-    constructor(){
-        super();
-        this.action = 'rank.rechargerankinfo';
-    
-        this._myRecharge = null;
-        this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","limit"];
-        this.resFields = ["myRecharge","selfRank","ranks"];
-    }
-    //server output, type: number
-    get myRecharge() {return this._myRecharge}
-    set myRecharge(v) {this._myRecharge = v}
-    static Init(ctx) {
-        let o = new RechargeRankInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1793,6 +1800,27 @@ class TestSend extends WsSend {
         return o;
     }
 }
+class RechargeRankInfo extends RankInfo {
+    constructor(){
+        super();
+        this.action = 'rank.rechargerankinfo';
+    
+        this._myRecharge = null;
+        this.requireFileds = ["rankType","rankSubtype"];
+        this.reqFields = ["rankType","rankSubtype","limit"];
+        this.resFields = ["myRecharge","selfRank","ranks"];
+    }
+    //server output, type: number
+    get myRecharge() {return this._myRecharge}
+    set myRecharge(v) {this._myRecharge = v}
+    static Init(ctx) {
+        let o = new RechargeRankInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 //-------------exports---------------
 exports.Season = Season;
 exports.PresentTktType = PresentTktType;
@@ -1802,8 +1830,10 @@ exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
 exports.MessageType = MessageType;
-exports.SelfRank = SelfRank;
-exports.oneDayLog = oneDayLog;
+exports.RankItem = RankItem;
+exports.oneSpot = oneSpot;
+exports.Log = Log;
+exports.ProvencePer = ProvencePer;
 exports.CityPer = CityPer;
 exports.UserBriefInfo = UserBriefInfo;
 exports.otherUserInfo = otherUserInfo;
@@ -1812,9 +1842,9 @@ exports.TicketInfo = TicketInfo;
 exports.Base = Base;
 exports.Ws = Ws;
 exports.Sight = Sight;
-exports.RankItem = RankItem;
-exports.ProvencePer = ProvencePer;
-exports.Log = Log;
+exports.oneCityLog = oneCityLog;
+exports.SelfRank = SelfRank;
+exports.oneLog = oneLog;
 exports.Specialty = Specialty;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.CityPostcardInfo = CityPostcardInfo;
@@ -1832,14 +1862,14 @@ exports.Photograph = Photograph;
 exports.TravelLog = TravelLog;
 exports.PlayerInfo = PlayerInfo;
 exports.RankInfo = RankInfo;
-exports.getUserLocation = getUserLocation;
 exports.GetRealInfo = GetRealInfo;
+exports.RentProp = RentProp;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.mySpe = mySpe;
 exports.SpeList = SpeList;
 exports.Spe = Spe;
+exports.getUserLocation = getUserLocation;
 exports.exchangeShop = exchangeShop;
-exports.IntegralShop = IntegralShop;
 exports.LookTicket = LookTicket;
 exports.SignInfo = SignInfo;
 exports.ToSign = ToSign;
@@ -1859,9 +1889,9 @@ exports.WsSend = WsSend;
 exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
 exports.WsReceive = WsReceive;
-exports.RentProp = RentProp;
+exports.IntegralShop = IntegralShop;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
-exports.RechargeRankInfo = RechargeRankInfo;
 exports.SysMessage = SysMessage;
 exports.TestSend = TestSend;
+exports.RechargeRankInfo = RechargeRankInfo;
