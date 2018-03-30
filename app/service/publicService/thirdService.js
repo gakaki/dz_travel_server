@@ -32,14 +32,17 @@ class ThirdService extends Service{
         return holidays
     }
 
-    async getRandomTicket(uid){
+    async getRandomTicket(uid,localcid){
         let cityPool = travelConfig.citys;
         let footprints = await this.ctx.model.TravelModel.FlightRecord.aggregate([{ $match: {"uid":uid} }]).group({ _id: "$destination"});
         this.logger.info(cityPool.length);
         this.logger.info(footprints);
         if(footprints.length == 0 || cityPool.length == footprints.length){
             let index = utils.Rangei(0,cityPool.length);
-            return (index+1).toString();
+            while( (index+1) == localcid){
+                index =  utils.Rangei(0,cityPool.length)
+            }
+            return (index+1);
         }else{
           let fpsSet = new Set();
           for(let cid of footprints){

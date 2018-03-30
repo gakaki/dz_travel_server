@@ -1,5 +1,6 @@
 const Controller = require('egg').Controller;
 const constant = require("../../utils/constant");
+const utils = require("../../utils/utils");
 const englishConfig = require("../../../sheets/english");
 
 
@@ -80,7 +81,7 @@ class WeChatController extends Controller {
 
         let count = await ctx.model.WeChatModel.WechatPaytoUser.count({
             "openid": ui.uid,
-            "created": new Date().toLocaleDateString(),
+            "created": new Date().format("yyyy-MM-dd"),
             "success": true,
             appName: appName
         });

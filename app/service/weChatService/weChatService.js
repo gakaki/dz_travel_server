@@ -153,8 +153,8 @@ class WeChatService extends Service {
         wtd.desc = appName + "奖励金提现";
         wtd.openid = ui.uid;
         //wtd.openid = "oQq-J5XuO2NawkxByfpkMrOAPmLg";
-        wtd.created = new Date().toLocaleDateString();
-        wtd.createTime = new Date().toLocaleTimeString();
+        wtd.created = new Date().format("yyyy-MM-dd");
+        wtd.createTime = new Date().format("hh:mm:ss");
         let res = await this.ReqPaytoUser(wtd);
         wtd.appName = appName;
         if (!res) {

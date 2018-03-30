@@ -1,6 +1,6 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
-
+const utils = require("../../utils/utils");
 
 class TravelService extends Service {
     async fillIndexInfo(info,ui) {
@@ -43,8 +43,12 @@ class TravelService extends Service {
             rcost = rcost * multiple;
             info.holiday = holiday[0];
         }
+        let visit =  await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
+        let cid = null;
+        if(visit){
+            cid = visit.cid;
+        }
         if(!ui.isFirst){
-            let visit =  await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
             if(visit.city){
                 let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.city);
                 for(let we of travelConfig.weathers){
@@ -75,14 +79,14 @@ class TravelService extends Service {
 
 
         if(info.type == "00"){
-            let randomcity = await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid);
+            let randomcity = await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid,cid);
             this.logger.info("随机城市 "+ randomcity);
             info.cid =  randomcity
         }
 
         info.weather = outw;
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
-        info.date = new Date().toLocaleDateString();
+        info.date = new Date().format("yyyy-MM-dd");
 
     }
 
