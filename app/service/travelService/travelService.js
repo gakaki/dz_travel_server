@@ -251,19 +251,21 @@ class TravelService extends Service {
             let intersectCity = new Set([...proCityId].filter(x => userProCityId.has(x.toString())));
 
             let cityPs = [];
-            for(let cid of intersectCity){
-                let index = pcityids.findIndex((n) => n == cid);
-                this.logger.info("城市 "+cid);
+            for(let cityid of intersectCity){
+                let index = pcityids.findIndex((n) => n == cityid);
+                this.logger.info("城市 "+cityid);
                 this.logger.info("顺序 " ,index);
                 this.logger.info("城市列表", province.city);
                 let cityPer ={
                     cityname : province.city[index]
                 };
+                let cid = cityid.toString();
                 //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
                 let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
                     {$match:{uid:ui.uid,cid:cid}},
                     {$group:{_id:"$scenicspot"}},
                 ]);
+                this.logger.info(userScenicspots);
                 let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
                     {$match:{uid:ui.uid,cid:cid}},
                     {$group:{_id:"$eid"}}
@@ -290,7 +292,7 @@ class TravelService extends Service {
                 this.logger.info("玩家该城市进度 " + userPro);
                 let totalPro = totalScenicspots + totalEvents + totalPostcards;
                 this.logger.info("该城市总进度 " + totalPro);
-                let cp = Math.floor((userPro/totalPro)*100);
+                let cp = ((userPro/totalPro)*100).toFixed(2);
                 this.logger.info("完成度 " + cp);
                 cityPer.cityper = cp;
                 cityPs.push(cityPer);
