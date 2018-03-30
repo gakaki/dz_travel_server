@@ -76,6 +76,11 @@ class PlayerService extends Service {
         let totalArrivePercent = Math.floor((totalArrive/totalCitys)*100);
         this.logger.info("城市百分比 "+ totalArrivePercent);
         info.items = ui.items;
+        info.userInfo ={
+            uid:ui.uid,
+            nickName:ui.nickName,
+            avatarUrl:ui.avatarUrl
+        }
         info.reachrovince = userfootprints.length;
         info.totalArrive = totalArrive;
         info.totalArrivePercent = totalArrivePercent;

@@ -172,26 +172,36 @@ class TravelService extends Service {
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
         let limit = info.length ? Number(info.length) : 20;
-        let logs = await this.ctx.model.TravelModel.TravelLog.aggregate([
+        let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
             {$match: {"uid": ui.uid}},
             {
                 $group: {
-                    _id: "$date",
+                    _id: {  year: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } },},
                     onedaylog: {
                         $push: {
                             city: "$city",
                             rentCarType: "$rentCarType",
                             scenicspot: "$scenicspot",
-                            createDate: "$createDate"
+                            createDate: "$createDate",
                         }
                     }
                 }
             },
-            {$project: {time: "$_id", onedaylog: 1}}
+            {$project: {time: "$_id.year", onedaylog: 1}}
         ])
-            .sort({time: -1, ["onedaylog.createDate"]: -1})
+            .sort({time: -1})
             .skip((page - 1) * limit)
             .limit(limit);
+        let logs =[];
+        for(let log of allLogs){
+            let userLog = {
+                year:log.time.format("yyyy")
+            }
+        }
+
+
+
+
         info.allLogs = logs;
     }
 
