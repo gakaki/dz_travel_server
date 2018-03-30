@@ -203,6 +203,7 @@ class TravelService extends Service {
             {$group:{_id:"$province",citys:{$addToSet:{cid:"$cid"}}}},
             {$project:{_id:0,province:"$_id",citys:1}}
         ]);
+        this.logger.info(userfootprints);
         let userProvinces = new Set();
         let userProCitys = new Map();
         let totalProvinces = new Set();
@@ -211,7 +212,11 @@ class TravelService extends Service {
             //用户去过的省
             userProvinces.add(userProvince.province);
             //用户去过的该省的城市
-            userProCitys.set(userProvince.province,userProvince.citys)
+            let citys =[];
+            for(let city of userProvince.citys){
+                citys.push(city.cid);
+            }
+            userProCitys.set(userProvince.province,citys)
         }
         for(let province of provinces){
             totalProvinces.add(province.province);
@@ -219,7 +224,7 @@ class TravelService extends Service {
         }
         //按顺序查找用户去过的省
         let intersectPro  = new Set([...totalProvinces].filter(x => userProvinces.has(x)));
-
+        this.logger.info(intersectPro);
         for(let inPro of intersectPro){
             let proFind =totalFind.get(inPro);
             let province = travelConfig.Find.Get(proFind);
@@ -230,13 +235,19 @@ class TravelService extends Service {
             let pcityids = province.cityid;
             let proCityId = new Set(pcityids);
             let userProCityId = new Set(userProCitys.get(inPro));
+            this.logger.info(proCityId);
+            this.logger.info(userProCityId);
             //按顺序查找用户去过的城市
             let intersectCity = new Set([...proCityId].filter(x => userProCityId.has(x.toString())));
+
             let cityPs = [];
             for(let cid of intersectCity){
                 let index = pcityids.findIndex((n) => n == cid);
+                this.logger.info("城市 "+cid);
+                this.logger.info("顺序 " ,index);
+                this.logger.info("城市列表", province.city);
                 let cityPer ={
-                    cityname : province.citys[index]
+                    cityname : province.city[index]
                 };
                 //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
                 let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
@@ -257,6 +268,7 @@ class TravelService extends Service {
                 let totalPostcards = 0;
                 for(let city of totalCitys){
                     if(city.id == cid){
+                        this.logger.info(city);
                         totalScenicspots = city.scenicspot.length;
                         totalEvents = city.eventnum;
                         totalPostcards = city.postcardnum;
