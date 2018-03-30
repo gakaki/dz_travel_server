@@ -8,6 +8,7 @@ class TravelController extends Controller {
         let info = apis.IndexInfo.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -24,7 +25,9 @@ class TravelController extends Controller {
     async selectcity(ctx){
         let info = apis.FlyInfo.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        this.logger.info("选择城市");
         if(!ui) {
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
@@ -36,10 +39,11 @@ class TravelController extends Controller {
 
     async visit(ctx){
         let info = apis.StartGame.Init(ctx);
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid});
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
         this.logger.info("访问城市");
         //用户不存在
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return
@@ -48,6 +52,7 @@ class TravelController extends Controller {
         if(info.partnerUid){
             let fui = await this.ctx.model.PublicModel.User.findOne({uid: info.partnerUid});
             if(!fui){
+                this.logger.info("好友不存在");
                 info.code = apis.Code.USER_NOT_FOUND;
                 info.submit();
                 return
@@ -56,6 +61,7 @@ class TravelController extends Controller {
         //非法传参
         if(!Number(info.cost)){
             if(Number(info.cost) != 0){
+                this.logger.info("非法传参");
                 info.code = apis.Code.PARAMETER_NOT_MATCH;
                 info.submit();
                 return;
@@ -66,6 +72,7 @@ class TravelController extends Controller {
         //金币不足
         if(!ui.isFirst){
             if(ui.items[travelConfig.Item.GOLD] <= 0 || ui.items[travelConfig.Item.GOLD] < Number(info.cost)){
+                this.logger.info("金币不足");
                 info.code = apis.Code.NEED_ITEMS;
                 info.submit();
                 return
@@ -74,6 +81,7 @@ class TravelController extends Controller {
 
         //城市不存在
         if(!travelConfig.City.Get(info.cid)){
+            this.logger.info("城市不存在");
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
             return
@@ -83,6 +91,7 @@ class TravelController extends Controller {
             let flyType = info.type.indexOf("2") !=-1 ? 2 :1;
             let tickets = await this.ctx.model.TravelModel.FlyTicket.findOne({uid:ui.uid,isGive:1,flyType:flyType,cid:info.cid});
             if(!tickets || tickets.number ==0 ){
+                this.logger.info("道具不足");
                 info.code = apis.Code.NEED_ITEMS;
                 info.submit();
                 return
@@ -97,15 +106,6 @@ class TravelController extends Controller {
     }
 
 
-
-    async gotravel(ctx){
-        ctx.service.travelService.travelService.goTravel(info);
-    }
-
-    async letsgo(ctx){
-        ctx.service.travelService.travelService.letsGo(info);
-    }
-
     async gettravellog(ctx){
         let info = apis.TravelLog.Init(ctx);
         let userId = info.uid;
@@ -114,10 +114,26 @@ class TravelController extends Controller {
         }
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
         if(!ui){
+            this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
-        }else{
-            await ctx.service.travelService.travelService.getTravelLog(info,ui);
+            info.submit();
+            return;
         }
+        await ctx.service.travelService.travelService.getTravelLog(info,ui);
+        info.submit();
+
+    }
+
+    async getcitycompletionlist(ctx){
+        let info = apis.CityListPer.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            this.logger.info("用户不存在");
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.travelService.getCityCompletionList(info,ui);
         info.submit();
 
     }

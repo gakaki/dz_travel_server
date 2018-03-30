@@ -8,6 +8,7 @@ module.exports = app => {
         city:{type:String},
         ptid:{type:String},  //明信片配表ID 不唯一
         pscid:{type:String},//明信片专有ID  唯一
+        type:{type:Number},//明信片类型
         createDate:{type:Date} //创建时间
     });
 
