@@ -2,7 +2,7 @@ const Service = require('egg').Service;
 
 const constant = require('../../utils/constant');
 const crypto = require("crypto");
-
+const travelConfig = require("../../../sheets/travel");
 
 
 class UserService extends Service {
@@ -176,6 +176,7 @@ class UserService extends Service {
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
+        items[travelConfig.Item.GOLD] = travelConfig.Parameter.USERGOLD;
         let ui = await this.ctx.model.PublicModel.User.create({
             uid: uid,
             appName: appName,
@@ -191,6 +192,7 @@ class UserService extends Service {
             items: items,
         });
 
+        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.USERGOLD}, "travel");
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({

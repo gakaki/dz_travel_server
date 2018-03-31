@@ -10,15 +10,15 @@ class TravelService extends Service {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
         let outw = 1;
-        if (visit && visit.city) {
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.city);
+        if (visit && visit.cid) {
+            let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(visit.cid).city);
             for (let we of travelConfig.weathers) {
                 if (we.weather == weather) {
                     outw = we.id;
                     break;
                 }
             }
-            info.location = visit.city;
+            info.location = visit.cid;
         }
         info.weather = outw;
         info.playerCnt = await this.app.redis.get("travel_userid");
@@ -47,8 +47,8 @@ class TravelService extends Service {
             cid = visit.cid;
         }
         if (!ui.isFirst) {
-            if (visit.city) {
-                let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.city);
+            if (cid) {
+                let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
                 for (let we of travelConfig.weathers) {
                     if (we.weather == weather) {
                         outw = we.id;
@@ -57,7 +57,7 @@ class TravelService extends Service {
                 }
 
             }
-            info.location = visit.city;
+            info.location = visit.cid;
 
             if (info.type == "00") {
                 info.cost = rcost;
@@ -139,9 +139,6 @@ class TravelService extends Service {
         let currentCity = {
             uid: ui.uid,
             cid: cid,
-            country: travelConfig.City.Get(cid).country ? travelConfig.City.Get(cid).country : "中国",
-            province: travelConfig.City.Get(cid).province,
-            city: travelConfig.City.Get(cid).city,
             rentItems: rentItems
         };
         //双人旅行

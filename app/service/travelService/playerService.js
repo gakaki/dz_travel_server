@@ -23,6 +23,7 @@ class PlayerService extends Service {
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: "$likes"}});
         let specialty = await this.ctx.model.TravelModel.Specialty.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
+
         info.info = {
             uid: ui.uid,
             nickName: ui.nickName,
@@ -30,9 +31,9 @@ class PlayerService extends Service {
             gender: ui.gender,
             totalArrive: playerFootprints?playerFootprints.count:0,
             overmatch: overMatch,
-            city: visit?visit.city:"初次旅行",
-            province: visit?visit.province:"初次旅行",
-            country: visit?visit.country:"初次旅行",
+            city: visit?travelConfig.City.Get(visit.cid).city:"初次旅行",
+            province: visit?travelConfig.City.Get(visit.cid).province:"初次旅行",
+            country: visit?travelConfig.City.Get(visit.cid).country:"初次旅行",
             online: ui.online,
             items: ui.items,
             rentItems: visit?visit.rentItems:{},
