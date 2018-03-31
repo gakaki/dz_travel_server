@@ -17,7 +17,7 @@ class UserBriefInfo {
     prop avatarUrl:string
 }
 
-class otherUserInfo {
+class OtherUserInfo {
     //累计获得的城市积分
     prop totalIntegral:number
     //里程数
@@ -54,7 +54,7 @@ class UserInfo extends UserBriefInfo{
     //好友uid
     prop friends:string[]
     //其他一些个人信息
-    prop otherUserInfo:otherUserInfo
+    prop otherUserInfo:OtherUserInfo
 
 }
 

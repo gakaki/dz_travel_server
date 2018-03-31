@@ -135,8 +135,10 @@ class TravelController extends Controller {
         }
         await ctx.service.travelService.travelService.getCityCompletionList(info,ui);
         info.submit();
-
     }
+
+
+
 
 }
 

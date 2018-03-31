@@ -204,7 +204,7 @@ class MessageType{
     
 }
 //------------classes--------------
-class SelfRank  {
+class RankItem  {
     constructor(){
     
     
@@ -219,21 +219,42 @@ class SelfRank  {
         
     }
 }
-class oneDayLog  {
+class oneSpot  {
+    constructor(){
+    
+    
+        
+        
+        
+    }
+}
+class Log  {
     constructor(){
     
     
         //prop type: string
-        this.time = null;
+        this.year = null;
     
-        //prop type: string
-        this.city = null;
+        //prop type: OneCityLog[]
+        this.oneCityLog = null;
     
-        //prop type: string[]
-        this.scenicSpots = null;
+        
+        
+        
+    }
+}
+class ProvencePer  {
+    constructor(){
     
-        //prop type: number
-        this.rentCarType = null;
+    
+        //prop type: 
+        this.proLetter = null;
+    
+        //prop type: 
+        this.proName = null;
+    
+        //prop type: 
+        this.citys = null;
     
         
         
@@ -273,7 +294,7 @@ class UserBriefInfo  {
         
     }
 }
-class otherUserInfo  {
+class OtherUserInfo  {
     constructor(){
     
     
@@ -414,7 +435,25 @@ class Sight  {
         
     }
 }
-class RankItem  {
+class OneCityLog  {
+    constructor(){
+    
+    
+        //prop type: string
+        this.city = null;
+    
+        //prop type: string
+        this.time = null;
+    
+        //prop type: 
+        this.cityLogs = null;
+    
+        
+        
+        
+    }
+}
+class SelfRank  {
     constructor(){
     
     
@@ -429,33 +468,33 @@ class RankItem  {
         
     }
 }
-class ProvencePer  {
+class Event  {
     constructor(){
     
     
         //prop type: 
-        this.proLetter = null;
+        this.cityname = null;
     
         //prop type: 
-        this.proName = null;
-    
-        //prop type: 
-        this.citys = null;
+        this.cityper = null;
     
         
         
         
     }
 }
-class Log  {
+class OneLog  {
     constructor(){
     
     
         //prop type: string
-        this.year = null;
+        this.time = null;
     
-        //prop type: 
-        this.cityLogs = null;
+        //prop type: number
+        this.rentCarType = null;
+    
+        //prop type: string[]
+        this.scenicSpots = null;
     
         
         
@@ -654,7 +693,7 @@ class MessageItem  {
         
     }
 }
-class exchangeShopDetail  {
+class ExchangeShopDetail  {
     constructor(){
     
     
@@ -663,48 +702,6 @@ class exchangeShopDetail  {
     
         //prop type: string
         this.shopName = null;
-    
-        
-        
-        
-    }
-}
-class UserInfo extends UserBriefInfo {
-    constructor(){
-        super();
-    
-        //prop type: string
-        this.gender = null;
-    
-        //prop type: number
-        this.totalArrive = null;
-    
-        //prop type: number
-        this.overmatch = null;
-    
-        //prop type: string
-        this.city = null;
-    
-        //prop type: string
-        this.province = null;
-    
-        //prop type: string
-        this.country = null;
-    
-        //prop type: Boolean
-        this.online = null;
-    
-        //prop type: KV[]
-        this.items = null;
-    
-        //prop type: KV[]
-        this.rentItems = null;
-    
-        //prop type: string[]
-        this.friends = null;
-    
-        //prop type: otherUserInfo
-        this.otherUserInfo = null;
     
         
         
@@ -970,35 +967,6 @@ class RankInfo extends Base {
         return o;
     }
 }
-class getUserLocation extends Base {
-    constructor(){
-        super();
-        this.action = 'integralShop.getuserlocation';
-    
-        this._nickname = null;
-        this._tel = null;
-        this._address = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["nickname","tel","address"];
-    }
-    //server output, type: string
-    get nickname() {return this._nickname}
-    set nickname(v) {this._nickname = v}
-    //server output, type: string
-    get tel() {return this._tel}
-    set tel(v) {this._tel = v}
-    //server output, type: string
-    get address() {return this._address}
-    set address(v) {this._address = v}
-    static Init(ctx) {
-        let o = new getUserLocation();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
 class GetRealInfo extends Base {
     constructor(){
         super();
@@ -1051,6 +1019,27 @@ class ModifyRealInfo extends Base {
     set realInfo(v) {this._realInfo = v}
     static Init(ctx) {
         let o = new ModifyRealInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class LookTicket extends Base {
+    constructor(){
+        super();
+        this.action = 'player.lookticket';
+    
+        this._ticket = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["ticket"];
+    }
+    //server output, type: TicketInfo[]
+    get ticket() {return this._ticket}
+    set ticket(v) {this._ticket = v}
+    static Init(ctx) {
+        let o = new LookTicket();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1119,7 +1108,36 @@ class Spe extends Base {
         return o;
     }
 }
-class exchangeShop extends Base {
+class GetUserLocation extends Base {
+    constructor(){
+        super();
+        this.action = 'integralShop.getuserlocation';
+    
+        this._nickname = null;
+        this._tel = null;
+        this._address = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["nickname","tel","address"];
+    }
+    //server output, type: string
+    get nickname() {return this._nickname}
+    set nickname(v) {this._nickname = v}
+    //server output, type: string
+    get tel() {return this._tel}
+    set tel(v) {this._tel = v}
+    //server output, type: string
+    get address() {return this._address}
+    set address(v) {this._address = v}
+    static Init(ctx) {
+        let o = new GetUserLocation();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class ExchangeShop extends Base {
     constructor(){
         super();
         this.action = 'integralShop.exchangeshop';
@@ -1137,57 +1155,7 @@ class exchangeShop extends Base {
     get integral() {return this._integral}
     set integral(v) {this._integral = v}
     static Init(ctx) {
-        let o = new exchangeShop();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
-class IntegralShop extends Base {
-    constructor(){
-        super();
-        this.action = 'integralShop.integralshop';
-    
-        this._integral = null;
-        this._rank = null;
-        this._exchangeDetail = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["integral","rank","exchangeDetail"];
-    }
-    //server output, type: number
-    get integral() {return this._integral}
-    set integral(v) {this._integral = v}
-    //server output, type: number
-    get rank() {return this._rank}
-    set rank(v) {this._rank = v}
-    //server output, type: exchangeShopDetail[]
-    get exchangeDetail() {return this._exchangeDetail}
-    set exchangeDetail(v) {this._exchangeDetail = v}
-    static Init(ctx) {
-        let o = new IntegralShop();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
-class LookTicket extends Base {
-    constructor(){
-        super();
-        this.action = 'player.lookticket';
-    
-        this._ticket = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["ticket"];
-    }
-    //server output, type: TicketInfo[]
-    get ticket() {return this._ticket}
-    set ticket(v) {this._ticket = v}
-    static Init(ctx) {
-        let o = new LookTicket();
+        let o = new ExchangeShop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1279,6 +1247,35 @@ class TravelFootprint extends Base {
     set travelPercent(v) {this._travelPercent = v}
     static Init(ctx) {
         let o = new TravelFootprint();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class TraveledPlaces extends Base {
+    constructor(){
+        super();
+        this.action = 'player.traveledplaces';
+    
+        this._playerUid = null;
+        this._provinces = null;
+        this._citys = null;
+        this.requireFileds = [];
+        this.reqFields = ["playerUid"];
+        this.resFields = ["provinces","citys"];
+    }
+    //client input, optional, type: string//用户uid，不传则是自己的
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: string[]//点亮的省名数组,如[‘江苏’]
+    get provinces() {return this._provinces}
+    set provinces(v) {this._provinces = v}
+    //server output, type: string[]//点亮的城市名数组，如[‘苏州’]
+    get citys() {return this._citys}
+    set citys(v) {this._citys = v}
+    static Init(ctx) {
+        let o = new TraveledPlaces();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1412,35 +1409,6 @@ class SendPostcard extends Base {
         return o;
     }
 }
-class TraveledPlaces extends Base {
-    constructor(){
-        super();
-        this.action = 'player.traveledplaces';
-    
-        this._playerUid = null;
-        this._provinces = null;
-        this._citys = null;
-        this.requireFileds = [];
-        this.reqFields = ["playerUid"];
-        this.resFields = ["provinces","citys"];
-    }
-    //client input, optional, type: string//用户uid，不传则是自己的
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: string[]//点亮的省名数组,如[‘江苏’]
-    get provinces() {return this._provinces}
-    set provinces(v) {this._provinces = v}
-    //server output, type: string[]//点亮的城市名数组，如[‘苏州’]
-    get citys() {return this._citys}
-    set citys(v) {this._citys = v}
-    static Init(ctx) {
-        let o = new TraveledPlaces();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        return o;
-    }
-}
 class CityListPer extends Base {
     constructor(){
         super();
@@ -1460,6 +1428,15 @@ class CityListPer extends Base {
         o.code = 0;
         o.parse(ctx.query, true);
         return o;
+    }
+}
+class WsSend extends Base {
+    constructor(){
+        super();
+    
+        
+        
+        
     }
 }
 class PostList extends Base {
@@ -1582,13 +1559,21 @@ class ThumbComment extends Base {
         return o;
     }
 }
-class WsSend extends Base {
+class WsReceive extends Base {
     constructor(){
         super();
     
         
         
         
+    }
+   submit() {
+        let tmp ={};
+        tmp.action=this.action;
+        this.resFields.forEach(k => {
+            tmp[k]=this[k]
+        });
+        this.ctx.io.emit(this.action, {data: tmp, code: this.code});
     }
 }
 class GetMessage extends Base {
@@ -1645,21 +1630,75 @@ class CheckMsgCnt extends Base {
         return o;
     }
 }
-class WsReceive extends Base {
+class UserInfo extends UserBriefInfo {
     constructor(){
         super();
+    
+        //prop type: string
+        this.gender = null;
+    
+        //prop type: number
+        this.totalArrive = null;
+    
+        //prop type: number
+        this.overmatch = null;
+    
+        //prop type: string
+        this.city = null;
+    
+        //prop type: string
+        this.province = null;
+    
+        //prop type: string
+        this.country = null;
+    
+        //prop type: Boolean
+        this.online = null;
+    
+        //prop type: KV[]
+        this.items = null;
+    
+        //prop type: KV[]
+        this.rentItems = null;
+    
+        //prop type: string[]
+        this.friends = null;
+    
+        //prop type: OtherUserInfo
+        this.otherUserInfo = null;
     
         
         
         
     }
-   submit() {
-        let tmp ={};
-        tmp.action=this.action;
-        this.resFields.forEach(k => {
-            tmp[k]=this[k]
-        });
-        this.ctx.io.emit(this.action, {data: tmp, code: this.code});
+}
+class IntegralShop extends Base {
+    constructor(){
+        super();
+        this.action = 'integralShop.integralshop';
+    
+        this._integral = null;
+        this._rank = null;
+        this._exchangeDetail = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["integral","rank","exchangeDetail"];
+    }
+    //server output, type: number
+    get integral() {return this._integral}
+    set integral(v) {this._integral = v}
+    //server output, type: number
+    get rank() {return this._rank}
+    set rank(v) {this._rank = v}
+    //server output, type: ExchangeShopDetail[]
+    get exchangeDetail() {return this._exchangeDetail}
+    set exchangeDetail(v) {this._exchangeDetail = v}
+    static Init(ctx) {
+        let o = new IntegralShop();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
     }
 }
 class RentProp extends Base {
@@ -1817,19 +1856,22 @@ exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
 exports.MessageType = MessageType;
-exports.SelfRank = SelfRank;
-exports.oneDayLog = oneDayLog;
+exports.RankItem = RankItem;
+exports.oneSpot = oneSpot;
+exports.Log = Log;
+exports.ProvencePer = ProvencePer;
 exports.CityPer = CityPer;
 exports.UserBriefInfo = UserBriefInfo;
-exports.otherUserInfo = otherUserInfo;
+exports.OtherUserInfo = OtherUserInfo;
 exports.RealInfo = RealInfo;
 exports.TicketInfo = TicketInfo;
 exports.Base = Base;
 exports.Ws = Ws;
 exports.Sight = Sight;
-exports.RankItem = RankItem;
-exports.ProvencePer = ProvencePer;
-exports.Log = Log;
+exports.OneCityLog = OneCityLog;
+exports.SelfRank = SelfRank;
+exports.Event = Event;
+exports.OneLog = OneLog;
 exports.Specialty = Specialty;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.CityPostcardInfo = CityPostcardInfo;
@@ -1838,8 +1880,7 @@ exports.OneBriefMessage = OneBriefMessage;
 exports.Post = Post;
 exports.Comment = Comment;
 exports.MessageItem = MessageItem;
-exports.exchangeShopDetail = exchangeShopDetail;
-exports.UserInfo = UserInfo;
+exports.ExchangeShopDetail = ExchangeShopDetail;
 exports.FlyInfo = FlyInfo;
 exports.StartGame = StartGame;
 exports.IndexInfo = IndexInfo;
@@ -1847,33 +1888,34 @@ exports.Photograph = Photograph;
 exports.TravelLog = TravelLog;
 exports.PlayerInfo = PlayerInfo;
 exports.RankInfo = RankInfo;
-exports.getUserLocation = getUserLocation;
 exports.GetRealInfo = GetRealInfo;
 exports.ModifyRealInfo = ModifyRealInfo;
+exports.LookTicket = LookTicket;
 exports.mySpe = mySpe;
 exports.SpeList = SpeList;
 exports.Spe = Spe;
-exports.exchangeShop = exchangeShop;
-exports.IntegralShop = IntegralShop;
-exports.LookTicket = LookTicket;
+exports.GetUserLocation = GetUserLocation;
+exports.ExchangeShop = ExchangeShop;
 exports.SignInfo = SignInfo;
 exports.ToSign = ToSign;
 exports.TravelFootprint = TravelFootprint;
+exports.TraveledPlaces = TraveledPlaces;
 exports.DetailLiveMessage = DetailLiveMessage;
 exports.MyPostcards = MyPostcards;
 exports.CityPostcards = CityPostcards;
 exports.DetailPostcard = DetailPostcard;
 exports.SendPostcard = SendPostcard;
-exports.TraveledPlaces = TraveledPlaces;
 exports.CityListPer = CityListPer;
+exports.WsSend = WsSend;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
-exports.WsSend = WsSend;
+exports.WsReceive = WsReceive;
 exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
-exports.WsReceive = WsReceive;
+exports.UserInfo = UserInfo;
+exports.IntegralShop = IntegralShop;
 exports.RentProp = RentProp;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;

@@ -8,25 +8,34 @@ enum Season {
     const WINTER = '冬'
 }
 
-//一天的旅行记录
-class oneDayLog {
-    //当天log的时间戳
+class oneSpot {
+
+}
+
+//旅行记录
+class OneLog {
+    //景点时间的时间
     prop time:string
-    //如果当天有刚飞到到的城市 输出城市 //如果没有换地方 则不显示
-    prop city:string
-    //如果当天有到达的景点 输出景点
-    prop scenicSpots:string[]
     //租用汽车类型  0为未租用
     prop rentCarType:number
+    //如果没有更改rentCarType,数据就放一起
+    prop scenicSpots:string[]
+}
 
+class OneCityLog {
+    //到达的城市
+    prop city:string
+    //达到该城市的时间
+    prop time:string
+    //所有城市每天游玩的记录
+    prop cityLogs: OneLog[]
 }
 
 //旅行足迹 按时间排序
 class Log {
     //游玩的具体年份 eg：2018
     prop year:string
-    //所有城市每天游玩的记录
-    prop cityLogs: oneDayLog[]
+    prop oneCityLog:OneCityLog[]
 }
 
 api IndexInfo {
@@ -57,6 +66,7 @@ api TravelLog {
     optional page:number
     //获取日志的长度，默认为20
     optional length:number
+
     //旅行日志
     output allLogs:Log[]
 }

@@ -16,7 +16,7 @@ class PlayerService extends Service {
            playerIndex = total;
         }
         if (total) {
-            overMatch = Math.floor(((total - playerIndex) / total) * 100);
+            overMatch = (((total - playerIndex) / total) * 100).toFixed(2);
         }
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({uid: ui.uid,index:travelConfig.Item.POINT});
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
@@ -73,7 +73,7 @@ class PlayerService extends Service {
             userscenicspots += scenicspots.length;
         }
         this.logger.info("用户去过的城市 "+ totalArrive);
-        let totalArrivePercent = Math.floor((totalArrive/totalCitys)*100);
+        let totalArrivePercent = ((totalArrive/totalCitys)*100).toFixed(2);
         this.logger.info("城市百分比 "+ totalArrivePercent);
         info.items = ui.items;
         info.userInfo ={
@@ -97,7 +97,7 @@ class PlayerService extends Service {
         this.logger.info("用户进度 "+ userProgress);
         let totalProgress = totalScenicspots + totalEvents + totalPostcards;
         this.logger.info("总进度 "+ totalProgress);
-        let travelPercent = Math.floor((userProgress/totalProgress)*100);
+        let travelPercent = ((userProgress/totalProgress)*100).toFixed(2);
         this.logger.info("进度百分比 "+ travelPercent);
         info.travelPercent = travelPercent;
 
