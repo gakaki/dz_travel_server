@@ -81,6 +81,8 @@ class Code{
     
     static get ITEM_MAX() { return -141;}
     
+    static get NOT_FOUND() { return -10086;}
+    
     static get NEED_COUPON() { return -170;}
     
     static get NEED_MONEY() { return -171;}
@@ -446,7 +448,7 @@ class OneCityLog  {
         this.time = null;
     
         //prop type: 
-        this.cityLogs = null;
+        this.scenicSpots = null;
     
         
         
@@ -483,18 +485,15 @@ class Event  {
         
     }
 }
-class OneLog  {
+class OneDayLog  {
     constructor(){
     
     
         //prop type: string
         this.time = null;
     
-        //prop type: number
-        this.rentCarType = null;
-    
         //prop type: string[]
-        this.scenicSpots = null;
+        this.spots = null;
     
         
         
@@ -1933,7 +1932,7 @@ exports.Sight = Sight;
 exports.OneCityLog = OneCityLog;
 exports.SelfRank = SelfRank;
 exports.Event = Event;
-exports.OneLog = OneLog;
+exports.OneDayLog = OneDayLog;
 exports.Specialty = Specialty;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.CityPostcardInfo = CityPostcardInfo;

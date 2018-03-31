@@ -2,6 +2,7 @@ module.exports = app => {
     const mongoose = app.mongoose;
     const FlightRecordSchema = new mongoose.Schema({
         uid:{type:String},             //用户ID
+        fid:{type:String},            //飞行id
         from:{type:String},           //出发地
         destination:{type:String},   //目的地
         ticketType:{type:String},//机票类型

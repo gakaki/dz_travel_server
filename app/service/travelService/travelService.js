@@ -1,6 +1,7 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const utils = require("../../utils/utils");
+const apis = require("../../../apis/travel");
 
 class TravelService extends Service {
     async fillIndexInfo(info, ui) {
@@ -59,12 +60,12 @@ class TravelService extends Service {
             }
             info.location = visit.cid;
 
-            if (info.type == "00") {
+            if (info.type == apis.TicketType.RANDOMBUY) {
                 info.cost = rcost;
-            } else if (info.type == "01") {
+            } else if (info.type == apis.TicketType.SINGLEBUY) {
                 info.cost = cost;
                 info.doubleCost = dcost;
-            } else if (info.type == "11" || info.type == "12") {
+            } else if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
                 info.cost = 0;
                 info.doubleCost = 0;
             }
@@ -76,7 +77,7 @@ class TravelService extends Service {
         }
 
 
-        if (info.type == "00") {
+        if (info.type == apis.TicketType.RANDOMBUY) {
             let randomcity = await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid, cid);
             this.logger.info("随机城市 " + randomcity);
             info.cid = randomcity
@@ -101,7 +102,7 @@ class TravelService extends Service {
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1
         };
         //使用赠送机票
-        if (info.type == "11" || info.type == "12") {
+        if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
             let flyType = info.type.indexOf("2") != -1 ? 2 : 1;
             await this.ctx.model.TravelModel.FlyTicket.update({
                 uid: ui.uid,
@@ -171,13 +172,32 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : 20;
         let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
             {$match: {"uid": ui.uid}},
-            {$group:{_id:{city:"$city",year: { $dateToString: { format: "%Y", date: "$createDate" }},date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" }} },oneLog:{$push:{time:{ $dateToString: { format: "%Y-%m-%d %H:%M:%S", date: "$createDate" } },scenicSpots:"$scenicspot"}}}},
-            {$sort:{"_id.date":1}},
-            {$group:{_id:{year:"$_id.year",city:"$_id.city"},oneCityLog:{$push:{date:"$_id.date",city:"$_id.city",oneLog:"$oneLog"}}}},
-            {$sort:{"oneCityLog.date":1}},
-            {$project:{_id:0,year:"$_id.year",oneCityLog:1}},
+            {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid" },scenicSpots:{$push:{time:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } },spots:"$scenicspot"}}}},
+            {$project:{_id:0,year:"$_id.year",fid:"$_id.fid",scenicSpots:1}},
+
         ]).skip((page - 1) * limit).limit(limit);
-        info.allLogs = allLogs;
+        let outLog = [];
+        let year = new Date().getFullYear();
+        for(let i = 0;i<allLogs.length;i++){
+            let fly = await this.ctx.model.FlightRecord.findOne({fid:allLogs[i].fid});
+            let onelog = {
+                city: travelConfig.City.Get(fly.destination).city,
+                time: fly.createDate.format("yyyy-MM-dd"),
+                scenicSpots:allLogs[i].scenicSpots
+            };
+
+            if(i==0){
+                onelog.year = allLogs[i].year;
+                year = allLogs[i].year
+            }else{
+                if(year != allLogs[i].year){
+                    onelog.year = allLogs[i].year;
+                    year = allLogs[i].year
+                }
+            }
+            outLog.push(onelog);
+        }
+        info.allLogs = outLog;
     }
 
     async getCityCompletionList(info,ui){

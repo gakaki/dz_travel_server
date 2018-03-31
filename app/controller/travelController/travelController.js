@@ -86,8 +86,9 @@ class TravelController extends Controller {
             info.submit();
             return
         }
+
         //道具不足
-        if(info.type == "11" || info.type == "12"){
+        if(info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT){
             let flyType = info.type.indexOf("2") !=-1 ? 2 :1;
             let tickets = await this.ctx.model.TravelModel.FlyTicket.findOne({uid:ui.uid,isGive:1,flyType:flyType,cid:info.cid});
             if(!tickets || tickets.number ==0 ){
