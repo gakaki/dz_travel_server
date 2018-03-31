@@ -138,7 +138,7 @@ class TravelService extends Service {
         }
         let flyRecord = {
             uid: ui.uid,      //用户ID
-            fid:"fly"+new Date(),
+            fid:"fly"+new Date().getTime(),
             from: visit ? visit.cid : "初次旅行",           //出发地
             destination: cid,   //目的地
             ticketType: ttype,//机票类型
@@ -192,7 +192,7 @@ class TravelService extends Service {
         let outLog = [];
         let year = new Date().getFullYear();
         for(let i = 0;i<allLogs.length;i++){
-            let fly = await this.ctx.model.FlightRecord.findOne({fid:allLogs[i].fid});
+            let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({fid:allLogs[i].fid});
             let onelog = {
                 city: travelConfig.City.Get(fly.destination).city,
                 time: fly.createDate.format("yyyy-MM-dd"),
