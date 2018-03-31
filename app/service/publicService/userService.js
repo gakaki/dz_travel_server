@@ -176,7 +176,7 @@ class UserService extends Service {
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
-        items[travelConfig.Item.GOLD] = travelConfig.Parameter.USERGOLD;
+        items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
         let ui = await this.ctx.model.PublicModel.User.create({
             uid: uid,
             appName: appName,
