@@ -40,3 +40,8 @@ api CheckMsgCnt {
     output unreadMsgCnt:number
 }
 
+//销毁消息
+api ClearMsg {
+    //消息id
+    require mid:string
+}
