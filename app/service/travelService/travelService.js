@@ -204,7 +204,7 @@ class TravelService extends Service {
             outLog.push(onelog);
         }
         let sortList = utils.multisort(outLog,
-            (a, b) => a["time"] - b["time"],
+            (a, b) => new Date(a["time"]) - new Date(b["time"]),
         );
 
         info.allLogs = sortList;
