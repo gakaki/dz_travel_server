@@ -424,10 +424,10 @@ class Sight  {
     constructor(){
     
     
-        //prop type: number//城市id
-        this.cityId = null;
+        //prop type: string//景点id
+        this.pointId = null;
     
-        //prop type: string//返回明信片的图片地址
+        //prop type: string//返回景点的图片地址
         this.img = null;
     
         
@@ -847,23 +847,64 @@ class IndexInfo extends Base {
         return o;
     }
 }
+class viewpointInfo extends Base {
+    constructor(){
+        super();
+        this.action = 'sight.viewpointinfo';
+    
+        this._pointId = null;
+        this._season = null;
+        this._weather = null;
+        this._img = null;
+        this._name = null;
+        this._desc = null;
+        this.requireFileds = ["pointId"];
+        this.reqFields = ["pointId"];
+        this.resFields = ["season","weather","img","name","desc"];
+    }
+    //client input, require, type: string
+    get pointId() {return this._pointId}
+    set pointId(v) {this._pointId = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: string//返回景点的图片地址
+    get img() {return this._img}
+    set img(v) {this._img = v}
+    //server output, type: string//景点名称
+    get name() {return this._name}
+    set name(v) {this._name = v}
+    //server output, type: string//景点介绍
+    get desc() {return this._desc}
+    set desc(v) {this._desc = v}
+    static Init(ctx) {
+        let o = new viewpointInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 class Photograph extends Base {
     constructor(){
         super();
         this.action = 'sight.photograph';
     
-        this._cityId = null;
-        this._img = null;
-        this.requireFileds = ["cityId"];
-        this.reqFields = ["cityId"];
-        this.resFields = ["img"];
+        this._pointId = null;
+        this._postImg = null;
+        this.requireFileds = ["pointId"];
+        this.reqFields = ["pointId"];
+        this.resFields = ["postImg"];
     }
-    //client input, require, type: number//城市id
-    get cityId() {return this._cityId}
-    set cityId(v) {this._cityId = v}
+    //client input, require, type: string//景点id
+    get pointId() {return this._pointId}
+    set pointId(v) {this._pointId = v}
     //server output, type: string
-    get img() {return this._img}
-    set img(v) {this._img = v}
+    get postImg() {return this._postImg}
+    set postImg(v) {this._postImg = v}
     static Init(ctx) {
         let o = new Photograph();
         o.ctx = ctx;
@@ -1630,6 +1671,27 @@ class CheckMsgCnt extends Base {
         return o;
     }
 }
+class ClearMsg extends Base {
+    constructor(){
+        super();
+        this.action = 'message.clearmsg';
+    
+        this._mid = null;
+        this.requireFileds = ["mid"];
+        this.reqFields = ["mid"];
+        this.resFields = [];
+    }
+    //client input, require, type: string
+    get mid() {return this._mid}
+    set mid(v) {this._mid = v}
+    static Init(ctx) {
+        let o = new ClearMsg();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 class UserInfo extends UserBriefInfo {
     constructor(){
         super();
@@ -1884,6 +1946,7 @@ exports.ExchangeShopDetail = ExchangeShopDetail;
 exports.FlyInfo = FlyInfo;
 exports.StartGame = StartGame;
 exports.IndexInfo = IndexInfo;
+exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
 exports.TravelLog = TravelLog;
 exports.PlayerInfo = PlayerInfo;
@@ -1914,6 +1977,7 @@ exports.ThumbComment = ThumbComment;
 exports.WsReceive = WsReceive;
 exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
+exports.ClearMsg = ClearMsg;
 exports.UserInfo = UserInfo;
 exports.IntegralShop = IntegralShop;
 exports.RentProp = RentProp;
