@@ -13,7 +13,7 @@ class oneSpot {
 }
 
 //旅行记录
-class oneLog {
+class OneLog {
     //景点时间的时间
     prop time:string
     //租用汽车类型  0为未租用
@@ -22,20 +22,20 @@ class oneLog {
     prop scenicSpots:string[]
 }
 
-class oneCityLog {
+class OneCityLog {
     //到达的城市
     prop city:string
     //达到该城市的时间
     prop time:string
     //所有城市每天游玩的记录
-    prop cityLogs: oneLog[]
+    prop cityLogs: OneLog[]
 }
 
 //旅行足迹 按时间排序
 class Log {
     //游玩的具体年份 eg：2018
     prop year:string
-    prop oneCityLog:oneCityLog[]
+    prop oneCityLog:OneCityLog[]
 }
 
 api IndexInfo {
