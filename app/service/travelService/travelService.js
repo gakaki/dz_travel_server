@@ -44,44 +44,36 @@ class TravelService extends Service {
             rcost = rcost * multiple;
             info.holiday = holiday[0];
         }
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
         let cid = null;
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
         if (visit) {
             cid = visit.cid;
-        }
-        if (!ui.isSingleFirst && !ui.isDoubleFirst) {
-            if (cid) {
-                let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
-                for (let we of travelConfig.weathers) {
-                    if (we.weather == weather) {
-                        outw = we.id;
-                        break;
-                    }
+            let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
+            for (let we of travelConfig.weathers) {
+                if (we.weather == weather) {
+                    outw = we.id;
+                    break;
                 }
-
             }
-            info.location = visit.cid;
-
-            if (info.type == apis.TicketType.RANDOMBUY) {
-                info.cost = rcost;
-            } else if (info.type == apis.TicketType.SINGLEBUY) {
-                info.cost = cost;
-                info.doubleCost = dcost;
-            } else if (info.type == apis.TicketType.SINGLEPRESENT) {
-                info.cost = 0;
-            }else if(info.type == apis.TicketType.DOUBLEPRESENT){
-                info.doubleCost = 0;
-            }
-        } else {
-            if (ui.isSingleFirst){
-                info.cost = 0;
-            }
-            if (ui.isDoubleFirst){
-                info.doubleCost = 0;
-            }
+            info.location = cid;
         }
-
-
+        if (ui.isSingleFirst) {
+            cost = 0;
+            rcost = 0;
+        }
+        if (ui.isDoubleFirst) {
+            dcost = 0;
+        }
+        if (info.type == apis.TicketType.RANDOMBUY) {
+            info.cost = rcost;
+        } else if (info.type == apis.TicketType.SINGLEBUY) {
+            info.cost = cost;
+            info.doubleCost = dcost;
+        } else if (info.type == apis.TicketType.SINGLEPRESENT) {
+            info.cost = 0;
+        }else if(info.type == apis.TicketType.DOUBLEPRESENT){
+            info.doubleCost = 0;
+        }
         if (info.type == apis.TicketType.RANDOMBUY) {
             let randomcity = await this.ctx.service.publicService.thirdService.getRandomTicket(ui.uid, cid);
             this.logger.info("随机城市 " + randomcity);
@@ -211,7 +203,11 @@ class TravelService extends Service {
             }
             outLog.push(onelog);
         }
-        info.allLogs = outLog;
+        let sortList = utils.multisort(outLog,
+            (a, b) => new Date(a["time"]) - new Date(b["time"]),
+        );
+
+        info.allLogs = sortList;
     }
 
     async getCityCompletionList(info,ui){
