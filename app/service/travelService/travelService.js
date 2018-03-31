@@ -22,7 +22,7 @@ class TravelService extends Service {
         }
         info.weather = outw;
         info.playerCnt = await this.app.redis.get("travel_userid");
-        info.friend = ui.friendList;
+        info.friends = ui.friendList;
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
@@ -174,35 +174,13 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : 20;
         let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
             {$match: {"uid": ui.uid}},
-            {
-                $group: {
-                    _id: {  year: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } },},
-                    onedaylog: {
-                        $push: {
-                            city: "$city",
-                            rentCarType: "$rentCarType",
-                            scenicspot: "$scenicspot",
-                            createDate: "$createDate",
-                        }
-                    }
-                }
-            },
-            {$project: {time: "$_id.year", onedaylog: 1}}
-        ])
-            .sort({time: -1})
-            .skip((page - 1) * limit)
-            .limit(limit);
-        let logs =[];
-        for(let log of allLogs){
-            let userLog = {
-                year:log.time.format("yyyy")
-            }
-        }
-
-
-
-
-        info.allLogs = logs;
+            {$group:{_id:{city:"$city",year: { $dateToString: { format: "%Y", date: "$createDate" }},date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" }} },oneLog:{$push:{time:{ $dateToString: { format: "%Y-%m-%d %H:%M:%S", date: "$createDate" } },scenicSpots:"$scenicspot"}}}},
+            {$sort:{"_id.date":1}},
+            {$group:{_id:{year:"$_id.year",city:"$_id.city"},oneCityLog:{$push:{date:"$_id.date",city:"$_id.city",oneLog:"$oneLog"}}}},
+            {$sort:{"oneCityLog.date":1}},
+            {$project:{_id:0,year:"$_id.year",oneCityLog:1}},
+        ]).skip((page - 1) * limit).limit(limit);
+        info.allLogs = allLogs;
     }
 
     async getCityCompletionList(info,ui){
