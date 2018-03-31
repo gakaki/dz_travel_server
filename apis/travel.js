@@ -81,6 +81,8 @@ class Code{
     
     static get ITEM_MAX() { return -141;}
     
+    static get NOT_FOUND() { return -10086;}
+    
     static get NEED_COUPON() { return -170;}
     
     static get NEED_MONEY() { return -171;}
@@ -424,10 +426,10 @@ class Sight  {
     constructor(){
     
     
-        //prop type: number//城市id
-        this.cityId = null;
+        //prop type: string//景点id
+        this.pointId = null;
     
-        //prop type: string//返回明信片的图片地址
+        //prop type: string//返回景点的图片地址
         this.img = null;
     
         
@@ -446,7 +448,7 @@ class OneCityLog  {
         this.time = null;
     
         //prop type: 
-        this.cityLogs = null;
+        this.scenicSpots = null;
     
         
         
@@ -483,18 +485,15 @@ class Event  {
         
     }
 }
-class OneLog  {
+class OneDayLog  {
     constructor(){
     
     
         //prop type: string
         this.time = null;
     
-        //prop type: number
-        this.rentCarType = null;
-    
         //prop type: string[]
-        this.scenicSpots = null;
+        this.spots = null;
     
         
         
@@ -610,7 +609,10 @@ class Post  {
     constructor(){
     
     
-        //prop type: number//帖子id
+        //prop type: string//城市id
+        this.cityId = null;
+    
+        //prop type: string//帖子id
         this.postId = null;
     
         //prop type: PostType//帖子类型：景点or特产
@@ -640,7 +642,7 @@ class Comment  {
     constructor(){
     
     
-        //prop type: number//帖子id
+        //prop type: string//帖子id
         this.postId = null;
     
         //prop type: UserBriefInfo//用户简单信息
@@ -844,23 +846,64 @@ class IndexInfo extends Base {
         return o;
     }
 }
+class viewpointInfo extends Base {
+    constructor(){
+        super();
+        this.action = 'sight.viewpointinfo';
+    
+        this._pointId = null;
+        this._season = null;
+        this._weather = null;
+        this._img = null;
+        this._name = null;
+        this._desc = null;
+        this.requireFileds = ["pointId"];
+        this.reqFields = ["pointId"];
+        this.resFields = ["season","weather","img","name","desc"];
+    }
+    //client input, require, type: string
+    get pointId() {return this._pointId}
+    set pointId(v) {this._pointId = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: string//返回景点的图片地址
+    get img() {return this._img}
+    set img(v) {this._img = v}
+    //server output, type: string//景点名称
+    get name() {return this._name}
+    set name(v) {this._name = v}
+    //server output, type: string//景点介绍
+    get desc() {return this._desc}
+    set desc(v) {this._desc = v}
+    static Init(ctx) {
+        let o = new viewpointInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
 class Photograph extends Base {
     constructor(){
         super();
         this.action = 'sight.photograph';
     
-        this._cityId = null;
-        this._img = null;
-        this.requireFileds = ["cityId"];
-        this.reqFields = ["cityId"];
-        this.resFields = ["img"];
+        this._pointId = null;
+        this._postImg = null;
+        this.requireFileds = ["pointId"];
+        this.reqFields = ["pointId"];
+        this.resFields = ["postImg"];
     }
-    //client input, require, type: number//城市id
-    get cityId() {return this._cityId}
-    set cityId(v) {this._cityId = v}
+    //client input, require, type: string//景点id
+    get pointId() {return this._pointId}
+    set pointId(v) {this._pointId = v}
     //server output, type: string
-    get img() {return this._img}
-    set img(v) {this._img = v}
+    get postImg() {return this._postImg}
+    set postImg(v) {this._postImg = v}
     static Init(ctx) {
         let o = new Photograph();
         o.ctx = ctx;
@@ -1441,15 +1484,19 @@ class PostList extends Base {
         super();
         this.action = 'post.postlist';
     
+        this._cityId = null;
         this._lastPostId = null;
         this._limit = null;
         this._type = null;
         this._posts = null;
-        this.requireFileds = ["lastPostId","limit","type"];
-        this.reqFields = ["lastPostId","limit","type"];
+        this.requireFileds = ["cityId","lastPostId","limit","type"];
+        this.reqFields = ["cityId","lastPostId","limit","type"];
         this.resFields = ["posts"];
     }
-    //client input, require, type: number//上一屏最后post的id
+    //client input, require, type: string//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
+    //client input, require, type: string//上一屏最后post的id
     get lastPostId() {return this._lastPostId}
     set lastPostId(v) {this._lastPostId = v}
     //client input, require, type: number//本次拉取的条数
@@ -1480,7 +1527,7 @@ class CommentPost extends Base {
         this.reqFields = ["postId","content"];
         this.resFields = [];
     }
-    //client input, require, type: number//帖子id
+    //client input, require, type: string//帖子id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
     //client input, require, type: string//评论内容
@@ -1499,15 +1546,19 @@ class PostComments extends Base {
         super();
         this.action = 'post.postcomments';
     
+        this._cityId = null;
         this._postId = null;
         this._lastCmtId = null;
         this._limit = null;
         this._comments = null;
-        this.requireFileds = ["postId","lastCmtId","limit"];
-        this.reqFields = ["postId","lastCmtId","limit"];
+        this.requireFileds = ["cityId","postId","lastCmtId","limit"];
+        this.reqFields = ["cityId","postId","lastCmtId","limit"];
         this.resFields = ["comments"];
     }
-    //client input, require, type: number//帖子id
+    //client input, require, type: string//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
+    //client input, require, type: string//帖子id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
     //client input, require, type: number//上一屏最后comment的id
@@ -1537,7 +1588,7 @@ class ThumbComment extends Base {
         this.reqFields = ["commentId"];
         this.resFields = [];
     }
-    //client input, require, type: number//评论id
+    //client input, require, type: string//评论id
     get commentId() {return this._commentId}
     set commentId(v) {this._commentId = v}
     static Init(ctx) {
@@ -1613,6 +1664,27 @@ class CheckMsgCnt extends Base {
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
     static Init(ctx) {
         let o = new CheckMsgCnt();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        return o;
+    }
+}
+class ClearMsg extends Base {
+    constructor(){
+        super();
+        this.action = 'message.clearmsg';
+    
+        this._mid = null;
+        this.requireFileds = ["mid"];
+        this.reqFields = ["mid"];
+        this.resFields = [];
+    }
+    //client input, require, type: string
+    get mid() {return this._mid}
+    set mid(v) {this._mid = v}
+    static Init(ctx) {
+        let o = new ClearMsg();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1860,7 +1932,7 @@ exports.Sight = Sight;
 exports.OneCityLog = OneCityLog;
 exports.SelfRank = SelfRank;
 exports.Event = Event;
-exports.OneLog = OneLog;
+exports.OneDayLog = OneDayLog;
 exports.Specialty = Specialty;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.CityPostcardInfo = CityPostcardInfo;
@@ -1873,6 +1945,7 @@ exports.ExchangeShopDetail = ExchangeShopDetail;
 exports.FlyInfo = FlyInfo;
 exports.StartGame = StartGame;
 exports.IndexInfo = IndexInfo;
+exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
 exports.TravelLog = TravelLog;
 exports.PlayerInfo = PlayerInfo;
@@ -1903,6 +1976,7 @@ exports.ThumbComment = ThumbComment;
 exports.WsReceive = WsReceive;
 exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
+exports.ClearMsg = ClearMsg;
 exports.UserInfo = UserInfo;
 exports.IntegralShop = IntegralShop;
 exports.RentProp = RentProp;

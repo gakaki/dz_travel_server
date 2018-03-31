@@ -73,6 +73,27 @@ class PlayerController extends Controller {
 
         info.submit();
     }
+
+    async clearmsg(ctx){
+        let info = apis.ClearMsg.Init(ctx);
+        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        if(!ui){
+            info.code = apis.Code.USER_NOT_FOUND;
+            info.submit();
+            return;
+        }
+        let msg = await this.ctx.service.travelService.msgService.readMsg(info.mid);
+        if(!msg){
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+        await ctx.service.travelService.playerService.clearMsg(info,ui,msg);
+
+        info.submit();
+    }
+
+
     async checkmsgcnt(ctx){
         let info = apis.CheckMsgCnt.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
@@ -81,9 +102,7 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
-
         await ctx.service.travelService.playerService.checkMsgCnt(info,ui);
-
         info.submit();
     }
 

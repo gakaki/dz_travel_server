@@ -1,7 +1,7 @@
 const Controller = require('egg').Controller;
 const constant = require("../../utils/constant");
 const utils = require("../../utils/utils");
-const englishConfig = require("../../../sheets/english");
+const travelConfig = require("../../../sheets/travel");
 
 
 class WeChatController extends Controller {
@@ -51,14 +51,14 @@ class WeChatController extends Controller {
             return;
         }
 
-        let goods=englishConfig.Shop.Get(good);
+        let goods=travelConfig.Pay.Get(good);
         if(!goods){
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let money = (goods.Price)*100;
-       // let money = 1;
+       // let money = (goods.pay)*100;
+        let money = 1;
         this.logger.info("我拿到的钱数:" + money);
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, good, appName);
     }

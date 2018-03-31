@@ -61,6 +61,8 @@ enum Code {
     const LEVEL_MAX = -140
     //道具上限
     const ITEM_MAX = -141
+    //未找到相关信息
+    const NOT_FOUND = -10086
     //代金券不足
     const NEED_COUPON = -170
     //金额不足

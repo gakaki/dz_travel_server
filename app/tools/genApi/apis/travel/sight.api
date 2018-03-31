@@ -1,14 +1,35 @@
 import ../base.api
 
-class Sight {
-    prop cityId:number//城市id
-    prop img:string//返回明信片的图片地址
+enum Season {
+    const SPRING = '春'
+const SUMMER = '夏'
+const AUTUMN = '秋'
+const WINTER = '冬'
 }
 
+class Sight {
+    prop pointId:string//景点id
+    prop img:string//返回景点的图片地址
+    prop: name:string//景点名称
+    prop: desc:string//景点介绍
+}
+
+//拉取景点信息
+api viewpointInfo {
+    require pointId:string
+    //季节
+    output season:Season
+    //天气(返回weather表中对应的id，由客户端读表选择图片)
+    output weather:number
+    output img:string//返回景点的图片地址
+    output name:string//景点名称
+    output desc:string//景点介绍
+
+}
 
 //拍照获得明信片(每个城市可拍照2次，每个景点可拍照1次。购买单反相机可增加城市拍照次数，不能增加景点拍照次数。)
 api Photograph {
-    require cityId:number//城市id
-    output img:string
+    require pointId:string//景点id
+    output postImg:string  //返回明信片的图片地址
 }
 

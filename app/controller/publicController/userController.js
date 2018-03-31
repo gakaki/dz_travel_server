@@ -14,7 +14,7 @@ class UserController extends Controller {
             data: {}
         };
         if ( !info || !appName ||(!_sid && !uid )) {
-            result.code = constant.Code.LOGIN_FAILED;
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
