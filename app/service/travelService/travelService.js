@@ -203,7 +203,11 @@ class TravelService extends Service {
             }
             outLog.push(onelog);
         }
-        info.allLogs = outLog;
+        let sortList = utils.multisort(outLog,
+            (a, b) => a["time"] - b["time"],
+        );
+
+        info.allLogs = sortList;
     }
 
     async getCityCompletionList(info,ui){
