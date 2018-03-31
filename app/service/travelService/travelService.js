@@ -22,7 +22,7 @@ class TravelService extends Service {
         }
         info.weather = outw;
         info.playerCnt = await this.app.redis.get("travel_userid");
-        info.friend = ui.friendList;
+        info.friends = ui.friendList;
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
@@ -172,27 +172,113 @@ class TravelService extends Service {
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
         let limit = info.length ? Number(info.length) : 20;
-        let logs = await this.ctx.model.TravelModel.TravelLog.aggregate([
+        let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
             {$match: {"uid": ui.uid}},
-            {
-                $group: {
-                    _id: "$date",
-                    onedaylog: {
-                        $push: {
-                            city: "$city",
-                            rentCarType: "$rentCarType",
-                            scenicspot: "$scenicspot",
-                            createDate: "$createDate"
-                        }
+            {$group:{_id:{city:"$city",year: { $dateToString: { format: "%Y", date: "$createDate" }},date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" }} },oneLog:{$push:{time:{ $dateToString: { format: "%Y-%m-%d %H:%M:%S", date: "$createDate" } },scenicSpots:"$scenicspot"}}}},
+            {$sort:{"_id.date":1}},
+            {$group:{_id:{year:"$_id.year",city:"$_id.city"},oneCityLog:{$push:{date:"$_id.date",city:"$_id.city",oneLog:"$oneLog"}}}},
+            {$sort:{"oneCityLog.date":1}},
+            {$project:{_id:0,year:"$_id.year",oneCityLog:1}},
+        ]).skip((page - 1) * limit).limit(limit);
+        info.allLogs = allLogs;
+    }
+
+    async getCityCompletionList(info,ui){
+        let provinces = travelConfig.finds;
+        let data =[];
+        let userfootprints = await this.ctx.model.TravelModel.Footprints.aggregate([
+            {$match:{uid:ui.uid}},
+            {$group:{_id:"$province",citys:{$addToSet:{cid:"$cid"}}}},
+            {$project:{_id:0,province:"$_id",citys:1}}
+        ]);
+        this.logger.info(userfootprints);
+        let userProvinces = new Set();
+        let userProCitys = new Map();
+        let totalProvinces = new Set();
+        let totalFind = new Map();
+        for(let userProvince of userfootprints){
+            //用户去过的省
+            userProvinces.add(userProvince.province);
+            //用户去过的该省的城市
+            let citys =[];
+            for(let city of userProvince.citys){
+                citys.push(city.cid);
+            }
+            userProCitys.set(userProvince.province,citys)
+        }
+        for(let province of provinces){
+            totalProvinces.add(province.province);
+            totalFind.set(province.province,province.id);
+        }
+        //按顺序查找用户去过的省
+        let intersectPro  = new Set([...totalProvinces].filter(x => userProvinces.has(x)));
+        this.logger.info(intersectPro);
+        for(let inPro of intersectPro){
+            let proFind =totalFind.get(inPro);
+            let province = travelConfig.Find.Get(proFind);
+            let provencePer = {
+                proLetter : province.pword,
+                proName : province.province
+            };
+            let pcityids = province.cityid;
+            let proCityId = new Set(pcityids);
+            let userProCityId = new Set(userProCitys.get(inPro));
+            this.logger.info(proCityId);
+            this.logger.info(userProCityId);
+            //按顺序查找用户去过的城市
+            let intersectCity = new Set([...proCityId].filter(x => userProCityId.has(x.toString())));
+
+            let cityPs = [];
+            for(let cityid of intersectCity){
+                let index = pcityids.findIndex((n) => n == cityid);
+                this.logger.info("城市 "+cityid);
+                this.logger.info("顺序 " ,index);
+                this.logger.info("城市列表", province.city);
+                let cityPer ={
+                    cityname : province.city[index]
+                };
+                let cid = cityid.toString();
+                //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
+                let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
+                    {$match:{uid:ui.uid,cid:cid}},
+                    {$group:{_id:"$scenicspot"}},
+                ]);
+                this.logger.info(userScenicspots);
+                let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+                    {$match:{uid:ui.uid,cid:cid}},
+                    {$group:{_id:"$eid"}}
+                ]);
+                let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
+                    {$match:{uid:ui.uid,cid:cid}},
+                    {$group:{_id:"$ptid"}}
+                ]);
+                let totalCitys = travelConfig.citys;
+                let totalScenicspots = 0;
+                let totalEvents = 0;
+                let totalPostcards = 0;
+                for(let city of totalCitys){
+                    if(city.id == cid){
+                        this.logger.info(city);
+                        totalScenicspots = city.scenicspot.length;
+                        totalEvents = city.eventnum;
+                        totalPostcards = city.postcardnum;
+                        break;
                     }
                 }
-            },
-            {$project: {time: "$_id", onedaylog: 1}}
-        ])
-            .sort({time: -1, ["onedaylog.createDate"]: -1})
-            .skip((page - 1) * limit)
-            .limit(limit);
-        info.allLogs = logs;
+                this .logger.info("城市 "+ cid);
+                let userPro = userScenicspots.length + userEvents.length + userPostcards.length;
+                this.logger.info("玩家该城市进度 " + userPro);
+                let totalPro = totalScenicspots + totalEvents + totalPostcards;
+                this.logger.info("该城市总进度 " + totalPro);
+                let cp = ((userPro/totalPro)*100).toFixed(2);
+                this.logger.info("完成度 " + cp);
+                cityPer.cityper = cp;
+                cityPs.push(cityPer);
+            }
+            provencePer.citys=cityPs;
+            data.push(provencePer)
+        }
+        info.data = data;
     }
 
 }

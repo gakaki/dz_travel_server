@@ -7,6 +7,7 @@ module.exports = app => {
         province:{type:String},
         city:{type:String},
         scenicspot:{type:String},
+        progress:{type:Number},//完成度
         roadMap:{type:Array},
         friend:{type:String},
         rentItems:{type:JSON}

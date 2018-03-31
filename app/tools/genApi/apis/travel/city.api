@@ -13,6 +13,6 @@ class ProvencePer {
 
 //拉取城市完成度列表
 api CityListPer {
-    output data:Provence[]
+    output data:ProvencePer[]
 }
 

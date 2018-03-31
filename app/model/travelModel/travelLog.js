@@ -2,11 +2,10 @@ module.exports = app => {
     const mongoose = app.mongoose;
     const TravelLogSchema = new mongoose.Schema({
         uid:{type:String},
-        date:{type:String},
         city:{type:String},
         rentCarType:{type:Number},
-        scenicspot:{type:Array},
-        createDate:{type:Date}
+        scenicspot:{type:String},//景点名
+        createDate:{type:Date} //景点具体到达时间
 
     });
 

@@ -1,17 +1,26 @@
 const travelConfig = require("./sheets/travel");
-
+const utils = require("./app/utils/utils");
 module.exports = app => {
     app.beforeStart(async () => {
         // 应用会等待这个函数执行完成才启动
         app.redis.setnx("travel_userid",1000);
-       let ctx = app.createAnonymousContext();
-       await ctx.model.TravelModel.FlyTicket.create({
-           uid:"ov5W35W2g36wL8DPE9iCR7JlNoUU",
-           isGive:1, //机票类型 0：买的 1：送的
-           flyType:1, //机票类型    1 单人 2双人
-           cid:'200',//目的地
-           createDate:new Date()
-       })
+    //    let ctx = app.createAnonymousContext();
+    //    await ctx.model.TravelModel.TravelLog.create({
+    //        uid:"ov5W35fZQbMq-5Np6fI1hcn_hfg8",
+    //        date:new Date().format("yyyy-MM-dd"),//年月日
+    //        city:'南京',
+    //        rentCarType:0,
+    //        scenicspot:'中山陵',
+    //        createDate:new Date()
+    //    })
+    // await ctx.model.TravelModel.TravelLog.create({
+    //     uid:"ov5W35fZQbMq-5Np6fI1hcn_hfg8",
+    //     date:new Date().format("yyyy-MM-dd"),//年月日
+    //     city:'南京',
+    //     rentCarType:0,
+    //     scenicspot:'城隍庙',
+    //     createDate:new Date()
+    // })
 
     });
 

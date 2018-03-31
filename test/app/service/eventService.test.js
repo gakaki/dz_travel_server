@@ -1,9 +1,15 @@
 'use strict';
 
-const assert = require('assert');
+const assert    = require('assert');
+const { app }   = require('egg-mock/bootstrap');
 
-describe('test event system', () => {
-    it('should request success', () => {
-        assert.equal([1,2,3].indexOf(4), -1);
+describe('test 事件系统', () => {
+
+    it('测试event getEvent', async () => {
+        // 创建 ctx
+        const ctx   = app.mockContext();
+        const row   = await ctx.service.publicService.eventService.getEvent('130050');
+        assert(row.id == '130050');
     });
+
 });

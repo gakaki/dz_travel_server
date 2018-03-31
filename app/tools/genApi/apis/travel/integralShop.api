@@ -1,7 +1,7 @@
 import ../base.api
 import ./player.api
 
-class exchangeShopDetail {
+class ExchangeShopDetail {
     //用户昵称
     prop nickname:string
     //兑换的商品名称
@@ -15,11 +15,11 @@ api IntegralShop {
     //个人积分排行
     output rank:number
     //兑换的商品详情
-    output exchangeDetail:exchangeShopDetail[]
+    output exchangeDetail:ExchangeShopDetail[]
 }
 
 //兑换商品
-api exchangeShop {
+api ExchangeShop {
     //兑换的商品id
     require id:string
     //兑换该商品需要的积分
@@ -27,7 +27,7 @@ api exchangeShop {
 }
 
 //获取玩家地址
-api getUserLocation {
+api GetUserLocation {
     //玩家昵称
     output nickname:string
     //玩家电话
