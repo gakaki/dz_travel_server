@@ -33,7 +33,9 @@ api IntegralShop {
 }
 
 //商店兑换物品详情
-api ExchangeShop {
+api ExchangeDetail {
+    //第几页
+    require page:number
     //兑换的商品详情
     output exchangeDetail:ExchangeShopDetail[]
 }

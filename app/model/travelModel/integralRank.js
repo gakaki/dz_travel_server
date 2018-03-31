@@ -1,7 +1,7 @@
 module.exports = app => {
-    const mogoose = app.mongoose;
+    const mongoose = app.mongoose;
 
-    const IntegralRankSchema = new mogoose.Schema({
+    const IntegralRankSchema = new mongoose.Schema({
         uid: {type: String}, //玩家uid
         integral: {type: Number}, //积分数量
         rank: {type: Number}, //排名

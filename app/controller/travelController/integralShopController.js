@@ -1,7 +1,7 @@
 const Controller = require('egg').Controller;
 const apis = require('../../../apis/travel');
 
-moudle.exports = class IntegralShopController extends Controller {
+module.exports = class IntegralShopController extends Controller {
     async integralshop(ctx) {
         let info = apis.IntegralShop.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
@@ -13,5 +13,11 @@ moudle.exports = class IntegralShopController extends Controller {
         }
 
         await ctx.service.travelService.integralService.getInfo(info, ui);
+
+        info.submit();
+    }
+
+    async exchangeshop(ctx) {
+
     }
 }
