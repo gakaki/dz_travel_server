@@ -185,7 +185,8 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : 20;
         let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
             {$match: {"uid": ui.uid}},
-            {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid" },scenicSpots:{$push:{time:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } },spots:"$scenicspot"}}}},
+            {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid",date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } },scenicSpots:{$push:{spots:"$scenicspot"}}}},
+            {$group:{_id:{year: "_id.year",fid:"$_id.fid" },scenicSpots:{$push:{time:"$_id.date",spots:"$scenicSpots"}}}},
             {$project:{_id:0,year:"$_id.year",fid:"$_id.fid",scenicSpots:1}},
 
         ]).skip((page - 1) * limit).limit(limit);
