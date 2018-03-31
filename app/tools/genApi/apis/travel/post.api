@@ -9,7 +9,8 @@ enum PostType {
 }
 
 class Post {
-    prop postId:number//帖子id
+    prop cityId:string//城市id
+    prop postId:string//帖子id
     prop type:PostType//帖子类型：景点or特产
     prop content:string//帖子内容，为景点或特产的介绍
     prop name: string //景点或特产名
@@ -19,7 +20,7 @@ class Post {
 }
 
 class Comment {
-    prop postId:number//帖子id
+    prop postId:string//帖子id
     prop user:UserBriefInfo//用户简单信息
     prop commentId:string//评论id
     prop content:string//评论内容
@@ -30,7 +31,8 @@ class Comment {
 
 //拉取景点/特产列表
 api PostList {
-    require lastPostId:number//上一屏最后post的id
+    require cityId:string//城市id
+    require lastPostId:string//上一屏最后post的id
     require limit:number//本次拉取的条数
     require type:PostType//帖子类型：景点or特产
 
@@ -39,14 +41,15 @@ api PostList {
 
 //评论景点Or特产
 api CommentPost {
-    require postId:number//帖子id
+    require postId:string//帖子id
     require content:string//评论内容
     reruire score:number//评分
 }
 
 //拉取评论列表
 api PostComments {
-    require postId:number//帖子id
+    require cityId:string//城市id
+    require postId:string//帖子id
     require lastCmtId:number//上一屏最后comment的id
     require limit:number//本次拉取的条数
 
@@ -55,6 +58,6 @@ api PostComments {
 
 //点赞评论
 api ThumbComment {
-    require commentId:number//评论id
+    require commentId:string//评论id
 
 }

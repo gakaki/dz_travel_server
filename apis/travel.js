@@ -571,7 +571,10 @@ class Post  {
     constructor(){
     
     
-        //prop type: number//帖子id
+        //prop type: string//城市id
+        this.cityId = null;
+    
+        //prop type: string//帖子id
         this.postId = null;
     
         //prop type: PostType//帖子类型：景点or特产
@@ -601,7 +604,7 @@ class Comment  {
     constructor(){
     
     
-        //prop type: number//帖子id
+        //prop type: string//帖子id
         this.postId = null;
     
         //prop type: UserBriefInfo//用户简单信息
@@ -1243,6 +1246,7 @@ class TravelFootprint extends Base {
         this.action = 'player.travelfootprint';
     
         this._playerUid = null;
+        this._userInfo = null;
         this._items = null;
         this._reachrovince = null;
         this._totalArrive = null;
@@ -1250,11 +1254,14 @@ class TravelFootprint extends Base {
         this._travelPercent = null;
         this.requireFileds = [];
         this.reqFields = ["playerUid"];
-        this.resFields = ["items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
+        this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //server output, type: UserBriefInfo
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
     //server output, type: KV[]
     get items() {return this._items}
     set items(v) {this._items = v}
@@ -1460,15 +1467,19 @@ class PostList extends Base {
         super();
         this.action = 'post.postlist';
     
+        this._cityId = null;
         this._lastPostId = null;
         this._limit = null;
         this._type = null;
         this._posts = null;
-        this.requireFileds = ["lastPostId","limit","type"];
-        this.reqFields = ["lastPostId","limit","type"];
+        this.requireFileds = ["cityId","lastPostId","limit","type"];
+        this.reqFields = ["cityId","lastPostId","limit","type"];
         this.resFields = ["posts"];
     }
-    //client input, require, type: number//上一屏最后post的id
+    //client input, require, type: string//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
+    //client input, require, type: string//上一屏最后post的id
     get lastPostId() {return this._lastPostId}
     set lastPostId(v) {this._lastPostId = v}
     //client input, require, type: number//本次拉取的条数
@@ -1499,7 +1510,7 @@ class CommentPost extends Base {
         this.reqFields = ["postId","content"];
         this.resFields = [];
     }
-    //client input, require, type: number//帖子id
+    //client input, require, type: string//帖子id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
     //client input, require, type: string//评论内容
@@ -1518,15 +1529,19 @@ class PostComments extends Base {
         super();
         this.action = 'post.postcomments';
     
+        this._cityId = null;
         this._postId = null;
         this._lastCmtId = null;
         this._limit = null;
         this._comments = null;
-        this.requireFileds = ["postId","lastCmtId","limit"];
-        this.reqFields = ["postId","lastCmtId","limit"];
+        this.requireFileds = ["cityId","postId","lastCmtId","limit"];
+        this.reqFields = ["cityId","postId","lastCmtId","limit"];
         this.resFields = ["comments"];
     }
-    //client input, require, type: number//帖子id
+    //client input, require, type: string//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
+    //client input, require, type: string//帖子id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
     //client input, require, type: number//上一屏最后comment的id
@@ -1556,7 +1571,7 @@ class ThumbComment extends Base {
         this.reqFields = ["commentId"];
         this.resFields = [];
     }
-    //client input, require, type: number//评论id
+    //client input, require, type: string//评论id
     get commentId() {return this._commentId}
     set commentId(v) {this._commentId = v}
     static Init(ctx) {
