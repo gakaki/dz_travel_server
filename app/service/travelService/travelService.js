@@ -29,7 +29,9 @@ class TravelService extends Service {
 
     async selectCity(info, ui) {
         info.gold = ui.items[travelConfig.Item.GOLD];
-        info.isFirst = ui.isFirst;
+      //  info.isFirst = ui.isFirst;
+        info.isSingleFirst = ui.isSingleFirst;
+        info.isDoubleFirst = ui.isDoubleFirst;
         let outw = 1;
         let holiday = this.ctx.service.publicService.thirdService.getHoliday();
         let cost = travelConfig.Parameter.Get(travelConfig.Parameter.COMMONTICKETPRICE).value;
@@ -47,7 +49,7 @@ class TravelService extends Service {
         if (visit) {
             cid = visit.cid;
         }
-        if (!ui.isFirst) {
+        if (!ui.isSingleFirst && !ui.isDoubleFirst) {
             if (cid) {
                 let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
                 for (let we of travelConfig.weathers) {
@@ -65,15 +67,18 @@ class TravelService extends Service {
             } else if (info.type == apis.TicketType.SINGLEBUY) {
                 info.cost = cost;
                 info.doubleCost = dcost;
-            } else if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
+            } else if (info.type == apis.TicketType.SINGLEPRESENT) {
                 info.cost = 0;
+            }else if(info.type == apis.TicketType.DOUBLEPRESENT){
                 info.doubleCost = 0;
             }
-
-
         } else {
-            info.cost = 0;
-            info.doubleCost = 0;
+            if (ui.isSingleFirst){
+                info.cost = 0;
+            }
+            if (ui.isDoubleFirst){
+                info.doubleCost = 0;
+            }
         }
 
 
@@ -120,9 +125,16 @@ class TravelService extends Service {
         }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui, cost);
         //飞行消耗为0 ，为首次登陆
-        if (!Number(info.cost)) {
+        if (!Number(info.cost) && (ui.isFirst || ui.isSingleFirst || ui.isDoubleFirst)) {
             this.logger.info("首次飞行");
-            await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
+            if (ui.isFirst){
+                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
+            }
+            if (fid && ui.isDoubleFirst) {
+                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isDoubleFirst: false}});
+            } else if (!fid && ui.isSingleFirst) {
+                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isSingleFirst: false}});
+            }
         }
         let flyRecord = {
             uid: ui.uid,      //用户ID
