@@ -136,6 +136,11 @@ class PlayerService extends Service {
         }
         info.messages = messages
     }
+
+    async clearMsg(info,ui,msg){
+        await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+    }
+
     async checkMsgCnt(info,ui){
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }

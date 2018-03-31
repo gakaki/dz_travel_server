@@ -25,8 +25,10 @@ api FlyInfo{
 
     //返回个人的金币
     output gold:number
-    //是否为第一次进来的玩家
-    output isFirst:Boolean
+    //是否为第一次使用单人机票玩家
+    output isSingleFirst:Boolean
+    //是否第一次使用双人机票
+    output isDoubleFirst:Boolean
     //季节
     output season:Season
     //天气(返回weather表中对应的id，由客户端读表选择图片)

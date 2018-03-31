@@ -81,6 +81,8 @@ class Code{
     
     static get ITEM_MAX() { return -141;}
     
+    static get NOT_FOUND() { return -10086;}
+    
     static get NEED_COUPON() { return -170;}
     
     static get NEED_MONEY() { return -171;}
@@ -446,7 +448,7 @@ class OneCityLog  {
         this.time = null;
     
         //prop type: 
-        this.cityLogs = null;
+        this.scenicSpots = null;
     
         
         
@@ -483,18 +485,15 @@ class Event  {
         
     }
 }
-class OneLog  {
+class OneDayLog  {
     constructor(){
     
     
         //prop type: string
         this.time = null;
     
-        //prop type: number
-        this.rentCarType = null;
-    
         //prop type: string[]
-        this.scenicSpots = null;
+        this.spots = null;
     
         
         
@@ -715,7 +714,8 @@ class FlyInfo extends Base {
     
         this._type = null;
         this._gold = null;
-        this._isFirst = null;
+        this._isSingleFirst = null;
+        this._isDoubleFirst = null;
         this._season = null;
         this._weather = null;
         this._cost = null;
@@ -725,7 +725,7 @@ class FlyInfo extends Base {
         this._cid = null;
         this.requireFileds = ["type"];
         this.reqFields = ["type"];
-        this.resFields = ["gold","isFirst","season","weather","cost","doubleCost","location","holiday","cid"];
+        this.resFields = ["gold","isSingleFirst","isDoubleFirst","season","weather","cost","doubleCost","location","holiday","cid"];
     }
     //client input, require, type: TicketType
     get type() {return this._type}
@@ -734,8 +734,11 @@ class FlyInfo extends Base {
     get gold() {return this._gold}
     set gold(v) {this._gold = v}
     //server output, type: Boolean
-    get isFirst() {return this._isFirst}
-    set isFirst(v) {this._isFirst = v}
+    get isSingleFirst() {return this._isSingleFirst}
+    set isSingleFirst(v) {this._isSingleFirst = v}
+    //server output, type: Boolean
+    get isDoubleFirst() {return this._isDoubleFirst}
+    set isDoubleFirst(v) {this._isDoubleFirst = v}
     //server output, type: Season
     get season() {return this._season}
     set season(v) {this._season = v}
@@ -1933,7 +1936,7 @@ exports.Sight = Sight;
 exports.OneCityLog = OneCityLog;
 exports.SelfRank = SelfRank;
 exports.Event = Event;
-exports.OneLog = OneLog;
+exports.OneDayLog = OneDayLog;
 exports.Specialty = Specialty;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.CityPostcardInfo = CityPostcardInfo;
