@@ -126,6 +126,7 @@ class TravelService extends Service {
         }
         let flyRecord = {
             uid: ui.uid,      //用户ID
+            fid:"fly"+new Date(),
             from: visit ? visit.cid : "初次旅行",           //出发地
             destination: cid,   //目的地
             ticketType: ttype,//机票类型
