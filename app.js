@@ -1,5 +1,6 @@
 const travelConfig = require("./sheets/travel");
 const utils = require("./app/utils/utils");
+
 module.exports = app => {
     app.beforeStart(async () => {
         // 应用会等待这个函数执行完成才启动
@@ -21,6 +22,17 @@ module.exports = app => {
     //     scenicspot:'城隍庙',
     //     createDate:new Date()
     // })
+
+
+        app.kue.process('email', (job, done) => {
+            console.log(job.data.to, done);
+        });
+
+        app.kue.create('email', {
+            title: 'welcome email for justin'
+            , to: 'gdjyluxiaoyong@gmail.com'
+            , template: 'welcome-email'
+        }).save();
 
     });
 

@@ -44,5 +44,23 @@ module.exports = appInfo => {
     config.paymchid = "1494209122";
     config.noticeurl = "https://h5t.ddz2018.com/weChat/shopdone";
 
+    //事件队列
+    config.kue =  {
+        app : true,
+        agent : false,
+        client: {
+            queuePrefix: 'q',
+            redis: {         //建议这里改成一样配置不然每次要改2份麻烦死了
+                port: 6379,
+                host: '10.1.70.106',
+                auth: 'redis',
+                db: 1,
+                // see https://github.com/mranney/node_redis#rediscreateclient
+                options: {},
+            }
+        },
+        // clients: {}
+    };
+
     return config;
 };
