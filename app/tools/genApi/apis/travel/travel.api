@@ -12,14 +12,12 @@ class oneSpot {
 
 }
 
-//旅行记录
-class OneLog {
-    //景点时间的时间
+//当天某一城市游玩景点记录
+class OneDayLog {
+    //当天游玩最后一个景点的时间
     prop time:string
-    //租用汽车类型  0为未租用
-    prop rentCarType:number
-    //如果没有更改rentCarType,数据就放一起
-    prop scenicSpots:string[]
+    //当天游玩的景点
+    prop spots:string[]
 }
 
 class OneCityLog {
@@ -27,13 +25,14 @@ class OneCityLog {
     prop city:string
     //达到该城市的时间
     prop time:string
-    //所有城市每天游玩的记录
-    prop cityLogs: OneLog[]
+    //该城市所有游玩的记录
+    prop scenicSpots: OneDayLog[]
 }
 
 //旅行足迹 按时间排序
 class Log {
     //游玩的具体年份 eg：2018
+    //如果给了当年的最后一条数据,则把当年的年份返回,如果不是最后一条数据则不返回
     prop year:string
     prop oneCityLog:OneCityLog[]
 }
@@ -66,7 +65,6 @@ api TravelLog {
     optional page:number
     //获取日志的长度，默认为20
     optional length:number
-
     //旅行日志
     output allLogs:Log[]
 }
