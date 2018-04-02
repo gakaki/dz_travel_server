@@ -50,10 +50,12 @@ class {.name}{?.parent} extends {.parent}{/.parent} {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     {~rb}{/isProto}
 {/server}
 }

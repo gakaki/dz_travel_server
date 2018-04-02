@@ -689,6 +689,7 @@ class Base {
         else {
             res.ui=ui;
         }
+        return res;
     }
    parse(data, serverSide=false) {
         Object.assign(this, data);
@@ -794,10 +795,12 @@ class DetailPostcard extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class StartGame extends Base {
@@ -836,10 +839,12 @@ class StartGame extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class viewpointInfo extends Base {
@@ -882,10 +887,12 @@ class viewpointInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class Photograph extends Base {
@@ -912,10 +919,12 @@ class Photograph extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class WsReceive extends Base {
@@ -980,10 +989,12 @@ class RankInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class IndexInfo extends Base {
@@ -1034,10 +1045,12 @@ class IndexInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class RentProp extends Base {
@@ -1064,10 +1077,12 @@ class RentProp extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class TraveledPlaces extends Base {
@@ -1098,10 +1113,12 @@ class TraveledPlaces extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class mySpe extends Specialty {
@@ -1140,10 +1157,12 @@ class SpeList extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class Spe extends Base {
@@ -1170,10 +1189,12 @@ class Spe extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class TravelLog extends Base {
@@ -1208,10 +1229,12 @@ class TravelLog extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class GetUserLocation extends Base {
@@ -1242,10 +1265,12 @@ class GetUserLocation extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class TravelFootprint extends Base {
@@ -1292,10 +1317,12 @@ class TravelFootprint extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class ToSign extends Base {
@@ -1318,10 +1345,12 @@ class ToSign extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class SignInfo extends Base {
@@ -1348,10 +1377,12 @@ class SignInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class LookTicket extends Base {
@@ -1374,10 +1405,12 @@ class LookTicket extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class DetailLiveMessage extends OneBriefMessage {
@@ -1415,10 +1448,12 @@ class MyPostcards extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class CityPostcards extends Base {
@@ -1449,10 +1484,12 @@ class CityPostcards extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class FlyInfo extends Base {
@@ -1515,10 +1552,12 @@ class FlyInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class SendPostcard extends Base {
@@ -1545,10 +1584,12 @@ class SendPostcard extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class ModifyRealInfo extends Base {
@@ -1587,10 +1628,12 @@ class ModifyRealInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class GetRealInfo extends Base {
@@ -1613,10 +1656,12 @@ class GetRealInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class PostList extends Base {
@@ -1655,10 +1700,12 @@ class PostList extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class CommentPost extends Base {
@@ -1689,10 +1736,12 @@ class CommentPost extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class PostComments extends Base {
@@ -1747,10 +1796,12 @@ class PostComments extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class ThumbComment extends Base {
@@ -1761,9 +1812,10 @@ class ThumbComment extends Base {
         this._commentId = null;
         this._type = null;
         this._thumbs = null;
+        this._haslike = null;
         this.requireFileds = ["commentId","type"];
         this.reqFields = ["commentId","type"];
-        this.resFields = ["thumbs"];
+        this.resFields = ["thumbs","haslike"];
     }
     //client input, require, type: string//评论id
     get commentId() {return this._commentId}
@@ -1774,6 +1826,9 @@ class ThumbComment extends Base {
     //server output, type: number//点赞数
     get thumbs() {return this._thumbs}
     set thumbs(v) {this._thumbs = v}
+    //server output, type: boolean//是否点赞
+    get haslike() {return this._haslike}
+    set haslike(v) {this._haslike = v}
     static Init(ctx, checkLogin = false) {
         let o = new ThumbComment();
         o.ctx = ctx;
@@ -1781,10 +1836,12 @@ class ThumbComment extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class PlayerInfo extends Base {
@@ -1811,10 +1868,12 @@ class PlayerInfo extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class GetMessage extends Base {
@@ -1849,10 +1908,12 @@ class GetMessage extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class CheckMsgCnt extends Base {
@@ -1875,10 +1936,12 @@ class CheckMsgCnt extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class ClearMsg extends Base {
@@ -1901,10 +1964,12 @@ class ClearMsg extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class UserInfo extends UserBriefInfo {
@@ -1973,10 +2038,12 @@ class ExchangeShop extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class IntegralShop extends Base {
@@ -2007,10 +2074,12 @@ class IntegralShop extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class ExchangeDetail extends Base {
@@ -2037,10 +2106,12 @@ class ExchangeDetail extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class CityListPer extends Base {
@@ -2063,10 +2134,12 @@ class CityListPer extends Base {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class SysMessage extends WsReceive {
@@ -2101,10 +2174,12 @@ class SysMessage extends WsReceive {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class SellSpe extends Spe {
@@ -2127,10 +2202,12 @@ class SellSpe extends Spe {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class TestSend extends WsSend {
@@ -2153,10 +2230,12 @@ class TestSend extends WsSend {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class BuySpe extends Spe {
@@ -2183,10 +2262,12 @@ class BuySpe extends Spe {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 class RechargeRankInfo extends RankInfo {
@@ -2209,10 +2290,12 @@ class RechargeRankInfo extends RankInfo {
         o.parse(ctx.query, true);
         if (checkLogin) {
             return new Promise(resolve => {
-                Base.checkLogin(o).then(resolve);
+                Base.checkLogin(o).then(()=>{resolve(o)});
             });
         }
-        return o;
+        else {
+            return o;
+        }
     }
 }
 //-------------exports---------------

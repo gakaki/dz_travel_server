@@ -216,6 +216,7 @@ class Base{
         else {
             res.ui = ui;
         }
+        return res;
     }
 
     func client get reqData() {
