@@ -102,6 +102,7 @@ class TravelService extends Service {
         };
         //使用赠送机票
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
+            this.logger.info("使用赠送机票");
             await this.ctx.model.TravelModel.FlyTicket.update({
                 uid: ui.uid,
                 id:info.tid,

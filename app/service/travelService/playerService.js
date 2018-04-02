@@ -106,7 +106,7 @@ class PlayerService extends Service {
     }
 
     async showFlyTicket(info,ui){
-        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid});
+        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid,isUse:false});
         let flyTickets = [];
         this.logger.info("赠送机票 "+ tickets)
         for(let ticket of tickets){
