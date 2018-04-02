@@ -194,6 +194,7 @@ class PlayerService extends Service {
         let addr = await this.ctx.model.TravelModel.Address.findOne({uid: ui.uid});
         if (!addr) {
             res.code = apis.Code.NONE_ADDRESS;
+            return;
         }
         res.nickName = addr.name;
         res.tel = addr.tel;
