@@ -2,6 +2,7 @@ module.exports = app => {
     const mongoose = app.mongoose;
 
     const Address = new mongoose.Schema({
+        uid:{type:String},
         id: {type: String}, //地址id
         isDefault: {type: Boolean}, //是否为默认地址
         name: {type: String}, //姓名

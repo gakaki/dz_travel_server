@@ -46,6 +46,7 @@ module.exports = app => {
     router.get('/integralShop/integralshop', controller.travelController.integralShopController.integralshop);
     router.get('/integralShop/exchangedetail', controller.travelController.integralShopController.exchangedetail);
 
-
+    router.get('/post/postlist', controller.travelController.strategyController.gettravelstrategy);
+    router.get('/post/postcomments', controller.travelController.strategyController.getcomments);
 
 };

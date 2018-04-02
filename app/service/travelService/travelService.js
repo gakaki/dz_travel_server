@@ -71,7 +71,9 @@ class TravelService extends Service {
             info.doubleCost = dcost;
         } else if (info.type == apis.TicketType.SINGLEPRESENT) {
             info.cost = 0;
+            info.doubleCost = dcost;
         }else if(info.type == apis.TicketType.DOUBLEPRESENT){
+            info.cost = cost;
             info.doubleCost = 0;
         }
         if (info.type == apis.TicketType.RANDOMBUY) {
@@ -100,14 +102,10 @@ class TravelService extends Service {
         };
         //使用赠送机票
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
-            let flyType = info.type.indexOf("2") != -1 ? 2 : 1;
             await this.ctx.model.TravelModel.FlyTicket.update({
                 uid: ui.uid,
-                isGive: 1,
-                flyType: flyType,
-                cid: info.cid,
-                number: {$gt: 0}
-            }, {$inc: {number: -1}});
+                id:info.tid,
+            },{$set:{isUse:true}});
 
         }
         //道具更新
@@ -180,7 +178,7 @@ class TravelService extends Service {
 
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
-        let limit = info.length ? Number(info.length) : 20;
+        let limit = info.length ? Number(info.length) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
         let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             {$match: {"uid": ui.uid}},
             {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid",date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } },scenicSpots:{$push:{spots:"$scenicspot"}}}},
@@ -211,6 +209,8 @@ class TravelService extends Service {
             }
             outLog.push(onelog);
         }
+
+
         //
         // let sortList = utils.multisort(outLog,
         //     (a, b) => new Date(a["time"]) - new Date(b["time"]),

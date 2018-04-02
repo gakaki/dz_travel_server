@@ -110,6 +110,7 @@ class PlayerService extends Service {
         let flyTickets = [];
         for(let ticket of tickets){
             let flyTicket ={
+                id:ticket.tid,
                 cid : ticket.cid,
                 type : ticket.flyType
             };
@@ -120,7 +121,7 @@ class PlayerService extends Service {
 
     async getMessage(info,ui,type){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.limit)?Number(info.limit):20;
+        let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
         let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
         let messages = [];
         for(let msg of msgs){
@@ -158,10 +159,11 @@ class PlayerService extends Service {
        //收货地址单独存一份，以便于以后扩展为多个收货地址
        await this.ctx.model.TravelModel.Address.update({uid: ui.uid}, {
            $set: {
+               name: info.name,
                tel: info.phone,
                addr: info.address
            }
-       });
+       },{upsert:true});
 
         info.realInfo = {
             uid: ui.uid,
