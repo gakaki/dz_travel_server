@@ -107,7 +107,7 @@ api ModifyRealInfo{
     //用户手机号
     require phone:string
     //用户地址
-    require adress:string
+    require address:string
 
     //玩家收货信息
     output realInfo:RealInfo
