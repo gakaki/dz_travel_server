@@ -45,12 +45,11 @@ class StrategyService extends Service {
            }
            posts.push(tsinfo);
        }
-
        info.posts = posts;
    }
 
 
-   async getComments(info,ui){
+   async getComments(info){
        let page = info.page ? Number(info.page) : 1;
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
        let comments = await this.ctx.model.TravelModel.Comment.find({cid:info.cityId,type:Number(info.type),travel_tips:info.postId}).skip((page-1)*limit).limit(limit);
@@ -64,7 +63,6 @@ class StrategyService extends Service {
            info.img =travelConfig.Speciality.Get(info.postId).picture;
        }
 
-       this.logger.info(comments);
        for(let comment of comments){
            let outcomment = {
             commentId:comment.comid,//评论id
@@ -74,7 +72,7 @@ class StrategyService extends Service {
             time:comment.createDate.format("yyyy-MM-dd")//创建时间
            };
            let user = await this.ctx.model.PublicModel.User.findOne({uid:comment.uid});
-           let like = await this.ctx.model.TravelModel.LikeRecord.findOne({uid:ui.uid,comid:comment.comid});
+           let like = await this.ctx.model.TravelModel.LikeRecord.findOne({uid:info.ui.uid,comid:comment.comid});
            outcomment.haslike = !!like;
            outcomment.user={
                uid:user.uid,
@@ -84,7 +82,26 @@ class StrategyService extends Service {
            outcomments.push(outcomment);
        }
 
-       info.comments=comments;
+       info.comments=outcomments;
+   }
+
+   async sendComment(info){
+       await this.ctx.model.TravelModel.Comment.create({
+           uid:info.ui.uid,
+           cid:info.cid,
+           type:Number(info.type),//1 攻略 2 特产
+           travel_tips:info.postId, //攻略特产id
+           comid:"com"+new Date().getTime(), //评论id
+           context:info.content, //内容
+           grade:info.score,  //打分
+           createDate:new Date(),
+       })
+   }
+
+
+   async giveThumbsUp(info){
+       await this.ctx.model.TravelModel.Comment.update({comid:info.commentId},{$inc:{likes:1}});
+       await this.ctx.model.TravelModel.LikeRecord.update({uid:info.ui.uid, comid:info.commentId,},{uid:info.ui.uid, comid:info.commentId,createDate:new Date()},{upsert:true});
    }
 }
 

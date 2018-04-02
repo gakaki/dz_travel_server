@@ -19,7 +19,7 @@ class UserController extends Controller {
             return;
         }
         let rs = await this.service.publicService.userService.login(uid,_sid,appName,JSON.parse(info));
-        ctx.logger.info(rs);
+    //    ctx.logger.info(rs);
         if (rs.info != null) {
             result.code = 0;
             result.data.info = rs.info;

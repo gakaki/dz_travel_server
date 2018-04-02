@@ -48,5 +48,7 @@ module.exports = app => {
 
     router.get('/post/postlist', controller.travelController.strategyController.gettravelstrategy);
     router.get('/post/postcomments', controller.travelController.strategyController.getcomments);
+    router.get('/post/thumbcomment', controller.travelController.strategyController.givethumbsup);
+    router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
 };
