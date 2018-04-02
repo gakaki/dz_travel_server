@@ -1,9 +1,9 @@
-import ../base.api
-import ./player.api
+//积分商城相关
 
+//他人兑换记录
 class ExchangeShopDetail {
     //用户昵称
-    prop nickname:string
+    prop nickName:string
     //用户头像
     prop avatarUrl:string
     //兑换的商品名称
@@ -44,14 +44,16 @@ api ExchangeDetail {
 api ExchangeShop {
     //兑换的商品id
     require id:string
-    //兑换该商品需要的积分
-    require integral:string
+    //收件人电话
+    rquire tel:string
+    //邮寄地址
+    require addr:string
 }
 
 //获取玩家地址
 api GetUserLocation {
     //玩家昵称
-    output nickname:string
+    output nickName:string
     //玩家电话
     output tel:string
     //玩家地址

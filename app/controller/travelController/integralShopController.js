@@ -3,21 +3,22 @@ const apis = require('../../../apis/travel');
 
 module.exports = class IntegralShopController extends Controller {
     async integralshop(ctx) {
-        let info = apis.IntegralShop.Init(ctx);
-        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
-        if(!ui){
-            this.logger.info("用户不存在");
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
+        let info = apis.IntegralShop.Init(ctx, true);
+        if (!info.ui){
             return;
         }
 
-        await ctx.service.travelService.integralService.getInfo(info, ui);
+        await ctx.service.travelService.integralService.getInfo(info, info.ui);
 
         info.submit();
     }
 
     async exchangeshop(ctx) {
+        let info = apis.ExchangeShop.Init(ctx, true);
+        if (!info.ui){
+            return;
+        }
 
+        await ctx.service.travelService.integralService.exchange(info, info.ui);
     }
 }

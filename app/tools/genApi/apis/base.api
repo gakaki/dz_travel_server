@@ -67,6 +67,10 @@ enum Code {
     const NEED_COUPON = -170
     //金额不足
     const NEED_MONEY = -171
+    //积分不足
+    const NEED_INTEGRAL = -172
+    //需要填写地址
+    const NEED_ADDRESS = -173
     //已经签到了
     const HAS_SIGNIN = -144
     const UNKNOWN = -1000
@@ -183,6 +187,9 @@ class Base{
     }
 
     func server submit() {
+        if (this._submited) {
+            return;
+        }
         let tmp = {};
         tmp.action = this.action;
         this.resFields.forEach(k => {
@@ -190,6 +197,25 @@ class Base{
         });
 
         this.ctx.body = {data: tmp, code: this.code};
+        this._submited = true;
+    }
+
+    func server static async checkLogin(res) {
+        if (!res.sid) {
+            res.code = Code.USER_NOT_FOUND;
+            res.submit();
+            return;
+        }
+
+        let ui = await res.ctx.service.publicService.userService.findUserBySid(res.sid);
+        if(!ui){
+            res.ctx.logger.info("用户不存在");
+            res.code = Code.USER_NOT_FOUND;
+            res.submit();
+        }
+        else {
+            res.ui = ui;
+        }
     }
 
     func client get reqData() {
