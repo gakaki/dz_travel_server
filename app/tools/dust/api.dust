@@ -43,11 +43,12 @@ class {.name}{?.parent} extends {.parent}{/.parent} {
 {?server}{^.isClient}{.contentStr|s}{/.isClient}{:else}{^.isServer}{.contentStr|s}{/.isServer}{/server}
 {/.funcs}
 {?server}{?isProto}
-    static Init(ctx) {~lb}
+    static Init(ctx, checkLogin = false) {~lb}
         let o = new {.name}();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        checkLogin && Base.checkLogin(o);
         return o;
     {~rb}{/isProto}
 {/server}

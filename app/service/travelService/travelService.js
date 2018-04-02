@@ -116,21 +116,26 @@ class TravelService extends Service {
             ["items." + travelConfig.Item.GOLD]: {$gt: 0}
         }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui, cost);
-        //飞行消耗为0 ，为首次登陆
-        if (!Number(info.cost) && (ui.isFirst || ui.isSingleFirst || ui.isDoubleFirst)) {
+        if (ui.isFirst){
             this.logger.info("首次飞行");
-            if (ui.isFirst){
-                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
-            }
-            if (fid && ui.isDoubleFirst) {
-                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isDoubleFirst: false}});
-            } else if (!fid && ui.isSingleFirst) {
-                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isSingleFirst: false}});
-            }
+            await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
         }
+        //飞行消耗为0 ，为免费飞行或者使用赠送机票
+        if (!Number(info.cost) && (ui.isSingleFirst || ui.isDoubleFirst)) {
+            //使用的不是免费机票
+            if (info.type.indexOf("0") != -1 ) {
+                if (fid && ui.isDoubleFirst) {
+                    await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isDoubleFirst: false}});
+                } else if (!fid && ui.isSingleFirst) {
+                    await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isSingleFirst: false}});
+                }
+            }
+
+        }
+        let flyid = "fly"+new Date().getTime();
         let flyRecord = {
             uid: ui.uid,      //用户ID
-            fid:"fly"+new Date().getTime(),
+            fid:flyid,
             from: visit ? visit.cid : "初次旅行",           //出发地
             destination: cid,   //目的地
             ticketType: ttype,//机票类型
@@ -144,6 +149,7 @@ class TravelService extends Service {
         }
         let currentCity = {
             uid: ui.uid,
+            fid:flyid,
             cid: cid,
             rentItems: rentItems
         };
@@ -175,13 +181,14 @@ class TravelService extends Service {
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
         let limit = info.length ? Number(info.length) : 20;
-        let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
+        let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             {$match: {"uid": ui.uid}},
             {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid",date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } },scenicSpots:{$push:{spots:"$scenicspot"}}}},
+            {$sort:{"_id.date":1}},
             {$group:{_id:{year: "$_id.year",fid:"$_id.fid" },scenicSpots:{$push:{time:"$_id.date",spots:"$scenicSpots"}}}},
+            {$sort:{"_id.fid":1}},
             {$project:{_id:0,year:"$_id.year",fid:"$_id.fid",scenicSpots:1}},
-
-        ]).skip((page - 1) * limit).limit(limit);
+        ]).sort({year:1}).skip((page - 1) * limit).limit(limit);
         let outLog = [];
         let year = new Date().getFullYear();
         for(let i = 0;i<allLogs.length;i++){
@@ -189,7 +196,8 @@ class TravelService extends Service {
             let onelog = {
                 city: travelConfig.City.Get(fly.destination).city,
                 time: fly.createDate.format("yyyy-MM-dd"),
-                scenicSpots:allLogs[i].scenicSpots
+                scenicSpots:allLogs[i].scenicSpots,
+               // year : allLogs[i].year,
             };
 
             if(i==0){
@@ -203,11 +211,14 @@ class TravelService extends Service {
             }
             outLog.push(onelog);
         }
-        let sortList = utils.multisort(outLog,
-            (a, b) => new Date(a["time"]) - new Date(b["time"]),
-        );
+        //
+        // let sortList = utils.multisort(outLog,
+        //     (a, b) => new Date(a["time"]) - new Date(b["time"]),
+        // );
 
-        info.allLogs = sortList;
+
+
+        info.allLogs = outLog;
     }
 
     async getCityCompletionList(info,ui){

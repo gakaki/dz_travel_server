@@ -1,6 +1,8 @@
 //积分相关数据逻辑
 const Service = require('egg').Service;
 const sheets = require('../../../sheets/travel');
+const apis = require('../../../apis/travel')
+
 
 class IntegralService extends Service {
     async getInfo(res, ui) {
@@ -14,7 +16,10 @@ class IntegralService extends Service {
 
     async exchangedetail(res) {
         let pageLimit = 6 //sheets.Parameter.Get(sheets.Parameter.xxxxx); //每页数据，等待策划配表
-        let list = await this.ctx.model.TravelModel.ExchangeRecord.find().sort('-_id').skip(pageLimit * res.page).limit(pageLimit);//改为aggregate.....
+        let list = await this.ctx.model.TravelModel.ExchangeRecord.aggregate()
+            .skip(pageLimit * res.page)
+            .limit(pageLimit)
+            .group({nickName: "$nickName", avatarUrl: "$avatar",shopName: "$exName" });
         res.exchangeDetail = list;
     }
 
@@ -76,8 +81,41 @@ class IntegralService extends Service {
     }
 
     //兑换物品
-    async exchange(id) {
+    async exchange(res, ui) {
+        this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
+        if (!ui.tel) {
+            res.code = apis.Code.NEED_ADDRESS;
+            this.logger.info('未填地址，返回');
+            return;
+        }
 
+        let item = sheets.Integralshop.Get(res.id);
+        if (!item) {
+            res.code = apis.Code.PARAMETER_NOT_MATCH;
+            this.logger.info('找不到要兑换的物品，返回');
+            return;
+        }
+
+        if (ui.items[sheets.Item.POINT] < item.integral) {
+            res.code = apis.Code.NEED_INTEGRAL;
+            this.logger.info('积分不足，返回');
+            return;
+        }
+
+        await this.ctx.model.TravelModel.ExchangeRecord.create({
+            uid: ui.uid,
+            nickName: ui.nickName,
+            avatar: ui.avatarUrl,
+            exId: res.id,
+            exName: item.name,
+            integral: item.integral,
+            tel: res.tel,
+            addr: res.addr,
+            sent: false,
+            createDate: new Date()
+        });
+
+        this.logger.info(`用户${ui.uid}姓名${ui.nickName}成功兑换了物品${item.name}`);
     }
 }
 

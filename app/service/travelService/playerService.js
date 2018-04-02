@@ -177,9 +177,10 @@ class PlayerService extends Service {
     async showMyPostcards(info,ui) {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
+          {$sort:{createDate:-1}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}},pcards:{$push:{ptid:"$ptid",createDate:"$createDate"}}}},
           {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1,pcards:1}}
-            ]).sort({"pcards.createDate":-1});
+            ]);
       let postcardInfos = [];
       for(let postcard of postcards){
           let citys = postcard.citys;
@@ -202,9 +203,10 @@ class PlayerService extends Service {
 
         let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
             {$match: {uid: ui.uid,province:info.province}},
+            {$sort:{createDate:-1}},
             {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
             {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
-        ]).sort({cid:1,"postcard.createDate":-1});
+        ]);
 
         let postcardInfos = [];
         for(let postcard of postcards){
@@ -260,7 +262,7 @@ class PlayerService extends Service {
 
     async showDetailPostcard(info,ui){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.messageLength)?Number(info.messageLength):99;
+        let limit = Number(info.messageLength)?Number(info.messageLength):travelConfig.Parameter.Get(travelConfig.Parameter.MAXMESSAGE).value;
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.postid = postcard.ptid;
