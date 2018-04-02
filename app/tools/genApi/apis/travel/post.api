@@ -41,6 +41,7 @@ api PostList {
 
 //评论景点Or特产
 api CommentPost {
+    require cityId:string//城市id
     require postId:string//景点或特产id
     require content:string//评论内容
     reruire score:number//评分
@@ -64,7 +65,6 @@ api PostComments {
 //点赞评论
 api ThumbComment {
     require commentId:string//评论id
-    require type:PostType//帖子类型：景点or特产
 
     output thumbs:number//点赞数
     output haslike:boolean//是否点赞

@@ -103,7 +103,7 @@ class TravelController extends Controller {
             info.submit();
             return
         }
-        
+
         await this.service.travelService.travelService.visit(info,ui,visit);
 
         info.submit();

@@ -1713,13 +1713,17 @@ class CommentPost extends Base {
         super();
         this.action = 'post.commentpost';
     
+        this._cityId = null;
         this._postId = null;
         this._content = null;
         this._type = null;
-        this.requireFileds = ["postId","content","type"];
-        this.reqFields = ["postId","content","type"];
+        this.requireFileds = ["cityId","postId","content","type"];
+        this.reqFields = ["cityId","postId","content","type"];
         this.resFields = [];
     }
+    //client input, require, type: string//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
     //client input, require, type: string//景点或特产id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
@@ -1810,19 +1814,15 @@ class ThumbComment extends Base {
         this.action = 'post.thumbcomment';
     
         this._commentId = null;
-        this._type = null;
         this._thumbs = null;
         this._haslike = null;
-        this.requireFileds = ["commentId","type"];
-        this.reqFields = ["commentId","type"];
+        this.requireFileds = ["commentId"];
+        this.reqFields = ["commentId"];
         this.resFields = ["thumbs","haslike"];
     }
     //client input, require, type: string//评论id
     get commentId() {return this._commentId}
     set commentId(v) {this._commentId = v}
-    //client input, require, type: PostType//帖子类型：景点or特产
-    get type() {return this._type}
-    set type(v) {this._type = v}
     //server output, type: number//点赞数
     get thumbs() {return this._thumbs}
     set thumbs(v) {this._thumbs = v}
