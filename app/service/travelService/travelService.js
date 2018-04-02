@@ -181,14 +181,14 @@ class TravelService extends Service {
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
         let limit = info.length ? Number(info.length) : 20;
-        let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
+        let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             {$match: {"uid": ui.uid}},
             {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid",date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } },scenicSpots:{$push:{spots:"$scenicspot"}}}},
             {$sort:{"_id.date":1}},
             {$group:{_id:{year: "$_id.year",fid:"$_id.fid" },scenicSpots:{$push:{time:"$_id.date",spots:"$scenicSpots"}}}},
             {$sort:{"_id.fid":1}},
             {$project:{_id:0,year:"$_id.year",fid:"$_id.fid",scenicSpots:1}},
-        ]).skip((page - 1) * limit).limit(limit);
+        ]).sort({year:1}).skip((page - 1) * limit).limit(limit);
         let outLog = [];
         let year = new Date().getFullYear();
         for(let i = 0;i<allLogs.length;i++){
@@ -211,14 +211,14 @@ class TravelService extends Service {
             }
             outLog.push(onelog);
         }
+        //
+        // let sortList = utils.multisort(outLog,
+        //     (a, b) => new Date(a["time"]) - new Date(b["time"]),
+        // );
 
-        let sortList = utils.multisort(outLog,
-            (a, b) => new Date(a["time"]) - new Date(b["time"]),
-        );
 
 
-
-        info.allLogs = sortList;
+        info.allLogs = outLog;
     }
 
     async getCityCompletionList(info,ui){
