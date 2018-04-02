@@ -7,15 +7,18 @@ module.exports = appInfo => {
         // url: 'mongodb://admin:h5group@10.1.70.106:27017/travel',
         url: 'mongodb://127.0.0.1:27017/travel',
     };
+
     config.env = "local";
 
-    config.redis = {
-        client: {
+    const config_redis = {
             host: '10.1.70.106',
-            port: '6379',
+            port: 6379,
             password: 'redis',
             db: '0',
-        },
+    };
+
+    config.redis = {
+        client: config_redis
     };
 
     config.io = {
@@ -25,15 +28,10 @@ module.exports = appInfo => {
                 packetMiddleware: [],
             },
         },
-        redis: {
-            host: '10.1.70.106',
-            port: '6379',
-            password: 'redis',
-            db: '0',
-        },
+        redis: config_redis
     };
 
-
+    // ignoreJSON
     config.appid = "wx69595aa92bd81b00";
     config.appsecret = "5ab876c69ee81a4ca83e477ac1905008";
     config.pubid = "wx4224663bb4f0ed80";
@@ -50,15 +48,11 @@ module.exports = appInfo => {
         agent : false,
         client: {
             queuePrefix: 'q',
-            redis: {         //建议这里改成一样配置不然每次要改2份麻烦死了
-                port: 6379,
-                host: '10.1.70.106',
-                auth: 'redis',
-                password: 'redis',
-                db: 1,
-                // see https://github.com/mranney/node_redis#rediscreateclient
-                options: {},
-            }
+            redis: Object.assign( {},config_redis,{
+                    auth: 'redis',
+                    db: 1,
+                    options: {},
+                })
         },
         // clients: {}
     };

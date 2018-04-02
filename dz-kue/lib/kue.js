@@ -17,17 +17,15 @@ module.exports = app => {
 
 function createDelayedJob(config, app) {
   const { redis } = config;
-  assert(redis && redis.host && redis.port && config.queuePrefix);
+  assert(redis && redis.host && redis.port && config.prefix);
   
+  //这里的config其实是跟config.default.js的
+  const queue = kue.createQueue(config);
+  console.log("dz kue 的插件配置 redis config is ", config);
 
   kue.app.listen(5555);
 
-  const queue = kue.createQueue({
-    prefix: config.queuePrefix,
-    redis
-  });
-  
-  console.log("dz kue 的插件配置 redis config is ", redis);
+
   
   app.beforeStart(async () => {
       app.coreLogger.info('[egg-kue] instance begin start');

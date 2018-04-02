@@ -9,7 +9,7 @@ exports.kue = {
 	app : true,
 	agent : false,
 	client: {
-		queuePrefix: 'q',
+        prefix: 'q',
         redis: {
             port: 6379,
             host: '10.1.70.106',
