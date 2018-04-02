@@ -8,8 +8,8 @@ class {.name}{
 {/enums}
 //------------classes--------------
 {#classes}
-class {.name} {?.parent}extends {.parent}{/.parent} {
-    constructor(){~lb}
+class {.name}{?.parent} extends {.parent}{/.parent} {
+    constructor() {~lb}
     {?.parent}    super();{/.parent}{?.isProto}
         this.action = '{.action}';{/.isProto}
     {?server}{#.propsS}

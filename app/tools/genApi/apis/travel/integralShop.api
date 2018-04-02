@@ -4,8 +4,21 @@ import ./player.api
 class ExchangeShopDetail {
     //用户昵称
     prop nickname:string
+    //用户头像
+    prop avatarUrl:string
     //兑换的商品名称
     prop shopName:string
+}
+class Shop {
+    //该商品id
+    prop id:string
+    //商品图片地址
+    prop url:string
+    //商品名
+    prop name:string
+    //兑换该商品所需积分
+    prop integral:string
+
 }
 
 //积分商店信息
@@ -14,6 +27,15 @@ api IntegralShop {
     output integral:number
     //个人积分排行
     output rank:number
+    //兑换的商品
+    output shops:Shop[]
+
+}
+
+//商店兑换物品详情
+api ExchangeDetail {
+    //第几页
+    require page:number
     //兑换的商品详情
     output exchangeDetail:ExchangeShopDetail[]
 }
