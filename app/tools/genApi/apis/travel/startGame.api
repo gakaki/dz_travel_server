@@ -56,4 +56,6 @@ api StartGame{
     require cost:number
     //小伙伴uid
     optional partnerUid:string
+    //赠送机票id
+    optional tid:string
 }

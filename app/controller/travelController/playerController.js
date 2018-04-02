@@ -115,8 +115,8 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
-        this.logger.info("用户信息 ：名字 "+info.name +" 生日 ："+info.birthday+" 电话号码 ："+info.phone +" 地址： "+info.adress );
-        if(!info.name || !info.birthday || !info.phone || !info.adress){
+        this.logger.info("用户信息 ：名字 "+info.name +" 生日 ："+info.birthday+" 电话号码 ："+info.phone +" 地址： "+info.address );
+        if(!info.name || !info.birthday || !info.phone || !info.address){
             this.logger.info("用户信息不全");
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();

@@ -439,6 +439,9 @@ class TicketInfo {
         //prop type: string
         this.cid = null;
     
+        //prop type: string
+        this.tid = null;
+    
         //prop type: PresentTktType
         this.type = null;
     
@@ -475,12 +478,6 @@ class Comment {
     constructor() {
     
     
-        //prop type: string//帖子id
-        this.postId = null;
-    
-        //prop type: string//景点或特产图片url
-        this.img = null;
-    
         //prop type: UserBriefInfo//用户简单信息
         this.user = null;
     
@@ -495,6 +492,9 @@ class Comment {
     
         //prop type: number//点赞数
         this.thumbs = null;
+    
+        //prop type: boolean//是否已经点赞
+        this.haslike = null;
     
         //prop type: string//创建时间
         this.time = null;
@@ -809,8 +809,9 @@ class StartGame extends Base {
         this._cid = null;
         this._cost = null;
         this._partnerUid = null;
+        this._tid = null;
         this.requireFileds = ["type","cid","cost"];
-        this.reqFields = ["type","cid","cost","partnerUid"];
+        this.reqFields = ["type","cid","cost","partnerUid","tid"];
         this.resFields = [];
     }
     //client input, require, type: TicketType
@@ -825,6 +826,9 @@ class StartGame extends Base {
     //client input, optional, type: string
     get partnerUid() {return this._partnerUid}
     set partnerUid(v) {this._partnerUid = v}
+    //client input, optional, type: string
+    get tid() {return this._tid}
+    set tid(v) {this._tid = v}
     static Init(ctx, checkLogin = false) {
         let o = new StartGame();
         o.ctx = ctx;
@@ -1664,8 +1668,9 @@ class CommentPost extends Base {
     
         this._postId = null;
         this._content = null;
-        this.requireFileds = ["postId","content"];
-        this.reqFields = ["postId","content"];
+        this._type = null;
+        this.requireFileds = ["postId","content","type"];
+        this.reqFields = ["postId","content","type"];
         this.resFields = [];
     }
     //client input, require, type: string//景点或特产id
@@ -1674,6 +1679,9 @@ class CommentPost extends Base {
     //client input, require, type: string//评论内容
     get content() {return this._content}
     set content(v) {this._content = v}
+    //client input, require, type: PostType//帖子类型：景点or特产
+    get type() {return this._type}
+    set type(v) {this._type = v}
     static Init(ctx, checkLogin = false) {
         let o = new CommentPost();
         o.ctx = ctx;
@@ -1694,12 +1702,16 @@ class PostComments extends Base {
     
         this._cityId = null;
         this._postId = null;
-        this._lastCmtId = null;
+        this._page = null;
         this._limit = null;
+        this._type = null;
+        this._content = null;
+        this._name = null;
+        this._img = null;
         this._comments = null;
-        this.requireFileds = ["cityId","postId","lastCmtId","limit"];
-        this.reqFields = ["cityId","postId","lastCmtId","limit"];
-        this.resFields = ["comments"];
+        this.requireFileds = ["cityId","postId","page","limit","type"];
+        this.reqFields = ["cityId","postId","page","limit","type"];
+        this.resFields = ["content","name","img","comments"];
     }
     //client input, require, type: string//城市id
     get cityId() {return this._cityId}
@@ -1707,12 +1719,24 @@ class PostComments extends Base {
     //client input, require, type: string//帖子id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
-    //client input, require, type: number//上一屏最后comment的id
-    get lastCmtId() {return this._lastCmtId}
-    set lastCmtId(v) {this._lastCmtId = v}
+    //client input, require, type: number//页码
+    get page() {return this._page}
+    set page(v) {this._page = v}
     //client input, require, type: number//本次拉取的条数
     get limit() {return this._limit}
     set limit(v) {this._limit = v}
+    //client input, require, type: PostType//帖子类型：景点or特产
+    get type() {return this._type}
+    set type(v) {this._type = v}
+    //server output, type: string//帖子内容，为景点或特产的介绍
+    get content() {return this._content}
+    set content(v) {this._content = v}
+    //server output, type: 
+    get name() {return this._name}
+    set name(v) {this._name = v}
+    //server output, type: string//景点或特产图片url
+    get img() {return this._img}
+    set img(v) {this._img = v}
     //server output, type: Comment[]//该帖子下的评论
     get comments() {return this._comments}
     set comments(v) {this._comments = v}
@@ -1735,13 +1759,21 @@ class ThumbComment extends Base {
         this.action = 'post.thumbcomment';
     
         this._commentId = null;
-        this.requireFileds = ["commentId"];
-        this.reqFields = ["commentId"];
-        this.resFields = [];
+        this._type = null;
+        this._thumbs = null;
+        this.requireFileds = ["commentId","type"];
+        this.reqFields = ["commentId","type"];
+        this.resFields = ["thumbs"];
     }
     //client input, require, type: string//评论id
     get commentId() {return this._commentId}
     set commentId(v) {this._commentId = v}
+    //client input, require, type: PostType//帖子类型：景点or特产
+    get type() {return this._type}
+    set type(v) {this._type = v}
+    //server output, type: number//点赞数
+    get thumbs() {return this._thumbs}
+    set thumbs(v) {this._thumbs = v}
     static Init(ctx, checkLogin = false) {
         let o = new ThumbComment();
         o.ctx = ctx;
