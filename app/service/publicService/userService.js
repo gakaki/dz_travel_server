@@ -192,7 +192,7 @@ class UserService extends Service {
             items: items,
         });
 
-        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.USERGOLD}, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
