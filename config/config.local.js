@@ -54,6 +54,7 @@ module.exports = appInfo => {
                 port: 6379,
                 host: '10.1.70.106',
                 auth: 'redis',
+                password: 'redis',
                 db: 1,
                 // see https://github.com/mranney/node_redis#rediscreateclient
                 options: {},
