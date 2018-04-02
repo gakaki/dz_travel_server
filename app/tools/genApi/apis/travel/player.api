@@ -76,6 +76,8 @@ class RealInfo {
 class TicketInfo{
     //城市id
     prop cid:string
+    //机票id
+    prop tid:string
     //机票type
     prop type:PresentTktType
 }
