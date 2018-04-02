@@ -478,6 +478,9 @@ class Comment {
         //prop type: string//帖子id
         this.postId = null;
     
+        //prop type: string//景点或特产图片url
+        this.img = null;
+    
         //prop type: UserBriefInfo//用户简单信息
         this.user = null;
     
@@ -493,7 +496,7 @@ class Comment {
         //prop type: number//点赞数
         this.thumbs = null;
     
-        //prop type: number//创建时间
+        //prop type: string//创建时间
         this.time = null;
     
         
@@ -508,7 +511,7 @@ class Post {
         //prop type: string//城市id
         this.cityId = null;
     
-        //prop type: string//帖子id
+        //prop type: string//景点或特产id
         this.postId = null;
     
         //prop type: PostType//帖子类型：景点or特产
@@ -520,11 +523,11 @@ class Post {
         //prop type: 
         this.name = null;
     
-        //prop type: number//帖子的评论
-        this.score = null;
-    
         //prop type: string//景点或特产图片url
         this.img = null;
+    
+        //prop type: number//帖子的评分
+        this.score = null;
     
         //prop type: number//评论数
         this.commentNum = null;
@@ -1530,20 +1533,20 @@ class PostList extends Base {
         this.action = 'post.postlist';
     
         this._cityId = null;
-        this._lastPostId = null;
+        this._page = null;
         this._limit = null;
         this._type = null;
         this._posts = null;
-        this.requireFileds = ["cityId","lastPostId","limit","type"];
-        this.reqFields = ["cityId","lastPostId","limit","type"];
+        this.requireFileds = ["cityId","page","limit","type"];
+        this.reqFields = ["cityId","page","limit","type"];
         this.resFields = ["posts"];
     }
     //client input, require, type: string//城市id
     get cityId() {return this._cityId}
     set cityId(v) {this._cityId = v}
-    //client input, require, type: string//上一屏最后post的id
-    get lastPostId() {return this._lastPostId}
-    set lastPostId(v) {this._lastPostId = v}
+    //client input, require, type: number//页码
+    get page() {return this._page}
+    set page(v) {this._page = v}
     //client input, require, type: number//本次拉取的条数
     get limit() {return this._limit}
     set limit(v) {this._limit = v}
@@ -1573,7 +1576,7 @@ class CommentPost extends Base {
         this.reqFields = ["postId","content"];
         this.resFields = [];
     }
-    //client input, require, type: string//帖子id
+    //client input, require, type: string//景点或特产id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
     //client input, require, type: string//评论内容
