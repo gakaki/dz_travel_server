@@ -41,7 +41,7 @@ class IntegralService extends Service {
             await userModel.update({uid: uid}, {$set: {items: ui.items}});
             //update integral data
             let integralRM = this.ctx.model.TravelModel.IntegralRecord;
-            await integralRM.update({uid: uid}, {$set : {integral: all}});
+            await integralRM.update({uid: uid}, {$set : {integral: all, updateDate: new Date()}}, {upsert: true});
         }
     }
 
@@ -49,7 +49,7 @@ class IntegralService extends Service {
      * 更新一次积分榜单
      * */
     async updateRankList() {
-        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort('-integral').limit(sheets.Parameter.Get(sheets.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort('-integral, updateDate').limit(sheets.Parameter.Get(sheets.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
@@ -58,8 +58,9 @@ class IntegralService extends Service {
             o.createDate = date;
             return o;
         })
-        await this.ctx.model.TravelModel.IntegralRecord.remove();
-        await this.ctx.model.TravelModel.IntegralRecord.create(list);
+
+        await this.ctx.model.TravelModel.IntegralRank.remove();
+        await this.ctx.model.TravelModel.IntegralRank.create(list);
 
     }
 
