@@ -151,16 +151,24 @@ class PlayerService extends Service {
                 name: info.name,
                 birth: info.birthday,
                 mobile: info.phone,
-                address: info.adress
+                address: info.address
             }
         });
+
+       //收货地址单独存一份，以便于以后扩展为多个收货地址
+       await this.ctx.model.TravelModel.Address.update({uid: ui.uid}, {
+           $set: {
+               tel: info.phone,
+               addr: info.address
+           }
+       });
 
         info.realInfo = {
             uid: ui.uid,
             name: info.name,
             birthday: info.birthday,
             phoneNumber: info.phone,
-            adress: info.adress
+            address: info.address
         }
     }
 
@@ -171,9 +179,19 @@ class PlayerService extends Service {
             name: ui.name,
             birthday: ui.birth,
             phoneNumber: ui.mobile,
-            adress: ui.address
+            address: ui.address
         }
     }
+
+    //获取玩家的收货地址
+    async getMailAddress(res, ui) {
+        //当前只有一个收货地址，以后如果改为多个，记得改逻辑并返回默认收货地址
+        let addr = await this.ctx.model.TravelModel.Address.findOne({uid: ui.uid});
+        res.nickName = addr.name;
+        res.tel = addr.tel;
+        res.addr = addr.addr;
+    }
+
     async showMyPostcards(info,ui) {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},

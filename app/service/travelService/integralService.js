@@ -117,6 +117,8 @@ class IntegralService extends Service {
 
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}成功兑换了物品${item.name}`);
     }
+
+
 }
 
 module.exports = IntegralService;

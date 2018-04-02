@@ -425,7 +425,7 @@ class RealInfo {
         this.phoneNumber = null;
     
         //prop type: string
-        this.adress = null;
+        this.address = null;
     
         
         
