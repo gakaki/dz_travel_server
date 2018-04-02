@@ -10,12 +10,12 @@ class IntegralService extends Service {
         res.integral = ui.items[sheets.Item.POINT] || 0;
         //积分排名
         res.rank = await this.getUserRank(ui.uid);
-        //本期积分商店售卖的物品
-        // res.shops = sheets.xxx;//暂时没配。。。
+        //本期积分商店售卖的物品,配置在数据库中
+        res.shops = await this.ctx.model.TravelModel.ExchangeItem.find();
     }
 
-    async exchangedetail(res) {
-        let pageLimit = 6 //sheets.Parameter.Get(sheets.Parameter.xxxxx); //每页数据，等待策划配表
+    async exchangeDetail(res) {
+        const pageLimit = 6;// 每页数据
         let list = await this.ctx.model.TravelModel.ExchangeRecord.aggregate()
             .skip(pageLimit * res.page)
             .limit(pageLimit)

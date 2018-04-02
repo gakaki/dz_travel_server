@@ -9,6 +9,13 @@ module.exports = class IntegralShopController extends Controller {
         info.submit();
     }
 
+    async exchangedetail(ctx) {
+        let info = await apis.ExchangeDetail.Init(ctx, true);
+
+        await ctx.service.travelService.integralService.exchangeDetail(info);
+        info.submit();
+    }
+
     async exchangeshop(ctx) {
         let info = await apis.ExchangeShop.Init(ctx, true);
 

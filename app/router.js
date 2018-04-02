@@ -41,5 +41,11 @@ module.exports = app => {
     router.get('/city/citylistper', controller.travelController.travelController.getcitycompletionlist);
 
 
+    router.get('/integralShop/getuserlocation', controller.travelController.integralShopController.getuserlocation);
+    router.get('/integralShop/exchangeshop', controller.travelController.integralShopController.exchangeshop);
+    router.get('/integralShop/integralshop', controller.travelController.integralShopController.integralshop);
+    router.get('/integralShop/exchangedetail', controller.travelController.integralShopController.exchangedetail);
+
+
 
 };
