@@ -1,5 +1,5 @@
-const travelConfig = require("./sheets/travel");
-const utils = require("./app/utils/utils");
+const travelConfig  = require("./sheets/travel");
+const utils         = require("./app/utils/utils");
 
 module.exports = app => {
     app.beforeStart(async () => {
@@ -25,7 +25,7 @@ module.exports = app => {
 
 
         app.kue.process('email', (job, done) => {
-            console.log(job.data.to, done);
+            console.log(job.data.to);
         });
 
         app.kue.create('email', {

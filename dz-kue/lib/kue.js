@@ -19,10 +19,15 @@ function createDelayedJob(config, app) {
   const { redis } = config;
   assert(redis && redis.host && redis.port && config.queuePrefix);
 
+  kue.app.listen(5555);
+
   const queue = kue.createQueue({
     prefix: config.queuePrefix,
     redis,
   });
+
+  
+
   app.beforeStart(async () => {
       app.coreLogger.info('[egg-kue] instance begin start');
       try {
