@@ -86,7 +86,7 @@ class TravelController extends Controller {
             info.submit();
             return
         }
-
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         //道具不足
         if(info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT){
             let ticket = await this.ctx.model.TravelModel.FlyTicket.findOne({uid:ui.uid,id:info.tid});
@@ -97,10 +97,14 @@ class TravelController extends Controller {
                 return
             }
         }
-
-
-
-        await this.service.travelService.travelService.visit(info,ui);
+        if(visit.cid == info.cid){
+            this.logger.info("已经在当前城市了 ："+ info.cid );
+            info.code = apis.Code.REQUIREMENT_FAILED;
+            info.submit();
+            return
+        }
+        
+        await this.service.travelService.travelService.visit(info,ui,visit);
 
         info.submit();
     }

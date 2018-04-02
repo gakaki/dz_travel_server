@@ -67,5 +67,6 @@ api ThumbComment {
     require type:PostType//帖子类型：景点or特产
 
     output thumbs:number//点赞数
+    output haslike:boolean//是否点赞
 
 }

@@ -89,13 +89,11 @@ class TravelService extends Service {
     }
 
 
-    async visit(info, ui) {
+    async visit(info, ui,visit) {
         let cid = info.cid;
         let fid = info.partnerUid;
         let ttype = info.type;
 
-
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         let cost = {
             ["items." + ttype]: -1,
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1

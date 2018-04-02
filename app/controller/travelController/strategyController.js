@@ -35,13 +35,15 @@ class StrategyController extends Controller {
 
     async getcomments(ctx){
         let info = apis.PostComments.Init(ctx);
-        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
-        if(!ui){
-            this.logger.info("用户不存在");
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
-        }
+        // let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        // if(!ui){
+        //     this.logger.info("用户不存在");
+        //     info.code = apis.Code.USER_NOT_FOUND;
+        //     info.submit();
+        //     return;
+        // }
+
+        let ui = await ctx.model.PublicModel.User.findOne({uid:info.uid});
         //城市不存在
         if(!travelConfig.City.Get(info.cityId)){
             this.logger.info("城市不存在");

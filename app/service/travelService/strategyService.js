@@ -60,10 +60,11 @@ class StrategyService extends Service {
            info.content = travelConfig.Scenicspot.Get(info.postId).description;
            info.name = travelConfig.Scenicspot.Get(info.postId).scenicspot;
        }else if(info.type == apis.PostType.TECHAN){
-           info.name =travelConfig.Speciality.Get(travel_tip).specialityname;
-           info.img =travelConfig.Speciality.Get(travel_tip).picture;
+           info.name =travelConfig.Speciality.Get(info.postId).specialityname;
+           info.img =travelConfig.Speciality.Get(info.postId).picture;
        }
 
+       this.logger.info(comments);
        for(let comment of comments){
            let outcomment = {
             commentId:comment.comid,//评论id
