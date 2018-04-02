@@ -10,3 +10,5 @@ run/
 .DS_Store
 *.sw*
 *.un~
+/dz-kue/.travis.yml
+/dz-kue/appveyor.yml
