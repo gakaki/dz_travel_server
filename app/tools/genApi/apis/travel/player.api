@@ -69,7 +69,7 @@ class RealInfo {
     //用户手机号
     prop phoneNumber:string
     //用户地址
-    prop adress:string
+    prop address:string
 }
 
 //赠送用户的机票信息

@@ -87,6 +87,10 @@ class Code{
     
     static get NEED_MONEY() { return -171;}
     
+    static get NEED_INTEGRAL() { return -172;}
+    
+    static get NEED_ADDRESS() { return -173;}
+    
     static get HAS_SIGNIN() { return -144;}
     
     static get UNKNOWN() { return -1000;}
@@ -391,7 +395,7 @@ class ExchangeShopDetail {
     
     
         //prop type: string
-        this.nickname = null;
+        this.nickName = null;
     
         //prop type: string
         this.avatarUrl = null;
@@ -421,7 +425,7 @@ class RealInfo {
         this.phoneNumber = null;
     
         //prop type: string
-        this.adress = null;
+        this.address = null;
     
         
         
@@ -522,7 +526,7 @@ class Post {
         //prop type: string//景点或特产图片url
         this.img = null;
     
-        //prop type: number//帖子的评分
+        //prop type: string//帖子的评分
         this.score = null;
     
         //prop type: number//评论数
@@ -659,12 +663,32 @@ class Base {
         
     }
    submit() {
+        if (this._submited) {
+            return;
+        }
         let tmp ={};
         tmp.action=this.action;
         this.resFields.forEach(k => {
            tmp[k]=this[k]
         });
         this.ctx.body ={data: tmp, code: this.code};
+        this._submited=true;
+    }
+   static async checkLogin(res) {
+        if (!res.sid) {
+            res.code=Code.USER_NOT_FOUND;
+            res.submit();
+            return;
+        }
+        let ui=await res.ctx.service.publicService.userService.findUserBySid(res.sid);
+        if(!ui){
+            res.ctx.logger.info("用户不存在");
+            res.code=Code.USER_NOT_FOUND;
+            res.submit();
+        }
+        else {
+            res.ui=ui;
+        }
     }
    parse(data, serverSide=false) {
         Object.assign(this, data);
@@ -763,11 +787,16 @@ class DetailPostcard extends Base {
     //server output, type: DetailLiveMessage[]
     get lastestMessage() {return this._lastestMessage}
     set lastestMessage(v) {this._lastestMessage = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new DetailPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -796,11 +825,16 @@ class StartGame extends Base {
     //client input, optional, type: string
     get partnerUid() {return this._partnerUid}
     set partnerUid(v) {this._partnerUid = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new StartGame();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -837,11 +871,16 @@ class viewpointInfo extends Base {
     //server output, type: string//景点介绍
     get desc() {return this._desc}
     set desc(v) {this._desc = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new viewpointInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -862,11 +901,16 @@ class Photograph extends Base {
     //server output, type: string
     get postImg() {return this._postImg}
     set postImg(v) {this._postImg = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new Photograph();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -925,11 +969,16 @@ class RankInfo extends Base {
     //server output, type: RankItem[]
     get ranks() {return this._ranks}
     set ranks(v) {this._ranks = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new RankInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -974,11 +1023,16 @@ class IndexInfo extends Base {
     //server output, type: number
     get gold() {return this._gold}
     set gold(v) {this._gold = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new IndexInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -999,11 +1053,16 @@ class RentProp extends Base {
     //server output, type: KV[]//已租用的所有道具。
     get rentItems() {return this._rentItems}
     set rentItems(v) {this._rentItems = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new RentProp();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1028,11 +1087,16 @@ class TraveledPlaces extends Base {
     //server output, type: string[]//点亮的城市名数组，如[‘苏州’]
     get citys() {return this._citys}
     set citys(v) {this._citys = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new TraveledPlaces();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1065,11 +1129,16 @@ class SpeList extends Base {
     //server output, type: Specialty[]
     get specialtys() {return this._specialtys}
     set specialtys(v) {this._specialtys = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new SpeList();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1090,11 +1159,16 @@ class Spe extends Base {
     //client input, require, type: number//购买数量
     get count() {return this._count}
     set count(v) {this._count = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new Spe();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1123,11 +1197,16 @@ class TravelLog extends Base {
     //server output, type: Log[]
     get allLogs() {return this._allLogs}
     set allLogs(v) {this._allLogs = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new TravelLog();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1136,27 +1215,32 @@ class GetUserLocation extends Base {
         super();
         this.action = 'integralShop.getuserlocation';
     
-        this._nickname = null;
+        this._nickName = null;
         this._tel = null;
         this._address = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["nickname","tel","address"];
+        this.resFields = ["nickName","tel","address"];
     }
     //server output, type: string
-    get nickname() {return this._nickname}
-    set nickname(v) {this._nickname = v}
+    get nickName() {return this._nickName}
+    set nickName(v) {this._nickName = v}
     //server output, type: string
     get tel() {return this._tel}
     set tel(v) {this._tel = v}
     //server output, type: string
     get address() {return this._address}
     set address(v) {this._address = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new GetUserLocation();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1197,11 +1281,16 @@ class TravelFootprint extends Base {
     //server output, type: number
     get travelPercent() {return this._travelPercent}
     set travelPercent(v) {this._travelPercent = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new TravelFootprint();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1218,11 +1307,16 @@ class ToSign extends Base {
     //client input, optional, type: number
     get theDay() {return this._theDay}
     set theDay(v) {this._theDay = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new ToSign();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1243,11 +1337,16 @@ class SignInfo extends Base {
     //server output, type: number
     get hasSign() {return this._hasSign}
     set hasSign(v) {this._hasSign = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new SignInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1264,11 +1363,16 @@ class LookTicket extends Base {
     //server output, type: TicketInfo[]
     get ticket() {return this._ticket}
     set ticket(v) {this._ticket = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new LookTicket();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1300,11 +1404,16 @@ class MyPostcards extends Base {
     //server output, type: ProvincePostcardInfo[]
     get postcardInfo() {return this._postcardInfo}
     set postcardInfo(v) {this._postcardInfo = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new MyPostcards();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1329,11 +1438,16 @@ class CityPostcards extends Base {
     //server output, type: CityPostcardInfo[]
     get postcardInfo() {return this._postcardInfo}
     set postcardInfo(v) {this._postcardInfo = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new CityPostcards();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1390,11 +1504,16 @@ class FlyInfo extends Base {
     //server output, type: string
     get cid() {return this._cid}
     set cid(v) {this._cid = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new FlyInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1415,11 +1534,16 @@ class SendPostcard extends Base {
     //client input, require, type: string
     get message() {return this._message}
     set message(v) {this._message = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new SendPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1452,11 +1576,16 @@ class ModifyRealInfo extends Base {
     //server output, type: RealInfo
     get realInfo() {return this._realInfo}
     set realInfo(v) {this._realInfo = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new ModifyRealInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1473,11 +1602,16 @@ class GetRealInfo extends Base {
     //server output, type: RealInfo
     get realInfo() {return this._realInfo}
     set realInfo(v) {this._realInfo = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new GetRealInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1510,11 +1644,16 @@ class PostList extends Base {
     //server output, type: Post[]//服务器返回帖子列表
     get posts() {return this._posts}
     set posts(v) {this._posts = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new PostList();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1535,11 +1674,16 @@ class CommentPost extends Base {
     //client input, require, type: string//评论内容
     get content() {return this._content}
     set content(v) {this._content = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new CommentPost();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1572,11 +1716,16 @@ class PostComments extends Base {
     //server output, type: Comment[]//该帖子下的评论
     get comments() {return this._comments}
     set comments(v) {this._comments = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new PostComments();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1593,11 +1742,16 @@ class ThumbComment extends Base {
     //client input, require, type: string//评论id
     get commentId() {return this._commentId}
     set commentId(v) {this._commentId = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new ThumbComment();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1618,11 +1772,16 @@ class PlayerInfo extends Base {
     //server output, type: UserInfo
     get info() {return this._info}
     set info(v) {this._info = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new PlayerInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1651,11 +1810,16 @@ class GetMessage extends Base {
     //server output, type: MessageItem[]
     get messages() {return this._messages}
     set messages(v) {this._messages = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new GetMessage();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1672,11 +1836,16 @@ class CheckMsgCnt extends Base {
     //server output, type: number
     get unreadMsgCnt() {return this._unreadMsgCnt}
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new CheckMsgCnt();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1693,11 +1862,16 @@ class ClearMsg extends Base {
     //client input, require, type: string
     get mid() {return this._mid}
     set mid(v) {this._mid = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new ClearMsg();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1749,22 +1923,27 @@ class ExchangeShop extends Base {
         this.action = 'integralShop.exchangeshop';
     
         this._id = null;
-        this._integral = null;
-        this.requireFileds = ["id","integral"];
-        this.reqFields = ["id","integral"];
+        this._addr = null;
+        this.requireFileds = ["id","addr"];
+        this.reqFields = ["id","addr"];
         this.resFields = [];
     }
     //client input, require, type: string
     get id() {return this._id}
     set id(v) {this._id = v}
     //client input, require, type: string
-    get integral() {return this._integral}
-    set integral(v) {this._integral = v}
-    static Init(ctx) {
+    get addr() {return this._addr}
+    set addr(v) {this._addr = v}
+    static Init(ctx, checkLogin = false) {
         let o = new ExchangeShop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1789,11 +1968,16 @@ class IntegralShop extends Base {
     //server output, type: Shop[]
     get shops() {return this._shops}
     set shops(v) {this._shops = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new IntegralShop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1814,11 +1998,16 @@ class ExchangeDetail extends Base {
     //server output, type: ExchangeShopDetail[]
     get exchangeDetail() {return this._exchangeDetail}
     set exchangeDetail(v) {this._exchangeDetail = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new ExchangeDetail();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1835,11 +2024,16 @@ class CityListPer extends Base {
     //server output, type: ProvencePer[]
     get data() {return this._data}
     set data(v) {this._data = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new CityListPer();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1868,11 +2062,16 @@ class SysMessage extends WsReceive {
     //server output, type: string//消息内容
     get content() {return this._content}
     set content(v) {this._content = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new SysMessage();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1889,11 +2088,16 @@ class SellSpe extends Spe {
     //server output, type: number//返回剩余的金币数
     get goldNum() {return this._goldNum}
     set goldNum(v) {this._goldNum = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new SellSpe();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1910,11 +2114,16 @@ class TestSend extends WsSend {
     //client input, require, type: string//测试字段
     get test() {return this._test}
     set test(v) {this._test = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new TestSend();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1935,11 +2144,16 @@ class BuySpe extends Spe {
     //server output, type: number//返回剩余的金币数
     get goldNum() {return this._goldNum}
     set goldNum(v) {this._goldNum = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new BuySpe();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
@@ -1956,11 +2170,16 @@ class RechargeRankInfo extends RankInfo {
     //server output, type: number
     get myRecharge() {return this._myRecharge}
     set myRecharge(v) {this._myRecharge = v}
-    static Init(ctx) {
+    static Init(ctx, checkLogin = false) {
         let o = new RechargeRankInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(resolve);
+            });
+        }
         return o;
     }
 }
