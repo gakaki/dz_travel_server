@@ -9,16 +9,16 @@ class UserController extends Controller {
         this.logger.info("我要登陆");
 
 
-        const {_sid, uid,info,appName} = ctx.query;
+        const {sid, uid,info,appName,shareUid} = ctx.query;
         let result = {
             data: {}
         };
-        if ( !info || !appName ||(!_sid && !uid )) {
+        if ( !info || !appName ||(!sid && !uid )) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let rs = await this.service.publicService.userService.login(uid,_sid,appName,JSON.parse(info));
+        let rs = await this.service.publicService.userService.login(uid,sid,appName,shareUid,JSON.parse(info));
     //    ctx.logger.info(rs);
         if (rs.info != null) {
             result.code = 0;
@@ -34,13 +34,13 @@ class UserController extends Controller {
     async getiteminfo(ctx) {
         this.logger.info("我要查询道具");
         let result = {data:{}};
-        const {_sid, itemId} = ctx.query;
-        if (!_sid) {
+        const {sid, itemId} = ctx.query;
+        if (!sid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let ui = await this.service.publicService.userService.findUserBySid(_sid);
+        let ui = await this.service.publicService.userService.findUserBySid(sid);
         if (ui == null) {
             result.code = constant.Code.USER_NOT_FOUND;
             ctx.body = result;
