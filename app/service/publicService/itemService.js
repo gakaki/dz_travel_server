@@ -28,9 +28,9 @@ class ItemService extends Service {
 
                     });
 
-                    this.logger.info("用户道具 " + index +" 更新记录 ：" + JSON.stringify(r));
+                    this.logger.info(`用户道具 ${index} +" 更新成功 ${delta[indexs]}`);
                 }else{
-                    this.logger.error("道具 "+index+" 更新失败 ，用户当前数量"+ui[indexs]+" , 准备更新的数量 "+ delta[indexs]);
+                    this.logger.error(`道具 ${index} 更新失败 ，用户当前数量 ${ui[indexs]}  , 准备更新的数量 ${delta[indexs]}`);
                 }
 
             } catch (err) {

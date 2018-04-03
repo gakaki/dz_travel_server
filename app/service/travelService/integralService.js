@@ -162,7 +162,7 @@ class IntegralService extends Service {
             createDate: new Date()
         });
 
-        await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.POINT]: item.integral}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.POINT]: -item.integral}, 'travel');
 
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}成功兑换了物品${item.name}`);
     }
