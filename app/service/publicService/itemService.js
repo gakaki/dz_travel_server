@@ -8,8 +8,8 @@ class ItemService extends Service {
             let dcost = delta[indexs] > 0 ? 0 : -delta[indexs];  // cost统计时按照正数统计
             let index = indexs.replace("items.", "");
             try {
-                let update = delta[indexs] > 0 ?
-                    await this.ctx.model.PublicModel.User.update({uid:ui.uid,[indexs] : {$gte: 0}},{$inc:{[indexs]:delta[indexs]}}):
+                let update = delta[indexs] >= 0 ?
+                    await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:{[indexs]:delta[indexs]}}):
                     await this.ctx.model.PublicModel.User.update({uid:ui.uid,[indexs] : {$gt: 0}},{$inc:{[indexs]:delta[indexs]}});
                 if(update.nModified){
                     let r = await this.ctx.model.PublicModel.UserItemCounter.update({
