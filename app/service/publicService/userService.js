@@ -148,11 +148,47 @@ class UserService extends Service {
     }
     //每日首次分享奖励
     async dayShareReward(uid, itemId, itemCnt) {
-
+        let today = new Date();
+        today.setHours(0);
+        today.setMinutes(0);
+        today.setSeconds(0,1);
+        let shareRcd = this.ctx.model.PublicModel.UserShareRecord.findOne({uid: uid, createDate: {$gte: today}});
+        if (shareRcd) {
+            if (shareRcd.num > 0) {
+                this.logger.info('非第一次分享，不发奖励')
+            }
+            else {
+                await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+                this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`)
+            }
+            //更新分享次数
+            await this.ctx.model.PublicModel.UserShareRecord.update({_id: shareRcd._id}, {$inc: {num: 1}});
+        }
+        //通知到消息中心
+        let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE);
+        await this.ctx.model.TravelModel.UserMsg.create({
+            uid:uid,
+            mid:"msg"+travelConfig.Message.SHAREMESSAGE+new Date().getTime(),
+            type:travelConfig.Message.SHAREMESSAGE,
+            title:travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).topic,
+            content:content,
+            date:new Date()
+        })
     }
     //带来一个新用户奖励
     async newUserShareReward(uid, itemId, itemCnt) {
-
+        //直接发奖励
+        await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+        //通知到消息中心
+        let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE);
+        await this.ctx.model.TravelModel.UserMsg.create({
+            uid:uid,
+            mid:"msg"+travelConfig.Message.INVITEMESSAGE+new Date().getTime(),
+            type:travelConfig.Message.INVITEMESSAGE,
+            title:travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).topic,
+            content:content,
+            date:new Date()
+        })
     }
 
 
