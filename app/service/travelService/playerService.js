@@ -1,6 +1,8 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const utils = require("../../utils/utils");
+const apis = require('../../../apis/travel');
+
 class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
@@ -106,10 +108,12 @@ class PlayerService extends Service {
     }
 
     async showFlyTicket(info,ui){
-        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid});
+        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid,isUse:false});
         let flyTickets = [];
+        this.logger.info("赠送机票 "+ tickets)
         for(let ticket of tickets){
             let flyTicket ={
+                tid:ticket.id,
                 cid : ticket.cid,
                 type : ticket.flyType
             };
@@ -120,7 +124,7 @@ class PlayerService extends Service {
 
     async getMessage(info,ui,type){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.limit)?Number(info.limit):20;
+        let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
         let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
         let messages = [];
         for(let msg of msgs){
@@ -151,16 +155,25 @@ class PlayerService extends Service {
                 name: info.name,
                 birth: info.birthday,
                 mobile: info.phone,
-                address: info.adress
+                address: info.address
             }
         });
+
+       //收货地址单独存一份，以便于以后扩展为多个收货地址
+       await this.ctx.model.TravelModel.Address.update({uid: ui.uid}, {
+           $set: {
+               name: info.name,
+               tel: info.phone,
+               addr: info.address
+           }
+       },{upsert:true});
 
         info.realInfo = {
             uid: ui.uid,
             name: info.name,
             birthday: info.birthday,
             phoneNumber: info.phone,
-            adress: info.adress
+            address: info.address
         }
     }
 
@@ -171,9 +184,23 @@ class PlayerService extends Service {
             name: ui.name,
             birthday: ui.birth,
             phoneNumber: ui.mobile,
-            adress: ui.address
+            address: ui.address
         }
     }
+
+    //获取玩家的收货地址
+    async getMailAddress(res, ui) {
+        //当前只有一个收货地址，以后如果改为多个，记得改逻辑并返回默认收货地址
+        let addr = await this.ctx.model.TravelModel.Address.findOne({uid: ui.uid});
+        if (!addr) {
+            res.code = apis.Code.NONE_ADDRESS;
+            return;
+        }
+        res.nickName = addr.name;
+        res.tel = addr.tel;
+        res.addr = addr.addr;
+    }
+
     async showMyPostcards(info,ui) {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},

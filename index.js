@@ -7,9 +7,7 @@ require('egg').startCluster({
         key: __dirname + "/config/server.key",
         cert: __dirname + "/config/server.pem"
     },
-    port: os.platform() == "darwin" ? 44444 : 443,
+    port: 443,
     sticky: true,
     workers:1
 });
-
-//不知道为啥mac下chrome要占用443端口 换端口了在mac下

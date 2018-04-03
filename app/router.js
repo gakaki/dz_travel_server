@@ -23,8 +23,8 @@ module.exports = app => {
     router.get('/player/signinfo', controller.travelController.playerController.signinfo);
     router.get('/player/tosign', controller.travelController.playerController.tosign);
     router.get('/player/travelfootprint', controller.travelController.playerController.travelfootprint);
-    router.get('/travel/modifyrealinfo', controller.travelController.playerController.setrealinfo);
-    router.get('/travel/getrealinfo', controller.travelController.playerController.getrealinfo);
+    router.get('/player/modifyrealinfo', controller.travelController.playerController.setrealinfo);
+    router.get('/player/getrealinfo', controller.travelController.playerController.getrealinfo);
     router.get('/postcard/mypostcards', controller.travelController.playerController.showmypostcards);
     router.get('/postcard/citypostcards', controller.travelController.playerController.showcitypostcards);
     router.get('/postcard/detailpostcard', controller.travelController.playerController.showdetailpostcard);
@@ -41,5 +41,14 @@ module.exports = app => {
     router.get('/city/citylistper', controller.travelController.travelController.getcitycompletionlist);
 
 
+    router.get('/integralShop/getuserlocation', controller.travelController.integralShopController.getuserlocation);
+    router.get('/integralShop/exchangeshop', controller.travelController.integralShopController.exchangeshop);
+    router.get('/integralShop/integralshop', controller.travelController.integralShopController.integralshop);
+    router.get('/integralShop/exchangedetail', controller.travelController.integralShopController.exchangedetail);
+
+    router.get('/post/postlist', controller.travelController.strategyController.gettravelstrategy);
+    router.get('/post/postcomments', controller.travelController.strategyController.getcomments);
+    router.get('/post/thumbcomment', controller.travelController.strategyController.givethumbsup);
+    router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
 };

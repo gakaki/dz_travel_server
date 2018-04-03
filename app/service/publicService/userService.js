@@ -192,7 +192,7 @@ class UserService extends Service {
             items: items,
         });
 
-        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.USERGOLD}, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
@@ -218,13 +218,20 @@ class UserService extends Service {
 
 
     async findUserBySid(sid) {
-        // 通过sid查找pid，再通过pid查找info
-        let ses = JSON.parse(await this.app.redis.get(sid));
-        if (ses == null) {
+        try{
+            // 通过sid查找pid，再通过pid查找info
+            let ses = JSON.parse(await this.app.redis.get(sid));
+            if (ses == null) {
+                return null;
+            }
+            this.logger.info("用户PID: " + ses.pid);
+            return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
+        }catch(err){
+            this.logger.error(err);
             return null;
         }
-        this.logger.info("用户PID: " + ses.pid);
-        return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
+
+
     }
 
 

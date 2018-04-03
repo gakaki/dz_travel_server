@@ -71,6 +71,12 @@ enum Code {
     const NEED_INTEGRAL = -172
     //需要填写地址
     const NEED_ADDRESS = -173
+    //尚未设置地址
+    const NONE_ADDRESS = -174
+    //未达到排名要求
+    const RANK_NOT_MEET = 150
+    //未达到积分要求
+    const INTEGRAL_NOT_MEET = 151
     //已经签到了
     const HAS_SIGNIN = -144
     const UNKNOWN = -1000
@@ -216,6 +222,7 @@ class Base{
         else {
             res.ui = ui;
         }
+        return res;
     }
 
     func client get reqData() {

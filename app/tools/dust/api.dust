@@ -48,8 +48,14 @@ class {.name}{?.parent} extends {.parent}{/.parent} {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     {~rb}{/isProto}
 {/server}
 }

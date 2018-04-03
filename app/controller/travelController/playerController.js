@@ -1,6 +1,7 @@
 const Controller = require('egg').Controller;
 const apis = require("../../../apis/travel");
 const utils = require("../../utils/utils");
+const travelConfig = require("../../../sheets/travel");
 //玩家个人页相关
 class PlayerController extends Controller {
     async showplayerinfo(ctx) {
@@ -115,8 +116,8 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
-        this.logger.info("用户信息 ：名字 "+info.name +" 生日 ："+info.birthday+" 电话号码 ："+info.phone +" 地址： "+info.adress );
-        if(!info.name || !info.birthday || !info.phone || !info.adress){
+        this.logger.info("用户信息 ：名字 "+info.name +" 生日 ："+info.birthday+" 电话号码 ："+info.phone +" 地址： "+info.address );
+        if(!info.name || !info.birthday || !info.phone || !info.address){
             this.logger.info("用户信息不全");
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
@@ -205,6 +206,14 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
+
+        if(info.message.length > travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDWORDLIMIT).value){
+            this.logger.info("留言信息字数超限");
+            info.code = apis.Code.ITEM_MAX;
+            info.submit();
+            return
+        }
+
         await ctx.service.travelService.playerService.sendPostcardMsg(info,ui,postcard);
         info.submit();
     }

@@ -69,13 +69,15 @@ class RealInfo {
     //用户手机号
     prop phoneNumber:string
     //用户地址
-    prop adress:string
+    prop address:string
 }
 
 //赠送用户的机票信息
 class TicketInfo{
     //城市id
     prop cid:string
+    //机票id
+    prop tid:string
     //机票type
     prop type:PresentTktType
 }
@@ -105,7 +107,7 @@ api ModifyRealInfo{
     //用户手机号
     require phone:string
     //用户地址
-    require adress:string
+    require address:string
 
     //玩家收货信息
     output realInfo:RealInfo

@@ -91,6 +91,12 @@ class Code{
     
     static get NEED_ADDRESS() { return -173;}
     
+    static get NONE_ADDRESS() { return -174;}
+    
+    static get RANK_NOT_MEET() { return 150;}
+    
+    static get INTEGRAL_NOT_MEET() { return 151;}
+    
     static get HAS_SIGNIN() { return -144;}
     
     static get UNKNOWN() { return -1000;}
@@ -425,7 +431,7 @@ class RealInfo {
         this.phoneNumber = null;
     
         //prop type: string
-        this.adress = null;
+        this.address = null;
     
         
         
@@ -438,6 +444,9 @@ class TicketInfo {
     
         //prop type: string
         this.cid = null;
+    
+        //prop type: string
+        this.tid = null;
     
         //prop type: PresentTktType
         this.type = null;
@@ -475,12 +484,6 @@ class Comment {
     constructor() {
     
     
-        //prop type: string//帖子id
-        this.postId = null;
-    
-        //prop type: string//景点或特产图片url
-        this.img = null;
-    
         //prop type: UserBriefInfo//用户简单信息
         this.user = null;
     
@@ -495,6 +498,9 @@ class Comment {
     
         //prop type: number//点赞数
         this.thumbs = null;
+    
+        //prop type: boolean//是否已经点赞
+        this.haslike = null;
     
         //prop type: string//创建时间
         this.time = null;
@@ -526,7 +532,7 @@ class Post {
         //prop type: string//景点或特产图片url
         this.img = null;
     
-        //prop type: number//帖子的评分
+        //prop type: string//帖子的评分
         this.score = null;
     
         //prop type: number//评论数
@@ -689,6 +695,7 @@ class Base {
         else {
             res.ui=ui;
         }
+        return res;
     }
    parse(data, serverSide=false) {
         Object.assign(this, data);
@@ -792,8 +799,14 @@ class DetailPostcard extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class StartGame extends Base {
@@ -805,8 +818,9 @@ class StartGame extends Base {
         this._cid = null;
         this._cost = null;
         this._partnerUid = null;
+        this._tid = null;
         this.requireFileds = ["type","cid","cost"];
-        this.reqFields = ["type","cid","cost","partnerUid"];
+        this.reqFields = ["type","cid","cost","partnerUid","tid"];
         this.resFields = [];
     }
     //client input, require, type: TicketType
@@ -821,13 +835,22 @@ class StartGame extends Base {
     //client input, optional, type: string
     get partnerUid() {return this._partnerUid}
     set partnerUid(v) {this._partnerUid = v}
+    //client input, optional, type: string
+    get tid() {return this._tid}
+    set tid(v) {this._tid = v}
     static Init(ctx, checkLogin = false) {
         let o = new StartGame();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class viewpointInfo extends Base {
@@ -868,8 +891,14 @@ class viewpointInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class Photograph extends Base {
@@ -894,8 +923,14 @@ class Photograph extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class WsReceive extends Base {
@@ -958,8 +993,14 @@ class RankInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class IndexInfo extends Base {
@@ -1008,8 +1049,14 @@ class IndexInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class RentProp extends Base {
@@ -1034,8 +1081,14 @@ class RentProp extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class TraveledPlaces extends Base {
@@ -1064,8 +1117,14 @@ class TraveledPlaces extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class mySpe extends Specialty {
@@ -1102,8 +1161,14 @@ class SpeList extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class Spe extends Base {
@@ -1128,8 +1193,14 @@ class Spe extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class TravelLog extends Base {
@@ -1162,8 +1233,14 @@ class TravelLog extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class GetUserLocation extends Base {
@@ -1192,8 +1269,14 @@ class GetUserLocation extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class TravelFootprint extends Base {
@@ -1238,8 +1321,14 @@ class TravelFootprint extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class ToSign extends Base {
@@ -1260,8 +1349,14 @@ class ToSign extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class SignInfo extends Base {
@@ -1286,8 +1381,14 @@ class SignInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class LookTicket extends Base {
@@ -1308,8 +1409,14 @@ class LookTicket extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class DetailLiveMessage extends OneBriefMessage {
@@ -1345,8 +1452,14 @@ class MyPostcards extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class CityPostcards extends Base {
@@ -1375,8 +1488,14 @@ class CityPostcards extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class FlyInfo extends Base {
@@ -1437,8 +1556,14 @@ class FlyInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class SendPostcard extends Base {
@@ -1463,8 +1588,14 @@ class SendPostcard extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class ModifyRealInfo extends Base {
@@ -1475,10 +1606,10 @@ class ModifyRealInfo extends Base {
         this._name = null;
         this._birthday = null;
         this._phone = null;
-        this._adress = null;
+        this._address = null;
         this._realInfo = null;
-        this.requireFileds = ["name","birthday","phone","adress"];
-        this.reqFields = ["name","birthday","phone","adress"];
+        this.requireFileds = ["name","birthday","phone","address"];
+        this.reqFields = ["name","birthday","phone","address"];
         this.resFields = ["realInfo"];
     }
     //client input, require, type: string
@@ -1491,8 +1622,8 @@ class ModifyRealInfo extends Base {
     get phone() {return this._phone}
     set phone(v) {this._phone = v}
     //client input, require, type: string
-    get adress() {return this._adress}
-    set adress(v) {this._adress = v}
+    get address() {return this._address}
+    set address(v) {this._address = v}
     //server output, type: RealInfo
     get realInfo() {return this._realInfo}
     set realInfo(v) {this._realInfo = v}
@@ -1501,8 +1632,14 @@ class ModifyRealInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class GetRealInfo extends Base {
@@ -1523,8 +1660,14 @@ class GetRealInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class PostList extends Base {
@@ -1561,8 +1704,14 @@ class PostList extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class CommentPost extends Base {
@@ -1570,25 +1719,39 @@ class CommentPost extends Base {
         super();
         this.action = 'post.commentpost';
     
+        this._cityId = null;
         this._postId = null;
         this._content = null;
-        this.requireFileds = ["postId","content"];
-        this.reqFields = ["postId","content"];
+        this._type = null;
+        this.requireFileds = ["cityId","postId","content","type"];
+        this.reqFields = ["cityId","postId","content","type"];
         this.resFields = [];
     }
+    //client input, require, type: string//城市id
+    get cityId() {return this._cityId}
+    set cityId(v) {this._cityId = v}
     //client input, require, type: string//景点或特产id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
     //client input, require, type: string//评论内容
     get content() {return this._content}
     set content(v) {this._content = v}
+    //client input, require, type: PostType//帖子类型：景点or特产
+    get type() {return this._type}
+    set type(v) {this._type = v}
     static Init(ctx, checkLogin = false) {
         let o = new CommentPost();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class PostComments extends Base {
@@ -1598,12 +1761,16 @@ class PostComments extends Base {
     
         this._cityId = null;
         this._postId = null;
-        this._lastCmtId = null;
+        this._page = null;
         this._limit = null;
+        this._type = null;
+        this._content = null;
+        this._name = null;
+        this._img = null;
         this._comments = null;
-        this.requireFileds = ["cityId","postId","lastCmtId","limit"];
-        this.reqFields = ["cityId","postId","lastCmtId","limit"];
-        this.resFields = ["comments"];
+        this.requireFileds = ["cityId","postId","page","limit","type"];
+        this.reqFields = ["cityId","postId","page","limit","type"];
+        this.resFields = ["content","name","img","comments"];
     }
     //client input, require, type: string//城市id
     get cityId() {return this._cityId}
@@ -1611,12 +1778,24 @@ class PostComments extends Base {
     //client input, require, type: string//帖子id
     get postId() {return this._postId}
     set postId(v) {this._postId = v}
-    //client input, require, type: number//上一屏最后comment的id
-    get lastCmtId() {return this._lastCmtId}
-    set lastCmtId(v) {this._lastCmtId = v}
+    //client input, require, type: number//页码
+    get page() {return this._page}
+    set page(v) {this._page = v}
     //client input, require, type: number//本次拉取的条数
     get limit() {return this._limit}
     set limit(v) {this._limit = v}
+    //client input, require, type: PostType//帖子类型：景点or特产
+    get type() {return this._type}
+    set type(v) {this._type = v}
+    //server output, type: string//帖子内容，为景点或特产的介绍
+    get content() {return this._content}
+    set content(v) {this._content = v}
+    //server output, type: 
+    get name() {return this._name}
+    set name(v) {this._name = v}
+    //server output, type: string//景点或特产图片url
+    get img() {return this._img}
+    set img(v) {this._img = v}
     //server output, type: Comment[]//该帖子下的评论
     get comments() {return this._comments}
     set comments(v) {this._comments = v}
@@ -1625,8 +1804,14 @@ class PostComments extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class ThumbComment extends Base {
@@ -1635,20 +1820,34 @@ class ThumbComment extends Base {
         this.action = 'post.thumbcomment';
     
         this._commentId = null;
+        this._thumbs = null;
+        this._haslike = null;
         this.requireFileds = ["commentId"];
         this.reqFields = ["commentId"];
-        this.resFields = [];
+        this.resFields = ["thumbs","haslike"];
     }
     //client input, require, type: string//评论id
     get commentId() {return this._commentId}
     set commentId(v) {this._commentId = v}
+    //server output, type: number//点赞数
+    get thumbs() {return this._thumbs}
+    set thumbs(v) {this._thumbs = v}
+    //server output, type: boolean//是否点赞
+    get haslike() {return this._haslike}
+    set haslike(v) {this._haslike = v}
     static Init(ctx, checkLogin = false) {
         let o = new ThumbComment();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class PlayerInfo extends Base {
@@ -1673,8 +1872,14 @@ class PlayerInfo extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class GetMessage extends Base {
@@ -1707,8 +1912,14 @@ class GetMessage extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class CheckMsgCnt extends Base {
@@ -1729,8 +1940,14 @@ class CheckMsgCnt extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class ClearMsg extends Base {
@@ -1751,8 +1968,14 @@ class ClearMsg extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class UserInfo extends UserBriefInfo {
@@ -1803,14 +2026,18 @@ class ExchangeShop extends Base {
         this.action = 'integralShop.exchangeshop';
     
         this._id = null;
+        this._tel = null;
         this._addr = null;
-        this.requireFileds = ["id","addr"];
-        this.reqFields = ["id","addr"];
+        this.requireFileds = ["id","tel","addr"];
+        this.reqFields = ["id","tel","addr"];
         this.resFields = [];
     }
     //client input, require, type: string
     get id() {return this._id}
     set id(v) {this._id = v}
+    //client input, require, type: string
+    get tel() {return this._tel}
+    set tel(v) {this._tel = v}
     //client input, require, type: string
     get addr() {return this._addr}
     set addr(v) {this._addr = v}
@@ -1819,8 +2046,14 @@ class ExchangeShop extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class IntegralShop extends Base {
@@ -1849,8 +2082,14 @@ class IntegralShop extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class ExchangeDetail extends Base {
@@ -1875,8 +2114,14 @@ class ExchangeDetail extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class CityListPer extends Base {
@@ -1897,8 +2142,14 @@ class CityListPer extends Base {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class SysMessage extends WsReceive {
@@ -1931,8 +2182,14 @@ class SysMessage extends WsReceive {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class SellSpe extends Spe {
@@ -1953,8 +2210,14 @@ class SellSpe extends Spe {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class TestSend extends WsSend {
@@ -1975,8 +2238,14 @@ class TestSend extends WsSend {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class BuySpe extends Spe {
@@ -2001,8 +2270,14 @@ class BuySpe extends Spe {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class RechargeRankInfo extends RankInfo {
@@ -2023,8 +2298,14 @@ class RechargeRankInfo extends RankInfo {
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
-        checkLogin && Base.checkLogin(o);
-        return o;
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 //-------------exports---------------
