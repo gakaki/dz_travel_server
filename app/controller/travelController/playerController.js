@@ -89,6 +89,7 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
+        this.logger.info("清除已读信息");
         await ctx.service.travelService.playerService.clearMsg(info,ui,msg);
 
         info.submit();

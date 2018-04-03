@@ -31,6 +31,7 @@ module.exports = app => {
     router.get('/postcard/sendpostcard', controller.travelController.playerController.sendpostcard);
     router.get('/message/getmessage', controller.travelController.playerController.getmessage);
     router.get('/message/checkmsgcnt', controller.travelController.playerController.checkmsgcnt);
+    router.get('/message/clearmsg', controller.travelController.playerController.clearmsg);
 
 
 

@@ -3,7 +3,9 @@ const Service = require('egg').Service;
 
 class MsgService extends Service {
     async unreadMsgCnt(uid) {
-        return  await this.ctx.model.TravelModel.UserMsg.count({uid:uid,isRead:false});
+        let count = await this.ctx.model.TravelModel.UserMsg.count({uid:uid,isRead:false});
+        this.logger.info("未读消息 "+count);
+        return  count
     }
 
     async unreadMsgs(uid,type,page,limit) {
