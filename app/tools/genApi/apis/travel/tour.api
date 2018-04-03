@@ -50,9 +50,12 @@ api questRandom {
    output current:number
 
    //事件描述语句 用%占位符替换数据内容
-   output message:string
+   //output message:string
 
-   //花费什么获得了什么 调用itemservices
+   //触发的随机事件的配置表id
+   output eventId:number
+
+   //花费什么获得了什么奖励 调用itemservices
    output userinfo:UserInfo
 }
 
