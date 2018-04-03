@@ -1,0 +1,65 @@
+//游玩界面相关的api数据
+import ./travel.api
+import ./city.api
+
+class QuestReport {
+    //景点数量
+    prop spotCount:number
+    //触发的事件数量
+    prop questCount:number
+    //明信片收集数量
+    prop postcardCount:number
+}
+
+
+
+//进入城市的经典页面  用户开始该城市的旅游
+api tourIndexInfo extends IndexInfo{
+
+}
+
+// 修改路线
+api changeRouter {
+
+}
+
+//进入景点直接触发随机事件 前端触发吧
+api questEnterSpot {
+    //景点id
+    require spotId:number
+    //触发的随机事件的event id见配置表
+    output eventId:number
+    //返回个人的金币和积分 在userinfo里
+    output userinfo:UserInfo
+}
+
+
+//行程途中随机事件  每隔一分钟定时call 之后获得处理
+api questRandom {
+    //别的玩家信息 是否是你的好友需要一定的计算 还有对应的坐标
+    playerInfos : PlayerInfo[]
+    //触发随机事件的id
+    output eventId:number
+}
+
+//已触发的随机事件列表？暂时没看到ui 占位
+api questRandomList {
+
+}
+
+//玩家完成该城市的经典的具体报告
+api showQuestReport {
+   //返回报告信息
+   output  questReport:QuestReport
+}
+
+//用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
+api leaveTour
+{
+    //返回个人的金币和积分 在userinfo里
+    output userinfo:UserInfo
+    //该城市的整体效率评分 效率评分 CityPer.cityEf
+    output cityPer:CityPer
+}
+
+
