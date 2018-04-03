@@ -45,7 +45,7 @@ api ExchangeShop {
     //兑换的商品id
     require id:string
     //收件人电话
-    rquire tel:string
+    require tel:string
     //邮寄地址
     require addr:string
 }

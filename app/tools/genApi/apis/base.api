@@ -71,6 +71,8 @@ enum Code {
     const NEED_INTEGRAL = -172
     //需要填写地址
     const NEED_ADDRESS = -173
+    //尚未设置地址
+    const NONE_ADDRESS = -174
     //已经签到了
     const HAS_SIGNIN = -144
     const UNKNOWN = -1000

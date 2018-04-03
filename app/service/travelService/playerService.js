@@ -1,6 +1,8 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const utils = require("../../utils/utils");
+const apis = require('../../../apis/travel');
+
 class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
@@ -190,6 +192,10 @@ class PlayerService extends Service {
     async getMailAddress(res, ui) {
         //当前只有一个收货地址，以后如果改为多个，记得改逻辑并返回默认收货地址
         let addr = await this.ctx.model.TravelModel.Address.findOne({uid: ui.uid});
+        if (!addr) {
+            res.code = apis.Code.NONE_ADDRESS;
+            return;
+        }
         res.nickName = addr.name;
         res.tel = addr.tel;
         res.addr = addr.addr;

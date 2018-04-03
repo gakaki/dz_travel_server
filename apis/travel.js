@@ -91,6 +91,8 @@ class Code{
     
     static get NEED_ADDRESS() { return -173;}
     
+    static get NONE_ADDRESS() { return -174;}
+    
     static get HAS_SIGNIN() { return -144;}
     
     static get UNKNOWN() { return -1000;}
@@ -1600,10 +1602,10 @@ class ModifyRealInfo extends Base {
         this._name = null;
         this._birthday = null;
         this._phone = null;
-        this._adress = null;
+        this._address = null;
         this._realInfo = null;
-        this.requireFileds = ["name","birthday","phone","adress"];
-        this.reqFields = ["name","birthday","phone","adress"];
+        this.requireFileds = ["name","birthday","phone","address"];
+        this.reqFields = ["name","birthday","phone","address"];
         this.resFields = ["realInfo"];
     }
     //client input, require, type: string
@@ -1616,8 +1618,8 @@ class ModifyRealInfo extends Base {
     get phone() {return this._phone}
     set phone(v) {this._phone = v}
     //client input, require, type: string
-    get adress() {return this._adress}
-    set adress(v) {this._adress = v}
+    get address() {return this._address}
+    set address(v) {this._address = v}
     //server output, type: RealInfo
     get realInfo() {return this._realInfo}
     set realInfo(v) {this._realInfo = v}
@@ -2020,14 +2022,18 @@ class ExchangeShop extends Base {
         this.action = 'integralShop.exchangeshop';
     
         this._id = null;
+        this._tel = null;
         this._addr = null;
-        this.requireFileds = ["id","addr"];
-        this.reqFields = ["id","addr"];
+        this.requireFileds = ["id","tel","addr"];
+        this.reqFields = ["id","tel","addr"];
         this.resFields = [];
     }
     //client input, require, type: string
     get id() {return this._id}
     set id(v) {this._id = v}
+    //client input, require, type: string
+    get tel() {return this._tel}
+    set tel(v) {this._tel = v}
     //client input, require, type: string
     get addr() {return this._addr}
     set addr(v) {this._addr = v}
