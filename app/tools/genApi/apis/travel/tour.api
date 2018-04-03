@@ -42,9 +42,18 @@ api questRandom {
     output eventId:number
 }
 
-//已触发的随机事件列表？暂时没看到ui 占位
-api questRandomList {
+//已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
+api questRandom {
+   //列表总长多少
+   output total:number
+   //当前第几个从1开始
+   output current:number
 
+   //事件描述语句 用%占位符替换数据内容
+   output message:string
+
+   //花费什么获得了什么 调用itemservices
+   output userinfo:UserInfo
 }
 
 //玩家完成该城市的经典的具体报告
