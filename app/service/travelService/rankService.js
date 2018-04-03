@@ -88,7 +88,7 @@ class RankService extends Service {
         let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
                               totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
                               totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
-        let progress = parseFloat((userProgress / totalProgress).toFixed(2));
+        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(2));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
             {uid:uid},
@@ -96,13 +96,6 @@ class RankService extends Service {
             {upsert:true}
             );
     }
-    /**
-     * 获取玩家全国完成度
-     * */
-    async getUserCompletionDegreeRecord(uid) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
-    }
-
 
     /**
      * 获取当前达人榜单

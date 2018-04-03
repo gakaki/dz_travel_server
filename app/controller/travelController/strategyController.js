@@ -159,7 +159,7 @@ class StrategyController extends Controller {
             info.submit();
             return
         }
-        await ctx.service.travelService.strategyService.giveThumbsUp(info);
+        await ctx.service.travelService.strategyService.giveThumbsUp(info,comment);
         info.thumbs = comment.likes +1;
         info.haslike = true;
         info.submit();
