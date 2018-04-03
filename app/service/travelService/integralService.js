@@ -17,7 +17,7 @@ class IntegralService extends Service {
     async exchangeDetail(res) {
         const pageLimit = 6;// 每页数据
         let list = await this.ctx.model.TravelModel.ExchangeRecord.aggregate()
-            .skip(pageLimit * res.page)
+            .skip(pageLimit * (res.page - 1))//page 从1开始
             .limit(pageLimit)
             .group({nickName: "$nickName", avatarUrl: "$avatar",shopName: "$exName" });
         res.exchangeDetail = list;
