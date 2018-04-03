@@ -52,4 +52,14 @@ module.exports = app => {
     router.get('/post/thumbcomment', controller.travelController.strategyController.givethumbsup);
     router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
+    //游玩界面
+    router.get('/tour/tourIndexInfo', controller.travelController.tourController.tourIndexInfo);
+    router.get('/tour/changeRouter', controller.travelController.tourController.changeRouter);
+    router.get('/tour/questEnterSpot', controller.travelController.tourController.questEnterSpot);
+    router.get('/tour/questRandom', controller.travelController.tourController.questRandom);
+    router.get('/tour/questRandomList', controller.travelController.tourController.questRandomList);
+    router.get('/tour/showQuestReport', controller.travelController.tourController.showQuestReport);
+    router.get('/tour/leaveTour', controller.travelController.tourController.leaveTour);
+
+
 };

@@ -3,6 +3,7 @@ import ../base.api
 class CityPer {
     prop cityname: string   //城市名
     prop cityper: number   //城市完成度
+    prop cityEff: number    //城市完成效率评分
 }
 
 class ProvencePer {
