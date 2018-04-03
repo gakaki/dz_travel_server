@@ -361,7 +361,7 @@ class Base{
                     this.AUTHED = true;
                     this.LOGINED = true;
                     this.shareUid = null;
-                    
+
                     app.globalData.userInfo = req.info;
                     this.SID = req.sid;
                     this._timestampD = Date.now()/1000  - req.timestamp;

@@ -7,7 +7,7 @@ const travelConfig = require("../../../sheets/travel");
 
 class UserService extends Service {
 
-    async login(uid, sid, appName, info) {
+    async login(uid, sid, appName, shareUid, info) {
         this.logger.info("登陆时的参数 ：" + uid + " " + sid);
         let result = {};
         //老用户登陆
@@ -34,30 +34,37 @@ class UserService extends Service {
                     result.sid = _sid;
                 }
                 result.info = loginUser;
-                return result;
 
             } else {
 
                 this.logger.info("老用户登陆  uid：" + authUi.uid + " 老用户的昵称 ：" + authUi.nickName);
                 if (uid && authUi.uid != uid) {
                     result.info = null;
-                    return result;
                 }
-                await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName}, {
-                    $set: {
-                        nickName: info.nickName,
-                        avatarUrl: info.avatarUrl,
-                        gender: info.gender,
-                        city: info.city,
-                        province: info.province,
-                        country: info.country,
-                    }
-                });
+                else {
 
-                result.sid = sid;
-                result.info = authUi;
-                return result;
+                    await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName}, {
+                        $set: {
+                            nickName: info.nickName,
+                            avatarUrl: info.avatarUrl,
+                            gender: info.gender,
+                            city: info.city,
+                            province: info.province,
+                            country: info.country,
+                        }
+                    });
+
+                    result.sid = sid;
+                    result.info = authUi;
+                }
             }
+
+            //分享奖励
+            if (shareUid && shareUid != authUi.uid) {
+
+                await this.dayShareReward(shareUid,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
+            }
+            return result;
 
         }
         //第三方登陆
@@ -135,7 +142,17 @@ class UserService extends Service {
         result.sid = ses.sid;
         result.info = ui;
 
+        shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
+
         return result;
+    }
+    //每日首次分享奖励
+    async dayShareReward(uid, itemId, itemCnt) {
+
+    }
+    //带来一个新用户奖励
+    async newUserShareReward(uid, itemId, itemCnt) {
+
     }
 
 
