@@ -381,7 +381,7 @@ class PlayerService extends Service {
         let cost ={
             cumulativeDays:1
         };
-        cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
+      //  cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
         let itemChange = {
             ["items."+travelConfig.Item.GOLD] : travelConfig.Login.Get(day).gold
         };

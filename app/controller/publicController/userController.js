@@ -74,7 +74,7 @@ class UserController extends Controller {
         let cost = {
             ["items." + itemId]: Number(count)
         };
-        await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
+       // await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
 
         await this.service.publicService.itemService.itemChange(ui, cost, appName);
     }

@@ -83,11 +83,11 @@ class RankService extends Service {
         let totalEvents = travelConfig.Event.length;
         let userProgress = userScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
                               userPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
-                                 userEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENT).value;
+                                 userEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
 
         let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
                               totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
-                              totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENT).value;
+                              totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
         let progress = parseFloat((userProgress / totalProgress).toFixed(2));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(

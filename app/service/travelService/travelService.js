@@ -108,10 +108,10 @@ class TravelService extends Service {
 
         }
         //道具更新
-        await this.ctx.model.PublicModel.User.update({
-            uid: ui.uid,
-            ["items." + travelConfig.Item.GOLD]: {$gt: 0}
-        }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
+        // await this.ctx.model.PublicModel.User.update({
+        //     uid: ui.uid,
+        //     ["items." + travelConfig.Item.GOLD]: {$gt: 0}
+        // }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui, cost);
         if (ui.isFirst){
             this.logger.info("首次飞行");
