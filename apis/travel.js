@@ -93,6 +93,10 @@ class Code{
     
     static get NONE_ADDRESS() { return -174;}
     
+    static get RANK_NOT_MEET() { return 150;}
+    
+    static get INTEGRAL_NOT_MEET() { return 151;}
+    
     static get HAS_SIGNIN() { return -144;}
     
     static get UNKNOWN() { return -1000;}

@@ -11,5 +11,3 @@ require('egg').startCluster({
     sticky: true,
     workers:1
 });
-
-//不知道为啥mac下chrome要占用443端口 换端口了在mac下

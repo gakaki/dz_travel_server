@@ -90,16 +90,36 @@ class IntegralService extends Service {
             return;
         }
 
-        let item = sheets.Integralshop.Get(res.id);
+        let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({id: res.id});
         if (!item) {
             res.code = apis.Code.PARAMETER_NOT_MATCH;
             this.logger.info('找不到要兑换的物品，返回');
             return;
         }
 
-        if (ui.items[sheets.Item.POINT] < item.integral) {
+        let myIntegral = ui.items[sheets.Item.POINT];
+
+        if (myIntegral < item.integral) {
             res.code = apis.Code.NEED_INTEGRAL;
             this.logger.info('积分不足，返回');
+            return;
+        }
+
+        let condition = await this.ctx.model.TravelModel.ExchangeCondition.findOne();
+        if (!condition) {
+            //还未配置兑换条件
+            this.logger.warn(`还未配置兑换条件！！请到数据库exchangecondition表中插入一条，字段有rank和integral`);
+            res.code = apis.Code.FAILED;
+            return;
+        }
+        let myRank = await this.getUserRank(ui.uid);
+
+        if (myRank > condition.rank) {
+            res.code = apis.Code.RANK_NOT_MEET;
+            return;
+        }
+        if (myIntegral < condition.integral) {
+            res.code = apis.Code.INTEGRAL_NOT_MEET;
             return;
         }
 
