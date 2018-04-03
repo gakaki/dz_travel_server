@@ -397,6 +397,56 @@ class PlayerService extends Service {
 
     }
 
+    async getRankInfo(info){
+        let page = Number(info.page)?Number(info.page):1;
+        let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        let friendList = info.ui.friendList;
+        friendList.push(info.ui.uid);
+        let rankInfos = [];
+        if(info.rankType == apis.RankType.SCORE){
+            info.selfRank = {
+                achievement:info.ui.items[travelConfig.Item.POINT]
+            };
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY){
+                rankInfos =  await this.ctx.service.travelService.rankService.getScoreRankList(page,limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND){
+                rankInfos =  await this.ctx.service.travelService.rankService.getUserFriendScoreRankList(friendList,page,limit);
+            }
+
+        }
+        if(info.rankType == apis.RankType.THUMBS){
+            let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
+            info.selfRank = {
+                achievement:selfCompletionDegree.completionDegree
+            };
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY){
+                rankInfos =  await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page,limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND){
+                rankInfos =  await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList,page,limit);
+            }
+        }
+
+        let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        info.selfRank.rank = index + 1;
+
+        info.ranks = rankInfos.map(async (value,index) =>{
+            let rankItem = {
+                rank:value.rank || (index+1),
+                achievement:value.integral || value.completionDegree
+            };
+           let user = value.uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid:value.uid});
+           rankItem.userInfo = {
+               uid:user.uid,
+               nickName:user.nickName,
+               avatarUrl:user.avatarUrl
+           };
+           return rankItem;
+        })
+
+    }
+
 }
 
 

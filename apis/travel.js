@@ -718,8 +718,8 @@ class SelfRank {
         //prop type: number
         this.rank = null;
     
-        //prop type: UserInfo
-        this.userInfo = null;
+        //prop type: number
+        this.achievement = null;
     
         
         
@@ -733,7 +733,10 @@ class RankItem {
         //prop type: number
         this.rank = null;
     
-        //prop type: UserInfo
+        //prop type: number
+        this.achievement = null;
+    
+        //prop type: UserBriefInfo
         this.userInfo = null;
     
         
@@ -1007,62 +1010,6 @@ class RankInfo extends Base {
         }
     }
 }
-class IndexInfo extends Base {
-    constructor() {
-        super();
-        this.action = 'travel.indexinfo';
-    
-        this._isFirst = null;
-        this._season = null;
-        this._weather = null;
-        this._playerCnt = null;
-        this._friends = null;
-        this._unreadMsgCnt = null;
-        this._location = null;
-        this._gold = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
-    }
-    //server output, type: Boolean
-    get isFirst() {return this._isFirst}
-    set isFirst(v) {this._isFirst = v}
-    //server output, type: Season
-    get season() {return this._season}
-    set season(v) {this._season = v}
-    //server output, type: number
-    get weather() {return this._weather}
-    set weather(v) {this._weather = v}
-    //server output, type: number
-    get playerCnt() {return this._playerCnt}
-    set playerCnt(v) {this._playerCnt = v}
-    //server output, type: string[]
-    get friends() {return this._friends}
-    set friends(v) {this._friends = v}
-    //server output, type: number
-    get unreadMsgCnt() {return this._unreadMsgCnt}
-    set unreadMsgCnt(v) {this._unreadMsgCnt = v}
-    //server output, type: number
-    get location() {return this._location}
-    set location(v) {this._location = v}
-    //server output, type: number
-    get gold() {return this._gold}
-    set gold(v) {this._gold = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new IndexInfo();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
 class RentProp extends Base {
     constructor() {
         super();
@@ -1207,6 +1154,62 @@ class Spe extends Base {
         }
     }
 }
+class IndexInfo extends Base {
+    constructor() {
+        super();
+        this.action = 'travel.indexinfo';
+    
+        this._isFirst = null;
+        this._season = null;
+        this._weather = null;
+        this._playerCnt = null;
+        this._friends = null;
+        this._unreadMsgCnt = null;
+        this._location = null;
+        this._gold = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
+    }
+    //server output, type: Boolean
+    get isFirst() {return this._isFirst}
+    set isFirst(v) {this._isFirst = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: number
+    get playerCnt() {return this._playerCnt}
+    set playerCnt(v) {this._playerCnt = v}
+    //server output, type: string[]
+    get friends() {return this._friends}
+    set friends(v) {this._friends = v}
+    //server output, type: number
+    get unreadMsgCnt() {return this._unreadMsgCnt}
+    set unreadMsgCnt(v) {this._unreadMsgCnt = v}
+    //server output, type: number
+    get location() {return this._location}
+    set location(v) {this._location = v}
+    //server output, type: number
+    get gold() {return this._gold}
+    set gold(v) {this._gold = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new IndexInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class TravelLog extends Base {
     constructor() {
         super();
@@ -1234,42 +1237,6 @@ class TravelLog extends Base {
     set allLogs(v) {this._allLogs = v}
     static Init(ctx, checkLogin = false) {
         let o = new TravelLog();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class GetUserLocation extends Base {
-    constructor() {
-        super();
-        this.action = 'integralShop.getuserlocation';
-    
-        this._nickName = null;
-        this._tel = null;
-        this._address = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["nickName","tel","address"];
-    }
-    //server output, type: string
-    get nickName() {return this._nickName}
-    set nickName(v) {this._nickName = v}
-    //server output, type: string
-    get tel() {return this._tel}
-    set tel(v) {this._tel = v}
-    //server output, type: string
-    get address() {return this._address}
-    set address(v) {this._address = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new GetUserLocation();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2024,29 +1991,29 @@ class UserInfo extends UserBriefInfo {
         
     }
 }
-class ExchangeShop extends Base {
+class GetUserLocation extends Base {
     constructor() {
         super();
-        this.action = 'integralShop.exchangeshop';
+        this.action = 'integralShop.getuserlocation';
     
-        this._id = null;
+        this._nickName = null;
         this._tel = null;
-        this._addr = null;
-        this.requireFileds = ["id","tel","addr"];
-        this.reqFields = ["id","tel","addr"];
-        this.resFields = [];
+        this._address = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["nickName","tel","address"];
     }
-    //client input, require, type: string
-    get id() {return this._id}
-    set id(v) {this._id = v}
-    //client input, require, type: string
+    //server output, type: string
+    get nickName() {return this._nickName}
+    set nickName(v) {this._nickName = v}
+    //server output, type: string
     get tel() {return this._tel}
     set tel(v) {this._tel = v}
-    //client input, require, type: string
-    get addr() {return this._addr}
-    set addr(v) {this._addr = v}
+    //server output, type: string
+    get address() {return this._address}
+    set address(v) {this._address = v}
     static Init(ctx, checkLogin = false) {
-        let o = new ExchangeShop();
+        let o = new GetUserLocation();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2128,6 +2095,42 @@ class ExchangeDetail extends Base {
         }
     }
 }
+class ExchangeShop extends Base {
+    constructor() {
+        super();
+        this.action = 'integralShop.exchangeshop';
+    
+        this._id = null;
+        this._tel = null;
+        this._addr = null;
+        this.requireFileds = ["id","tel","addr"];
+        this.reqFields = ["id","tel","addr"];
+        this.resFields = [];
+    }
+    //client input, require, type: string
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: string
+    get tel() {return this._tel}
+    set tel(v) {this._tel = v}
+    //client input, require, type: string
+    get addr() {return this._addr}
+    set addr(v) {this._addr = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ExchangeShop();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class CityListPer extends Base {
     constructor() {
         super();
@@ -2196,34 +2199,6 @@ class SysMessage extends WsReceive {
         }
     }
 }
-class SellSpe extends Spe {
-    constructor() {
-        super();
-        this.action = 'prop.sellspe';
-    
-        this._goldNum = null;
-        this.requireFileds = ["propId","count"];
-        this.reqFields = ["propId","count"];
-        this.resFields = ["goldNum"];
-    }
-    //server output, type: number//返回剩余的金币数
-    get goldNum() {return this._goldNum}
-    set goldNum(v) {this._goldNum = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new SellSpe();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
 class TestSend extends WsSend {
     constructor() {
         super();
@@ -2239,6 +2214,34 @@ class TestSend extends WsSend {
     set test(v) {this._test = v}
     static Init(ctx, checkLogin = false) {
         let o = new TestSend();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class SellSpe extends Spe {
+    constructor() {
+        super();
+        this.action = 'prop.sellspe';
+    
+        this._goldNum = null;
+        this.requireFileds = ["propId","count"];
+        this.reqFields = ["propId","count"];
+        this.resFields = ["goldNum"];
+    }
+    //server output, type: number//返回剩余的金币数
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new SellSpe();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2271,34 +2274,6 @@ class BuySpe extends Spe {
     set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
         let o = new BuySpe();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class RechargeRankInfo extends RankInfo {
-    constructor() {
-        super();
-        this.action = 'rank.rechargerankinfo';
-    
-        this._myRecharge = null;
-        this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","page","limit"];
-        this.resFields = ["myRecharge","selfRank","ranks"];
-    }
-    //server output, type: number
-    get myRecharge() {return this._myRecharge}
-    set myRecharge(v) {this._myRecharge = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new RechargeRankInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2354,14 +2329,13 @@ exports.Photograph = Photograph;
 exports.WsReceive = WsReceive;
 exports.WsSend = WsSend;
 exports.RankInfo = RankInfo;
-exports.IndexInfo = IndexInfo;
 exports.RentProp = RentProp;
 exports.TraveledPlaces = TraveledPlaces;
 exports.mySpe = mySpe;
 exports.SpeList = SpeList;
 exports.Spe = Spe;
+exports.IndexInfo = IndexInfo;
 exports.TravelLog = TravelLog;
-exports.GetUserLocation = GetUserLocation;
 exports.TravelFootprint = TravelFootprint;
 exports.ToSign = ToSign;
 exports.SignInfo = SignInfo;
@@ -2382,12 +2356,12 @@ exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
 exports.ClearMsg = ClearMsg;
 exports.UserInfo = UserInfo;
-exports.ExchangeShop = ExchangeShop;
+exports.GetUserLocation = GetUserLocation;
 exports.IntegralShop = IntegralShop;
 exports.ExchangeDetail = ExchangeDetail;
+exports.ExchangeShop = ExchangeShop;
 exports.CityListPer = CityListPer;
 exports.SysMessage = SysMessage;
-exports.SellSpe = SellSpe;
 exports.TestSend = TestSend;
+exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
-exports.RechargeRankInfo = RechargeRankInfo;

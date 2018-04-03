@@ -1,12 +1,12 @@
 const Service = require('egg').Service;
-
+const travelConfig = require("../../../sheets/travel");
 
 class RankService extends Service {
     /**
      * 更新一次积分榜单
      * */
     async updateScoreRankList() {
-        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort('-integral, updateDate').limit(sheets.Parameter.Get(sheets.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort({'integral':-1, 'updateDate':1}).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
@@ -14,7 +14,7 @@ class RankService extends Service {
             o.rank = idx++;
             o.createDate = date;
             return o;
-        })
+        });
 
         await this.ctx.model.TravelModel.IntegralRank.remove();
         await this.ctx.model.TravelModel.IntegralRank.create(list);
@@ -22,12 +22,12 @@ class RankService extends Service {
     }
 
     /**
-     * 获取当前积分榜单
+     * 获取当前全国积分榜单
+     * @param page 页码
      * @param limit 查询条数
      * */
-    async getScoreRankList(fromRank, limit) {
-        let ranklist = await this.ctx.model.TravelModel.IntegralRank.find().gt('rank', fromRank).limit(limit);
-        return ranklist;
+    async getScoreRankList( page,limit) {
+        return await this.ctx.model.TravelModel.IntegralRank.find().skip((page-1)*limit).limit(limit);
     }
 
     /**
@@ -37,11 +37,23 @@ class RankService extends Service {
         let rankInfo = await this.ctx.model.TravelModel.IntegralRank.findOne({uid: uid});
         return rankInfo ? rankInfo.rank : 0; //0表示未上榜
     }
+
+    /**
+     * 获取当前好友积分榜单
+     * @param friendList 好友列表
+     * @param page 页码
+     * @param limit 查询条数
+     * */
+    async getUserFriendScoreRankList(friendList,page,limit){
+        return  await this.ctx.model.TravelModel.IntegralRecord.find({uid:friendList}).sort({'integral':-1, 'updateDate':1}).skip((page-1)*limit).limit(limit);
+    }
+
+
     /**
      * 更新一次达人榜单
      * */
-    async updateRankList() {
-        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort('-integral, updateDate').limit(sheets.Parameter.Get(sheets.Parameter.RANKNUMBER).value);
+    async updateCompletionDegreeRankList() {
+        let list = await this.ctx.model.TravelModel.CompletionDegreeRecord.find().sort({"completionDegree":-1, "updateDate":1}).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
@@ -49,14 +61,81 @@ class RankService extends Service {
             o.rank = idx++;
             o.createDate = date;
             return o;
-        })
+        });
 
-        await this.ctx.model.TravelModel.IntegralRank.remove();
-        await this.ctx.model.TravelModel.IntegralRank.create(list);
+        await this.ctx.model.TravelModel.CompletionDegreeRank.remove();
+        await this.ctx.model.TravelModel.CompletionDegreeRank.create(list);
 
+    }
+    /**
+     * 更新达人记录表
+     * @param uid  require
+     * @param {} optional
+     *
+     * */
+    async updateCompletionDegreeRecord( uid , {scenicspots = 0,postcards = 0 ,events = 0 } = {} ) {
+        let record = await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
+        let userScenicspots = scenicspots + record.scenicspots;
+        let userPostcards = postcards + record.postcards;
+        let userEvents = events + record.events;
+        let totalScenicspots = travelConfig.Scenicspot.length;
+        let totalPostcards = travelConfig.Postcard.length;
+        let totalEvents = travelConfig.Event.length;
+        let userProgress = userScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
+                              userPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
+                                 userEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENT).value;
+
+        let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
+                              totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
+                              totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENT).value;
+        let progress = parseFloat((userProgress / totalProgress).toFixed(2));
+
+        await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
+            {uid:uid},
+            {$set:{uid:uid,scenicspots:userScenicspots,postcards:userPostcards,events:userEvents,completionDegree:progress,updateDate:new Date()}},
+            {upsert:true}
+            );
+    }
+    /**
+     * 获取玩家全国完成度
+     * */
+    async getUserCompletionDegreeRecord(uid) {
+        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
     }
 
 
+    /**
+     * 获取当前达人榜单
+     * @page 页码
+     * @param limit 查询条数
+     * */
+    async getCompletionDegreeRankList( page = 1, limit = 20) {
+        return await this.ctx.model.TravelModel.CompletionDegreeRank.find().skip((page-1)*limit).limit(limit);
+    }
+
+    /**
+     * 获取玩家在全国达人榜单中的排名
+     * */
+    async getUserCompletionDegreeRank(uid) {
+        let rankInfo = await this.ctx.model.TravelModel.CompletionDegreeRank.findOne({uid: uid});
+        return rankInfo ? rankInfo.rank : 0; //0表示未上榜
+    }
+
+    /**
+     * 获取玩家完成度
+     * */
+    async getUserCompletionDegree(uid) {
+        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
+    }
+    /**
+     * 获取当前好友达人榜单
+     * @param friendList 好友列表
+     * @param page 页码
+     * @param limit 查询条数
+     * */
+    async getUserFriendCompletionDegreeRankList(friendList,page,limit){
+        return  await this.ctx.model.TravelModel.CompletionDegreeRecord.find({uid:friendList}).sort({'completionDegree':-1, 'updateDate':1}).skip((page-1)*limit).limit(limit);
+    }
 
 
 }
