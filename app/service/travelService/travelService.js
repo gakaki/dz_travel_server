@@ -95,7 +95,6 @@ class TravelService extends Service {
         let ttype = info.type;
 
         let cost = {
-            ["items." + ttype]: -1,
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1
         };
         //使用赠送机票
