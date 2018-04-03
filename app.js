@@ -24,15 +24,6 @@ module.exports = app => {
     // })
 
 
-        app.kue.process('email', (job, done) => {
-            console.log(job.data.to);
-        });
-
-        app.kue.create('email', {
-            title: 'welcome email for justin'
-            , to: 'gdjyluxiaoyong@gmail.com'
-            , template: 'welcome-email'
-        }).save();
 
     });
 

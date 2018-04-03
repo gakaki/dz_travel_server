@@ -23,7 +23,7 @@ function createDelayedJob(config, app) {
   const queue = kue.createQueue(config);
   // console.log("dz kue 的插件配置 redis config is ", config);
 
-  kue.app.listen(5555);
+  // kue.app.listen(5555);
 
   app.beforeStart(async () => {
       app.coreLogger.info('[egg-kue] instance begin start');
