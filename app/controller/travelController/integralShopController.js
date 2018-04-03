@@ -29,4 +29,10 @@ module.exports = class IntegralShopController extends Controller {
         await ctx.service.travelService.playerService.getMailAddress(info, info.ui);
         info.submit();
     }
+
+    async initExchangeDetails(ctx) {
+        ctx.logger.info('init exchange records')
+        await ctx.service.travelService.integralService.initExchangeDetails();
+        ctx.body = 'ok'
+    }
 }

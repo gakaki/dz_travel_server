@@ -17,10 +17,36 @@ class IntegralService extends Service {
     async exchangeDetail(res) {
         const pageLimit = 6;// 每页数据
         let list = await this.ctx.model.TravelModel.ExchangeRecord.aggregate()
+            .sort('-_id')
             .skip(pageLimit * (res.page - 1))//page 从1开始
             .limit(pageLimit)
-            .group({nickName: "$nickName", avatarUrl: "$avatar",shopName: "$exName" });
+            .project({_id: 0, nickName: "$nickName", avatarUrl: "$avatar",shopName: "$exName" })
+        ;
         res.exchangeDetail = list;
+    }
+
+    //test 生成兑换表
+    async initExchangeDetails() {
+        let uid = 'ov5W35VBNAwMJuhI3lsDq2yHD0cY';
+        let date = new Date();
+        let list = [];
+        for (let i = 0; i < 100; i++) {
+            let d = {
+                uid:uid,
+                nickName: '李世伟',
+                avatar:"https://wx.qlogo.cn/mmopen/vi_32/PMBhv3gu5ug08XYj9XFICibs1WgQ0aP7mHPhFOj4l99GnwuPbtViagbc2PfFzudSsSla5m1ZmSqGSGJTXU32IcCQ/0",
+                exId:i,
+                integral: i * 10,
+                exName:`测试物品${i}`,
+                tel: 123456,
+                addr: '上海',
+                sent: false,
+                createDate: date
+            };
+            list.push(d);
+        }
+
+        await this.ctx.model.TravelModel.ExchangeRecord.create(list);
     }
 
     /**
@@ -84,7 +110,7 @@ class IntegralService extends Service {
     //兑换物品
     async exchange(res, ui) {
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
-        if (!ui.tel) {
+        if (!ui.mobile) {
             res.code = apis.Code.NEED_ADDRESS;
             this.logger.info('未填地址，返回');
             return;
