@@ -89,6 +89,7 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
+        this.logger.info("清除已读信息");
         await ctx.service.travelService.playerService.clearMsg(info,ui,msg);
 
         info.submit();
@@ -249,6 +250,34 @@ class PlayerController extends Controller {
         }
         await ctx.service.travelService.playerService.toSign(info,ui);
         info.submit();
+    }
+
+
+    async getrankinfo(ctx){
+        let info =await apis.RankInfo.Init(ctx,true);
+        if(!info.ui){
+            return;
+        }
+        if(info.rankType != apis.RankType.THUMBS && info.rankType != apis.RankType.FOOT && info.rankType != apis.RankType.SCORE){
+            this.logger.info("榜单类型错误 "+ info.rankType);
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+
+        if(info.rankSubtype != apis.RankSubtype.COUNTRY && info.rankSubtype != apis.RankSubtype.FRIEND){
+            this.logger.info("榜单子类型错误 "+ info.rankSubtype);
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+        await ctx.service.travelService.playerService.getRankInfo(info);
+        info.submit();
+
+
+
     }
 
 

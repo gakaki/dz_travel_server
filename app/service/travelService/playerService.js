@@ -125,7 +125,9 @@ class PlayerService extends Service {
     async getMessage(info,ui,type){
         let page = Number(info.page)?Number(info.page):1;
         let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        this.logger.info(`当前页码 ：${page} ,当前限制数 ${limit}`);
         let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
+      //  this.logger.info(msgs);
         let messages = [];
         for(let msg of msgs){
             let message ={
@@ -138,15 +140,19 @@ class PlayerService extends Service {
             messages.push(message);
          // await this.ctx.model.TravelModel.UserMsg.update({mid:msg.mid},{$set:{isRead:true}});
         }
+      //  this.logger.info(messages);
         info.messages = messages
     }
 
     async clearMsg(info,ui,msg){
-        await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+       let r =  await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+        this.logger.info(r);
     }
 
     async checkMsgCnt(info,ui){
-        info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        let count = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        this.logger.info("返回的未读消息 " +count);
+        info.unreadMsgCnt = count;
     }
 
     async setRealInfo(info, ui) {
@@ -381,7 +387,7 @@ class PlayerService extends Service {
         let cost ={
             cumulativeDays:1
         };
-        cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
+      //  cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
         let itemChange = {
             ["items."+travelConfig.Item.GOLD] : travelConfig.Login.Get(day).gold
         };
@@ -394,6 +400,56 @@ class PlayerService extends Service {
         });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
         this.ctx.service.publicService.itemService.itemChange(ui, itemChange, "travel");
+
+    }
+
+    async getRankInfo(info){
+        let page = Number(info.page)?Number(info.page):1;
+        let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        let friendList = info.ui.friendList;
+        friendList.push(info.ui.uid);
+        let rankInfos = [];
+        if(info.rankType == apis.RankType.SCORE){
+            info.selfRank = {
+                achievement:info.ui.items[travelConfig.Item.POINT]
+            };
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY){
+                rankInfos =  await this.ctx.service.travelService.rankService.getScoreRankList(page,limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND){
+                rankInfos =  await this.ctx.service.travelService.rankService.getUserFriendScoreRankList(friendList,page,limit);
+            }
+
+        }
+        if(info.rankType == apis.RankType.THUMBS){
+            let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
+            info.selfRank = {
+                achievement:selfCompletionDegree.completionDegree
+            };
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY){
+                rankInfos =  await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page,limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND){
+                rankInfos =  await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList,page,limit);
+            }
+        }
+
+        let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        info.selfRank.rank = index + 1;
+
+        info.ranks = rankInfos.map(async (value,index) =>{
+            let rankItem = {
+                rank:value.rank || (index+1),
+                achievement:value.integral || value.completionDegree
+            };
+           let user = value.uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid:value.uid});
+           rankItem.userInfo = {
+               uid:user.uid,
+               nickName:user.nickName,
+               avatarUrl:user.avatarUrl
+           };
+           return rankItem;
+        })
 
     }
 

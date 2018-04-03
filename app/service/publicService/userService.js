@@ -225,11 +225,9 @@ class UserService extends Service {
         let pid = await this.app.redis.incr("travel_userid");
 
         this.logger.info("注册信息 ：uid: " + uid + " pid :" + pid + "昵称 ： " + info.nickName);
-        //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
-        items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
         let ui = await this.ctx.model.PublicModel.User.create({
             uid: uid,
             appName: appName,
@@ -244,7 +242,7 @@ class UserService extends Service {
             pid: pidStr,
             items: items,
         });
-
+       // items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
         this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
 
         // 日志

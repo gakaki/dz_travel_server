@@ -95,7 +95,6 @@ class TravelService extends Service {
         let ttype = info.type;
 
         let cost = {
-            ["items." + ttype]: -1,
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1
         };
         //使用赠送机票
@@ -108,10 +107,10 @@ class TravelService extends Service {
 
         }
         //道具更新
-        await this.ctx.model.PublicModel.User.update({
-            uid: ui.uid,
-            ["items." + travelConfig.Item.GOLD]: {$gt: 0}
-        }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
+        // await this.ctx.model.PublicModel.User.update({
+        //     uid: ui.uid,
+        //     ["items." + travelConfig.Item.GOLD]: {$gt: 0}
+        // }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui, cost);
         if (ui.isFirst){
             this.logger.info("首次飞行");
