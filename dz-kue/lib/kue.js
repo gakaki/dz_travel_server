@@ -21,12 +21,10 @@ function createDelayedJob(config, app) {
   
   //这里的config其实是跟config.default.js的
   const queue = kue.createQueue(config);
-  console.log("dz kue 的插件配置 redis config is ", config);
+  // console.log("dz kue 的插件配置 redis config is ", config);
 
   kue.app.listen(5555);
 
-
-  
   app.beforeStart(async () => {
       app.coreLogger.info('[egg-kue] instance begin start');
       try {
