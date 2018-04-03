@@ -125,7 +125,9 @@ class PlayerService extends Service {
     async getMessage(info,ui,type){
         let page = Number(info.page)?Number(info.page):1;
         let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        this.logger.info(`当前页码 ：${page} ,当前限制数 ${limit}`);
         let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
+      //  this.logger.info(msgs);
         let messages = [];
         for(let msg of msgs){
             let message ={
@@ -138,15 +140,19 @@ class PlayerService extends Service {
             messages.push(message);
          // await this.ctx.model.TravelModel.UserMsg.update({mid:msg.mid},{$set:{isRead:true}});
         }
+      //  this.logger.info(messages);
         info.messages = messages
     }
 
     async clearMsg(info,ui,msg){
-        await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+       let r =  await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+        this.logger.info(r);
     }
 
     async checkMsgCnt(info,ui){
-        info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        let count = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        this.logger.info("返回的未读消息 " +count);
+        info.unreadMsgCnt = count;
     }
 
     async setRealInfo(info, ui) {
