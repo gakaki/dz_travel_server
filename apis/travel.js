@@ -966,11 +966,12 @@ class RankInfo extends Base {
     
         this._rankType = null;
         this._rankSubtype = null;
+        this._page = null;
         this._limit = null;
         this._selfRank = null;
         this._ranks = null;
         this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","limit"];
+        this.reqFields = ["rankType","rankSubtype","page","limit"];
         this.resFields = ["selfRank","ranks"];
     }
     //client input, require, type: RankType
@@ -979,6 +980,9 @@ class RankInfo extends Base {
     //client input, require, type: RankSubtype
     get rankSubtype() {return this._rankSubtype}
     set rankSubtype(v) {this._rankSubtype = v}
+    //client input, optional, type: number
+    get page() {return this._page}
+    set page(v) {this._page = v}
     //client input, optional, type: number
     get limit() {return this._limit}
     set limit(v) {this._limit = v}
@@ -2287,7 +2291,7 @@ class RechargeRankInfo extends RankInfo {
     
         this._myRecharge = null;
         this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","limit"];
+        this.reqFields = ["rankType","rankSubtype","page","limit"];
         this.resFields = ["myRecharge","selfRank","ranks"];
     }
     //server output, type: number

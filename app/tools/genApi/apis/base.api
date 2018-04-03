@@ -274,7 +274,9 @@ class Base{
         return Base.SID;
     }
     
-    func client static Start(appName, url) {
+    func client static Start(appName, url, shareUid) {
+        if(shareUid)
+            this.shareUid = shareUid;
         return new Promise((resolve,reject) => {
             let app = getApp();
             if (this.LOGINED) {
@@ -343,6 +345,10 @@ class Base{
         let req = new Base();
         req.action = 'user.login';
         req.reqFields = [ 'info'];
+        if (this.shareUid) {
+            req.reqFields.push('shareUid');
+            req.shareUid = this.shareUid;
+        }
 
         //wx login
         wx.getUserInfo({
@@ -354,6 +360,8 @@ class Base{
                 req.fetch().then(()=>{
                     this.AUTHED = true;
                     this.LOGINED = true;
+                    this.shareUid = null;
+                    
                     app.globalData.userInfo = req.info;
                     this.SID = req.sid;
                     this._timestampD = Date.now()/1000  - req.timestamp;
