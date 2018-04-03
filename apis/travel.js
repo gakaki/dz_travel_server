@@ -733,6 +733,9 @@ class CityPer {
     constructor() {
     
     
+        //prop type: string//城市id
+        this.cityId = null;
+    
         //prop type: 
         this.cityname = null;
     
@@ -748,6 +751,15 @@ class CityPer {
     }
 }
 class Ws {
+    constructor() {
+    
+    
+        
+        
+        
+    }
+}
+class Http {
     constructor() {
     
     
@@ -789,21 +801,37 @@ class Event {
         
     }
 }
-class LookTicket extends Base {
+class ModifyRealInfo extends Base {
     constructor() {
         super();
-        this.action = 'player.lookticket';
+        this.action = 'player.modifyrealinfo';
     
-        this._ticket = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["ticket"];
+        this._name = null;
+        this._birthday = null;
+        this._phone = null;
+        this._address = null;
+        this._realInfo = null;
+        this.requireFileds = ["name","birthday","phone","address"];
+        this.reqFields = ["name","birthday","phone","address"];
+        this.resFields = ["realInfo"];
     }
-    //server output, type: TicketInfo[]
-    get ticket() {return this._ticket}
-    set ticket(v) {this._ticket = v}
+    //client input, require, type: string
+    get name() {return this._name}
+    set name(v) {this._name = v}
+    //client input, require, type: string
+    get birthday() {return this._birthday}
+    set birthday(v) {this._birthday = v}
+    //client input, require, type: string
+    get phone() {return this._phone}
+    set phone(v) {this._phone = v}
+    //client input, require, type: string
+    get address() {return this._address}
+    set address(v) {this._address = v}
+    //server output, type: RealInfo
+    get realInfo() {return this._realInfo}
+    set realInfo(v) {this._realInfo = v}
     static Init(ctx, checkLogin = false) {
-        let o = new LookTicket();
+        let o = new ModifyRealInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -868,30 +896,6 @@ class questRandom extends Base {
     set eventId(v) {this._eventId = v}
     static Init(ctx, checkLogin = false) {
         let o = new questRandom();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class questRandomList extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.questrandomlist';
-    
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = [];
-    }
-    static Init(ctx, checkLogin = false) {
-        let o = new questRandomList();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1587,17 +1591,21 @@ class ExchangeShop extends Base {
         }
     }
 }
-class changeRouter extends Base {
+class LookTicket extends Base {
     constructor() {
         super();
-        this.action = 'tour.changerouter';
+        this.action = 'player.lookticket';
     
+        this._ticket = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = [];
+        this.resFields = ["ticket"];
     }
+    //server output, type: TicketInfo[]
+    get ticket() {return this._ticket}
+    set ticket(v) {this._ticket = v}
     static Init(ctx, checkLogin = false) {
-        let o = new changeRouter();
+        let o = new LookTicket();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1611,37 +1619,17 @@ class changeRouter extends Base {
         }
     }
 }
-class ModifyRealInfo extends Base {
+class changeRouter extends Base {
     constructor() {
         super();
-        this.action = 'player.modifyrealinfo';
+        this.action = 'tour.changerouter';
     
-        this._name = null;
-        this._birthday = null;
-        this._phone = null;
-        this._address = null;
-        this._realInfo = null;
-        this.requireFileds = ["name","birthday","phone","address"];
-        this.reqFields = ["name","birthday","phone","address"];
-        this.resFields = ["realInfo"];
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = [];
     }
-    //client input, require, type: string
-    get name() {return this._name}
-    set name(v) {this._name = v}
-    //client input, require, type: string
-    get birthday() {return this._birthday}
-    set birthday(v) {this._birthday = v}
-    //client input, require, type: string
-    get phone() {return this._phone}
-    set phone(v) {this._phone = v}
-    //client input, require, type: string
-    get address() {return this._address}
-    set address(v) {this._address = v}
-    //server output, type: RealInfo
-    get realInfo() {return this._realInfo}
-    set realInfo(v) {this._realInfo = v}
     static Init(ctx, checkLogin = false) {
-        let o = new ModifyRealInfo();
+        let o = new changeRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2538,12 +2526,12 @@ exports.Base = Base;
 exports.ProvencePer = ProvencePer;
 exports.CityPer = CityPer;
 exports.Ws = Ws;
+exports.Http = Http;
 exports.QuestReport = QuestReport;
 exports.Event = Event;
-exports.LookTicket = LookTicket;
+exports.ModifyRealInfo = ModifyRealInfo;
 exports.questEnterSpot = questEnterSpot;
 exports.questRandom = questRandom;
-exports.questRandomList = questRandomList;
 exports.showQuestReport = showQuestReport;
 exports.leaveTour = leaveTour;
 exports.WsReceive = WsReceive;
@@ -2564,8 +2552,8 @@ exports.SpeList = SpeList;
 exports.Spe = Spe;
 exports.GetUserLocation = GetUserLocation;
 exports.ExchangeShop = ExchangeShop;
+exports.LookTicket = LookTicket;
 exports.changeRouter = changeRouter;
-exports.ModifyRealInfo = ModifyRealInfo;
 exports.GetRealInfo = GetRealInfo;
 exports.PlayerInfo = PlayerInfo;
 exports.DetailLiveMessage = DetailLiveMessage;
