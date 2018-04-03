@@ -3,7 +3,7 @@ module.exports = app => {
     const TravelEventSchema = new mongoose.Schema({
         uid:{type:String},
         eid:{type:String},//事件id
-        cid:{type:String},
+        cid:{type:String},//cityId
         createDate:{type:Date}
     });
 
