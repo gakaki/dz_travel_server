@@ -70,39 +70,42 @@ class RankService extends Service {
     /**
      * 更新达人记录表
      * @param uid  require
-     * @param {} optional
      *
      * */
-    async updateCompletionDegreeRecord( uid , {scenicspots = 0,postcards = 0 ,events = 0 } = {} ) {
-        let record = await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
-        let userScenicspots = scenicspots + record.scenicspots;
-        let userPostcards = postcards + record.postcards;
-        let userEvents = events + record.events;
+    async updateCompletionDegreeRecord( uid ) {
         let totalScenicspots = travelConfig.Scenicspot.length;
         let totalPostcards = travelConfig.Postcard.length;
         let totalEvents = travelConfig.Event.length;
-        let userProgress = userScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
-                              userPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
-                                 userEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
+
+        let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
+            {$match:{uid:uid}},
+            {$group:{_id:"$scenicspot"}},
+        ]);
+
+        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+            {$match:{uid:uid}},
+            {$group:{_id:"$eid"}}
+        ]);
+        let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
+            {$match:{uid:uid}},
+            {$group:{_id:"$ptid"}}
+        ]);
+
+        let userProgress = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
+                              userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
+                                 userEvents.length * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
 
         let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
                               totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
                               totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
-        let progress = parseFloat((userProgress / totalProgress).toFixed(2));
+        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(2));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
             {uid:uid},
-            {$set:{uid:uid,scenicspots:userScenicspots,postcards:userPostcards,events:userEvents,completionDegree:progress,updateDate:new Date()}},
+            {$set:{uid:uid,scenicspots:userScenicspots.length,postcards:userPostcards.length,events:userEvents.length,completionDegree:progress,updateDate:new Date()}},
             {upsert:true}
             );
     }
-    /**
-     * 获取玩家全国完成度
-     * */
-    async getUserCompletionDegreeRecord(uid) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
-    }
-
 
     /**
      * 获取当前达人榜单

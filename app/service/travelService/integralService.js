@@ -64,7 +64,8 @@ class IntegralService extends Service {
             ui.items[sheets.Item.POINT] = all;
 
             //update user data
-            await userModel.update({uid: uid}, {$set: {items: ui.items}});
+            //await userModel.update({uid: uid}, {$set: {items: ui.items}});
+            this.ctx.service.publicService.itemChange(ui,{["items."+sheets.Item.POINT]:num});
             //update integral data
             let integralRM = this.ctx.model.TravelModel.IntegralRecord;
             await integralRM.update({uid: uid}, {$set : {integral: all, updateDate: new Date()}}, {upsert: true});
