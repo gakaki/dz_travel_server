@@ -517,7 +517,7 @@ class PostcardBriefDetail {
         this.id = null;
     
         //prop type: string
-        this.postid = null;
+        this.url = null;
     
         //prop type: OneBriefMessage
         this.lastestLiveMessage = null;
@@ -553,7 +553,7 @@ class ProvincePostcardInfo {
     
     
         //prop type: string
-        this.postid = null;
+        this.url = null;
     
         //prop type: string
         this.province = null;
@@ -1939,11 +1939,11 @@ class DetailPostcard extends Base {
         this._id = null;
         this._page = null;
         this._messageLength = null;
-        this._postid = null;
+        this._mainUrl = null;
         this._lastestMessage = null;
         this.requireFileds = ["id"];
         this.reqFields = ["id","page","messageLength"];
-        this.resFields = ["postid","lastestMessage"];
+        this.resFields = ["mainUrl","lastestMessage"];
     }
     //client input, require, type: number
     get id() {return this._id}
@@ -1955,8 +1955,8 @@ class DetailPostcard extends Base {
     get messageLength() {return this._messageLength}
     set messageLength(v) {this._messageLength = v}
     //server output, type: string
-    get postid() {return this._postid}
-    set postid(v) {this._postid = v}
+    get mainUrl() {return this._mainUrl}
+    set mainUrl(v) {this._mainUrl = v}
     //server output, type: DetailLiveMessage[]
     get lastestMessage() {return this._lastestMessage}
     set lastestMessage(v) {this._lastestMessage = v}
