@@ -83,6 +83,8 @@ class Code{
     
     static get NOT_FOUND() { return -10086;}
     
+    static get HAS_LIKE() { return -521;}
+    
     static get NEED_COUPON() { return -170;}
     
     static get NEED_MONEY() { return -171;}
@@ -801,6 +803,45 @@ class QuestReport {
         
     }
 }
+class Position {
+    constructor() {
+    
+    
+        //prop type: number
+        this.x = null;
+    
+        //prop type: number
+        this.y = null;
+    
+        
+        
+        
+    }
+}
+class NextSpot {
+    constructor() {
+    
+    
+        //prop type: number
+        this.spodIdNext = null;
+    
+        //prop type: Date
+        this.createDate = null;
+    
+        //prop type: Date
+        this.arrivedDate = null;
+    
+        //prop type: string
+        this.needTime = null;
+    
+        //prop type: number
+        this.elapsedTimeSecond = null;
+    
+        
+        
+        
+    }
+}
 class LookTicket extends Base {
     constructor() {
         super();
@@ -829,37 +870,97 @@ class LookTicket extends Base {
         }
     }
 }
-class StartGame extends Base {
+class FlyInfo extends Base {
     constructor() {
         super();
-        this.action = 'startGame.startgame';
+        this.action = 'startGame.flyinfo';
     
         this._type = null;
-        this._cid = null;
+        this._gold = null;
+        this._isSingleFirst = null;
+        this._isDoubleFirst = null;
+        this._season = null;
+        this._weather = null;
         this._cost = null;
-        this._partnerUid = null;
-        this._tid = null;
-        this.requireFileds = ["type","cid","cost"];
-        this.reqFields = ["type","cid","cost","partnerUid","tid"];
-        this.resFields = [];
+        this._doubleCost = null;
+        this._location = null;
+        this._holiday = null;
+        this._cid = null;
+        this.requireFileds = ["type"];
+        this.reqFields = ["type"];
+        this.resFields = ["gold","isSingleFirst","isDoubleFirst","season","weather","cost","doubleCost","location","holiday","cid"];
     }
     //client input, require, type: TicketType
     get type() {return this._type}
     set type(v) {this._type = v}
-    //client input, require, type: number
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //client input, require, type: number
+    //server output, type: number
+    get gold() {return this._gold}
+    set gold(v) {this._gold = v}
+    //server output, type: Boolean
+    get isSingleFirst() {return this._isSingleFirst}
+    set isSingleFirst(v) {this._isSingleFirst = v}
+    //server output, type: Boolean
+    get isDoubleFirst() {return this._isDoubleFirst}
+    set isDoubleFirst(v) {this._isDoubleFirst = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: number
     get cost() {return this._cost}
     set cost(v) {this._cost = v}
-    //client input, optional, type: string
-    get partnerUid() {return this._partnerUid}
-    set partnerUid(v) {this._partnerUid = v}
-    //client input, optional, type: string
-    get tid() {return this._tid}
-    set tid(v) {this._tid = v}
+    //server output, type: number
+    get doubleCost() {return this._doubleCost}
+    set doubleCost(v) {this._doubleCost = v}
+    //server output, type: string
+    get location() {return this._location}
+    set location(v) {this._location = v}
+    //server output, type: string
+    get holiday() {return this._holiday}
+    set holiday(v) {this._holiday = v}
+    //server output, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
     static Init(ctx, checkLogin = false) {
-        let o = new StartGame();
+        let o = new FlyInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class nextRouter extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.nextrouter';
+    
+        this._spotId = null;
+        this._position = null;
+        this._nextSpot = null;
+        this.requireFileds = ["spotId","position"];
+        this.reqFields = ["spotId","position"];
+        this.resFields = ["nextSpot"];
+    }
+    //client input, require, type: number
+    get spotId() {return this._spotId}
+    set spotId(v) {this._spotId = v}
+    //client input, require, type: Position
+    get position() {return this._position}
+    set position(v) {this._position = v}
+    //server output, type: NextSpot
+    get nextSpot() {return this._nextSpot}
+    set nextSpot(v) {this._nextSpot = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new nextRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1083,74 +1184,6 @@ class CityListPer extends Base {
         }
     }
 }
-class FlyInfo extends Base {
-    constructor() {
-        super();
-        this.action = 'startGame.flyinfo';
-    
-        this._type = null;
-        this._gold = null;
-        this._isSingleFirst = null;
-        this._isDoubleFirst = null;
-        this._season = null;
-        this._weather = null;
-        this._cost = null;
-        this._doubleCost = null;
-        this._location = null;
-        this._holiday = null;
-        this._cid = null;
-        this.requireFileds = ["type"];
-        this.reqFields = ["type"];
-        this.resFields = ["gold","isSingleFirst","isDoubleFirst","season","weather","cost","doubleCost","location","holiday","cid"];
-    }
-    //client input, require, type: TicketType
-    get type() {return this._type}
-    set type(v) {this._type = v}
-    //server output, type: number
-    get gold() {return this._gold}
-    set gold(v) {this._gold = v}
-    //server output, type: Boolean
-    get isSingleFirst() {return this._isSingleFirst}
-    set isSingleFirst(v) {this._isSingleFirst = v}
-    //server output, type: Boolean
-    get isDoubleFirst() {return this._isDoubleFirst}
-    set isDoubleFirst(v) {this._isDoubleFirst = v}
-    //server output, type: Season
-    get season() {return this._season}
-    set season(v) {this._season = v}
-    //server output, type: number
-    get weather() {return this._weather}
-    set weather(v) {this._weather = v}
-    //server output, type: number
-    get cost() {return this._cost}
-    set cost(v) {this._cost = v}
-    //server output, type: number
-    get doubleCost() {return this._doubleCost}
-    set doubleCost(v) {this._doubleCost = v}
-    //server output, type: string
-    get location() {return this._location}
-    set location(v) {this._location = v}
-    //server output, type: string
-    get holiday() {return this._holiday}
-    set holiday(v) {this._holiday = v}
-    //server output, type: string
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new FlyInfo();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
 class ShareInfo extends Base {
     constructor() {
         super();
@@ -1166,6 +1199,50 @@ class ShareInfo extends Base {
     set isFirst(v) {this._isFirst = v}
     static Init(ctx, checkLogin = false) {
         let o = new ShareInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class StartGame extends Base {
+    constructor() {
+        super();
+        this.action = 'startGame.startgame';
+    
+        this._type = null;
+        this._cid = null;
+        this._cost = null;
+        this._partnerUid = null;
+        this._tid = null;
+        this.requireFileds = ["type","cid","cost"];
+        this.reqFields = ["type","cid","cost","partnerUid","tid"];
+        this.resFields = [];
+    }
+    //client input, require, type: TicketType
+    get type() {return this._type}
+    set type(v) {this._type = v}
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: number
+    get cost() {return this._cost}
+    set cost(v) {this._cost = v}
+    //client input, optional, type: string
+    get partnerUid() {return this._partnerUid}
+    set partnerUid(v) {this._partnerUid = v}
+    //client input, optional, type: string
+    get tid() {return this._tid}
+    set tid(v) {this._tid = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new StartGame();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1640,10 +1717,22 @@ class changeRouter extends Base {
         super();
         this.action = 'tour.changerouter';
     
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = [];
+        this._spotId = null;
+        this._position = null;
+        this._nextSpot = null;
+        this.requireFileds = ["spotId","position"];
+        this.reqFields = ["spotId","position"];
+        this.resFields = ["nextSpot"];
     }
+    //client input, require, type: number
+    get spotId() {return this._spotId}
+    set spotId(v) {this._spotId = v}
+    //client input, require, type: Position
+    get position() {return this._position}
+    set position(v) {this._position = v}
+    //server output, type: NextSpot
+    get nextSpot() {return this._nextSpot}
+    set nextSpot(v) {this._nextSpot = v}
     static Init(ctx, checkLogin = false) {
         let o = new changeRouter();
         o.ctx = ctx;
@@ -2537,10 +2626,14 @@ class tourIndexInfo extends IndexInfo {
         super();
         this.action = 'tour.tourindexinfo';
     
+        this._nextSpot = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
+        this.resFields = ["nextSpot","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
+    //server output, type: NextSpot
+    get nextSpot() {return this._nextSpot}
+    set nextSpot(v) {this._nextSpot = v}
     static Init(ctx, checkLogin = false) {
         let o = new tourIndexInfo();
         o.ctx = ctx;
@@ -2593,8 +2686,11 @@ exports.CityPer = CityPer;
 exports.Ws = Ws;
 exports.Http = Http;
 exports.QuestReport = QuestReport;
+exports.Position = Position;
+exports.NextSpot = NextSpot;
 exports.LookTicket = LookTicket;
-exports.StartGame = StartGame;
+exports.FlyInfo = FlyInfo;
+exports.nextRouter = nextRouter;
 exports.questEnterSpot = questEnterSpot;
 exports.answerQuestion = answerQuestion;
 exports.questRandom = questRandom;
@@ -2603,8 +2699,8 @@ exports.leaveTour = leaveTour;
 exports.WsReceive = WsReceive;
 exports.WsSend = WsSend;
 exports.CityListPer = CityListPer;
-exports.FlyInfo = FlyInfo;
 exports.ShareInfo = ShareInfo;
+exports.StartGame = StartGame;
 exports.TraveledPlaces = TraveledPlaces;
 exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;

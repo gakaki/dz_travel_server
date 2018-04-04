@@ -63,6 +63,8 @@ enum Code {
     const ITEM_MAX = -141
     //未找到相关信息
     const NOT_FOUND = -10086
+    //已经点过赞
+    const HAS_LIKE = -521
     //代金券不足
     const NEED_COUPON = -170
     //金额不足
