@@ -6,7 +6,7 @@ class TravelIOController extends Controller {
     async test(ctx) {
         let testWs = api.TestSend.Init(ctx);
         //read prop by client
-        console.log(testWs.test);
+        this.logger.info('got ws test msg:', testWs.test);
 
         //do something....
 
@@ -17,6 +17,8 @@ class TravelIOController extends Controller {
         res.content = 'test system message';
         //if failed ,set code
         // res.code = api.Code.FAILED;
+
+        this.logger.info('send ws msg:', res.content)
         res.submit();
     }
 }

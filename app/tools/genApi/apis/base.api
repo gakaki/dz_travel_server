@@ -401,10 +401,13 @@ class WsReceive extends Base{
 
 class Ws {
     func client static init(wss) {
+        if (this.IO) {
+            return;
+        }
         //初始化websocket
-        this.WSS = wss = wss || `wss://h5.ddz2018.com/${this.APP_NAME}`;//websocket服务器链接
-        this.IO = this.IO || require('./libs/io.js')(wss + `?_sid=${this.SID}&appName=${this.APP_NAME}`);
-        this._listenings = this._listenings || new Map();
+        this.WSS = wss = wss || `wss://h5.ddz2018.com/${Base.APP_NAME}`;//websocket服务器链接
+        this.IO = require('./libs/io.js')(wss + `/?sid=${Base.GetSID()}&appName=${Base.APP_NAME}`);
+        this._listenings = new Map();
 
         return new Promise(resolve => {
             this.IO.on('connect', () => {
@@ -472,8 +475,12 @@ class Ws {
     }
 
     func client static close() {
-        this.IO.close();
-        wx.closeWebsocket();
+        if(this.IO) {
+            this.IO.close();
+            wx.closeWebsocket();
+            this.IO = null;
+        }
+
     }
 
 }
