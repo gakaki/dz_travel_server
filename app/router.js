@@ -1,10 +1,13 @@
-const routerUserInfo = app.middleware.routerUserInfo({}); 
+
 
 /**
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
+
     const {router, controller, io} = app;
+    const routerUserInfo = app.middleware.routerUserInfo({});
+
     router.get('/user/login', controller.publicController.userController.login);
     router.get('/user/changeitem', controller.publicController.userController.changeitem);
     router.get('/user/getiteminfo', controller.publicController.userController.getiteminfo);

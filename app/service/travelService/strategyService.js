@@ -88,14 +88,33 @@ class StrategyService extends Service {
    async sendComment(info){
        let comid ="com"+new Date().getTime();
        let date =new Date();
+
+       let context = info.content;
+       //替换屏蔽字
+
+       let masks =travelConfig.maskwords;
+       let maskList = [];
+       for(let mas of masks){
+           maskList.push(mas.maskword);
+       }
+       for(let key of maskList){
+           context=context.replace(key,"*");
+       }
+
+       let shielded = false;
+       if(context.indexOf("*") != -1){
+           shielded = true
+       }
+
        await this.ctx.model.TravelModel.Comment.create({
            uid:info.ui.uid,
            cid:info.cityId,
            type:Number(info.type),//1 攻略 2 特产
            travel_tips:info.postId, //攻略特产id
            comid:comid, //评论id
-           context:info.content, //内容
+           context:context, //内容
            grade:info.score,  //打分
+           hasMaskWord:shielded,
            createDate:date,
        });
        info.comments = {
@@ -105,7 +124,7 @@ class StrategyService extends Service {
                 avatarUrl:info.ui.avatarUrl
             },
             commentId:comid,//评论id
-            content:info.content,//评论内容
+            content:context,//评论内容
             score:info.score,//评论得分
             thumbs:0,//点赞数
             haslike: false,

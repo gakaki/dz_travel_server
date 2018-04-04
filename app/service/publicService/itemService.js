@@ -43,6 +43,12 @@ class ItemService extends Service {
 
         return true;
     }
+
+
+    async itemUse(ui, delta, appMame="travel") {
+        //特产的使用
+        return true;
+    }
 }
 
 

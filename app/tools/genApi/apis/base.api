@@ -538,25 +538,25 @@ class Http {
         }
         this._listenHdl = setInterval(() => {
             this._listenings.forEach(lsnr => {
-                lsnr.passedTm += this.LOOP_INTERVAL;
-                if (lsnr.passedTm >= lsnr.interval) {
+                let cfg = lsnr.cbx;
+                cfg.passedTm += this.LOOP_INTERVAL;
+                if (cfg.passedTm >= cfg.interval) {
 
-                    lsnr.passedTm = 0;
-
-                    switch(lsnr.status) {
-                        case LS_IDLE:
-                            lsnr.status = this.LS_BUSY;
+                    cfg.passedTm = 0;
+                    switch(cfg.status) {
+                        case this.LS_IDLE:
+                            cfg.status = this.LS_BUSY;
                             lsnr.fetch().then(()=>{
-                                lsnr.status = this.LS_SUC;
+                                cfg.status = this.LS_SUC;
                             })
                             break;
-                        case LS_SUC:
-                            lsnr.status = LS_BUSY;
-                            let cbx = lsnr.cbx;
-                            cbx.ctx ? cbx.cb.call(cbx.ctx, lsnr) : cbx.cb(lsnr);
-                            lsnr.status = LS_IDLE;
+                        case this.LS_SUC:
+                            cfg.status = this.LS_BUSY;
+
+                            cfg.ctx ? cfg.cb.call(cfg.ctx, lsnr) : cfg.cb(lsnr);
+                            cfg.status = this.LS_IDLE;
                             break;
-                        case LS_BUSY:
+                        case this.LS_BUSY:
                             //wait to be suc
                             break;
                     }
