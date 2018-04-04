@@ -733,6 +733,9 @@ class CityPer {
     constructor() {
     
     
+        //prop type: string//城市id
+        this.cityId = null;
+    
         //prop type: 
         this.cityname = null;
     
