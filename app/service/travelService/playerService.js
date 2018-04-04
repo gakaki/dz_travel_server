@@ -435,22 +435,29 @@ class PlayerService extends Service {
         }
 
         let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        this.logger.info("weizhi ========")
         this.logger.info(index)
         info.selfRank.rank = index + 1;
-
-        info.ranks = rankInfos.map(async (value,index) =>{
+        let out = [];
+        for(let index = 0; index< rankInfos.length ; index++) {
+            //this.logger.info(value);
             let rankItem = {
-                rank:value.rank || (index+1),
-                achievement:value.integral || value.completionDegree
+                rank: rankInfos[index].rank || (index + 1),
+                achievement: rankInfos[index].integral || rankInfos[index].completionDegree
             };
-           let user = value.uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid:value.uid});
-           rankItem.userInfo = {
-               uid:user.uid,
-               nickName:user.nickName,
-               avatarUrl:user.avatarUrl
-           };
-           return rankItem;
-        })
+            // this.logger.info(value);
+            let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid: rankInfos[index].uid});
+            //  this.logger.info(user);
+            rankItem.userInfo = {
+                uid: user.uid,
+                nickName: user.nickName,
+                avatarUrl: user.avatarUrl
+            };
+            //this.logger.info(rankItem)
+            out.push(rankItem);
+        }
+      // this.logger.info(out)
+        info.ranks = out
 
     }
 
