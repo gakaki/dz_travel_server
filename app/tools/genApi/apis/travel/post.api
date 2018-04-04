@@ -46,6 +46,7 @@ api CommentPost {
     require content:string//评论内容
     require score:number//评分
     require type:PostType//帖子类型：景点or特产
+    output comments:Comment//自己的的评论信息
 }
 
 //拉取评论列表
@@ -68,5 +69,4 @@ api ThumbComment {
 
     output thumbs:number//点赞数
     output haslike:boolean//是否点赞
-
 }
