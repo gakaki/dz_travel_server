@@ -66,5 +66,5 @@ module.exports = app => {
     router.get('/tour/leaveTour', controller.travelController.tourController.leaveTour);
 
 
-    io.of('/travel').route('test', io.controller.travelIOController.travelIOController.test);
+    io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };
