@@ -207,7 +207,7 @@ class PlayerService extends Service {
           let citys = postcard.citys;
           let postcardnum = 0;
           let postcardInfo ={
-              postid:postcard.pcards[0].ptid,
+              url:travelConfig.Postcard.Get(postcard.pcards[0].ptid).picture,
               province:postcard.province,
               collectPostcardNum:postcard.collectPostcardNum
           };
@@ -245,7 +245,7 @@ class PlayerService extends Service {
                     if(chats.length>0){
                         postcardBriefDetail ={
                             id : pt.pscid,
-                            postid: pt.ptid,
+                            url:travelConfig.Postcard.Get(pt.ptid).picture,
                         };
                         let chat = chats[0];
                         let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
@@ -264,7 +264,7 @@ class PlayerService extends Service {
                 }else{
                     postcardBriefDetail ={
                         id : pt.pscid,
-                        postid: pt.ptid,
+                        url:travelConfig.Postcard.Get(pt.ptid).picture,
                     };
                 }
                 if(postcardBriefDetail && postcardBriefDetail.id){
@@ -286,7 +286,7 @@ class PlayerService extends Service {
         let limit = Number(info.messageLength)?Number(info.messageLength):travelConfig.Parameter.Get(travelConfig.Parameter.MAXMESSAGE).value;
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
-        info.postid = postcard.ptid;
+        info.mainUrl =travelConfig.Postcard.Get(postcard.ptid).picture;
         let detailLiveMessages = [];
         for(let i = 0 ;i < chats.length ; i++){
             let chat = chats[i];
