@@ -447,11 +447,13 @@ class PlayerService extends Service {
             };
             // this.logger.info(value);
             let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid: rankInfos[index].uid});
-            //  this.logger.info(user);
+          //  this.logger.info(rankInfos[index]);
+          //    this.logger.info(user);
             rankItem.userInfo = {
                 uid: user.uid,
                 nickName: user.nickName,
-                avatarUrl: user.avatarUrl
+                avatarUrl: user.avatarUrl,
+                gold : user.items[travelConfig.Item.GOLD],
             };
             //this.logger.info(rankItem)
             out.push(rankItem);
