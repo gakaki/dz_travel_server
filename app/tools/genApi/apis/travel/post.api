@@ -44,7 +44,7 @@ api CommentPost {
     require cityId:string//城市id
     require postId:string//景点或特产id
     require content:string//评论内容
-    reruire score:number//评分
+    require score:number//评分
     require type:PostType//帖子类型：景点or特产
 }
 

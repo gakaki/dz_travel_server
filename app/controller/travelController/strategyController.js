@@ -159,6 +159,14 @@ class StrategyController extends Controller {
             info.submit();
             return
         }
+        let likeRecord = await this.ctx.model.TravelModel.LikeRecord.findOne({uid:info.ui.uid, comid:info.commentId});
+        if(likeRecord){
+            this.logger.info("已经点过赞" + info.commentId);
+            info.code = apis.Code.HAS_LIKE;
+            info.submit();
+            return
+        }
+
         await ctx.service.travelService.strategyService.giveThumbsUp(info,comment);
         info.thumbs = comment.likes +1;
         info.haslike = true;

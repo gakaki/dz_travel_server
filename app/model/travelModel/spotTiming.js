@@ -12,6 +12,6 @@ module.exports = app => {
         createDate:{type:Date}      //创建时间 当前景点出发的时间 然后当前时间记录下 可以获得多少时间到
     });
 
-    return mongoose.model('spotTiming', SpotTimingSchema);
+    return mongoose.model('SpotTiming', SpotTimingSchema);
 };
 

@@ -88,7 +88,7 @@ class StrategyService extends Service {
    async sendComment(info){
        await this.ctx.model.TravelModel.Comment.create({
            uid:info.ui.uid,
-           cid:info.cid,
+           cid:info.cityId,
            type:Number(info.type),//1 攻略 2 特产
            travel_tips:info.postId, //攻略特产id
            comid:"com"+new Date().getTime(), //评论id
@@ -109,7 +109,7 @@ class StrategyService extends Service {
            );
 
        //被点赞的人获得金币
-       this.ctx.service.publicService.itemChange(info.ui,{["items."+travelConfig.Item.GOLD]:travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value});
+       this.ctx.service.publicService.itemService.itemChange(info.ui,{["items."+travelConfig.Item.GOLD]:travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value});
 
 
        //通知被赞人

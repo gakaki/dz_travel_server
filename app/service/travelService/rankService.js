@@ -10,7 +10,9 @@ class RankService extends Service {
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
-            let o = Object.assign({}, l);
+            let o = {};
+            o.uid = l.uid;
+            o.integral = l.integral;
             o.rank = idx++;
             o.createDate = date;
             return o;
@@ -57,7 +59,9 @@ class RankService extends Service {
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
-            let o = Object.assign({}, l);
+            let o = {};
+            o.uid = l.uid;
+            o.completionDegree = l.completionDegree;
             o.rank = idx++;
             o.createDate = date;
             return o;
@@ -91,14 +95,14 @@ class RankService extends Service {
             {$group:{_id:"$ptid"}}
         ]);
 
-        let userProgress = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
-                              userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
-                                 userEvents.length * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
+        let userProgress = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100 +
+                              userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100 +
+                                 userEvents.length * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100;
 
-        let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
-                              totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
-                              totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
-        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(2));
+        let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100 +
+                              totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100 +
+                              totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100;
+        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(1));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
             {uid:uid},

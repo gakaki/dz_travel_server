@@ -63,6 +63,8 @@ enum Code {
     const ITEM_MAX = -141
     //未找到相关信息
     const NOT_FOUND = -10086
+    //已经点过赞
+    const HAS_LIKE = -521
     //代金券不足
     const NEED_COUPON = -170
     //金额不足
@@ -489,7 +491,7 @@ class Http {
 
     func client static listen(apiCls, cb, ctx, interval = 300) {
         if (!this._listenings) {
-            console.error('ws has not inited');
+            console.error('Http loop has not inited');
             return;
         }
         let action = apiCls.name.toLowerCase();
