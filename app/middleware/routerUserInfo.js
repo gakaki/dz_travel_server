@@ -17,7 +17,7 @@ module.exports = options => {
             return ctx.body;
         }
         else {
-            ctx.set('ui', ui);
+            ctx.session.ui = ui;
         }
         
         await next();
