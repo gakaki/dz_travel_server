@@ -9,6 +9,6 @@ module.exports = app => {
         createDate:{type:Date}
     });
 
-    return mongoose.model('spotTravelEvent', SpotTravelEventSchema);
+    return mongoose.model('SpotTravelEvent', SpotTravelEventSchema);
 };
 
