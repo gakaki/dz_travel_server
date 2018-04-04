@@ -554,7 +554,7 @@ class Http {
                             cfg.status = this.LS_BUSY;
 
                             cfg.ctx ? cfg.cb.call(cfg.ctx, lsnr) : cfg.cb(lsnr);
-                            lsnr.status = this.LS_IDLE;
+                            cfg.status = this.LS_IDLE;
                             break;
                         case this.LS_BUSY:
                             //wait to be suc
