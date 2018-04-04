@@ -5,6 +5,11 @@ const apis = require("../../../apis/travel");
 
 class TourService extends Service {
 
+    //返回该用户所有经过的路线和时间点
+    async spotsRouter(info,ui){
+        // info.routes = await this.ctx.model
+
+    }
     //观光
     async tour(info, ui) {
         // info typeof apis.IndexInfo

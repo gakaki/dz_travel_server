@@ -303,13 +303,17 @@ class TravelService extends Service {
                     }
                 }
                 this .logger.info("城市 "+ cid);
-                let userPro = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION)
-                            + userEvents.length *  travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION)
-                            + userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION);
+                let userPro = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100
+                            + userEvents.length *  travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100
+                            + userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100;
                 this.logger.info("玩家该城市进度 " + userPro);
-                let totalPro = totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION)
-                             + totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION)
-                            + totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION);
+                let totalPro = totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100
+                             + totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100
+                            + totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100;
+                this .logger.info(totalScenicspots,totalEvents,totalPostcards);
+                this.logger.info(travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value)
+                this.logger.info(travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value)
+                this.logger.info(travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value)
                 this.logger.info("该城市总进度 " + totalPro);
                 let cp = parseFloat(((userPro/totalPro)*100).toFixed(2));
                 this.logger.info("完成度 " + cp);

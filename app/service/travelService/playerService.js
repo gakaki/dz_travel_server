@@ -83,26 +83,14 @@ class PlayerService extends Service {
             uid:ui.uid,
             nickName:ui.nickName,
             avatarUrl:ui.avatarUrl
-        }
+        };
         info.reachrovince = userfootprints.length;
         info.totalArrive = totalArrive;
         info.totalArrivePercent = totalArrivePercent;
         //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
-        let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            {$match:{uid:ui.uid}},
-            {$group:{_id:"$eid"}}
-        ]);
-        let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
-            {$match:{uid:ui.uid}},
-            {$group:{_id:"$ptid"}}
-        ]);
-        let userProgress = userscenicspots + userEvents.length + userPostcards.length;
-        this.logger.info("用户进度 "+ userProgress);
-        let totalProgress = totalScenicspots + totalEvents + totalPostcards;
-        this.logger.info("总进度 "+ totalProgress);
-        let travelPercent = ((userProgress/totalProgress)*100).toFixed(2);
-        this.logger.info("进度百分比 "+ travelPercent);
-        info.travelPercent = travelPercent;
+        let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(ui.uid);
+
+        info.travelPercent = selfCompletionDegree?selfCompletionDegree.completionDegree:0;
 
 
     }
@@ -435,28 +423,37 @@ class PlayerService extends Service {
         }
 
         let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        this.logger.info("weizhi ========")
         this.logger.info(index)
         info.selfRank.rank = index + 1;
-
-        info.ranks = rankInfos.map(async (value,index) =>{
+        let out = [];
+        for(let index = 0; index< rankInfos.length ; index++) {
+            //this.logger.info(value);
             let rankItem = {
-                rank:value.rank || (index+1),
-                achievement:value.integral || value.completionDegree
+                rank: rankInfos[index].rank || (index + 1),
+                achievement: rankInfos[index].integral || rankInfos[index].completionDegree
             };
-           let user = value.uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid:value.uid});
-           rankItem.userInfo = {
-               uid:user.uid,
-               nickName:user.nickName,
-               avatarUrl:user.avatarUrl
-           };
-           return rankItem;
-        })
+            // this.logger.info(value);
+            let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid: rankInfos[index].uid});
+          //  this.logger.info(rankInfos[index]);
+          //    this.logger.info(user);
+            rankItem.userInfo = {
+                uid: user.uid,
+                nickName: user.nickName,
+                avatarUrl: user.avatarUrl,
+                gold : user.items[travelConfig.Item.GOLD],
+            };
+            //this.logger.info(rankItem)
+            out.push(rankItem);
+        }
+      // this.logger.info(out)
+        info.ranks = out
 
     }
 
     async shareInfo(res) {
         //分享奖励
-        let isFirst = await this.ctx.service.publicService.userService.dayShareReward(res.ui.uid,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
+        let isFirst = await this.ctx.service.publicService.userService.dayShareReward(res.ui,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
         res.isFirst = isFirst;
     }
 
