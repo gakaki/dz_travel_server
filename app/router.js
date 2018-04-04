@@ -32,6 +32,7 @@ module.exports = app => {
     router.get('/message/getmessage', controller.travelController.playerController.getmessage);
     router.get('/message/checkmsgcnt', controller.travelController.playerController.checkmsgcnt);
     router.get('/message/clearmsg', controller.travelController.playerController.clearmsg);
+    router.get('/rank/rankinfo', controller.travelController.playerController.getrankinfo);
 
 
 
