@@ -32,6 +32,12 @@ class TourController extends Controller {
 
     }
 
+    // 前端请求下一个路径点
+    async nextRouter(ctx) {
+        // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端 然后下次请求回来的时候要保存当时那个开始时间
+
+    }
+
     // 进入景点观光 触发随机事件
     async questEnterSpot(ctx) {
         // 1 消耗金币
