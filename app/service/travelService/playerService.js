@@ -88,7 +88,7 @@ class PlayerService extends Service {
         info.totalArrive = totalArrive;
         info.totalArrivePercent = totalArrivePercent;
         //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
-        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+        let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
             {$match:{uid:ui.uid}},
             {$group:{_id:"$eid"}}
         ]);
@@ -424,7 +424,7 @@ class PlayerService extends Service {
         if(info.rankType == apis.RankType.THUMBS){
             let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
             info.selfRank = {
-                achievement:selfCompletionDegree.completionDegree
+                achievement:selfCompletionDegree ? selfCompletionDegree.completionDegree:0,
             };
             if(info.rankSubtype == apis.RankSubtype.COUNTRY){
                 rankInfos =  await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page,limit);
@@ -435,6 +435,7 @@ class PlayerService extends Service {
         }
 
         let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        this.logger.info(index)
         info.selfRank.rank = index + 1;
 
         info.ranks = rankInfos.map(async (value,index) =>{
@@ -451,6 +452,12 @@ class PlayerService extends Service {
            return rankItem;
         })
 
+    }
+
+    async shareInfo(res) {
+        //分享奖励
+        let isFirst = await this.ctx.service.publicService.userService.dayShareReward(res.ui.uid,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
+        res.isFirst = isFirst;
     }
 
 }

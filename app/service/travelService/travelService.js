@@ -271,6 +271,7 @@ class TravelService extends Service {
                 this.logger.info("顺序 " ,index);
                 this.logger.info("城市列表", province.city);
                 let cityPer ={
+                    cityId : cityid,
                     cityname : province.city[index]
                 };
                 let cid = cityid.toString();
@@ -280,7 +281,7 @@ class TravelService extends Service {
                     {$group:{_id:"$scenicspot"}},
                 ]);
                 this.logger.info(userScenicspots);
-                let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+                let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
                     {$match:{uid:ui.uid,cid:cid}},
                     {$group:{_id:"$eid"}}
                 ]);
@@ -302,13 +303,19 @@ class TravelService extends Service {
                     }
                 }
                 this .logger.info("城市 "+ cid);
-                let userPro = userScenicspots.length + userEvents.length + userPostcards.length;
+                let userPro = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION)
+                            + userEvents.length *  travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION)
+                            + userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION);
                 this.logger.info("玩家该城市进度 " + userPro);
-                let totalPro = totalScenicspots + totalEvents + totalPostcards;
+                let totalPro = totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION)
+                             + totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION)
+                            + totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION);
                 this.logger.info("该城市总进度 " + totalPro);
-                let cp = ((userPro/totalPro)*100).toFixed(2);
+                let cp = parseFloat(((userPro/totalPro)*100).toFixed(2));
                 this.logger.info("完成度 " + cp);
                 cityPer.cityper = cp;
+                //效率评分
+                // cityPer.cityEff
                 cityPs.push(cityPer);
             }
             provencePer.citys=cityPs;

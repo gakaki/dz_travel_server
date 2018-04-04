@@ -154,3 +154,9 @@ api TraveledPlaces {
     output provinces:string[]//点亮的省名数组,如[‘江苏’]
     output citys:string[]//点亮的城市名数组，如[‘苏州’]
 }
+
+api ShareInfo {
+    //是否首次分享
+    output isFirst:boolean
+}
+

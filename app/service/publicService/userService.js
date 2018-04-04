@@ -59,11 +59,7 @@ class UserService extends Service {
                 }
             }
 
-            //分享奖励
-            if (shareUid && shareUid != authUi.uid) {
 
-                await this.dayShareReward(shareUid,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
-            }
             return result;
 
         }
@@ -152,17 +148,30 @@ class UserService extends Service {
         today.setHours(0);
         today.setMinutes(0);
         today.setSeconds(0,1);
+        let isFirst = false;
         let shareRcd = this.ctx.model.PublicModel.UserShareRecord.findOne({uid: uid, createDate: {$gte: today}});
         if (shareRcd) {
-            if (shareRcd.num > 0) {
-                this.logger.info('非第一次分享，不发奖励')
-            }
-            else {
-                await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
-                this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`)
-            }
+
+            this.logger.info('非第一次分享，不发奖励')
             //更新分享次数
             await this.ctx.model.PublicModel.UserShareRecord.update({_id: shareRcd._id}, {$inc: {num: 1}});
+        }
+        else {
+
+            isFirst = true;
+            //发奖励
+            await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+
+            this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`)
+            //插入分享记录
+            await this.ctx.model.PublicModel.UserShareRecord.create({
+                uid: uid,
+                appName: 'travel',
+                createDate: new Date(),
+                num: 1,
+                getItem: true,
+                itemId: itemId
+            })
         }
         //通知到消息中心
         let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE);
@@ -174,6 +183,8 @@ class UserService extends Service {
             content:content,
             date:new Date()
         })
+
+        return isFirst;
     }
     //带来一个新用户奖励
     async newUserShareReward(uid, itemId, itemCnt) {

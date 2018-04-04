@@ -52,7 +52,7 @@ class StrategyService extends Service {
    async getComments(info){
        let page = info.page ? Number(info.page) : 1;
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
-       let comments = await this.ctx.model.TravelModel.Comment.find({cid:info.cityId,type:Number(info.type),travel_tips:info.postId}).skip((page-1)*limit).limit(limit);
+       let comments = await this.ctx.model.TravelModel.Comment.find({cid:info.cityId,type:Number(info.type),travel_tips:info.postId}).sort("-likes").skip((page-1)*limit).limit(limit);
        let outcomments = [];
        //景点图片url 未配置
        if(info.type == apis.PostType.JINGDIAN){
@@ -99,9 +99,41 @@ class StrategyService extends Service {
    }
 
 
-   async giveThumbsUp(info){
+   async giveThumbsUp(info,comment){
+       //评论点赞 + 1
        await this.ctx.model.TravelModel.Comment.update({comid:info.commentId},{$inc:{likes:1}});
-       await this.ctx.model.TravelModel.LikeRecord.update({uid:info.ui.uid, comid:info.commentId,},{uid:info.ui.uid, comid:info.commentId,createDate:new Date()},{upsert:true});
+       //更新点赞表
+       await this.ctx.model.TravelModel.LikeRecord.update({uid:info.ui.uid, comid:info.commentId},
+           {uid:info.ui.uid, comid:info.commentId,createDate:new Date()},
+           {upsert:true}
+           );
+
+       //被点赞的人获得金币
+       this.ctx.service.publicService.itemChange(info.ui,{["items."+travelConfig.Item.GOLD]:travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value});
+
+
+       //通知被赞人
+       let type = comment.type;
+       let id = comment.travel_tips;
+       let context = travelConfig.Message.Get(travelConfig.Message.LIKESMESSAGE).content;
+       let content = "";
+       if(type == apis.PostType.JINGDIAN){
+           let scenicspot = travelConfig.Scenicspot.Get(id).scenicspot;
+           content = context.replace("s%",scenicspot);
+       }
+       if(type == apis.PostType.TECHAN){
+           let specialityname = travelConfig.Speciality.Get(id).specialityname;
+           content = context.replace("s%",specialityname);
+       }
+       await this.ctx.model.TravelModel.UserMsg.create({
+           uid:comment.uid,
+           mid:"msg"+travelConfig.Message.LIKESMESSAGE+new Date().getTime(),
+           type:travelConfig.Message.LIKESMESSAGE,
+           title:travelConfig.Message.Get(travelConfig.Message.LIKESMESSAGE).topic,
+           content:content,
+           date:new Date()
+       })
+
    }
 }
 

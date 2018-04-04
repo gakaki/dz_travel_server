@@ -475,3 +475,93 @@ class Ws {
     }
 
 }
+
+
+class Http {
+
+    func client static init() {
+        this.LS_IDLE = 'IDLE';
+        this.LS_BUSY = 'BUSY';
+        this.LS_SUC = 'SUC';
+        this.LOOP_INTERVAL = 300;
+        this._listenings = this._listenings || new Map();
+    }
+
+    func client static listen(apiCls, cb, ctx, interval = 300) {
+        if (!this._listenings) {
+            console.error('Http loop has not inited');
+            return;
+        }
+        let action = apiCls.name.toLowerCase();
+        if (!this._listenings.has(action)) {
+            this._listenings.set(action, new apiCls);
+        }
+
+        let listener = this._listenings.get(action);
+        listener.cbx = {cb, ctx, interval, status: this.LS_IDLE, passedTm: 0};
+
+
+        //start loop
+        this.loopListen();
+    }
+
+    func client static unlisten(apiCls, cb, ctx) {
+        if (!this._listenings) {
+            console.error('ws has not inited');
+            return;
+        }
+        let action = apiCls.name.toLowerCase();
+        if (this._listenings.has(action)) {
+            let listener = this._listenings.get(action);
+            listener.cbx = null;
+            this._listenings.delete(action);
+
+            if (!this._listenings.size) {
+                this.clearLoop();
+            }
+        }
+    }
+
+    func client static loopListen() {
+        if (this._listenHdl) {
+            return;
+        }
+        this._listenHdl = setInterval(() => {
+            for (let lsnr in this._listenings) {
+                lsnr.passedTm += this.LOOP_INTERVAL;
+                if (lsnr.passedTm < lsnr.interval) {
+                    continue;
+                }
+
+                lsnr.passedTm = 0;
+
+                switch(lsnr.status) {
+                    case LS_IDLE:
+                        lsnr.status = this.LS_BUSY;
+                        lsnr.fetch().then(()=>{
+                            lsnr.status = this.LS_SUC;
+                        })
+                        break;
+                    case LS_SUC:
+                        lsnr.status = LS_BUSY;
+                        let cbx = lsnr.cbx;
+                        cbx.ctx ? cbx.cb.call(cbx.ctx, lsnr) : cbx.cb(lsnr);
+                        lsnr.status = LS_IDLE;
+                        break;
+                    case LS_BUSY:
+                        //wait to be suc
+                        break;
+                }
+            }
+
+        }, this.LOOP_INTERVAL);
+    }
+
+    func client static clearLoop() {
+        if (this._listenHdl) {
+            clearInterval(this._listenHdr);
+            this._listenHdl = null;
+        }
+    }
+}
+
