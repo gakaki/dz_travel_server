@@ -26,14 +26,13 @@
     Footprints 足迹表 需要改写完成记录表
     IntegralRank 积分表排名
     IntegralRecord 积分记录表BiquadFilterNode、
-    likeRecord 收藏记录表
+    likeRecord 点赞记录表
     postcard 明信片记录表
     PostcardChat 明信片聊天
     Specialty 特产表 有数量
     SysGiveLog 系统赠送给用户的物品表
     SpotRecord 景点记录表
     SpotRank 景点排行表
-    travelEvent  城市级别的足迹表
     用户信息表   app内的信息记录的表记录
 
     wechat表暂时忽略
