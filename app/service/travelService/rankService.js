@@ -82,7 +82,7 @@ class RankService extends Service {
             {$group:{_id:"$scenicspot"}},
         ]);
 
-        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+        let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
             {$match:{uid:uid}},
             {$group:{_id:"$eid"}}
         ]);
@@ -98,7 +98,7 @@ class RankService extends Service {
         let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value +
                               totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value +
                               totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value;
-        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(2));
+        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(1));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
             {uid:uid},
