@@ -62,13 +62,13 @@ module.exports = app => {
     router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
     //游玩界面
-    router.get('/tour/tourIndexInfo', routerUserInfo,  controller.travelController.tourController.tourIndexInfo);
-    router.get('/tour/changeRouter',  routerUserInfo,  controller.travelController.tourController.changeRouter);
-    router.get('/tour/questEnterSpot',routerUserInfo,  controller.travelController.tourController.questEnterSpot);
-    router.get('/tour/questRandom',   routerUserInfo,  controller.travelController.tourController.questRandom);
-    router.get('/tour/questRandomList', routerUserInfo, controller.travelController.tourController.questRandomList);
-    router.get('/tour/showQuestReport', routerUserInfo, controller.travelController.tourController.showQuestReport);
-    router.get('/tour/leaveTour', routerUserInfo, controller.travelController.tourController.leaveTour);
+    router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
+    router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
+    router.get('/tour/questenterspot',routerUserInfo,  controller.travelController.tourController.questenterspot);
+    router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);
+    router.get('/tour/questrandomlist', routerUserInfo, controller.travelController.tourController.questrandomlist);
+    router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
+    router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
     
     io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

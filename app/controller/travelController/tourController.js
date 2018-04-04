@@ -4,7 +4,7 @@ const apis          = require("../../../apis/travel");
 class TourController extends Controller {
 
     // 进入游玩界面的请求  哈尔冰游玩例如 游玩首页
-    async tourIndexInfo(ctx) {
+    async tourindexinfo(ctx) {
 
         //首先展示哈尔冰游玩界面的数据
         //用户信息 金币信息 走过的路线图 要新的 是否买了小车
@@ -49,18 +49,18 @@ class TourController extends Controller {
         info.submit();
     }
     // 修改路线
-    async changeRouter(ctx) {
+    async changerouter(ctx) {
 
     }
 
     // 前端请求下一个路径点
-    async nextRouter(ctx) {
+    async nextrouter(ctx) {
         // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端 然后下次请求回来的时候要保存当时那个开始时间
 
     }
 
     // 进入景点观光 触发随机事件
-    async questEnterSpot(ctx) {
+    async questenterspot(ctx) {
         // 1 消耗金币
         this.logger.info("进入景点观光 并触发随机事件");
         let result  = {data:{}};
@@ -95,22 +95,22 @@ class TourController extends Controller {
     }
 
     // 行程途中随机事件  每隔一分钟定时call 之后获得处理
-    async questRandom(ctx) {
+    async questrandom(ctx) {
 
     }
 
     //已触发的随机事件列表？暂时没看到ui 占位
-    async questRandomList(ctx) {
+    async questrandomlist(ctx) {
 
     }
 
     //玩家完成该城市的经典的具体报告
-    async showQuestReport(ctx) {
+    async showquestreport(ctx) {
 
     }
 
     //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
-    async leaveTour(ctx) {
+    async leavetour(ctx) {
 
     }
 
