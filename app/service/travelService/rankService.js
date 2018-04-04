@@ -148,7 +148,7 @@ class RankService extends Service {
      * @param type 榜单类别
      * @param rank 排名
      * */
-    async getReward(type,rank){
+     getReward(type,rank){
         let ranks = travelConfig.ranks;
         if(type == apis.RankType.THUMBS){
             for(let rankR of ranks){
