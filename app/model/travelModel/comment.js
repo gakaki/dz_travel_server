@@ -9,6 +9,7 @@ module.exports = app => {
         context:{type:String}, //内容
         grade:{type:Number},  //打分
         likes:{type:Number,default:0},  //点赞
+        hasMaskWord:{type:Boolean},
         createDate:{type:Date}
 
     });
