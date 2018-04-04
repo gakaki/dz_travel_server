@@ -461,6 +461,12 @@ class PlayerService extends Service {
 
     }
 
+    async shareInfo(res) {
+        //分享奖励
+        let isFirst = await this.ctx.service.publicService.userService.dayShareReward(res.ui,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
+        res.isFirst = isFirst;
+    }
+
 }
 
 

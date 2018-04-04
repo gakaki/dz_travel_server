@@ -11,18 +11,45 @@ class QuestReport {
     prop postcardCount:number
 }
 
+// 坐标玩家自身的锁在坐标 再议
+class Position {
+    prop x:number
+    prop y:number
+}
 
+class NextSpot {
+    //下一个景点的id
+    prop spodIdNext:number
+    //开始时间
+    prop createDate:Date
+    //预估到达的时间 根据createdDate
+    prop arrivedDate:Date
+    //预估需要多少时间
+    prop needTime:string
+    //已经走了多少时间 用来在界面上画图走了多少路 移动多少距离用
+    prop elapsedTimeSecond:number
+}
 
 //进入城市的经典页面  用户开始该城市的旅游
 api tourIndexInfo extends IndexInfo{
-
+    position:Position
+    output nextSpot:NextSpot
 }
 
-// 修改路线
+// 修改路线 注意不可回退 并且正在行进的路线change了就不能选择了
 api changeRouter {
-
+    //景点id
+    require spotId:number
+    require position:Position
+    output nextSpot:NextSpot
 }
 
+api nextRouter {
+    //景点id
+    require spotId:number
+    require position:Position
+    output nextSpot:NextSpot
+}
 //进入景点直接触发随机事件 前端触发吧
 api questEnterSpot {
     //景点id
@@ -80,5 +107,7 @@ api leaveTour
     //该城市的整体效率评分 效率评分 CityPer.cityEf
     output cityPer:CityPer
 }
+
+
 
 

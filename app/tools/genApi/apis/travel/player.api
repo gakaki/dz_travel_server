@@ -155,6 +155,7 @@ api TraveledPlaces {
     output citys:string[]//点亮的城市名数组，如[‘苏州’]
 }
 
+//用户分享成功
 api ShareInfo {
     //是否首次分享
     output isFirst:boolean

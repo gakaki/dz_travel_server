@@ -13,22 +13,21 @@ class TourController extends Controller {
         //旅行道具旅行攻略的配置表
         //点击事件才能获得奖励啊
 
-
-        let info = apis.IndexInfo.Init(ctx);
-        let ui = ctx.service.publicService.userService.findUserBySid(info.sid);
-        if(!ui){
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
-        }
-
+        let info    = apis.tourIndexInfo.Init(ctx  , checkLogin = true );
         await this.service.travelService.travelService.fillIndexInfo(info,ui);
+        info.position = { x: 200 , y: 100 };
 
         //send data
         info.submit();
     }
     // 修改路线
     async changeRouter(ctx) {
+
+    }
+
+    // 前端请求下一个路径点
+    async nextRouter(ctx) {
+        // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端 然后下次请求回来的时候要保存当时那个开始时间
 
     }
 
