@@ -3,8 +3,8 @@ import ./player.api
 
 //一个省的明信片简略信息
 class ProvincePostcardInfo {
-    //省postid
-    prop postid:string
+    //省明信片地址
+    prop url:string
     //省份名
     prop province:string
     //收集的该省明信片张数
@@ -31,7 +31,7 @@ class PostcardBriefDetail {
     //明信片id
     prop id:string
     //明信片图片
-    prop postid:string
+    prop url:string
     //明信片最新一条留言
     prop lastestLiveMessage:OneBriefMessage
 }
@@ -83,7 +83,7 @@ api DetailPostcard {
     //返回的明信片留言条数,默认为10
     optional messageLength:number
     //明信片的主图
-    output postid:string
+    output mainUrl:string
     //最新10条留言
     output lastestMessage:DetailLiveMessage[]
 
