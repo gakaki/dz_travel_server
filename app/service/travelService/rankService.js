@@ -82,7 +82,7 @@ class RankService extends Service {
             {$group:{_id:"$scenicspot"}},
         ]);
 
-        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+        let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
             {$match:{uid:uid}},
             {$group:{_id:"$eid"}}
         ]);

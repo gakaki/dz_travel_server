@@ -88,7 +88,7 @@ class PlayerService extends Service {
         info.totalArrive = totalArrive;
         info.totalArrivePercent = totalArrivePercent;
         //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
-        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+        let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
             {$match:{uid:ui.uid}},
             {$group:{_id:"$eid"}}
         ]);

@@ -281,7 +281,7 @@ class TravelService extends Service {
                     {$group:{_id:"$scenicspot"}},
                 ]);
                 this.logger.info(userScenicspots);
-                let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+                let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
                     {$match:{uid:ui.uid,cid:cid}},
                     {$group:{_id:"$eid"}}
                 ]);
