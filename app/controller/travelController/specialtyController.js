@@ -1,7 +1,7 @@
 const Controller = require('egg').Controller;
 const apis = require("../../../apis/travel");
 const utils = require("../../utils/utils");
-const travelConfig = require("../../../sheets/travel");
+const sheets = require("../../../sheets/travel");
 
 //特产买卖相关的
 class SpecialtyController extends Controller {
