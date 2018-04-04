@@ -6,6 +6,7 @@
   "dependencies": {
     "cnpm": "^5.2.0",
     "date-season": "^0.0.2",
+    "dz-kue": "file:dz-kue",
     "egg": "^2.2.1",
     "egg-logger": "^1.6.1",
     "egg-mongoose": "^2.1.1",
@@ -14,6 +15,8 @@
     "egg-socket.io": "^4.0.6",
     "holiday.cn": "0.0.2",
     "ioredis": "^3.2.2",
+    "lunar-calendar": "^0.1.4",
+    "mocha": "^5.0.5",
     "moment": "^2.21.0",
     "request": "^2.85.0",
     "tenpay": "^2.0.9",

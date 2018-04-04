@@ -69,13 +69,15 @@ class RealInfo {
     //用户手机号
     prop phoneNumber:string
     //用户地址
-    prop adress:string
+    prop address:string
 }
 
 //赠送用户的机票信息
 class TicketInfo{
     //城市id
     prop cid:string
+    //机票id
+    prop tid:string
     //机票type
     prop type:PresentTktType
 }
@@ -105,7 +107,7 @@ api ModifyRealInfo{
     //用户手机号
     require phone:string
     //用户地址
-    require adress:string
+    require address:string
 
     //玩家收货信息
     output realInfo:RealInfo
@@ -152,3 +154,10 @@ api TraveledPlaces {
     output provinces:string[]//点亮的省名数组,如[‘江苏’]
     output citys:string[]//点亮的城市名数组，如[‘苏州’]
 }
+
+//用户分享成功
+api ShareInfo {
+    //是否首次分享
+    output isFirst:boolean
+}
+

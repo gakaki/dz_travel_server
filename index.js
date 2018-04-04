@@ -1,4 +1,5 @@
 // npm run dev DO NOT read this file
+var os = require('os');
 
 require('egg').startCluster({
     baseDir: __dirname,

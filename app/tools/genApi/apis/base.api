@@ -63,10 +63,22 @@ enum Code {
     const ITEM_MAX = -141
     //未找到相关信息
     const NOT_FOUND = -10086
+    //已经点过赞
+    const HAS_LIKE = -521
     //代金券不足
     const NEED_COUPON = -170
     //金额不足
     const NEED_MONEY = -171
+    //积分不足
+    const NEED_INTEGRAL = -172
+    //需要填写地址
+    const NEED_ADDRESS = -173
+    //尚未设置地址
+    const NONE_ADDRESS = -174
+    //未达到排名要求
+    const RANK_NOT_MEET = 150
+    //未达到积分要求
+    const INTEGRAL_NOT_MEET = 151
     //已经签到了
     const HAS_SIGNIN = -144
     const UNKNOWN = -1000
@@ -183,6 +195,9 @@ class Base{
     }
 
     func server submit() {
+        if (this._submited) {
+            return;
+        }
         let tmp = {};
         tmp.action = this.action;
         this.resFields.forEach(k => {
@@ -190,6 +205,26 @@ class Base{
         });
 
         this.ctx.body = {data: tmp, code: this.code};
+        this._submited = true;
+    }
+
+    func server static async checkLogin(res) {
+        if (!res.sid) {
+            res.code = Code.USER_NOT_FOUND;
+            res.submit();
+            return;
+        }
+
+        let ui = await res.ctx.service.publicService.userService.findUserBySid(res.sid);
+        if(!ui){
+            res.ctx.logger.info("用户不存在");
+            res.code = Code.USER_NOT_FOUND;
+            res.submit();
+        }
+        else {
+            res.ui = ui;
+        }
+        return res;
     }
 
     func client get reqData() {
@@ -241,7 +276,9 @@ class Base{
         return Base.SID;
     }
     
-    func client static Start(appName, url) {
+    func client static Start(appName, url, shareUid) {
+        if(shareUid)
+            this.shareUid = shareUid;
         return new Promise((resolve,reject) => {
             let app = getApp();
             if (this.LOGINED) {
@@ -310,6 +347,10 @@ class Base{
         let req = new Base();
         req.action = 'user.login';
         req.reqFields = [ 'info'];
+        if (this.shareUid) {
+            req.reqFields.push('shareUid');
+            req.shareUid = this.shareUid;
+        }
 
         //wx login
         wx.getUserInfo({
@@ -321,6 +362,8 @@ class Base{
                 req.fetch().then(()=>{
                     this.AUTHED = true;
                     this.LOGINED = true;
+                    this.shareUid = null;
+
                     app.globalData.userInfo = req.info;
                     this.SID = req.sid;
                     this._timestampD = Date.now()/1000  - req.timestamp;
@@ -351,17 +394,20 @@ class WsReceive extends Base{
             tmp[k] = this[k]
         });
 
-        this.ctx.io.emit(this.action, {data: tmp, code: this.code});
+        this.ctx.socket.emit(this.action, {data: tmp, code: this.code});
     }
 }
 
 
 class Ws {
     func client static init(wss) {
+        if (this.IO) {
+            return;
+        }
         //初始化websocket
-        this.WSS = wss = wss || `wss://h5.ddz2018.com/${this.APP_NAME}`;//websocket服务器链接
-        this.IO = this.IO || require('./libs/io.js')(wss + `?_sid=${this.SID}&appName=${this.APP_NAME}`);
-        this._listenings = this._listenings || new Map();
+        this.WSS = wss = wss || `wss://h5.ddz2018.com/${Base.APP_NAME}`;//websocket服务器链接
+        this.IO = require('./libs/io.js')(wss + `?_sid=${Base.GetSID()}&uid=${Base.GetUID()}&appName=${Base.APP_NAME}`);//query里直接用sid连接不上，必须用_sid，不知道为啥
+        this._listenings = new Map();
 
         return new Promise(resolve => {
             this.IO.on('connect', () => {
@@ -396,7 +442,7 @@ class Ws {
         let listener = this._listenings.get(action);
         listener.cbx = {cb, ctx};
 
-        this.IO.on(action, this._onReceive);
+        this.IO.on(action, this._onReceive.bind(this));
     }
 
     func client static unlisten(wsReceiveCls, cb, ctx) {
@@ -412,13 +458,14 @@ class Ws {
     }
 
     func client static _onReceive(res) {
-        let action = res.action;
+        let data = res.data
+        let action = data.action;
         if (!this._listenings.has(action))
             return;
         let listener = this._listenings.get(action);
 
-        listener.parse(res);
-
+        listener.parse(data);
+        listener.code = res.code;
         let cbx = listener.cbx;
         cbx && cbx.ctx ? cbx.cb.call(cbx.ctx, listener) : cbx.cb(listener);
 
@@ -429,8 +476,101 @@ class Ws {
     }
 
     func client static close() {
-        this.IO.close();
-        wx.closeWebsocket();
+        if(this.IO) {
+            this.IO.close();
+            wx.closeWebsocket();
+            this.IO = null;
+        }
+
     }
 
 }
+
+
+class Http {
+
+    func client static init() {
+        this.LS_IDLE = 'IDLE';
+        this.LS_BUSY = 'BUSY';
+        this.LS_SUC = 'SUC';
+        this.LOOP_INTERVAL = 300;
+        this._listenings = this._listenings || new Map();
+    }
+
+    func client static listen(apiCls, cb, ctx, interval = 300) {
+        if (!this._listenings) {
+            console.error('Http loop has not inited');
+            return;
+        }
+        let action = apiCls.name.toLowerCase();
+        if (!this._listenings.has(action)) {
+            this._listenings.set(action, new apiCls);
+        }
+
+        let listener = this._listenings.get(action);
+        listener.cbx = {cb, ctx, interval, status: this.LS_IDLE, passedTm: 0};
+
+
+        //start loop
+        this.loopListen();
+    }
+
+    func client static unlisten(apiCls, cb, ctx) {
+        if (!this._listenings) {
+            console.error('ws has not inited');
+            return;
+        }
+        let action = apiCls.name.toLowerCase();
+        if (this._listenings.has(action)) {
+            let listener = this._listenings.get(action);
+            listener.cbx = null;
+            this._listenings.delete(action);
+
+            if (!this._listenings.size) {
+                this.clearLoop();
+            }
+        }
+    }
+
+    func client static loopListen() {
+        if (this._listenHdl) {
+            return;
+        }
+        this._listenHdl = setInterval(() => {
+            this._listenings.forEach(lsnr => {
+                let cfg = lsnr.cbx;
+                cfg.passedTm += this.LOOP_INTERVAL;
+                if (cfg.passedTm >= cfg.interval) {
+
+                    cfg.passedTm = 0;
+                    switch(cfg.status) {
+                        case this.LS_IDLE:
+                            cfg.status = this.LS_BUSY;
+                            lsnr.fetch().then(()=>{
+                                cfg.status = this.LS_SUC;
+                            })
+                            break;
+                        case this.LS_SUC:
+                            cfg.status = this.LS_BUSY;
+
+                            cfg.ctx ? cfg.cb.call(cfg.ctx, lsnr) : cfg.cb(lsnr);
+                            cfg.status = this.LS_IDLE;
+                            break;
+                        case this.LS_BUSY:
+                            //wait to be suc
+                            break;
+                    }
+                }
+            })
+
+        }, this.LOOP_INTERVAL);
+    }
+
+    func client static clearLoop() {
+        if (this._listenHdl) {
+            clearInterval(this._listenHdr);
+            this._listenHdl = null;
+        }
+    }
+}
+

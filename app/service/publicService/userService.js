@@ -7,7 +7,7 @@ const travelConfig = require("../../../sheets/travel");
 
 class UserService extends Service {
 
-    async login(uid, sid, appName, info) {
+    async login(uid, sid, appName, shareUid, info) {
         this.logger.info("登陆时的参数 ：" + uid + " " + sid);
         let result = {};
         //老用户登陆
@@ -34,30 +34,33 @@ class UserService extends Service {
                     result.sid = _sid;
                 }
                 result.info = loginUser;
-                return result;
 
             } else {
 
                 this.logger.info("老用户登陆  uid：" + authUi.uid + " 老用户的昵称 ：" + authUi.nickName);
                 if (uid && authUi.uid != uid) {
                     result.info = null;
-                    return result;
                 }
-                await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName}, {
-                    $set: {
-                        nickName: info.nickName,
-                        avatarUrl: info.avatarUrl,
-                        gender: info.gender,
-                        city: info.city,
-                        province: info.province,
-                        country: info.country,
-                    }
-                });
+                else {
 
-                result.sid = sid;
-                result.info = authUi;
-                return result;
+                    await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName}, {
+                        $set: {
+                            nickName: info.nickName,
+                            avatarUrl: info.avatarUrl,
+                            gender: info.gender,
+                            city: info.city,
+                            province: info.province,
+                            country: info.country,
+                        }
+                    });
+
+                    result.sid = sid;
+                    result.info = authUi;
+                }
             }
+
+
+            return result;
 
         }
         //第三方登陆
@@ -135,7 +138,69 @@ class UserService extends Service {
         result.sid = ses.sid;
         result.info = ui;
 
+        shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
+
         return result;
+    }
+    //每日首次分享奖励
+    async dayShareReward(ui, itemId, itemCnt) {
+        let uid = ui.uid;
+        let today = new Date();
+        today.setHours(0);
+        today.setMinutes(0);
+        today.setSeconds(0,1);
+        let isFirst = false;
+        let shareRcd = await this.ctx.model.PublicModel.UserShareRecord.findOne({uid: uid, createDate: {$gte: today}});
+        if (shareRcd) {
+
+            this.logger.info(shareRcd,'非第一次分享，不发奖励')
+            //更新分享次数
+            await this.ctx.model.PublicModel.UserShareRecord.update({_id: shareRcd._id}, {$inc: {num: 1}});
+        }
+        else {
+
+            isFirst = true;
+            //发奖励
+            await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+
+            this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`)
+            //插入分享记录
+            await this.ctx.model.PublicModel.UserShareRecord.create({
+                uid: uid,
+                appName: 'travel',
+                createDate: new Date(),
+                num: 1,
+                getItem: true,
+                itemId: itemId
+            })
+            //通知到消息中心
+            let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).value;
+            await this.ctx.model.TravelModel.UserMsg.create({
+                uid:uid,
+                mid:"msg"+travelConfig.Message.SHAREMESSAGE+new Date().getTime(),
+                type:travelConfig.Message.SHAREMESSAGE,
+                title:travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).topic,
+                content:content,
+                date:new Date()
+            })
+        }
+
+        return isFirst;
+    }
+    //带来一个新用户奖励
+    async newUserShareReward(uid, itemId, itemCnt) {
+        //直接发奖励
+        await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+        //通知到消息中心
+        let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE);
+        await this.ctx.model.TravelModel.UserMsg.create({
+            uid:uid,
+            mid:"msg"+travelConfig.Message.INVITEMESSAGE+new Date().getTime(),
+            type:travelConfig.Message.INVITEMESSAGE,
+            title:travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).topic,
+            content:content,
+            date:new Date()
+        })
     }
 
 
@@ -172,11 +237,9 @@ class UserService extends Service {
         let pid = await this.app.redis.incr("travel_userid");
 
         this.logger.info("注册信息 ：uid: " + uid + " pid :" + pid + "昵称 ： " + info.nickName);
-        //let  random = uid.replace(/[^0-9]/ig,"");
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
-        items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
         let ui = await this.ctx.model.PublicModel.User.create({
             uid: uid,
             appName: appName,
@@ -191,8 +254,8 @@ class UserService extends Service {
             pid: pidStr,
             items: items,
         });
-
-        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.USERGOLD}, "travel");
+       // items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
+        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
@@ -218,13 +281,20 @@ class UserService extends Service {
 
 
     async findUserBySid(sid) {
-        // 通过sid查找pid，再通过pid查找info
-        let ses = JSON.parse(await this.app.redis.get(sid));
-        if (ses == null) {
+        try{
+            // 通过sid查找pid，再通过pid查找info
+            let ses = JSON.parse(await this.app.redis.get(sid));
+            if (ses == null) {
+                return null;
+            }
+            this.logger.info("用户PID: " + ses.pid);
+            return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
+        }catch(err){
+            this.logger.error(err);
             return null;
         }
-        this.logger.info("用户PID: " + ses.pid);
-        return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
+
+
     }
 
 

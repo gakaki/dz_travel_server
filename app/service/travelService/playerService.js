@@ -1,6 +1,8 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const utils = require("../../utils/utils");
+const apis = require('../../../apis/travel');
+
 class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
@@ -81,35 +83,25 @@ class PlayerService extends Service {
             uid:ui.uid,
             nickName:ui.nickName,
             avatarUrl:ui.avatarUrl
-        }
+        };
         info.reachrovince = userfootprints.length;
         info.totalArrive = totalArrive;
         info.totalArrivePercent = totalArrivePercent;
         //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
-        let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
-            {$match:{uid:ui.uid}},
-            {$group:{_id:"$eid"}}
-        ]);
-        let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
-            {$match:{uid:ui.uid}},
-            {$group:{_id:"$ptid"}}
-        ]);
-        let userProgress = userscenicspots + userEvents.length + userPostcards.length;
-        this.logger.info("用户进度 "+ userProgress);
-        let totalProgress = totalScenicspots + totalEvents + totalPostcards;
-        this.logger.info("总进度 "+ totalProgress);
-        let travelPercent = ((userProgress/totalProgress)*100).toFixed(2);
-        this.logger.info("进度百分比 "+ travelPercent);
-        info.travelPercent = travelPercent;
+        let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(ui.uid);
+
+        info.travelPercent = selfCompletionDegree?selfCompletionDegree.completionDegree:0;
 
 
     }
 
     async showFlyTicket(info,ui){
-        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid});
+        let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid,isUse:false});
         let flyTickets = [];
+        this.logger.info("赠送机票 "+ tickets)
         for(let ticket of tickets){
             let flyTicket ={
+                tid:ticket.id,
                 cid : ticket.cid,
                 type : ticket.flyType
             };
@@ -120,8 +112,10 @@ class PlayerService extends Service {
 
     async getMessage(info,ui,type){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.limit)?Number(info.limit):20;
+        let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        this.logger.info(`当前页码 ：${page} ,当前限制数 ${limit}`);
         let msgs =await this.ctx.service.travelService.msgService.unreadMsgs(ui.uid,type,page,limit);
+      //  this.logger.info(msgs);
         let messages = [];
         for(let msg of msgs){
             let message ={
@@ -134,15 +128,19 @@ class PlayerService extends Service {
             messages.push(message);
          // await this.ctx.model.TravelModel.UserMsg.update({mid:msg.mid},{$set:{isRead:true}});
         }
+      //  this.logger.info(messages);
         info.messages = messages
     }
 
     async clearMsg(info,ui,msg){
-        await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+       let r =  await this.ctx.model.TravelModel.UserMsg.update({createDate:{$lte:msg.createDate}},{$set:{isRead:true}},{multi:true})
+        this.logger.info(r);
     }
 
     async checkMsgCnt(info,ui){
-        info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        let count = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        this.logger.info("返回的未读消息 " +count);
+        info.unreadMsgCnt = count;
     }
 
     async setRealInfo(info, ui) {
@@ -151,16 +149,25 @@ class PlayerService extends Service {
                 name: info.name,
                 birth: info.birthday,
                 mobile: info.phone,
-                address: info.adress
+                address: info.address
             }
         });
+
+       //收货地址单独存一份，以便于以后扩展为多个收货地址
+       await this.ctx.model.TravelModel.Address.update({uid: ui.uid}, {
+           $set: {
+               name: info.name,
+               tel: info.phone,
+               addr: info.address
+           }
+       },{upsert:true});
 
         info.realInfo = {
             uid: ui.uid,
             name: info.name,
             birthday: info.birthday,
             phoneNumber: info.phone,
-            adress: info.adress
+            address: info.address
         }
     }
 
@@ -171,21 +178,36 @@ class PlayerService extends Service {
             name: ui.name,
             birthday: ui.birth,
             phoneNumber: ui.mobile,
-            adress: ui.address
+            address: ui.address
         }
     }
+
+    //获取玩家的收货地址
+    async getMailAddress(res, ui) {
+        //当前只有一个收货地址，以后如果改为多个，记得改逻辑并返回默认收货地址
+        let addr = await this.ctx.model.TravelModel.Address.findOne({uid: ui.uid});
+        if (!addr) {
+            res.code = apis.Code.NONE_ADDRESS;
+            return;
+        }
+        res.nickName = addr.name;
+        res.tel = addr.tel;
+        res.addr = addr.addr;
+    }
+
     async showMyPostcards(info,ui) {
       let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
           {$match: {uid: ui.uid}},
+          {$sort:{createDate:-1}},
           {$group: {_id:"$province",collectPostcardNum:{$sum:1},citys:{$push:{cid:"$cid"}},pcards:{$push:{ptid:"$ptid",createDate:"$createDate"}}}},
           {$project : {_id: 0, province :"$_id", collectPostcardNum : 1,citys:1,pcards:1}}
-            ]).sort({"pcards.createDate":-1});
+            ]);
       let postcardInfos = [];
       for(let postcard of postcards){
           let citys = postcard.citys;
           let postcardnum = 0;
           let postcardInfo ={
-              postid:postcard.pcards[0].ptid,
+              url:travelConfig.Postcard.Get(postcard.pcards[0].ptid).picture,
               province:postcard.province,
               collectPostcardNum:postcard.collectPostcardNum
           };
@@ -202,9 +224,10 @@ class PlayerService extends Service {
 
         let postcards = await  this.ctx.model.TravelModel.Postcard.aggregate([
             {$match: {uid: ui.uid,province:info.province}},
+            {$sort:{createDate:-1}},
             {$group:{_id:"$cid",collectPostcardNum:{$sum:1},postcard:{$push:{pscid:"$pscid",ptid:"$ptid",createDate:"$createDate"}}}},
             {$project:{_id:0,cid:"$_id",collectPostcardNum:1,postcard:1}}
-        ]).sort({cid:1,"postcard.createDate":-1});
+        ]);
 
         let postcardInfos = [];
         for(let postcard of postcards){
@@ -222,7 +245,7 @@ class PlayerService extends Service {
                     if(chats.length>0){
                         postcardBriefDetail ={
                             id : pt.pscid,
-                            postid: pt.ptid,
+                            url:travelConfig.Postcard.Get(pt.ptid).picture,
                         };
                         let chat = chats[0];
                         let sender = await this.ctx.model.PublicModel.User.findOne({uid:chat.sender});
@@ -241,7 +264,7 @@ class PlayerService extends Service {
                 }else{
                     postcardBriefDetail ={
                         id : pt.pscid,
-                        postid: pt.ptid,
+                        url:travelConfig.Postcard.Get(pt.ptid).picture,
                     };
                 }
                 if(postcardBriefDetail && postcardBriefDetail.id){
@@ -260,10 +283,10 @@ class PlayerService extends Service {
 
     async showDetailPostcard(info,ui){
         let page = Number(info.page)?Number(info.page):1;
-        let limit = Number(info.messageLength)?Number(info.messageLength):99;
+        let limit = Number(info.messageLength)?Number(info.messageLength):travelConfig.Parameter.Get(travelConfig.Parameter.MAXMESSAGE).value;
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
-        info.postid = postcard.ptid;
+        info.mainUrl =travelConfig.Postcard.Get(postcard.ptid).picture;
         let detailLiveMessages = [];
         for(let i = 0 ;i < chats.length ; i++){
             let chat = chats[i];
@@ -352,7 +375,7 @@ class PlayerService extends Service {
         let cost ={
             cumulativeDays:1
         };
-        cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
+      //  cost["items."+travelConfig.Item.GOLD] = travelConfig.Login.Get(day).gold;
         let itemChange = {
             ["items."+travelConfig.Item.GOLD] : travelConfig.Login.Get(day).gold
         };
@@ -366,6 +389,72 @@ class PlayerService extends Service {
         await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
         this.ctx.service.publicService.itemService.itemChange(ui, itemChange, "travel");
 
+    }
+
+    async getRankInfo(info){
+        let page = Number(info.page)?Number(info.page):1;
+        let limit = Number(info.limit)?Number(info.limit):travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        let friendList = info.ui.friendList;
+        friendList.push(info.ui.uid);
+        let rankInfos = [];
+        if(info.rankType == apis.RankType.SCORE){
+            info.selfRank = {
+                achievement:info.ui.items[travelConfig.Item.POINT]
+            };
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY){
+                rankInfos =  await this.ctx.service.travelService.rankService.getScoreRankList(page,limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND){
+                rankInfos =  await this.ctx.service.travelService.rankService.getUserFriendScoreRankList(friendList,page,limit);
+            }
+
+        }
+        if(info.rankType == apis.RankType.THUMBS){
+            let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
+            info.selfRank = {
+                achievement:selfCompletionDegree ? selfCompletionDegree.completionDegree:0,
+            };
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY){
+                rankInfos =  await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page,limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND){
+                rankInfos =  await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList,page,limit);
+            }
+        }
+
+        let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        this.logger.info("weizhi ========")
+        this.logger.info(index)
+        info.selfRank.rank = index + 1;
+        let out = [];
+        for(let index = 0; index< rankInfos.length ; index++) {
+            //this.logger.info(value);
+            let rankItem = {
+                rank: rankInfos[index].rank || (index + 1),
+                achievement: rankInfos[index].integral || rankInfos[index].completionDegree
+            };
+            // this.logger.info(value);
+            let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({uid: rankInfos[index].uid});
+          //  this.logger.info(rankInfos[index]);
+          //    this.logger.info(user);
+            rankItem.userInfo = {
+                uid: user.uid,
+                nickName: user.nickName,
+                avatarUrl: user.avatarUrl,
+                gold : user.items[travelConfig.Item.GOLD],
+            };
+            //this.logger.info(rankItem)
+            out.push(rankItem);
+        }
+      // this.logger.info(out)
+        info.ranks = out
+
+    }
+
+    async shareInfo(res) {
+        //分享奖励
+        let isFirst = await this.ctx.service.publicService.userService.dayShareReward(res.ui,travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.SHAREGOLD).value)
+        res.isFirst = isFirst;
     }
 
 }

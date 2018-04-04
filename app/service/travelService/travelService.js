@@ -71,7 +71,9 @@ class TravelService extends Service {
             info.doubleCost = dcost;
         } else if (info.type == apis.TicketType.SINGLEPRESENT) {
             info.cost = 0;
+            info.doubleCost = dcost;
         }else if(info.type == apis.TicketType.DOUBLEPRESENT){
+            info.cost = cost;
             info.doubleCost = 0;
         }
         if (info.type == apis.TicketType.RANDOMBUY) {
@@ -87,50 +89,49 @@ class TravelService extends Service {
     }
 
 
-    async visit(info, ui) {
+    async visit(info, ui,visit) {
         let cid = info.cid;
         let fid = info.partnerUid;
         let ttype = info.type;
 
-
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         let cost = {
-            ["items." + ttype]: -1,
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1
         };
         //使用赠送机票
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
-            let flyType = info.type.indexOf("2") != -1 ? 2 : 1;
+            this.logger.info("使用赠送机票");
             await this.ctx.model.TravelModel.FlyTicket.update({
                 uid: ui.uid,
-                isGive: 1,
-                flyType: flyType,
-                cid: info.cid,
-                number: {$gt: 0}
-            }, {$inc: {number: -1}});
+                id:info.tid,
+            },{$set:{isUse:true}});
 
         }
         //道具更新
-        await this.ctx.model.PublicModel.User.update({
-            uid: ui.uid,
-            ["items." + travelConfig.Item.GOLD]: {$gt: 0}
-        }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
+        // await this.ctx.model.PublicModel.User.update({
+        //     uid: ui.uid,
+        //     ["items." + travelConfig.Item.GOLD]: {$gt: 0}
+        // }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui, cost);
-        //飞行消耗为0 ，为首次登陆
-        if (!Number(info.cost) && (ui.isFirst || ui.isSingleFirst || ui.isDoubleFirst)) {
+        if (ui.isFirst){
             this.logger.info("首次飞行");
-            if (ui.isFirst){
-                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
-            }
-            if (fid && ui.isDoubleFirst) {
-                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isDoubleFirst: false}});
-            } else if (!fid && ui.isSingleFirst) {
-                await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isSingleFirst: false}});
-            }
+            await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
         }
+        //飞行消耗为0 ，为免费飞行或者使用赠送机票
+        if (!Number(info.cost) && (ui.isSingleFirst || ui.isDoubleFirst)) {
+            //使用的不是免费机票
+            if (info.type.indexOf("0") != -1 ) {
+                if (fid && ui.isDoubleFirst) {
+                    await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isDoubleFirst: false}});
+                } else if (!fid && ui.isSingleFirst) {
+                    await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isSingleFirst: false}});
+                }
+            }
+
+        }
+        let flyid = "fly"+new Date().getTime();
         let flyRecord = {
             uid: ui.uid,      //用户ID
-            fid:"fly"+new Date().getTime(),
+            fid:flyid,
             from: visit ? visit.cid : "初次旅行",           //出发地
             destination: cid,   //目的地
             ticketType: ttype,//机票类型
@@ -144,6 +145,7 @@ class TravelService extends Service {
         }
         let currentCity = {
             uid: ui.uid,
+            fid:flyid,
             cid: cid,
             rentItems: rentItems
         };
@@ -174,14 +176,15 @@ class TravelService extends Service {
 
     async getTravelLog(info, ui) {
         let page = info.page ? Number(info.page) : 1;
-        let limit = info.length ? Number(info.length) : 20;
-        let allLogs = await this.ctx.model.TravelModel.TravelLog.aggregate([
+        let limit = info.length ? Number(info.length) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
+        let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             {$match: {"uid": ui.uid}},
             {$group:{_id:{year: { $dateToString: { format: "%Y", date: "$createDate" }},fid:"$fid",date:{ $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } },scenicSpots:{$push:{spots:"$scenicspot"}}}},
+            {$sort:{"_id.date":1}},
             {$group:{_id:{year: "$_id.year",fid:"$_id.fid" },scenicSpots:{$push:{time:"$_id.date",spots:"$scenicSpots"}}}},
+            {$sort:{"_id.fid":1}},
             {$project:{_id:0,year:"$_id.year",fid:"$_id.fid",scenicSpots:1}},
-
-        ]).skip((page - 1) * limit).limit(limit);
+        ]).sort({year:1}).skip((page - 1) * limit).limit(limit);
         let outLog = [];
         let year = new Date().getFullYear();
         for(let i = 0;i<allLogs.length;i++){
@@ -189,7 +192,8 @@ class TravelService extends Service {
             let onelog = {
                 city: travelConfig.City.Get(fly.destination).city,
                 time: fly.createDate.format("yyyy-MM-dd"),
-                scenicSpots:allLogs[i].scenicSpots
+                scenicSpots:allLogs[i].scenicSpots,
+               // year : allLogs[i].year,
             };
 
             if(i==0){
@@ -203,11 +207,16 @@ class TravelService extends Service {
             }
             outLog.push(onelog);
         }
-        let sortList = utils.multisort(outLog,
-            (a, b) => a["time"] - b["time"],
-        );
 
-        info.allLogs = sortList;
+
+        //
+        // let sortList = utils.multisort(outLog,
+        //     (a, b) => new Date(a["time"]) - new Date(b["time"]),
+        // );
+
+
+
+        info.allLogs = outLog;
     }
 
     async getCityCompletionList(info,ui){
@@ -262,6 +271,7 @@ class TravelService extends Service {
                 this.logger.info("顺序 " ,index);
                 this.logger.info("城市列表", province.city);
                 let cityPer ={
+                    cityId : cityid,
                     cityname : province.city[index]
                 };
                 let cid = cityid.toString();
@@ -271,7 +281,7 @@ class TravelService extends Service {
                     {$group:{_id:"$scenicspot"}},
                 ]);
                 this.logger.info(userScenicspots);
-                let userEvents = await this.ctx.model.TravelModel.TravelEvent.aggregate([
+                let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
                     {$match:{uid:ui.uid,cid:cid}},
                     {$group:{_id:"$eid"}}
                 ]);
@@ -293,13 +303,23 @@ class TravelService extends Service {
                     }
                 }
                 this .logger.info("城市 "+ cid);
-                let userPro = userScenicspots.length + userEvents.length + userPostcards.length;
+                let userPro = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100
+                            + userEvents.length *  travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100
+                            + userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100;
                 this.logger.info("玩家该城市进度 " + userPro);
-                let totalPro = totalScenicspots + totalEvents + totalPostcards;
+                let totalPro = totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100
+                             + totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100
+                            + totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100;
+                this .logger.info(totalScenicspots,totalEvents,totalPostcards);
+                this.logger.info(travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value)
+                this.logger.info(travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value)
+                this.logger.info(travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value)
                 this.logger.info("该城市总进度 " + totalPro);
-                let cp = ((userPro/totalPro)*100).toFixed(2);
+                let cp = parseFloat(((userPro/totalPro)*100).toFixed(2));
                 this.logger.info("完成度 " + cp);
                 cityPer.cityper = cp;
+                //效率评分
+                // cityPer.cityEff
                 cityPs.push(cityPer);
             }
             provencePer.citys=cityPs;

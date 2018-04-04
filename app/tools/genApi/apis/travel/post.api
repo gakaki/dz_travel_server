@@ -10,29 +10,29 @@ enum PostType {
 
 class Post {
     prop cityId:string//城市id
-    prop postId:string//帖子id
+    prop postId:string//景点或特产id
     prop type:PostType//帖子类型：景点or特产
     prop content:string//帖子内容，为景点或特产的介绍
     prop name: string //景点或特产名
-    prop score:number//帖子的评论
-    prop img:string//景点或特产图片url
+     prop img:string//景点或特产图片url
+    prop score:string//帖子的评分
     prop commentNum:number//评论数
 }
 
 class Comment {
-    prop postId:string//帖子id
     prop user:UserBriefInfo//用户简单信息
     prop commentId:string//评论id
     prop content:string//评论内容
     prop score:number//评论得分
     prop thumbs:number//点赞数
-    prop time:number//创建时间
+    prop haslike:boolean//是否已经点赞
+    prop time:string//创建时间
 }
 
 //拉取景点/特产列表
 api PostList {
     require cityId:string//城市id
-    require lastPostId:string//上一屏最后post的id
+    require page:number//页码
     require limit:number//本次拉取的条数
     require type:PostType//帖子类型：景点or特产
 
@@ -41,18 +41,25 @@ api PostList {
 
 //评论景点Or特产
 api CommentPost {
-    require postId:string//帖子id
+    require cityId:string//城市id
+    require postId:string//景点或特产id
     require content:string//评论内容
-    reruire score:number//评分
+    require score:number//评分
+    require type:PostType//帖子类型：景点or特产
+    output comments:Comment//自己的的评论信息
 }
 
 //拉取评论列表
 api PostComments {
     require cityId:string//城市id
     require postId:string//帖子id
-    require lastCmtId:number//上一屏最后comment的id
+    require page:number//页码
     require limit:number//本次拉取的条数
+    require type:PostType//帖子类型：景点or特产
 
+    output content:string//帖子内容，为景点或特产的介绍
+    output name: string //景点或特产名
+    output img:string//景点或特产图片url
     output comments:Comment[]//该帖子下的评论
 }
 
@@ -60,4 +67,6 @@ api PostComments {
 api ThumbComment {
     require commentId:string//评论id
 
+    output thumbs:number//点赞数
+    output haslike:boolean//是否点赞
 }

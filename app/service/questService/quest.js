@@ -1,17 +1,11 @@
-const travelConfig = require("../../../sheets/travel");
-
-const Service = require('egg').Service;
-const season = require('date-season')({north: true, autumn: true});
-const holiday = require('holiday.cn').default;
-const utils = require("../../utils/utils");
-
-
+//一个简单的树结构
 class TreeNode {
     constructor(  data ) {
         this.parent     = null;
         this.children   = [];
         this.data       = data;
     }
+
     add( data ) {
         let childNode       = TreeNode( data );
         childNode.parent    = this;
@@ -20,31 +14,14 @@ class TreeNode {
     }
 }
 
-class QuestRepo {
-    find(row_id) {
-        return this.quests.find( e  => e.id == row_id );
-    }
-    constructor() {
-        this.quests = []
-        for(let row of travelConfig.events){
-            this.add(row)
-        }
-    }
-    add(row){
-        let quest = Quest(row);
-        this.quests.push(quest)
-    }
-    update(quest){}
-    remove(quest){}
-    query(specification){}
-}
-
+//事件（或者叫任务）类 有前后置关系 所以做成树状
 class Quest extends TreeNode {
 
     constructor(data) {
         super(data);
 
         let d               = this.data;
+        this.id             = d.id;
         this.describe       = d.describe;   //事件描述 '以下特产中，哪个是s%的特产？',
         this.trigger_type   = d.subtype;    //事件触发类型
                                             // 1、通用城市事件：在所有城市游玩都可以触发的事件；
@@ -78,7 +55,7 @@ class Quest extends TreeNode {
         this.errorreward    =  d.errorreward;   //答题错误奖励0表示无奖励
         this.condition1     =  d.condition1;    //前置事件
         // 0表示无前置事件
-        // 前置事件如果是答题事件，需要答对才能继续往下进行。
+        // 前置事件如果是答题事件，需要答对才能继续往下进行。c
         // 0表示无前置事件
         // 前置事件如果是答题事件，需要答对才能继续往下进行。
 
@@ -101,20 +78,6 @@ class Quest extends TreeNode {
         this.wrong2         =  d.wrong2;        //错误答案2
         this.wrong3         =  d.wrong3;        //错误答案3
     }
-
 }
 
-
-
-class EventService extends Service{
-    async getEvent(row_id) {
-        const row       = QuestRepo().find(row_id);
-        this.logger.info(row.length);
-        this.logger.info('event_rows', row);
-        return row;
-    }
-
-}
-
-
-module.exports = EventService;
+module.exports =  Quest;

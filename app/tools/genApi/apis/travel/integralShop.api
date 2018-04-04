@@ -1,11 +1,24 @@
-import ../base.api
-import ./player.api
+//积分商城相关
 
+//他人兑换记录
 class ExchangeShopDetail {
     //用户昵称
-    prop nickname:string
+    prop nickName:string
+    //用户头像
+    prop avatarUrl:string
     //兑换的商品名称
     prop shopName:string
+}
+class Shop {
+    //该商品id
+    prop id:string
+    //商品图片地址
+    prop url:string
+    //商品名
+    prop name:string
+    //兑换该商品所需积分
+    prop integral:string
+
 }
 
 //积分商店信息
@@ -14,6 +27,15 @@ api IntegralShop {
     output integral:number
     //个人积分排行
     output rank:number
+    //兑换的商品
+    output shops:Shop[]
+
+}
+
+//商店兑换物品详情
+api ExchangeDetail {
+    //第几页
+    require page:number
     //兑换的商品详情
     output exchangeDetail:ExchangeShopDetail[]
 }
@@ -22,14 +44,16 @@ api IntegralShop {
 api ExchangeShop {
     //兑换的商品id
     require id:string
-    //兑换该商品需要的积分
-    require integral:string
+    //收件人电话
+    require tel:string
+    //邮寄地址
+    require addr:string
 }
 
 //获取玩家地址
 api GetUserLocation {
     //玩家昵称
-    output nickname:string
+    output nickName:string
     //玩家电话
     output tel:string
     //玩家地址

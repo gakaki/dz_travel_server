@@ -1,5 +1,6 @@
-const travelConfig = require("./sheets/travel");
-const utils = require("./app/utils/utils");
+const travelConfig  = require("./sheets/travel");
+const utils         = require("./app/utils/utils");
+
 module.exports = app => {
     app.beforeStart(async () => {
         // 应用会等待这个函数执行完成才启动
@@ -21,6 +22,8 @@ module.exports = app => {
     //     scenicspot:'城隍庙',
     //     createDate:new Date()
     // })
+
+
 
     });
 

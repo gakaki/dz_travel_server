@@ -19,14 +19,16 @@ enum RankSubtype {
 class RankItem {
     //排名
     prop rank:number
+    //完成的成就
+    prop achievement:number
     //用户信息
-    prop userInfo:UserInfo
+    prop userInfo:UserBriefInfo
 }
 
 //自己的排行信息
 class SelfRank {
     prop rank:number
-    prop userInfo:UserInfo
+    prop achievement:number
 }
 
 //API基本示例-请求榜单
@@ -35,6 +37,8 @@ api RankInfo{
     require rankType:RankType
     //榜单子类型
     require rankSubtype:RankSubtype
+    //page
+    optional page:number
     //数据条数（可选）
     optional limit:number
 
@@ -44,8 +48,3 @@ api RankInfo{
     output ranks:RankItem[]
 }
 
-//继承示例-充值榜单
-api RechargeRankInfo extends RankInfo {
-    //自己的充值金额
-    output myRecharge:number
-}
