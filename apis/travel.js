@@ -597,6 +597,9 @@ class RankItem {
         //prop type: UserBriefInfo
         this.userInfo = null;
     
+        //prop type: number
+        this.reward = null;
+    
         
         
         

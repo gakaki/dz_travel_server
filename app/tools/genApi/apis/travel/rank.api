@@ -23,6 +23,8 @@ class RankItem {
     prop achievement:number
     //用户信息
     prop userInfo:UserBriefInfo
+    //奖励
+    prop reward:number
 }
 
 //自己的排行信息
