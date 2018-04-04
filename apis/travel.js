@@ -1144,7 +1144,7 @@ class WsReceive extends Base {
         this.resFields.forEach(k => {
             tmp[k]=this[k]
         });
-        this.ctx.io.emit(this.action, {data: tmp, code: this.code});
+        this.ctx.socket.emit(this.action, {data: tmp, code: this.code});
     }
 }
 class WsSend extends Base {
