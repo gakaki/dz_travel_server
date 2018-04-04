@@ -19,7 +19,7 @@ class RankService extends Service {
         });
 
         await this.ctx.model.TravelModel.IntegralRank.remove();
-        await this.ctx.model.TravelModel.IntegralRank.create(list);
+        await this.ctx.model.TravelModel.IntegralRank.insertMany(list);
 
     }
 
@@ -68,7 +68,7 @@ class RankService extends Service {
         });
 
         await this.ctx.model.TravelModel.CompletionDegreeRank.remove();
-        await this.ctx.model.TravelModel.CompletionDegreeRank.create(list);
+        await this.ctx.model.TravelModel.CompletionDegreeRank.insertMany(list);
 
     }
     /**

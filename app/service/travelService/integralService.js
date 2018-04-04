@@ -71,7 +71,7 @@ class IntegralService extends Service {
             await integralRM.update({uid: uid}, {$set : {integral: all, updateDate: new Date()}}, {upsert: true});
         }
     }
-    
+
     //兑换物品
     async exchange(res, ui) {
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
