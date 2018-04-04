@@ -108,42 +108,10 @@ api leaveTour
     output cityPer:CityPer
 }
 
-class Specialty {
-    prop id:string//特产的配表id
-    prop name:string//特效名
-    prop des:string//特产描述
-    prop price:number//特产买入价格
-}
-
-class SpecialtySell extends Specialty {
-    prop sellPrice:number//特产卖出价格
-}
-
-//该城市特产列表
-api CitySpecialtys {
-    //城市ID
-    require cid:string
-
-    //特产列表
-    output list:Specialty[]
-}
-
-//我的特产列表
-api MySpecialtys {
-    //我已买的特产列表
-    output list:SpecialtySell[]
-}
-
-//购买特产
-api BuySpecialty {
-    //特产id
-    require id:string
-}
-
-//售卖特产
-api SellSpecialty {
-    //特产id
-    require id:string
+//租用道具
+api RentProp {
+    require rentId:number  //装备id
+    output rentItems:KV[]//已租用的所有道具。
 }
 
 

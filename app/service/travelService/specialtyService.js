@@ -4,6 +4,14 @@ const travelConfig = require('../../../sheets/travel');
 const apis = require('../../../apis/travel');
 
 class StrategyService extends Service {
+   async citySpecialtys(info) {
+
+   }
+
+   async mySpecialtys(info) {
+
+   }
+
    async buy(info){
        
    }
