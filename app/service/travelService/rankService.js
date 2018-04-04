@@ -1,6 +1,6 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
-
+const apis = require("../../../apis/travel");
 class RankService extends Service {
     /**
      * 更新一次积分榜单
@@ -142,6 +142,29 @@ class RankService extends Service {
      * */
     async getUserFriendCompletionDegreeRankList(friendList,page,limit){
         return  await this.ctx.model.TravelModel.CompletionDegreeRecord.find({uid:friendList}).sort({'completionDegree':-1, 'updateDate':1}).skip((page-1)*limit).limit(limit);
+    }
+    /**
+     * 获取榜单奖励
+     * @param type 榜单类别
+     * @param rank 排名
+     * */
+    async getReward(type,rank){
+        let ranks = travelConfig.ranks;
+        if(type == apis.RankType.THUMBS){
+            for(let rankR of ranks){
+                if(rank <= rankR.ranking){
+                    return travelConfig.Rank.Get(rankR.id).doyenreward
+                }
+            }
+        } else if(type == apis.RankType.FOOT){
+            for(let rankR of ranks){
+                if(rank <= rankR.ranking){
+                    return travelConfig.Rank.Get(rankR.id).trackreward
+                }
+            }
+        }
+
+        return 0;
     }
 
 

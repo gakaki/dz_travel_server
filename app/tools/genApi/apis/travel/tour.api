@@ -17,6 +17,24 @@ class Position {
     prop y:number
 }
 
+class Spot {
+    //景点配置表id
+    prop spotId:number
+    prop x:number
+    prop y:number
+    //预估到达的时间 根据createdDate
+    prop arrivedDate:Date
+    //预估需要多少时间
+    prop needTime:string
+    //已经走了多少时间 用来在界面上画图走了多少路 移动多少距离用
+    prop elapsedTimeSecond:number
+    //是否起点
+    prop isStart:boolean
+    //是否经过
+    prop tracked:boolean
+    //经过的顺序
+    prop index:number
+}
 class NextSpot {
     //下一个景点的id
     prop spodIdNext:number
@@ -31,27 +49,31 @@ class NextSpot {
 }
 
 //进入城市的经典页面  用户开始该城市的旅游
-api tourIndexInfo extends IndexInfo{
-    position:Position
-    output nextSpot:NextSpot
+api TourIndexInfo extends IndexInfo{
+    //城市id
+    require cid:number
+    //该城市的spot景点列表
+    output spots:Spot[]
+    //用户信息
+    output userInfo:UserInfo
 }
 
 // 修改路线 注意不可回退 并且正在行进的路线change了就不能选择了
-api changeRouter {
+api ChangeRouter {
     //景点id
     require spotId:number
     require position:Position
     output nextSpot:NextSpot
 }
 
-api nextRouter {
+api NextRouter {
     //景点id
     require spotId:number
     require position:Position
     output nextSpot:NextSpot
 }
 //进入景点直接触发随机事件 前端触发吧
-api questEnterSpot {
+api QuestEnterSpot {
     //景点id
     require spotId:number
     //触发的随机事件的event id见配置表
@@ -61,7 +83,7 @@ api questEnterSpot {
 }
 
 //回答问题的接口
-api answerQuestion {
+api AnswerQuestion {
    //回答是否正确
    output answerResult:boolean
    //返回个人的金币和积分 在userinfo里
@@ -69,7 +91,7 @@ api answerQuestion {
 }
 
 //行程途中随机事件  每隔一分钟定时call 之后获得处理
-api questRandom {
+api QuestRandom {
     //别的玩家信息 是否是你的好友需要一定的计算 还有对应的坐标
     playerInfos : PlayerInfo[]
     //触发随机事件的id
@@ -77,7 +99,7 @@ api questRandom {
 }
 
 //已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
-api questRandom {
+api QuestRandom {
    //列表总长多少
    output total:number
    //当前第几个从1开始
@@ -94,18 +116,24 @@ api questRandom {
 }
 
 //玩家完成该城市的经典的具体报告
-api showQuestReport {
+api ShowQuestReport {
    //返回报告信息
    output  questReport:QuestReport
 }
 
 //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
-api leaveTour
+api LeaveTour
 {
     //返回个人的金币和积分 在userinfo里
     output userinfo:UserInfo
     //该城市的整体效率评分 效率评分 CityPer.cityEf
     output cityPer:CityPer
+}
+
+//租用道具
+api RentProp {
+    require rentId:number  //装备id
+    output rentItems:KV[]//已租用的所有道具。
 }
 
 

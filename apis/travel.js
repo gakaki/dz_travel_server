@@ -569,30 +569,6 @@ class ProvincePostcardInfo {
         
     }
 }
-class Specialty {
-    constructor() {
-    
-    
-        //prop type: number//特产id
-        this.propId = null;
-    
-        //prop type: string//特产图片
-        this.img = null;
-    
-        //prop type: string//特产名
-        this.name = null;
-    
-        //prop type: string//特产介绍
-        this.desc = null;
-    
-        //prop type: number//特产价格
-        this.price = null;
-    
-        
-        
-        
-    }
-}
 class SelfRank {
     constructor() {
     
@@ -635,6 +611,30 @@ class Sight {
     
         //prop type: string//返回景点的图片地址
         this.img = null;
+    
+        
+        
+        
+    }
+}
+class Specialty {
+    constructor() {
+    
+    
+        //prop type: number//特产id
+        this.propId = null;
+    
+        //prop type: string//特产图片
+        this.img = null;
+    
+        //prop type: string//特产名
+        this.name = null;
+    
+        //prop type: string//特产介绍
+        this.desc = null;
+    
+        //prop type: number//特产价格
+        this.price = null;
     
         
         
@@ -818,6 +818,42 @@ class Position {
         
     }
 }
+class Spot {
+    constructor() {
+    
+    
+        //prop type: number
+        this.spotId = null;
+    
+        //prop type: number
+        this.x = null;
+    
+        //prop type: number
+        this.y = null;
+    
+        //prop type: Date
+        this.arrivedDate = null;
+    
+        //prop type: string
+        this.needTime = null;
+    
+        //prop type: number
+        this.elapsedTimeSecond = null;
+    
+        //prop type: boolean
+        this.isStart = null;
+    
+        //prop type: boolean
+        this.tracked = null;
+    
+        //prop type: number
+        this.index = null;
+    
+        
+        
+        
+    }
+}
 class NextSpot {
     constructor() {
     
@@ -842,21 +878,347 @@ class NextSpot {
         
     }
 }
-class LookTicket extends Base {
+class RankInfo extends Base {
     constructor() {
         super();
-        this.action = 'player.lookticket';
+        this.action = 'rank.rankinfo';
     
-        this._ticket = null;
+        this._rankType = null;
+        this._rankSubtype = null;
+        this._page = null;
+        this._limit = null;
+        this._selfRank = null;
+        this._ranks = null;
+        this.requireFileds = ["rankType","rankSubtype"];
+        this.reqFields = ["rankType","rankSubtype","page","limit"];
+        this.resFields = ["selfRank","ranks"];
+    }
+    //client input, require, type: RankType
+    get rankType() {return this._rankType}
+    set rankType(v) {this._rankType = v}
+    //client input, require, type: RankSubtype
+    get rankSubtype() {return this._rankSubtype}
+    set rankSubtype(v) {this._rankSubtype = v}
+    //client input, optional, type: number
+    get page() {return this._page}
+    set page(v) {this._page = v}
+    //client input, optional, type: number
+    get limit() {return this._limit}
+    set limit(v) {this._limit = v}
+    //server output, type: SelfRank
+    get selfRank() {return this._selfRank}
+    set selfRank(v) {this._selfRank = v}
+    //server output, type: RankItem[]
+    get ranks() {return this._ranks}
+    set ranks(v) {this._ranks = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new RankInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class CityListPer extends Base {
+    constructor() {
+        super();
+        this.action = 'city.citylistper';
+    
+        this._data = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["ticket"];
+        this.resFields = ["data"];
     }
-    //server output, type: TicketInfo[]
-    get ticket() {return this._ticket}
-    set ticket(v) {this._ticket = v}
+    //server output, type: ProvencePer[]
+    get data() {return this._data}
+    set data(v) {this._data = v}
     static Init(ctx, checkLogin = false) {
-        let o = new LookTicket();
+        let o = new CityListPer();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class NextRouter extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.nextrouter';
+    
+        this._spotId = null;
+        this._position = null;
+        this._nextSpot = null;
+        this.requireFileds = ["spotId","position"];
+        this.reqFields = ["spotId","position"];
+        this.resFields = ["nextSpot"];
+    }
+    //client input, require, type: number
+    get spotId() {return this._spotId}
+    set spotId(v) {this._spotId = v}
+    //client input, require, type: Position
+    get position() {return this._position}
+    set position(v) {this._position = v}
+    //server output, type: NextSpot
+    get nextSpot() {return this._nextSpot}
+    set nextSpot(v) {this._nextSpot = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new NextRouter();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class QuestEnterSpot extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.questenterspot';
+    
+        this._spotId = null;
+        this._eventId = null;
+        this._userinfo = null;
+        this.requireFileds = ["spotId"];
+        this.reqFields = ["spotId"];
+        this.resFields = ["eventId","userinfo"];
+    }
+    //client input, require, type: number
+    get spotId() {return this._spotId}
+    set spotId(v) {this._spotId = v}
+    //server output, type: number
+    get eventId() {return this._eventId}
+    set eventId(v) {this._eventId = v}
+    //server output, type: UserInfo
+    get userinfo() {return this._userinfo}
+    set userinfo(v) {this._userinfo = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new QuestEnterSpot();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class AnswerQuestion extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.answerquestion';
+    
+        this._answerResult = null;
+        this._userinfo = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["answerResult","userinfo"];
+    }
+    //server output, type: boolean
+    get answerResult() {return this._answerResult}
+    set answerResult(v) {this._answerResult = v}
+    //server output, type: UserInfo
+    get userinfo() {return this._userinfo}
+    set userinfo(v) {this._userinfo = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new AnswerQuestion();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class QuestRandom extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.questrandom';
+    
+        this._eventId = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["eventId"];
+    }
+    //server output, type: number
+    get eventId() {return this._eventId}
+    set eventId(v) {this._eventId = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new QuestRandom();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class ShowQuestReport extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.showquestreport';
+    
+        this._questReport = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["questReport"];
+    }
+    //server output, type: QuestReport
+    get questReport() {return this._questReport}
+    set questReport(v) {this._questReport = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ShowQuestReport();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class LeaveTour extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.leavetour';
+    
+        this._userinfo = null;
+        this._cityPer = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["userinfo","cityPer"];
+    }
+    //server output, type: UserInfo
+    get userinfo() {return this._userinfo}
+    set userinfo(v) {this._userinfo = v}
+    //server output, type: CityPer
+    get cityPer() {return this._cityPer}
+    set cityPer(v) {this._cityPer = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new LeaveTour();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class RentProp extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.rentprop';
+    
+        this._rentId = null;
+        this._rentItems = null;
+        this.requireFileds = ["rentId"];
+        this.reqFields = ["rentId"];
+        this.resFields = ["rentItems"];
+    }
+    //client input, require, type: number
+    get rentId() {return this._rentId}
+    set rentId(v) {this._rentId = v}
+    //server output, type: KV[]//已租用的所有道具。
+    get rentItems() {return this._rentItems}
+    set rentItems(v) {this._rentItems = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new RentProp();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class WsReceive extends Base {
+    constructor() {
+        super();
+    
+        
+        
+        
+    }
+   submit() {
+        let tmp ={};
+        tmp.action=this.action;
+        this.resFields.forEach(k => {
+            tmp[k]=this[k]
+        });
+        this.ctx.socket.emit(this.action, {data: tmp, code: this.code});
+    }
+}
+class WsSend extends Base {
+    constructor() {
+        super();
+    
+        
+        
+        
+    }
+}
+class ShareInfo extends Base {
+    constructor() {
+        super();
+        this.action = 'player.shareinfo';
+    
+        this._isFirst = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["isFirst"];
+    }
+    //server output, type: boolean
+    get isFirst() {return this._isFirst}
+    set isFirst(v) {this._isFirst = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ShareInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -925,280 +1287,6 @@ class FlyInfo extends Base {
     set cid(v) {this._cid = v}
     static Init(ctx, checkLogin = false) {
         let o = new FlyInfo();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class nextRouter extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.nextrouter';
-    
-        this._spotId = null;
-        this._position = null;
-        this._nextSpot = null;
-        this.requireFileds = ["spotId","position"];
-        this.reqFields = ["spotId","position"];
-        this.resFields = ["nextSpot"];
-    }
-    //client input, require, type: number
-    get spotId() {return this._spotId}
-    set spotId(v) {this._spotId = v}
-    //client input, require, type: Position
-    get position() {return this._position}
-    set position(v) {this._position = v}
-    //server output, type: NextSpot
-    get nextSpot() {return this._nextSpot}
-    set nextSpot(v) {this._nextSpot = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new nextRouter();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class questEnterSpot extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.questenterspot';
-    
-        this._spotId = null;
-        this._eventId = null;
-        this._userinfo = null;
-        this.requireFileds = ["spotId"];
-        this.reqFields = ["spotId"];
-        this.resFields = ["eventId","userinfo"];
-    }
-    //client input, require, type: number
-    get spotId() {return this._spotId}
-    set spotId(v) {this._spotId = v}
-    //server output, type: number
-    get eventId() {return this._eventId}
-    set eventId(v) {this._eventId = v}
-    //server output, type: UserInfo
-    get userinfo() {return this._userinfo}
-    set userinfo(v) {this._userinfo = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new questEnterSpot();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class answerQuestion extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.answerquestion';
-    
-        this._answerResult = null;
-        this._userinfo = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["answerResult","userinfo"];
-    }
-    //server output, type: boolean
-    get answerResult() {return this._answerResult}
-    set answerResult(v) {this._answerResult = v}
-    //server output, type: UserInfo
-    get userinfo() {return this._userinfo}
-    set userinfo(v) {this._userinfo = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new answerQuestion();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class questRandom extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.questrandom';
-    
-        this._eventId = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["eventId"];
-    }
-    //server output, type: number
-    get eventId() {return this._eventId}
-    set eventId(v) {this._eventId = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new questRandom();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class showQuestReport extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.showquestreport';
-    
-        this._questReport = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["questReport"];
-    }
-    //server output, type: QuestReport
-    get questReport() {return this._questReport}
-    set questReport(v) {this._questReport = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new showQuestReport();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class leaveTour extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.leavetour';
-    
-        this._userinfo = null;
-        this._cityPer = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["userinfo","cityPer"];
-    }
-    //server output, type: UserInfo
-    get userinfo() {return this._userinfo}
-    set userinfo(v) {this._userinfo = v}
-    //server output, type: CityPer
-    get cityPer() {return this._cityPer}
-    set cityPer(v) {this._cityPer = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new leaveTour();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class WsReceive extends Base {
-    constructor() {
-        super();
-    
-        
-        
-        
-    }
-   submit() {
-        let tmp ={};
-        tmp.action=this.action;
-        this.resFields.forEach(k => {
-            tmp[k]=this[k]
-        });
-        this.ctx.socket.emit(this.action, {data: tmp, code: this.code});
-    }
-}
-class WsSend extends Base {
-    constructor() {
-        super();
-    
-        
-        
-        
-    }
-}
-class CityListPer extends Base {
-    constructor() {
-        super();
-        this.action = 'city.citylistper';
-    
-        this._data = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["data"];
-    }
-    //server output, type: ProvencePer[]
-    get data() {return this._data}
-    set data(v) {this._data = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new CityListPer();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class ShareInfo extends Base {
-    constructor() {
-        super();
-        this.action = 'player.shareinfo';
-    
-        this._isFirst = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["isFirst"];
-    }
-    //server output, type: boolean
-    get isFirst() {return this._isFirst}
-    set isFirst(v) {this._isFirst = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new ShareInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1292,281 +1380,12 @@ class TraveledPlaces extends Base {
         }
     }
 }
-class viewpointInfo extends Base {
+class MySpe extends Specialty {
     constructor() {
         super();
-        this.action = 'sight.viewpointinfo';
     
-        this._pointId = null;
-        this._season = null;
-        this._weather = null;
-        this._img = null;
-        this._name = null;
-        this._desc = null;
-        this.requireFileds = ["pointId"];
-        this.reqFields = ["pointId"];
-        this.resFields = ["season","weather","img","name","desc"];
-    }
-    //client input, require, type: string
-    get pointId() {return this._pointId}
-    set pointId(v) {this._pointId = v}
-    //server output, type: Season
-    get season() {return this._season}
-    set season(v) {this._season = v}
-    //server output, type: number
-    get weather() {return this._weather}
-    set weather(v) {this._weather = v}
-    //server output, type: string//返回景点的图片地址
-    get img() {return this._img}
-    set img(v) {this._img = v}
-    //server output, type: string//景点名称
-    get name() {return this._name}
-    set name(v) {this._name = v}
-    //server output, type: string//景点介绍
-    get desc() {return this._desc}
-    set desc(v) {this._desc = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new viewpointInfo();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class Photograph extends Base {
-    constructor() {
-        super();
-        this.action = 'sight.photograph';
-    
-        this._pointId = null;
-        this._postImg = null;
-        this.requireFileds = ["pointId"];
-        this.reqFields = ["pointId"];
-        this.resFields = ["postImg"];
-    }
-    //client input, require, type: string//景点id
-    get pointId() {return this._pointId}
-    set pointId(v) {this._pointId = v}
-    //server output, type: string
-    get postImg() {return this._postImg}
-    set postImg(v) {this._postImg = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new Photograph();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class TravelFootprint extends Base {
-    constructor() {
-        super();
-        this.action = 'player.travelfootprint';
-    
-        this._playerUid = null;
-        this._userInfo = null;
-        this._items = null;
-        this._reachrovince = null;
-        this._totalArrive = null;
-        this._totalArrivePercent = null;
-        this._travelPercent = null;
-        this.requireFileds = [];
-        this.reqFields = ["playerUid"];
-        this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
-    }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: UserBriefInfo
-    get userInfo() {return this._userInfo}
-    set userInfo(v) {this._userInfo = v}
-    //server output, type: KV[]
-    get items() {return this._items}
-    set items(v) {this._items = v}
-    //server output, type: number
-    get reachrovince() {return this._reachrovince}
-    set reachrovince(v) {this._reachrovince = v}
-    //server output, type: number
-    get totalArrive() {return this._totalArrive}
-    set totalArrive(v) {this._totalArrive = v}
-    //server output, type: number
-    get totalArrivePercent() {return this._totalArrivePercent}
-    set totalArrivePercent(v) {this._totalArrivePercent = v}
-    //server output, type: number
-    get travelPercent() {return this._travelPercent}
-    set travelPercent(v) {this._travelPercent = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new TravelFootprint();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class ToSign extends Base {
-    constructor() {
-        super();
-        this.action = 'player.tosign';
-    
-        this._theDay = null;
-        this.requireFileds = [];
-        this.reqFields = ["theDay"];
-        this.resFields = [];
-    }
-    //client input, optional, type: number
-    get theDay() {return this._theDay}
-    set theDay(v) {this._theDay = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new ToSign();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class RankInfo extends Base {
-    constructor() {
-        super();
-        this.action = 'rank.rankinfo';
-    
-        this._rankType = null;
-        this._rankSubtype = null;
-        this._page = null;
-        this._limit = null;
-        this._selfRank = null;
-        this._ranks = null;
-        this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","page","limit"];
-        this.resFields = ["selfRank","ranks"];
-    }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, require, type: RankSubtype
-    get rankSubtype() {return this._rankSubtype}
-    set rankSubtype(v) {this._rankSubtype = v}
-    //client input, optional, type: number
-    get page() {return this._page}
-    set page(v) {this._page = v}
-    //client input, optional, type: number
-    get limit() {return this._limit}
-    set limit(v) {this._limit = v}
-    //server output, type: SelfRank
-    get selfRank() {return this._selfRank}
-    set selfRank(v) {this._selfRank = v}
-    //server output, type: RankItem[]
-    get ranks() {return this._ranks}
-    set ranks(v) {this._ranks = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new RankInfo();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class RentProp extends Base {
-    constructor() {
-        super();
-        this.action = 'prop.rentprop';
-    
-        this._rentId = null;
-        this._rentItems = null;
-        this.requireFileds = ["rentId"];
-        this.reqFields = ["rentId"];
-        this.resFields = ["rentItems"];
-    }
-    //client input, require, type: number
-    get rentId() {return this._rentId}
-    set rentId(v) {this._rentId = v}
-    //server output, type: KV[]//已租用的所有道具。
-    get rentItems() {return this._rentItems}
-    set rentItems(v) {this._rentItems = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new RentProp();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class SignInfo extends Base {
-    constructor() {
-        super();
-        this.action = 'player.signinfo';
-    
-        this._theDay = null;
-        this._hasSign = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["theDay","hasSign"];
-    }
-    //server output, type: number
-    get theDay() {return this._theDay}
-    set theDay(v) {this._theDay = v}
-    //server output, type: number
-    get hasSign() {return this._hasSign}
-    set hasSign(v) {this._hasSign = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new SignInfo();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class mySpe extends Specialty {
-    constructor() {
-        super();
+        //prop type: number//特产卖出价格
+        this.sellPrice = null;
     
         //prop type: number//我的某个特产的数量
         this.num = null;
@@ -1576,10 +1395,10 @@ class mySpe extends Specialty {
         
     }
 }
-class SpeList extends Base {
+class CitySpes extends Base {
     constructor() {
         super();
-        this.action = 'prop.spelist';
+        this.action = 'specialty.cityspes';
     
         this._cityId = null;
         this._specialtys = null;
@@ -1594,7 +1413,35 @@ class SpeList extends Base {
     get specialtys() {return this._specialtys}
     set specialtys(v) {this._specialtys = v}
     static Init(ctx, checkLogin = false) {
-        let o = new SpeList();
+        let o = new CitySpes();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class MySpes extends Base {
+    constructor() {
+        super();
+        this.action = 'specialty.myspes';
+    
+        this._specialtys = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["specialtys"];
+    }
+    //server output, type: MySpe[]
+    get specialtys() {return this._specialtys}
+    set specialtys(v) {this._specialtys = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new MySpes();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1611,7 +1458,7 @@ class SpeList extends Base {
 class Spe extends Base {
     constructor() {
         super();
-        this.action = 'prop.spe';
+        this.action = 'specialty.spe';
     
         this._propId = null;
         this._count = null;
@@ -1712,7 +1559,199 @@ class ExchangeShop extends Base {
         }
     }
 }
-class changeRouter extends Base {
+class TravelFootprint extends Base {
+    constructor() {
+        super();
+        this.action = 'player.travelfootprint';
+    
+        this._playerUid = null;
+        this._userInfo = null;
+        this._items = null;
+        this._reachrovince = null;
+        this._totalArrive = null;
+        this._totalArrivePercent = null;
+        this._travelPercent = null;
+        this.requireFileds = [];
+        this.reqFields = ["playerUid"];
+        this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserBriefInfo
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
+    //server output, type: KV[]
+    get items() {return this._items}
+    set items(v) {this._items = v}
+    //server output, type: number
+    get reachrovince() {return this._reachrovince}
+    set reachrovince(v) {this._reachrovince = v}
+    //server output, type: number
+    get totalArrive() {return this._totalArrive}
+    set totalArrive(v) {this._totalArrive = v}
+    //server output, type: number
+    get totalArrivePercent() {return this._totalArrivePercent}
+    set totalArrivePercent(v) {this._totalArrivePercent = v}
+    //server output, type: number
+    get travelPercent() {return this._travelPercent}
+    set travelPercent(v) {this._travelPercent = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new TravelFootprint();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class viewpointInfo extends Base {
+    constructor() {
+        super();
+        this.action = 'sight.viewpointinfo';
+    
+        this._pointId = null;
+        this._season = null;
+        this._weather = null;
+        this._img = null;
+        this._name = null;
+        this._desc = null;
+        this.requireFileds = ["pointId"];
+        this.reqFields = ["pointId"];
+        this.resFields = ["season","weather","img","name","desc"];
+    }
+    //client input, require, type: string
+    get pointId() {return this._pointId}
+    set pointId(v) {this._pointId = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: string//返回景点的图片地址
+    get img() {return this._img}
+    set img(v) {this._img = v}
+    //server output, type: string//景点名称
+    get name() {return this._name}
+    set name(v) {this._name = v}
+    //server output, type: string//景点介绍
+    get desc() {return this._desc}
+    set desc(v) {this._desc = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new viewpointInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class Photograph extends Base {
+    constructor() {
+        super();
+        this.action = 'sight.photograph';
+    
+        this._pointId = null;
+        this._postImg = null;
+        this.requireFileds = ["pointId"];
+        this.reqFields = ["pointId"];
+        this.resFields = ["postImg"];
+    }
+    //client input, require, type: string//景点id
+    get pointId() {return this._pointId}
+    set pointId(v) {this._pointId = v}
+    //server output, type: string
+    get postImg() {return this._postImg}
+    set postImg(v) {this._postImg = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new Photograph();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class ToSign extends Base {
+    constructor() {
+        super();
+        this.action = 'player.tosign';
+    
+        this._theDay = null;
+        this.requireFileds = [];
+        this.reqFields = ["theDay"];
+        this.resFields = [];
+    }
+    //client input, optional, type: number
+    get theDay() {return this._theDay}
+    set theDay(v) {this._theDay = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ToSign();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class SignInfo extends Base {
+    constructor() {
+        super();
+        this.action = 'player.signinfo';
+    
+        this._theDay = null;
+        this._hasSign = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["theDay","hasSign"];
+    }
+    //server output, type: number
+    get theDay() {return this._theDay}
+    set theDay(v) {this._theDay = v}
+    //server output, type: number
+    get hasSign() {return this._hasSign}
+    set hasSign(v) {this._hasSign = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new SignInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class ChangeRouter extends Base {
     constructor() {
         super();
         this.action = 'tour.changerouter';
@@ -1734,7 +1773,35 @@ class changeRouter extends Base {
     get nextSpot() {return this._nextSpot}
     set nextSpot(v) {this._nextSpot = v}
     static Init(ctx, checkLogin = false) {
-        let o = new changeRouter();
+        let o = new ChangeRouter();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class LookTicket extends Base {
+    constructor() {
+        super();
+        this.action = 'player.lookticket';
+    
+        this._ticket = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["ticket"];
+    }
+    //server output, type: TicketInfo[]
+    get ticket() {return this._ticket}
+    set ticket(v) {this._ticket = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new LookTicket();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2568,7 +2635,7 @@ class SysMessage extends WsReceive {
 class SellSpe extends Spe {
     constructor() {
         super();
-        this.action = 'prop.sellspe';
+        this.action = 'specialty.sellspe';
     
         this._goldNum = null;
         this.requireFileds = ["propId","count"];
@@ -2596,7 +2663,7 @@ class SellSpe extends Spe {
 class BuySpe extends Spe {
     constructor() {
         super();
-        this.action = 'prop.buyspe';
+        this.action = 'specialty.buyspe';
     
         this._items = null;
         this._goldNum = null;
@@ -2625,21 +2692,29 @@ class BuySpe extends Spe {
         }
     }
 }
-class tourIndexInfo extends IndexInfo {
+class TourIndexInfo extends IndexInfo {
     constructor() {
         super();
         this.action = 'tour.tourindexinfo';
     
-        this._nextSpot = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["nextSpot","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
+        this._cid = null;
+        this._spots = null;
+        this._userInfo = null;
+        this.requireFileds = ["cid"];
+        this.reqFields = ["cid"];
+        this.resFields = ["spots","userInfo","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
-    //server output, type: NextSpot
-    get nextSpot() {return this._nextSpot}
-    set nextSpot(v) {this._nextSpot = v}
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //server output, type: Spot[]
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    //server output, type: UserInfo
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
     static Init(ctx, checkLogin = false) {
-        let o = new tourIndexInfo();
+        let o = new TourIndexInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2679,10 +2754,10 @@ exports.OneBriefMessage = OneBriefMessage;
 exports.PostcardBriefDetail = PostcardBriefDetail;
 exports.CityPostcardInfo = CityPostcardInfo;
 exports.ProvincePostcardInfo = ProvincePostcardInfo;
-exports.Specialty = Specialty;
 exports.SelfRank = SelfRank;
 exports.RankItem = RankItem;
 exports.Sight = Sight;
+exports.Specialty = Specialty;
 exports.OneDayLog = OneDayLog;
 exports.Base = Base;
 exports.ProvencePer = ProvencePer;
@@ -2691,34 +2766,36 @@ exports.Ws = Ws;
 exports.Http = Http;
 exports.QuestReport = QuestReport;
 exports.Position = Position;
+exports.Spot = Spot;
 exports.NextSpot = NextSpot;
-exports.LookTicket = LookTicket;
-exports.FlyInfo = FlyInfo;
-exports.nextRouter = nextRouter;
-exports.questEnterSpot = questEnterSpot;
-exports.answerQuestion = answerQuestion;
-exports.questRandom = questRandom;
-exports.showQuestReport = showQuestReport;
-exports.leaveTour = leaveTour;
+exports.RankInfo = RankInfo;
+exports.CityListPer = CityListPer;
+exports.NextRouter = NextRouter;
+exports.QuestEnterSpot = QuestEnterSpot;
+exports.AnswerQuestion = AnswerQuestion;
+exports.QuestRandom = QuestRandom;
+exports.ShowQuestReport = ShowQuestReport;
+exports.LeaveTour = LeaveTour;
+exports.RentProp = RentProp;
 exports.WsReceive = WsReceive;
 exports.WsSend = WsSend;
-exports.CityListPer = CityListPer;
 exports.ShareInfo = ShareInfo;
+exports.FlyInfo = FlyInfo;
 exports.StartGame = StartGame;
 exports.TraveledPlaces = TraveledPlaces;
-exports.viewpointInfo = viewpointInfo;
-exports.Photograph = Photograph;
-exports.TravelFootprint = TravelFootprint;
-exports.ToSign = ToSign;
-exports.RankInfo = RankInfo;
-exports.RentProp = RentProp;
-exports.SignInfo = SignInfo;
-exports.mySpe = mySpe;
-exports.SpeList = SpeList;
+exports.MySpe = MySpe;
+exports.CitySpes = CitySpes;
+exports.MySpes = MySpes;
 exports.Spe = Spe;
 exports.GetUserLocation = GetUserLocation;
 exports.ExchangeShop = ExchangeShop;
-exports.changeRouter = changeRouter;
+exports.TravelFootprint = TravelFootprint;
+exports.viewpointInfo = viewpointInfo;
+exports.Photograph = Photograph;
+exports.ToSign = ToSign;
+exports.SignInfo = SignInfo;
+exports.ChangeRouter = ChangeRouter;
+exports.LookTicket = LookTicket;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.GetRealInfo = GetRealInfo;
 exports.PlayerInfo = PlayerInfo;
@@ -2743,4 +2820,4 @@ exports.TestSend = TestSend;
 exports.SysMessage = SysMessage;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
-exports.tourIndexInfo = tourIndexInfo;
+exports.TourIndexInfo = TourIndexInfo;

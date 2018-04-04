@@ -1,11 +1,4 @@
-import ../base.api
-import ./player.api
-
-//租用道具
-api RentProp {
-    require rentId:number  //装备id
-    output rentItems:KV[]//已租用的所有道具。
-}
+//特产
 
 class Specialty {
     prop propId:number//特产id
@@ -15,13 +8,21 @@ class Specialty {
     prop price:number//特产价格
 }
 
-class mySpe extends Specialty{
+class MySpe extends Specialty{
+    prop sellPrice:number//特产卖出价格
     prop num:number//我的某个特产的数量
 }
+
 //拉取该城市的特产
-api SpeList {
+api CitySpes {
     require cityId:number//城市id
     output specialtys:Specialty[]
+}
+
+//我的特产列表
+api MySpes {
+    //我已买的特产列表
+    output specialtys:MySpe[]
 }
 
 api Spe {

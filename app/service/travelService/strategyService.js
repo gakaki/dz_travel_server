@@ -101,6 +101,8 @@ class StrategyService extends Service {
            context=context.replace(key,"*");
        }
 
+       this.logger.info(context);
+
        let shielded = false;
        if(context.indexOf("*") != -1){
            shielded = true
