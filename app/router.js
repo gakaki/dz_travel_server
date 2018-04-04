@@ -1,3 +1,5 @@
+const routerUserInfo = app.middleware.routerUserInfo({}); 
+
 /**
  * @param {Egg.Application} app - egg application
  */
@@ -57,14 +59,13 @@ module.exports = app => {
     router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
     //游玩界面
-    router.get('/tour/tourIndexInfo', controller.travelController.tourController.tourIndexInfo);
-    router.get('/tour/changeRouter', controller.travelController.tourController.changeRouter);
-    router.get('/tour/questEnterSpot', controller.travelController.tourController.questEnterSpot);
-    router.get('/tour/questRandom', controller.travelController.tourController.questRandom);
-    router.get('/tour/questRandomList', controller.travelController.tourController.questRandomList);
-    router.get('/tour/showQuestReport', controller.travelController.tourController.showQuestReport);
-    router.get('/tour/leaveTour', controller.travelController.tourController.leaveTour);
-
-
-    io.of('/travel').route('test', io.controller.travelIOController.travelIOController.test);
+    router.get('/tour/tourIndexInfo', routerUserInfo,  controller.travelController.tourController.tourIndexInfo);
+    router.get('/tour/changeRouter',  routerUserInfo,  controller.travelController.tourController.changeRouter);
+    router.get('/tour/questEnterSpot',routerUserInfo,  controller.travelController.tourController.questEnterSpot);
+    router.get('/tour/questRandom',   routerUserInfo,  controller.travelController.tourController.questRandom);
+    router.get('/tour/questRandomList', routerUserInfo, controller.travelController.tourController.questRandomList);
+    router.get('/tour/showQuestReport', routerUserInfo, controller.travelController.tourController.showQuestReport);
+    router.get('/tour/leaveTour', routerUserInfo, controller.travelController.tourController.leaveTour);
+    
+    io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

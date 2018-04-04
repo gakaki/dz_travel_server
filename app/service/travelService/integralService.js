@@ -9,7 +9,7 @@ class IntegralService extends Service {
         //积分
         res.integral = ui.items[sheets.Item.POINT] || 0;
         //积分排名
-        res.rank = await this.getUserRank(ui.uid);
+        res.rank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
         //本期积分商店售卖的物品,配置在数据库中
         res.shops = await this.ctx.model.TravelModel.ExchangeItem.find();
     }
@@ -72,42 +72,6 @@ class IntegralService extends Service {
         }
     }
 
-    /**
-     * 更新一次积分榜单
-     * */
-    async updateRankList() {
-        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort('-integral, updateDate').limit(sheets.Parameter.Get(sheets.Parameter.RANKNUMBER).value);
-        let idx = 1;
-        let date = new Date();
-        list = list.map(l => {
-            let o = Object.assign({}, l);
-            o.rank = idx++;
-            o.createDate = date;
-            return o;
-        })
-
-        await this.ctx.model.TravelModel.IntegralRank.remove();
-        await this.ctx.model.TravelModel.IntegralRank.create(list);
-
-    }
-
-    /**
-     * 获取当前积分榜单
-     * @param limit 查询条数
-     * */
-    async getRankList(fromRank, limit) {
-        let ranklist = await this.ctx.model.TravelModel.IntegralRank.find().gt('rank', fromRank).limit(limit);
-        return ranklist;
-    }
-
-    /**
-     * 获取玩家在榜单中的排名
-     * */
-    async getUserRank(uid) {
-        let rankInfo = await this.ctx.model.TravelModel.IntegralRank.findOne({uid: uid});
-        return rankInfo ? rankInfo.rank : 0; //0表示未上榜
-    }
-
     //兑换物品
     async exchange(res, ui) {
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
@@ -139,7 +103,7 @@ class IntegralService extends Service {
             res.code = apis.Code.FAILED;
             return;
         }
-        let myRank = await this.getUserRank(ui.uid);
+        let myRank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);;
 
         if (myRank > condition.rank) {
             res.code = apis.Code.RANK_NOT_MEET;
