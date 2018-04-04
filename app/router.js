@@ -25,6 +25,8 @@ module.exports = app => {
     router.get('/player/travelfootprint', controller.travelController.playerController.travelfootprint);
     router.get('/player/modifyrealinfo', controller.travelController.playerController.setrealinfo);
     router.get('/player/getrealinfo', controller.travelController.playerController.getrealinfo);
+    router.get('/player/shareinfo', controller.travelController.playerController.shareInfo);
+
     router.get('/postcard/mypostcards', controller.travelController.playerController.showmypostcards);
     router.get('/postcard/citypostcards', controller.travelController.playerController.showcitypostcards);
     router.get('/postcard/detailpostcard', controller.travelController.playerController.showdetailpostcard);

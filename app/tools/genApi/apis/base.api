@@ -489,7 +489,7 @@ class Http {
 
     func client static listen(apiCls, cb, ctx, interval = 300) {
         if (!this._listenings) {
-            console.error('ws has not inited');
+            console.error('Http loop has not inited');
             return;
         }
         let action = apiCls.name.toLowerCase();
