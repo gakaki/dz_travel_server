@@ -818,6 +818,42 @@ class Position {
         
     }
 }
+class Spot {
+    constructor() {
+    
+    
+        //prop type: number
+        this.spotId = null;
+    
+        //prop type: number
+        this.x = null;
+    
+        //prop type: number
+        this.y = null;
+    
+        //prop type: Date
+        this.arrivedDate = null;
+    
+        //prop type: string
+        this.needTime = null;
+    
+        //prop type: number
+        this.elapsedTimeSecond = null;
+    
+        //prop type: boolean
+        this.isStart = null;
+    
+        //prop type: boolean
+        this.tracked = null;
+    
+        //prop type: number
+        this.index = null;
+    
+        
+        
+        
+    }
+}
 class NextSpot {
     constructor() {
     
@@ -918,7 +954,7 @@ class CityListPer extends Base {
         }
     }
 }
-class nextRouter extends Base {
+class NextRouter extends Base {
     constructor() {
         super();
         this.action = 'tour.nextrouter';
@@ -940,7 +976,7 @@ class nextRouter extends Base {
     get nextSpot() {return this._nextSpot}
     set nextSpot(v) {this._nextSpot = v}
     static Init(ctx, checkLogin = false) {
-        let o = new nextRouter();
+        let o = new NextRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -954,7 +990,7 @@ class nextRouter extends Base {
         }
     }
 }
-class questEnterSpot extends Base {
+class QuestEnterSpot extends Base {
     constructor() {
         super();
         this.action = 'tour.questenterspot';
@@ -976,7 +1012,7 @@ class questEnterSpot extends Base {
     get userinfo() {return this._userinfo}
     set userinfo(v) {this._userinfo = v}
     static Init(ctx, checkLogin = false) {
-        let o = new questEnterSpot();
+        let o = new QuestEnterSpot();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -990,7 +1026,7 @@ class questEnterSpot extends Base {
         }
     }
 }
-class answerQuestion extends Base {
+class AnswerQuestion extends Base {
     constructor() {
         super();
         this.action = 'tour.answerquestion';
@@ -1008,7 +1044,7 @@ class answerQuestion extends Base {
     get userinfo() {return this._userinfo}
     set userinfo(v) {this._userinfo = v}
     static Init(ctx, checkLogin = false) {
-        let o = new answerQuestion();
+        let o = new AnswerQuestion();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1022,7 +1058,7 @@ class answerQuestion extends Base {
         }
     }
 }
-class questRandom extends Base {
+class QuestRandom extends Base {
     constructor() {
         super();
         this.action = 'tour.questrandom';
@@ -1036,7 +1072,7 @@ class questRandom extends Base {
     get eventId() {return this._eventId}
     set eventId(v) {this._eventId = v}
     static Init(ctx, checkLogin = false) {
-        let o = new questRandom();
+        let o = new QuestRandom();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1050,7 +1086,7 @@ class questRandom extends Base {
         }
     }
 }
-class showQuestReport extends Base {
+class ShowQuestReport extends Base {
     constructor() {
         super();
         this.action = 'tour.showquestreport';
@@ -1064,7 +1100,7 @@ class showQuestReport extends Base {
     get questReport() {return this._questReport}
     set questReport(v) {this._questReport = v}
     static Init(ctx, checkLogin = false) {
-        let o = new showQuestReport();
+        let o = new ShowQuestReport();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1078,7 +1114,7 @@ class showQuestReport extends Base {
         }
     }
 }
-class leaveTour extends Base {
+class LeaveTour extends Base {
     constructor() {
         super();
         this.action = 'tour.leavetour';
@@ -1096,7 +1132,7 @@ class leaveTour extends Base {
     get cityPer() {return this._cityPer}
     set cityPer(v) {this._cityPer = v}
     static Init(ctx, checkLogin = false) {
-        let o = new leaveTour();
+        let o = new LeaveTour();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1715,7 +1751,7 @@ class SignInfo extends Base {
         }
     }
 }
-class changeRouter extends Base {
+class ChangeRouter extends Base {
     constructor() {
         super();
         this.action = 'tour.changerouter';
@@ -1737,7 +1773,7 @@ class changeRouter extends Base {
     get nextSpot() {return this._nextSpot}
     set nextSpot(v) {this._nextSpot = v}
     static Init(ctx, checkLogin = false) {
-        let o = new changeRouter();
+        let o = new ChangeRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2656,21 +2692,29 @@ class BuySpe extends Spe {
         }
     }
 }
-class tourIndexInfo extends IndexInfo {
+class TourIndexInfo extends IndexInfo {
     constructor() {
         super();
         this.action = 'tour.tourindexinfo';
     
-        this._nextSpot = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["nextSpot","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
+        this._cid = null;
+        this._spots = null;
+        this._userInfo = null;
+        this.requireFileds = ["cid"];
+        this.reqFields = ["cid"];
+        this.resFields = ["spots","userInfo","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
-    //server output, type: NextSpot
-    get nextSpot() {return this._nextSpot}
-    set nextSpot(v) {this._nextSpot = v}
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //server output, type: Spot[]
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    //server output, type: UserInfo
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
     static Init(ctx, checkLogin = false) {
-        let o = new tourIndexInfo();
+        let o = new TourIndexInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2722,15 +2766,16 @@ exports.Ws = Ws;
 exports.Http = Http;
 exports.QuestReport = QuestReport;
 exports.Position = Position;
+exports.Spot = Spot;
 exports.NextSpot = NextSpot;
 exports.RankInfo = RankInfo;
 exports.CityListPer = CityListPer;
-exports.nextRouter = nextRouter;
-exports.questEnterSpot = questEnterSpot;
-exports.answerQuestion = answerQuestion;
-exports.questRandom = questRandom;
-exports.showQuestReport = showQuestReport;
-exports.leaveTour = leaveTour;
+exports.NextRouter = NextRouter;
+exports.QuestEnterSpot = QuestEnterSpot;
+exports.AnswerQuestion = AnswerQuestion;
+exports.QuestRandom = QuestRandom;
+exports.ShowQuestReport = ShowQuestReport;
+exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.WsReceive = WsReceive;
 exports.WsSend = WsSend;
@@ -2749,7 +2794,7 @@ exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
 exports.ToSign = ToSign;
 exports.SignInfo = SignInfo;
-exports.changeRouter = changeRouter;
+exports.ChangeRouter = ChangeRouter;
 exports.LookTicket = LookTicket;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.GetRealInfo = GetRealInfo;
@@ -2775,4 +2820,4 @@ exports.TestSend = TestSend;
 exports.SysMessage = SysMessage;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
-exports.tourIndexInfo = tourIndexInfo;
+exports.TourIndexInfo = TourIndexInfo;

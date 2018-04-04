@@ -1,5 +1,6 @@
-const travelConfig = require("../../sheets/travel");
+
 const calendar = require("lunar-calendar");
+const travelConfig = require("../../sheets/travel");
 module.exports = {
     schedule: {
         cron: '0 30 0 * * *',      //秒(0-59)，分(0-59)，时(0-23)，日(1-31)，月(1-12)，周(0-7,0和7代表周日)

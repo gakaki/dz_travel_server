@@ -5,5 +5,6 @@ module.exports = {
         inDir: './app/tools/genApi/apis/travel',//可以是目录，也可以是具体到某个文件,文件
         outFileC: '../travel/api.js',
         outFileS: './apis/travel.js'
-    }
+    },
+
 }
