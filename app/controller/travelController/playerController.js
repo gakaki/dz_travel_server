@@ -280,6 +280,12 @@ class PlayerController extends Controller {
 
     }
 
+    async shareInfo(ctx) {
+        let info = await apis.ShareInfo.Init(ctx, true);
+        await ctx.service.travelService.playerService.shareInfo(info);
+        info.submit();
+    }
+
 
 }
 module.exports = PlayerController;
