@@ -1,4 +1,3 @@
-const constant = require("../../utils/constant");
 const travelConfigs = require("../../sheets/travel");
 module.exports = {
     schedule: {
