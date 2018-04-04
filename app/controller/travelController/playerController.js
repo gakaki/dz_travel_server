@@ -273,6 +273,7 @@ class PlayerController extends Controller {
             return;
         }
 
+       // await ctx.service.travelService.rankService.updateScoreRankList();
         await ctx.service.travelService.playerService.getRankInfo(info);
         info.submit();
 
