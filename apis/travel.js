@@ -2135,9 +2135,10 @@ class CommentPost extends Base {
         this._content = null;
         this._score = null;
         this._type = null;
+        this._comments = null;
         this.requireFileds = ["cityId","postId","content","score","type"];
         this.reqFields = ["cityId","postId","content","score","type"];
-        this.resFields = [];
+        this.resFields = ["comments"];
     }
     //client input, require, type: string//城市id
     get cityId() {return this._cityId}
@@ -2154,6 +2155,9 @@ class CommentPost extends Base {
     //client input, require, type: PostType//帖子类型：景点or特产
     get type() {return this._type}
     set type(v) {this._type = v}
+    //server output, type: Comment//自己的的评论信息
+    get comments() {return this._comments}
+    set comments(v) {this._comments = v}
     static Init(ctx, checkLogin = false) {
         let o = new CommentPost();
         o.ctx = ctx;
