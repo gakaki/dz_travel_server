@@ -441,8 +441,8 @@ class PlayerService extends Service {
                 uid: user.uid,
                 nickName: user.nickName,
                 avatarUrl: user.avatarUrl,
-                gold : user.items[travelConfig.Item.GOLD],
             };
+            rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType,rankItem.rank);
             //this.logger.info(rankItem)
             out.push(rankItem);
         }
