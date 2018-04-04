@@ -9,7 +9,7 @@ module.exports = () => {
         const {app, socket, logger} = ctx;
         const query = socket.handshake.query;
         // 用户信息
-        const {appName, _sid, uid} = query;
+        const {appName, sid, uid} = query;
         const nsp = app.io.of(['/' + appName]);
 
         logger.info('connected');
