@@ -1,5 +1,7 @@
 const Controller    = require('egg').Controller;
 const apis          = require("../../../apis/travel");
+const travelConfig  = require("../../../sheets/travel");
+
 //观光相关
 class TourController extends Controller {
 
@@ -53,10 +55,38 @@ class TourController extends Controller {
 
     }
 
+    current_timestamp(){
+        return parseInt(Date.now()/1000);
+    }
+
     // 前端请求下一个路径点
     async nextrouter(ctx) {
-        // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端 然后下次请求回来的时候要保存当时那个开始时间
 
+        // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端
+        let info        = apis.NextRouter.Init(ctx);
+        let user_info   = ctx.session.ui;
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        
+        let nextSpotConfig  = travelConfig.scenicspots.filter( s => s.cid == parseInt(info.cid) && s.id == parseInt(info.spotId) );
+
+        let row             = await ctx.model.TravelModel.SpotTiming.create({
+            sid: ctx.session.sid,
+            cid: info.cid,
+            spotIdCur:info.spotIdCurrent,    //当前景点id    当前景点等于最后景点了
+            spotIdNext:info.spotIdNext,      //目标景点id
+            isFinished:false,           //说明这个城市的景点走到顶了
+            createDate:this.current_timestamp()      //创建时间 当前景点出发的时间 然后当前时间记
+        });
+
+        info.nextSpot = {
+            spotIdNext : info.spotIdNext,
+            createDate : this.current_timestamp(),
+            arrivedDate : 0,
+            needTime    : 0,
+            elapsedTimeSecond: 0
+        }
+
+        info.submit();
     }
 
     // 进入景点观光 触发随机事件
@@ -67,7 +97,7 @@ class TourController extends Controller {
         let itemId  = 1;    //金币
         let info    = apis.UserInfo.Init(ctx);
         info.submit();
-        info['items']
+        // info['items']
 
         if (!_sid) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;

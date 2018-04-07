@@ -18,16 +18,13 @@ class Position {
 }
 
 class Spot {
+    //城市id
+    prop cid:number
     //景点配置表id
     prop spotId:number
     prop x:number
     prop y:number
-    //预估到达的时间 根据createdDate
-    prop arrivedDate:Date
-    //预估需要多少时间
-    prop needTime:string
-    //已经走了多少时间 用来在界面上画图走了多少路 移动多少距离用
-    prop elapsedTimeSecond:number
+
     //是否起点
     prop isStart:boolean
     //是否经过
@@ -35,17 +32,17 @@ class Spot {
     //经过的顺序
     prop index:number
 }
-class NextSpot {
-    //下一个景点的id
+class NextSpot extends Spot{
     prop spodIdNext:number
     //开始时间
-    prop createDate:Date
+    prop createDate:number
     //预估到达的时间 根据createdDate
-    prop arrivedDate:Date
+    prop arrivedDate:number
     //预估需要多少时间
     prop needTime:string
     //已经走了多少时间 用来在界面上画图走了多少路 移动多少距离用
     prop elapsedTimeSecond:number
+
 }
 
 //进入城市的经典页面  用户开始该城市的旅游
@@ -66,10 +63,13 @@ api ChangeRouter {
     output nextSpot:NextSpot
 }
 
-api NextRouter {
+api NextRouter  {
+    //城市id
+    require cid:string
     //景点id
-    require spotId:number
-    require position:Position
+    require spotIdCurrent:string
+    require spotIdNext:string
+    require uid:string
     output nextSpot:NextSpot
 }
 //进入景点直接触发随机事件 前端触发吧

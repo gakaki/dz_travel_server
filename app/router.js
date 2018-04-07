@@ -63,6 +63,8 @@ module.exports = app => {
 
     //游玩界面
     router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
+    router.get('/tour/nextrouter', routerUserInfo,  controller.travelController.tourController.nextrouter);
+
     router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     router.get('/tour/questenterspot',routerUserInfo,  controller.travelController.tourController.questenterspot);
     router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);
