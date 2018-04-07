@@ -50,6 +50,17 @@ class TourController extends Controller {
         info.spots          = spots;
         info.submit();
     }
+
+    // 开始游玩 选择完毕的行走节点之后点击开始游玩
+    async choosespotgo(ctx){
+        //所有节点信息
+    }
+
+    // 在界面内每隔几分钟获得行走的状态
+    async freqstatus(ctx){
+
+    }
+
     // 修改路线
     async changerouter(ctx) {
 
@@ -89,6 +100,33 @@ class TourController extends Controller {
         info.submit();
     }
 
+    //到达景点
+    async reachSpot(ctx){
+
+        let info                = apis.ReachSpot.Init(ctx);
+        let user_info           = ctx.session.ui;
+        //天气 玩家信息等
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+
+        let currentSpotConfig   = travelConfig.scenicspots.filter( s => s.cid == parseInt(info.cid) && s.id == parseInt(info.spotId) );
+        let row                 = await ctx.model.TravelModel.SpotTiming.create({
+            sid: ctx.session.sid,
+            cid: info.cid,
+            spotIdCur:info.spotId,      //当前景点id  也就是所谓的到达的景点id
+            tracked: true,              //经过此景点了 当然设置为tracked,
+            createDate:this.current_timestamp()      //创建时间 当前景点出发的时间 然后当前时间记
+        });
+
+        info.nextSpot = {
+            spotIdNext : info.spotIdNext,
+            createDate : this.current_timestamp(),
+            arrivedDate : 0,
+            needTime    : 0,
+            elapsedTimeSecond: 0
+        }
+
+        info.submit();
+    }
     // 进入景点观光 触发随机事件
     async questenterspot(ctx) {
         // 1 消耗金币

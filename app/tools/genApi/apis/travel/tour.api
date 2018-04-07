@@ -74,6 +74,8 @@ api NextRouter  {
 }
 //进入景点直接触发随机事件 前端触发吧
 api QuestEnterSpot {
+    //用户id
+    require sid:number
     //景点id
     require spotId:number
     //触发的随机事件的event id见配置表
