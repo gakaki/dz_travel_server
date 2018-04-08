@@ -1,5 +1,6 @@
 const Subscription = require('egg').Subscription;
-
+const travelConfig = require("../../sheets/travel");
+const apis = require("../../apis/travel");
 class UpdateRewardRank extends Subscription {
     // 通过 schedule 属性来设置定时任务的执行间隔等配置
     static get schedule() {
@@ -13,7 +14,23 @@ class UpdateRewardRank extends Subscription {
 
     // subscribe 是真正定时任务执行时被运行的函数
     async subscribe() {
-        this.ctx.service.travelService.rankService.updateCompletionDegreeRankList();
+        //更新达人榜
+        let completionDegreeRankList = await this.ctx.service.travelService.rankService.updateCompletionDegreeRankList();
+        //发放奖励
+        let context =travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).content;
+        let createDate = new Date();
+        for(let completionDegree of completionDegreeRankList){
+            let reward = this.ctx.service.travelService.rankService.getReward(apis.RankType.THUMBS,completionDegree.rank);
+            this.ctx.publicService.itemService.itemChange(completionDegree.uid,{["items."+travelConfig.Item.GOLD]:reward});
+            await this.ctx.model.TravelModel.UserMsg.create({
+                uid:completionDegree.uid,
+                mid:"msg"+travelConfig.Message.RANKMESSAGE+createDate.format("yyyyMMddhhmmss")+completionDegree.rank,
+                type:travelConfig.Message.RANKMESSAGE,
+                title:travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).topic,
+                content: context.replace("b%","达人").replace("s%",completionDegree.rank).replace("a%",reward),
+                date:createDate
+            })
+        }
     }
 }
 

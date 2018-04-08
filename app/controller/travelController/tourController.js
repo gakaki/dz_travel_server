@@ -5,72 +5,72 @@ const travelConfig  = require("../../../sheets/travel");
 //观光相关
 class TourController extends Controller {
 
-    // 进入游玩界面的请求  哈尔冰游玩例如 游玩首页
     async tourindexinfo(ctx) {
 
-        //首先展示哈尔冰游玩界面的数据
-        //用户信息 金币信息 走过的路线图 要新的 是否买了小车
-        //游玩场景信息 配置表 去过的和没去过的路线图
-        //返回的事件信息接口
-        //旅行道具旅行攻略的配置表
-        //点击事件才能获得奖励啊
-
-        let info        = apis.TourIndexInfo.Init(ctx);
-        let user_info   = ctx.session.ui;
+        let info            = apis.TourIndexInfo.Init(ctx);
+        let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        await this.service.travelService.tourService.userSpots(info,user_info);
         
-        let spots = [
-            {
-                x:100,
-                y:200,
-                isStart:true,   //是否起点
-                tracked: true,  //是否已经路过
-                index: '0'      //经过的顺序
-            },
-            {
-                x:100,
-                y:200,
-                isStart:true,
-                name:'',
-                time: parseInt(Date.now()/1000), //经过的时间点
-                tracked: true,
-                index: '1'
-            },
-            {
-                x:100,
-                y:200,
-                isStart:true,
-                name:'',
-                time:null,          //经过的时间点
-                tracked: false,     //没经过
-                index: -1
-            }
-        ];
-        info.userInfo       = user_info;
-        info.spots          = spots;
         info.submit();
     }
 
-    // 开始游玩 选择完毕的行走节点之后点击开始游玩
+
+
     async choosespotgo(ctx){
         //所有节点信息
+        // uid
+        // cid
+        // spotId[]
+    }
+
+
+    async changerouter(ctx) {
+
     }
 
     // 在界面内每隔几分钟获得行走的状态
     async freqstatus(ctx){
-
+        return parseInt(Date.now()/1000);
     }
 
-    // 修改路线
-    async changerouter(ctx) {
 
+    // 进入景点
+    async enterspot(ctx){
+        //返回已经触发的随机事件
+    }
+    // 拍照
+    async photography(ctx) {
+        /*
+            用户到达景点后，可使用拍照功能，每个城市拍照有次数限制，购买单反相机可增加拍照次数，
+            拍照时会获得一张该景点明信片，如果是双人旅行，则留下2人头像。
+            如果不好实现，则头像改为签名。
+            每个景点仅可拍照一次。
+            部分明信片需要在特定季节获得。
+        */
+
+        let info            = apis.TourPhotography.Init(ctx);
+        let user_info       = ctx.session.ui;
+        await this.service.travelService.tourService.photography(info,user_info);
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info); //消耗50金币
+        info.submit();
+    }
+
+    // 观光
+    async tour(ctx) {
+        // 用户到达景点后，跳转至景点界面，可使用观光功能，
+        // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
+        let info            = apis.TourTour.Init(ctx);
+        let user_info       = ctx.session.ui;
+        await this.service.travelService.tourService.tour(info,user_info);
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        info.submit();
     }
 
     current_timestamp(){
         return parseInt(Date.now()/1000);
     }
 
-    // 前端请求下一个路径点
     async nextrouter(ctx) {
 
         // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端

@@ -6,7 +6,7 @@ module.exports = app => {
         cost: {type: Number},//历史花费
         delta: {type: Number},//最近一次操作
         index: {type: String},//道具索引
-        pid: {type: String},
+        uid: {type: String},
         appName: {type: String},
 
     });

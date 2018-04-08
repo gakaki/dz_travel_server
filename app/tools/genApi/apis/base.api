@@ -497,7 +497,7 @@ class Http {
         this._listenings = this._listenings || new Map();
     }
 
-    func client static listen(apiCls, cb, ctx, interval = 300) {
+    func client static listen(apiCls, cb, ctx, interval = 300, preFetch = null) {
         if (!this._listenings) {
             console.error('Http loop has not inited');
             return;
@@ -508,7 +508,7 @@ class Http {
         }
 
         let listener = this._listenings.get(action);
-        listener.cbx = {cb, ctx, interval, status: this.LS_IDLE, passedTm: 0};
+        listener.cbx = {cb, ctx, interval, status: this.LS_IDLE, passedTm: 0, preFetch: preFetch};
 
 
         //start loop
@@ -546,9 +546,15 @@ class Http {
                     switch(cfg.status) {
                         case this.LS_IDLE:
                             cfg.status = this.LS_BUSY;
+                            if (cfg.preFetch) {
+                                //fetch之前，可以通过此回调，对lsnr请求字段付值
+                                cfg.ctx ? cfg.preFetch.call(cfg.ctx, lsnr) : cfg.preFetch(lsnr);
+                            }
                             lsnr.fetch().then(()=>{
                                 cfg.status = this.LS_SUC;
-                            })
+                            }).catch(errCode => {
+                                cfg.ctx ? cfg.cb.call(cfg.ctx, lsnr, errCode) : cfg.cb(lsnr, errCode);
+                            });
                             break;
                         case this.LS_SUC:
                             cfg.status = this.LS_BUSY;
