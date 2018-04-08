@@ -11,10 +11,12 @@ class DoubleController extends Controller {
         }
         //判断用户是否已经拥有邀请码
         let code = await this.app.redis.get(info.uid);
+        this.logger.info("邀请码 "+ code);
         if(code){
             //判断是否是房主
             let dInfo = await this.app.redis.hgetall(code);
-            if(dInfo && dInfo.inviteCode){
+            this.logger.info("邀请信息 " , dInfo);
+            if(dInfo && dInfo.code){
                 //不是房主 不能生成code
                 if(dInfo.invitee == info.uid){
                     this.logger.info("已经在房间内了");
