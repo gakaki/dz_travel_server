@@ -21,7 +21,7 @@ class UpdateRewardRank extends Subscription {
         let createDate = new Date();
         for(let completionDegree of completionDegreeRankList){
             let reward = this.ctx.service.travelService.rankService.getReward(apis.RankType.THUMBS,completionDegree.rank);
-            this.ctx.publicService.itemService.itemChange(completionDegree.uid,{["items."+travelConfig.Item.Gold]:reward});
+            this.ctx.publicService.itemService.itemChange(completionDegree.uid,{["items."+travelConfig.Item.GOLD]:reward});
             await this.ctx.model.TravelModel.UserMsg.create({
                 uid:completionDegree.uid,
                 mid:"msg"+travelConfig.Message.RANKMESSAGE+createDate.format("yyyyMMddhhmmss")+completionDegree.rank,

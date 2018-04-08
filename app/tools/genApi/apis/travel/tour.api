@@ -54,8 +54,8 @@ class TourTask {
 api TourIndexInfo extends IndexInfo{
     //城市id
     require cid:number
-    //用户是否第一次游玩
-    output firstPlay:Boolean
+    //用户是否是第一次游玩
+    output firstPlay:boolean
     //该城市的spot景点列表
     output spots:Spot[]
     //用户信息
@@ -63,7 +63,6 @@ api TourIndexInfo extends IndexInfo{
     //完成度信息
     output task:TourTask
 }
-
 
 
 api choosespotgo {
@@ -121,7 +120,6 @@ api QuestRandom {
     //触发随机事件的id
     output eventId:number
 }
-
 class Postcard {
     prop id:string
     prop pattern:string
