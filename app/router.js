@@ -79,10 +79,10 @@ module.exports = app => {
     router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
     router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
 
-    router.get('/specialty/cityspes', controller.travelController.specialtyController.cityspes);
-    router.get('/specialty/myspes', controller.travelController.specialtyController.myspes);
-    router.get('/specialty/buyspe', controller.travelController.specialtyController.buy);
-    router.get('/specialty/sellspe', controller.travelController.specialtyController.sell);
+    router.get('/speciality/cityspes', controller.travelController.specialityController.cityspes);
+    router.get('/speciality/myspes', controller.travelController.specialityController.myspes);
+    router.get('/speciality/buyspe', controller.travelController.specialityController.buy);
+    router.get('/speciality/sellspe', controller.travelController.specialityController.sell);
 
     io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

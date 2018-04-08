@@ -1,6 +1,6 @@
 //特产
 
-class Specialty {
+class Speciality {
     prop propId:number//特产id
     prop img:string//特产图片
     prop name:string//特产名
@@ -8,7 +8,7 @@ class Specialty {
     prop price:number//特产价格
 }
 
-class MySpe extends Specialty{
+class MySpe extends Speciality{
     prop sellPrice:number//特产卖出价格
     prop num:number//我的某个特产的数量
 }
@@ -16,7 +16,7 @@ class MySpe extends Specialty{
 //拉取该城市的特产
 api CitySpes {
     require cityId:number//城市id
-    output specialtys:Specialty[]
+    output specialtys:Speciality[]
 }
 
 //我的特产列表
@@ -32,7 +32,6 @@ api Spe {
 
 //购买特产
 api BuySpe extends Spe{
-    output items:KV[]
     output goldNum:number//返回剩余的金币数
 }
 

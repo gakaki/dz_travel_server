@@ -47,7 +47,7 @@ class Code{
     
     static get ROOM_USER_EXISTS() { return -111;}
     
-    static get GANG_FULLED() { return -112;}
+    static get BAG_FULLED() { return -112;}
     
     static get NEED_ITEMS() { return -113;}
     
@@ -620,7 +620,7 @@ class Sight {
         
     }
 }
-class Specialty {
+class Speciality {
     constructor() {
     
     
@@ -1501,7 +1501,7 @@ class TraveledPlaces extends Base {
         }
     }
 }
-class MySpe extends Specialty {
+class MySpe extends Speciality {
     constructor() {
         super();
     
@@ -1519,7 +1519,7 @@ class MySpe extends Specialty {
 class CitySpes extends Base {
     constructor() {
         super();
-        this.action = 'specialty.cityspes';
+        this.action = 'speciality.cityspes';
     
         this._cityId = null;
         this._specialtys = null;
@@ -1530,7 +1530,7 @@ class CitySpes extends Base {
     //client input, require, type: number//城市id
     get cityId() {return this._cityId}
     set cityId(v) {this._cityId = v}
-    //server output, type: Specialty[]
+    //server output, type: Speciality[]
     get specialtys() {return this._specialtys}
     set specialtys(v) {this._specialtys = v}
     static Init(ctx, checkLogin = false) {
@@ -1551,7 +1551,7 @@ class CitySpes extends Base {
 class MySpes extends Base {
     constructor() {
         super();
-        this.action = 'specialty.myspes';
+        this.action = 'speciality.myspes';
     
         this._specialtys = null;
         this.requireFileds = [];
@@ -1579,7 +1579,7 @@ class MySpes extends Base {
 class Spe extends Base {
     constructor() {
         super();
-        this.action = 'specialty.spe';
+        this.action = 'speciality.spe';
     
         this._propId = null;
         this._count = null;
@@ -2828,7 +2828,7 @@ class TourIndexInfo extends IndexInfo {
 class SellSpe extends Spe {
     constructor() {
         super();
-        this.action = 'specialty.sellspe';
+        this.action = 'speciality.sellspe';
     
         this._goldNum = null;
         this.requireFileds = ["propId","count"];
@@ -2856,17 +2856,13 @@ class SellSpe extends Spe {
 class BuySpe extends Spe {
     constructor() {
         super();
-        this.action = 'specialty.buyspe';
+        this.action = 'speciality.buyspe';
     
-        this._items = null;
         this._goldNum = null;
         this.requireFileds = ["propId","count"];
         this.reqFields = ["propId","count"];
-        this.resFields = ["items","goldNum"];
+        this.resFields = ["goldNum"];
     }
-    //server output, type: KV[]
-    get items() {return this._items}
-    set items(v) {this._items = v}
     //server output, type: number//返回剩余的金币数
     get goldNum() {return this._goldNum}
     set goldNum(v) {this._goldNum = v}
@@ -2914,7 +2910,7 @@ exports.ProvincePostcardInfo = ProvincePostcardInfo;
 exports.SelfRank = SelfRank;
 exports.RankItem = RankItem;
 exports.Sight = Sight;
-exports.Specialty = Specialty;
+exports.Speciality = Speciality;
 exports.OneDayLog = OneDayLog;
 exports.Base = Base;
 exports.ProvencePer = ProvencePer;

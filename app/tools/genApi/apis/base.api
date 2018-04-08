@@ -28,7 +28,7 @@ enum Code {
     // 用户已经在房间内
     const ROOM_USER_EXISTS = -111
     // 宝宝列表已满
-    const GANG_FULLED = -112
+    const BAG_FULLED = -112
     // 道具不足
     const NEED_ITEMS = -113
     // 正在等待自己通过
