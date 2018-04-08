@@ -1,5 +1,6 @@
 const travelConfig = require("../../sheets/travel");
 const calendar = require("lunar-calendar");
+const utils = require("../utils/utils");
 module.exports = {
     schedule: {
         cron: '0 30 0 * * *',      //秒(0-59)，分(0-59)，时(0-23)，日(1-31)，月(1-12)，周(0-7,0和7代表周日)
@@ -25,18 +26,16 @@ module.exports = {
                           let context = content.replace("s%",travelConfig.City.Get(event.belong).city);
                           let users = ctx.model.PublicModel.User.find({appName:"travel"});
                           let createDate = new Date();
-                          let mid ="msg"+travelConfig.Message.SYSTEMMESSAGE+createDate.getTime();
-                          for(let user of users){
+                          users.map(async (user,index) => {
                               await ctx.model.TravelModel.UserMsg.create({
                                   uid:user.uid,
-                                  mid:mid,
+                                  mid:"msg"+travelConfig.Message.SYSTEMMESSAGE+createDate.format("yyyyMMddhhmmss")+index,
                                   type:travelConfig.Message.SYSTEMMESSAGE,
                                   title:travelConfig.Message.Get(travelConfig.Message.SYSTEMMESSAGE).topic,
                                   content:context,
                                   date:createDate
                               })
-                          }
-
+                          });
                       }
                   }
               }

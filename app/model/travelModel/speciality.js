@@ -1,12 +1,12 @@
 module.exports = app => {
     const mongoose = app.mongoose;
-    const SpecialtySchema = new mongoose.Schema({
+    const SpecialitySchema = new mongoose.Schema({
         uid:{type:String},
         spid:{type:String},   //特产ID
         number:{type:Number},
         createDate:{type:Date} //获取时间
     });
 
-    return mongoose.model('Specialty',SpecialtySchema);
+    return mongoose.model('Speciality',SpecialitySchema);
 };
 
