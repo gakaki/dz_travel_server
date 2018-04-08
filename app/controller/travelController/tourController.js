@@ -51,7 +51,7 @@ class TourController extends Controller {
         let info            = apis.Photography.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.photography(info,user_info);
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info); //消耗50金币
+        // await this.service.travelService.travelService.fillIndexInfo(info,user_info); //消耗50金币
         info.submit();
     }
 

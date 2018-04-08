@@ -89,6 +89,9 @@ class TourService extends Service {
     //查询该城市的拍照次数限制 注意购买单反相机之后的拍照次数 注意单反相机的逻辑
     async limitByCityAndSpotPhotoGraphyCount(uid,spotId){
         let r = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: uid });
+        if  ( !r ) {
+            return true;
+        }
         if ( parseInt(r['photographyCount']) >= 2 ){
             return false;
         }
@@ -105,7 +108,7 @@ class TourService extends Service {
         let cityConfig      = travelConfig.City.Get( cid );
 
         //查询城市的拍照次数
-        if ( this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId ) ) {
+        if ( !this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId )  ) {
             let result      = { data: {} };
             result.code     = constant.Code.EXCEED_COUNT;
             this.ctx.body   = result;
@@ -118,10 +121,12 @@ class TourService extends Service {
             $push: { 'photographySpots': info.spotId}
         })
 
-        // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
-        let cfgPostcard     = travelConfig.PostCard.Get(info.spotId);
+        //TODO post card 查询是否有存在的 明信片id
 
-        await ctx.model.TravelModel.Postcard.Create({
+        // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
+        let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
+        let dateNow         = new Date();
+        await this.ctx.model.TravelModel.Postcard.create({
             uid: ui.uid,
             cid: info.cid,
             country: "",
@@ -130,17 +135,17 @@ class TourService extends Service {
             ptid:"",
             pscid:info.spotId,
             type: cfgPostcard.type,                   //明信片类型
-            createDate: parseInt(Date.now()/1000)     //创建时间
+            createDate:dateNow      //创建时间
         });
         // sysGiveLog表记录
-        await ctx.model.TravelModel.SysGiveLog.Create({
+        await this.ctx.model.TravelModel.SysGiveLog.create({
             uid:    ui.uid,
             sgid:   "",                                 //唯一id
             type:   3,                                  // 3.明信片
             iid:   info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
             number: 1,                                  //数量
             isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
-            createDate: utilsTime.current_timestamp()   //当前时间创建
+            createDate: dateNow                         //当前时间创建
         });
 
         //返回明信片 id 图片
