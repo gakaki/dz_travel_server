@@ -14,57 +14,33 @@ class TourController extends Controller {
         //返回的事件信息接口
         //旅行道具旅行攻略的配置表
         //点击事件才能获得奖励啊
-
-        let info        = apis.TourIndexInfo.Init(ctx);
-        let user_info   = ctx.session.ui;
+        let info            = apis.TourIndexInfo.Init(ctx);
+        let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        await this.service.travelService.tourService.spotsInDB(info,user_info);
         
-        let spots = [
-            {
-                x:100,
-                y:200,
-                isStart:true,   //是否起点
-                tracked: true,  //是否已经路过
-                index: '0'      //经过的顺序
-            },
-            {
-                x:100,
-                y:200,
-                isStart:true,
-                name:'',
-                time: parseInt(Date.now()/1000), //经过的时间点
-                tracked: true,
-                index: '1'
-            },
-            {
-                x:100,
-                y:200,
-                isStart:true,
-                name:'',
-                time:null,          //经过的时间点
-                tracked: false,     //没经过
-                index: -1
-            }
-        ];
-        info.userInfo       = user_info;
-        info.spots          = spots;
         info.submit();
     }
 
     // 开始游玩 选择完毕的行走节点之后点击开始游玩
     async choosespotgo(ctx){
         //所有节点信息
+        // uid
+        // cid
+        // spotId[]
+
+
+    }
+
+    async changerouter(ctx) {
+
     }
 
     // 在界面内每隔几分钟获得行走的状态
     async freqstatus(ctx){
-
+        return parseInt(Date.now()/1000);
     }
 
-    // 修改路线
-    async changerouter(ctx) {
-
-    }
 
     current_timestamp(){
         return parseInt(Date.now()/1000);

@@ -394,7 +394,7 @@ class PlayerService extends Service {
             createDateTime:new Date()
         });
         await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$inc: cost});
-        this.ctx.service.publicService.itemService.itemChange(ui, itemChange, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, itemChange, "travel");
 
     }
 

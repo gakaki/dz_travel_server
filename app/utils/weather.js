@@ -1,4 +1,9 @@
+const constant = require("./constant");
+
+const utils = require("./utils");
+
 const url = 'http://tj.nineton.cn/Heart/index/all?'//中央天气预报
+const chinaUrl = 'http://www.weather.com.cn/data/sk/101010100.html'//中央天气预报
 //城市编码表（处理过的,目前只支持国内城市，及国外的国/洲级地区，如需扩展到区，请使用源表重新处理），源表：https://raw.githubusercontent.com/jokermonn/-Api/master/CenterWeatherCityCode.json
 const weatherCode = {
     "Beijing": {
@@ -2447,22 +2452,44 @@ function getCityCode(city) {
     }
 }
 
-async function reqWeather(city) {
+async function reqWeather(city,that) {
     return new Promise((resolve,reject) => {
-        request(url + `city=${getCityCode(city)}`, (err, res, body) => {
+        let key = that.config.weatherkey;
+        let username = that.config.weatherusername;
+        let t = Date.parse( new Date())/1000;
+        let lang = 'zh';
+        let returnParam =
+            {
+                lang:lang,
+                location: city,
+                t: t,
+                username: username,
+
+            };
+        let field = utils.ToMap(returnParam);
+        let argus = [];
+        field.forEach((v, k) => {
+            argus.push(k + "=" + v);
+        });
+        let plain = argus.join("&")+key;
+        let sign = utils.MD5(plain);
+        let turl ="https://free-api.heweather.com/s6/weather/now?parameters&location="+encodeURIComponent(city)+"&username="+username+"&t="+t+"&lang="+lang+"&sign="+sign;
+     //   console.log(turl);
+        request(turl, (err, res, body) => {
             if(err){
+                console.log(err);
                 reject(err);
                 return;
             }
           try{
               let getWeather = JSON.parse(body);
-              if (getWeather.status != 'OK') {
+              let heWeather6 = getWeather.HeWeather6[0];
+            //  console.log(heWeather6);
+              if (heWeather6.status != 'ok') {
                   reject({err:'获取天气失败'});
                   return;
               }
-
-              let weather = getWeather.weather[0];
-              resolve(weather);
+              resolve(heWeather6);
           }catch(err){
               reject(err)
           }

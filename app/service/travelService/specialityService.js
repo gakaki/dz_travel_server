@@ -79,7 +79,7 @@ class SpecialityService extends Service {
        }
 
        //扣钱
-       await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
+       await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
        //加特产
        let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
            {
@@ -127,7 +127,7 @@ class SpecialityService extends Service {
        let money = cfg.sellingprice * info.count;
 
        //加钱
-       await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.GOLD]: money}, 'travel');
+       await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: money}, 'travel');
        //扣特产
        if (sp.number == info.count) {
            await this.ctx.model.TravelModel.Speciality.remove({uid: ui.uid, spid: cfg.id});
