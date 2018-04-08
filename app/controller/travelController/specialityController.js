@@ -7,14 +7,14 @@ const sheets = require("../../../sheets/travel");
 class SpecialityController extends Controller {
     //城市特产列表
     async cityspes(ctx) {
-        let info = apis.CitySpes.Init(ctx);
+        let info = await apis.CitySpes.Init(ctx, true);
         await ctx.service.travelService.specialityService.cityspes(info);
         info.submit();
     }
 
     //我拥有的特产列表
     async myspes(ctx) {
-        let info = apis.MySpes.Init(ctx);
+        let info = await apis.MySpes.Init(ctx, true);
         await ctx.service.travelService.specialityService.myspes(info);
         info.submit();
     }

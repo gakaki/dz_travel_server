@@ -14,9 +14,9 @@ class SpecialityService extends Service {
 
        //read specialitys
        let spes = cityCfg.speciality.map(id => {
-          let o = sheets.Specialty.Get(id);
+          let o = sheets.Speciality.Get(id);
           if (o) {
-             let s = new apis.Specialty();
+             let s = new apis.Speciality();
              s.name = o.specialityname;
              s.desc = '购买特产后可前往其他城市高价售卖赚取金币';
              s.img = o.picture;
@@ -33,7 +33,7 @@ class SpecialityService extends Service {
    }
 
    async myspes(info) {
-       let spes = await this.ctx.model.TravelModel.Specialty.find({uid: info.ui.uid});
+       let spes = await this.ctx.model.TravelModel.Speciality.find({uid: info.ui.uid});
        info.specialtys = spes.map(s => {
           let o = new apis.MySpe();
           let cfg = sheets.Speciality.Get(o.spid);
