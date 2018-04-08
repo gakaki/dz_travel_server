@@ -6,11 +6,15 @@ module.exports = options => {
     return async function routerUserInfo(ctx, next) {
 
         let res = ctx.query;
-        if (!res.sid) {
+        if (!res.uid || !res.sid) {
             ctx.body ={ data: {}, code: apis.Code.USER_NOT_FOUND };
             return ctx.body;
         }
-        let ui  = await ctx.service.publicService.userService.findUserBySid(res.sid);
+        let uid = res.uid;
+        if (!uid){
+            uid = res.sid;
+        }
+        let ui  = await ctx.service.publicService.userService.findUserBySid(uid);
         if (!ui) {
             ctx.logger.info("用户不存在");
             ctx.body = { data: {}, code: apis.Code.USER_NOT_FOUND };
@@ -19,6 +23,7 @@ module.exports = options => {
         else {
             ctx.session.ui  = ui;
             ctx.session.sid = res.sid;
+            ctx.session.uid = res.uid;
         }
         
         await next();

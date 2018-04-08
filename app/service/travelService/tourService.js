@@ -1,6 +1,6 @@
 const Service       = require('egg').Service;
 const travelConfig  = require("../../../sheets/travel");
-const utils         = require("../../utils/utils");
+const utilsTime     = require("../../utils/time");
 const apis          = require("../../../apis/travel");
 const constant      = require('../../utils/constant');
 
@@ -98,8 +98,6 @@ class TourService extends Service {
         return true;
     }
 
-
-
     // 拍照
     async photography(info, ui) {
 
@@ -108,8 +106,9 @@ class TourService extends Service {
 
         //查询城市的拍照次数
         if ( this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId ) ) {
-            let result  = { data: {} };
-            result.code = constant.Code.EXCEED_COUNT;
+            let result      = { data: {} };
+            result.code     = constant.Code.EXCEED_COUNT;
+            this.ctx.body   = result;
             return result;
         }
 
@@ -118,7 +117,10 @@ class TourService extends Service {
             $inc: { 'photographyCount':  1 },
             $push: { 'photographySpots': info.spotId}
         })
-        // 获得明信片 读配置表
+
+        // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
+        let cfgPostcard     = travelConfig.PostCard.Get(info.spotId);
+
         await ctx.model.TravelModel.Postcard.Create({
             uid: ui.uid,
             cid: info.cid,
@@ -127,13 +129,22 @@ class TourService extends Service {
             city:"",
             ptid:"",
             pscid:info.spotId,
-            type:"",                                 //明信片类型
+            type: cfgPostcard.type,                   //明信片类型
             createDate: parseInt(Date.now()/1000)     //创建时间
         });
         // sysGiveLog表记录
-        
+        await ctx.model.TravelModel.SysGiveLog.Create({
+            uid:    ui.uid,
+            sgid:   "",                                 //唯一id
+            type:   3,                                  // 3.明信片
+            iid:   info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
+            number: 1,                                  //数量
+            isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+            createDate: utilsTime.current_timestamp()   //当前时间创建
+        });
 
-
+        //返回明信片 id 图片
+        info.postcard   =  cfgPostcard;
     }
 
     //观光

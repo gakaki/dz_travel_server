@@ -72,6 +72,8 @@ module.exports = app => {
     router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
     router.get('/tour/nextrouter', routerUserInfo,  controller.travelController.tourController.nextrouter);
 
+    router.get('/tour/photography', routerUserInfo, controller.travelController.tourController.photography);
+
     router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     router.get('/tour/questenterspot',routerUserInfo,  controller.travelController.tourController.questenterspot);
     router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);

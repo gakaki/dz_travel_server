@@ -1,6 +1,7 @@
 const Controller    = require('egg').Controller;
 const apis          = require("../../../apis/travel");
 const travelConfig  = require("../../../sheets/travel");
+const utilTime      = require("../../utils/time");
 
 //观光相关
 class TourController extends Controller {
@@ -14,8 +15,7 @@ class TourController extends Controller {
         
         info.submit();
     }
-
-
+    
 
     async choosespotgo(ctx){
         //所有节点信息
@@ -48,8 +48,7 @@ class TourController extends Controller {
             每个景点仅可拍照一次。
             部分明信片需要在特定季节获得。
         */
-
-        let info            = apis.TourPhotography.Init(ctx);
+        let info            = apis.Photography.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.photography(info,user_info);
         await this.service.travelService.travelService.fillIndexInfo(info,user_info); //消耗50金币
@@ -67,9 +66,7 @@ class TourController extends Controller {
         info.submit();
     }
 
-    current_timestamp(){
-        return parseInt(Date.now()/1000);
-    }
+  
 
     async nextrouter(ctx) {
 
@@ -109,17 +106,19 @@ class TourController extends Controller {
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
 
         let currentSpotConfig   = travelConfig.scenicspots.filter( s => s.cid == parseInt(info.cid) && s.id == parseInt(info.spotId) );
+
+        let ts                  = utilTime.current_timestamp();
         let row                 = await ctx.model.TravelModel.SpotTiming.create({
             sid: ctx.session.sid,
             cid: info.cid,
             spotIdCur:info.spotId,      //当前景点id  也就是所谓的到达的景点id
             tracked: true,              //经过此景点了 当然设置为tracked,
-            createDate:this.current_timestamp()      //创建时间 当前景点出发的时间 然后当前时间记
+            createDate: ts     //创建时间 当前景点出发的时间 然后当前时间记
         });
 
         info.nextSpot = {
             spotIdNext : info.spotIdNext,
-            createDate : this.current_timestamp(),
+            createDate : ts,
             arrivedDate : 0,
             needTime    : 0,
             elapsedTimeSecond: 0

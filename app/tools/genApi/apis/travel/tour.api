@@ -54,6 +54,8 @@ class TourTask {
 api TourIndexInfo extends IndexInfo{
     //城市id
     require cid:number
+    //用户是否第一次游玩
+    output firstPlay:Boolean
     //该城市的spot景点列表
     output spots:Spot[]
     //用户信息
@@ -61,6 +63,7 @@ api TourIndexInfo extends IndexInfo{
     //完成度信息
     output task:TourTask
 }
+
 
 
 api choosespotgo {
@@ -119,6 +122,23 @@ api QuestRandom {
     output eventId:number
 }
 
+class Postcard {
+    prop id:string
+    prop pattern:string
+    prop picture:string
+    prop type:string
+}
+
+// 到达景点拍照按钮
+api Photography {
+    require uid:number
+    //城市id
+    require cid:number
+    //景点id
+    require spotId:number
+    //返回明信片
+    output postcard:Postcard
+}
 //已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
 api QuestRandom {
    //列表总长多少
