@@ -851,41 +851,21 @@ class Spot {
         
     }
 }
-class RankInfo extends Base {
+class ToSign extends Base {
     constructor() {
         super();
-        this.action = 'rank.rankinfo';
+        this.action = 'player.tosign';
     
-        this._rankType = null;
-        this._rankSubtype = null;
-        this._page = null;
-        this._limit = null;
-        this._selfRank = null;
-        this._ranks = null;
-        this.requireFileds = ["rankType","rankSubtype"];
-        this.reqFields = ["rankType","rankSubtype","page","limit"];
-        this.resFields = ["selfRank","ranks"];
+        this._theDay = null;
+        this.requireFileds = [];
+        this.reqFields = ["theDay"];
+        this.resFields = [];
     }
-    //client input, require, type: RankType
-    get rankType() {return this._rankType}
-    set rankType(v) {this._rankType = v}
-    //client input, require, type: RankSubtype
-    get rankSubtype() {return this._rankSubtype}
-    set rankSubtype(v) {this._rankSubtype = v}
     //client input, optional, type: number
-    get page() {return this._page}
-    set page(v) {this._page = v}
-    //client input, optional, type: number
-    get limit() {return this._limit}
-    set limit(v) {this._limit = v}
-    //server output, type: SelfRank
-    get selfRank() {return this._selfRank}
-    set selfRank(v) {this._selfRank = v}
-    //server output, type: RankItem[]
-    get ranks() {return this._ranks}
-    set ranks(v) {this._ranks = v}
+    get theDay() {return this._theDay}
+    set theDay(v) {this._theDay = v}
     static Init(ctx, checkLogin = false) {
-        let o = new RankInfo();
+        let o = new ToSign();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1221,21 +1201,21 @@ class WsSend extends Base {
         
     }
 }
-class ShareInfo extends Base {
+class CityListPer extends Base {
     constructor() {
         super();
-        this.action = 'player.shareinfo';
+        this.action = 'city.citylistper';
     
-        this._isFirst = null;
+        this._data = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["isFirst"];
+        this.resFields = ["data"];
     }
-    //server output, type: boolean
-    get isFirst() {return this._isFirst}
-    set isFirst(v) {this._isFirst = v}
+    //server output, type: ProvencePer[]
+    get data() {return this._data}
+    set data(v) {this._data = v}
     static Init(ctx, checkLogin = false) {
-        let o = new ShareInfo();
+        let o = new CityListPer();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1317,37 +1297,161 @@ class FlyInfo extends Base {
         }
     }
 }
-class StartGame extends Base {
+class ShareInfo extends Base {
     constructor() {
         super();
-        this.action = 'startGame.startgame';
+        this.action = 'player.shareinfo';
     
-        this._type = null;
-        this._cid = null;
-        this._cost = null;
-        this._partnerUid = null;
-        this._tid = null;
-        this.requireFileds = ["type","cid","cost"];
-        this.reqFields = ["type","cid","cost","partnerUid","tid"];
+        this._isFirst = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["isFirst"];
+    }
+    //server output, type: boolean
+    get isFirst() {return this._isFirst}
+    set isFirst(v) {this._isFirst = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ShareInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class CreateCode extends Base {
+    constructor() {
+        super();
+        this.action = 'startGame.createcode';
+    
+        this._inviteCode = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["inviteCode"];
+    }
+    //server output, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new CreateCode();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class CheckCode extends Base {
+    constructor() {
+        super();
+        this.action = 'startGame.checkcode';
+    
+        this._inviteCode = null;
+        this.requireFileds = ["inviteCode"];
+        this.reqFields = ["inviteCode"];
         this.resFields = [];
     }
-    //client input, require, type: TicketType
-    get type() {return this._type}
-    set type(v) {this._type = v}
-    //client input, require, type: number
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //client input, require, type: number
-    get cost() {return this._cost}
-    set cost(v) {this._cost = v}
-    //client input, optional, type: string
-    get partnerUid() {return this._partnerUid}
-    set partnerUid(v) {this._partnerUid = v}
-    //client input, optional, type: string
-    get tid() {return this._tid}
-    set tid(v) {this._tid = v}
+    //client input, require, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
     static Init(ctx, checkLogin = false) {
-        let o = new StartGame();
+        let o = new CheckCode();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class DeleteCode extends Base {
+    constructor() {
+        super();
+        this.action = 'startGame.deletecode';
+    
+        this._inviteCode = null;
+        this.requireFileds = ["inviteCode"];
+        this.reqFields = ["inviteCode"];
+        this.resFields = [];
+    }
+    //client input, require, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new DeleteCode();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class PartnerInfo extends Base {
+    constructor() {
+        super();
+        this.action = 'startGame.partnerinfo';
+    
+        this._inviteCode = null;
+        this._nickName = null;
+        this._avatarUrl = null;
+        this._gold = null;
+        this._season = null;
+        this._weather = null;
+        this._location = null;
+        this._holiday = null;
+        this.requireFileds = ["inviteCode"];
+        this.reqFields = ["inviteCode"];
+        this.resFields = ["nickName","avatarUrl","gold","season","weather","location","holiday"];
+    }
+    //client input, require, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
+    //server output, type: string
+    get nickName() {return this._nickName}
+    set nickName(v) {this._nickName = v}
+    //server output, type: string
+    get avatarUrl() {return this._avatarUrl}
+    set avatarUrl(v) {this._avatarUrl = v}
+    //server output, type: number
+    get gold() {return this._gold}
+    set gold(v) {this._gold = v}
+    //server output, type: Season
+    get season() {return this._season}
+    set season(v) {this._season = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    //server output, type: string
+    get location() {return this._location}
+    set location(v) {this._location = v}
+    //server output, type: string
+    get holiday() {return this._holiday}
+    set holiday(v) {this._holiday = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new PartnerInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1708,21 +1812,25 @@ class Photograph extends Base {
         }
     }
 }
-class ToSign extends Base {
+class ExchangeDetail extends Base {
     constructor() {
         super();
-        this.action = 'player.tosign';
+        this.action = 'integralShop.exchangedetail';
     
-        this._theDay = null;
-        this.requireFileds = [];
-        this.reqFields = ["theDay"];
-        this.resFields = [];
+        this._page = null;
+        this._exchangeDetail = null;
+        this.requireFileds = ["page"];
+        this.reqFields = ["page"];
+        this.resFields = ["exchangeDetail"];
     }
-    //client input, optional, type: number
-    get theDay() {return this._theDay}
-    set theDay(v) {this._theDay = v}
+    //client input, require, type: number
+    get page() {return this._page}
+    set page(v) {this._page = v}
+    //server output, type: ExchangeShopDetail[]
+    get exchangeDetail() {return this._exchangeDetail}
+    set exchangeDetail(v) {this._exchangeDetail = v}
     static Init(ctx, checkLogin = false) {
-        let o = new ToSign();
+        let o = new ExchangeDetail();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1768,25 +1876,41 @@ class SignInfo extends Base {
         }
     }
 }
-class ExchangeDetail extends Base {
+class RankInfo extends Base {
     constructor() {
         super();
-        this.action = 'integralShop.exchangedetail';
+        this.action = 'rank.rankinfo';
     
+        this._rankType = null;
+        this._rankSubtype = null;
         this._page = null;
-        this._exchangeDetail = null;
-        this.requireFileds = ["page"];
-        this.reqFields = ["page"];
-        this.resFields = ["exchangeDetail"];
+        this._limit = null;
+        this._selfRank = null;
+        this._ranks = null;
+        this.requireFileds = ["rankType","rankSubtype"];
+        this.reqFields = ["rankType","rankSubtype","page","limit"];
+        this.resFields = ["selfRank","ranks"];
     }
-    //client input, require, type: number
+    //client input, require, type: RankType
+    get rankType() {return this._rankType}
+    set rankType(v) {this._rankType = v}
+    //client input, require, type: RankSubtype
+    get rankSubtype() {return this._rankSubtype}
+    set rankSubtype(v) {this._rankSubtype = v}
+    //client input, optional, type: number
     get page() {return this._page}
     set page(v) {this._page = v}
-    //server output, type: ExchangeShopDetail[]
-    get exchangeDetail() {return this._exchangeDetail}
-    set exchangeDetail(v) {this._exchangeDetail = v}
+    //client input, optional, type: number
+    get limit() {return this._limit}
+    set limit(v) {this._limit = v}
+    //server output, type: SelfRank
+    get selfRank() {return this._selfRank}
+    set selfRank(v) {this._selfRank = v}
+    //server output, type: RankItem[]
+    get ranks() {return this._ranks}
+    set ranks(v) {this._ranks = v}
     static Init(ctx, checkLogin = false) {
-        let o = new ExchangeDetail();
+        let o = new RankInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2553,21 +2677,37 @@ class TravelLog extends Base {
         }
     }
 }
-class CityListPer extends Base {
+class StartGame extends Base {
     constructor() {
         super();
-        this.action = 'city.citylistper';
+        this.action = 'startGame.startgame';
     
-        this._data = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["data"];
+        this._type = null;
+        this._cid = null;
+        this._cost = null;
+        this._inviteCode = null;
+        this._tid = null;
+        this.requireFileds = ["type","cid","cost"];
+        this.reqFields = ["type","cid","cost","inviteCode","tid"];
+        this.resFields = [];
     }
-    //server output, type: ProvencePer[]
-    get data() {return this._data}
-    set data(v) {this._data = v}
+    //client input, require, type: TicketType
+    get type() {return this._type}
+    set type(v) {this._type = v}
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: number
+    get cost() {return this._cost}
+    set cost(v) {this._cost = v}
+    //client input, optional, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
+    //client input, optional, type: string
+    get tid() {return this._tid}
+    set tid(v) {this._tid = v}
     static Init(ctx, checkLogin = false) {
-        let o = new CityListPer();
+        let o = new StartGame();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2784,7 +2924,7 @@ exports.Http = Http;
 exports.QuestReport = QuestReport;
 exports.Position = Position;
 exports.Spot = Spot;
-exports.RankInfo = RankInfo;
+exports.ToSign = ToSign;
 exports.NextSpot = NextSpot;
 exports.ChangeRouter = ChangeRouter;
 exports.NextRouter = NextRouter;
@@ -2796,9 +2936,13 @@ exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.WsReceive = WsReceive;
 exports.WsSend = WsSend;
-exports.ShareInfo = ShareInfo;
+exports.CityListPer = CityListPer;
 exports.FlyInfo = FlyInfo;
-exports.StartGame = StartGame;
+exports.ShareInfo = ShareInfo;
+exports.CreateCode = CreateCode;
+exports.CheckCode = CheckCode;
+exports.DeleteCode = DeleteCode;
+exports.PartnerInfo = PartnerInfo;
 exports.TraveledPlaces = TraveledPlaces;
 exports.MySpe = MySpe;
 exports.CitySpes = CitySpes;
@@ -2809,9 +2953,9 @@ exports.ExchangeShop = ExchangeShop;
 exports.TravelFootprint = TravelFootprint;
 exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
-exports.ToSign = ToSign;
-exports.SignInfo = SignInfo;
 exports.ExchangeDetail = ExchangeDetail;
+exports.SignInfo = SignInfo;
+exports.RankInfo = RankInfo;
 exports.LookTicket = LookTicket;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.GetRealInfo = GetRealInfo;
@@ -2832,7 +2976,7 @@ exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
 exports.ClearMsg = ClearMsg;
 exports.TravelLog = TravelLog;
-exports.CityListPer = CityListPer;
+exports.StartGame = StartGame;
 exports.TestSend = TestSend;
 exports.SysMessage = SysMessage;
 exports.TourIndexInfo = TourIndexInfo;
