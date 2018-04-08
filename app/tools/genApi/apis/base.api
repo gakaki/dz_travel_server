@@ -552,7 +552,9 @@ class Http {
                             }
                             lsnr.fetch().then(()=>{
                                 cfg.status = this.LS_SUC;
-                            })
+                            }).catch(errCode => {
+                                cfg.ctx ? cfg.cb.call(cfg.ctx, lsnr, errCode) : cfg.cb(lsnr, errCode);
+                            });
                             break;
                         case this.LS_SUC:
                             cfg.status = this.LS_BUSY;
