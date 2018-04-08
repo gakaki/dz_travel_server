@@ -70,6 +70,8 @@ class RankService extends Service {
         await this.ctx.model.TravelModel.CompletionDegreeRank.remove();
         await this.ctx.model.TravelModel.CompletionDegreeRank.insertMany(list);
 
+        return list;
+
     }
     /**
      * 更新达人记录表

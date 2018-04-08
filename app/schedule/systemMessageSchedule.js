@@ -22,7 +22,7 @@ module.exports = {
                   }
                   if(start <= today && today >= end){
                       if(event.belong){
-                          let content = travelConfig.Message.Get(travelConfig.Message.SYSTEMMESSAGE).value;
+                          let content = travelConfig.Message.Get(travelConfig.Message.SYSTEMMESSAGE).content;
                           let context = content.replace("s%",travelConfig.City.Get(event.belong).city);
                           let users = ctx.model.PublicModel.User.find({appName:"travel"});
                           let createDate = new Date();
