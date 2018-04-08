@@ -54,12 +54,13 @@ class DoubleService extends Service {
 
     async deleteCode(info){
         let dInfo = await this.app.redis.hgetall(info.inviteCode);
-        if(dInfo && dInfo.inviteCode){
+        if(dInfo && dInfo.code){
             if(dInfo.invitee == info.uid){
                 dInfo.invitee = "0";
                 await this.app.redis.hmset(info.inviteCode,dInfo);
             }
             if(dInfo.inviter == info.uid){
+                this.logger.info("房主离开，code失效");
                 await this.app.redis.del(info.inviteCode);
             }
         }

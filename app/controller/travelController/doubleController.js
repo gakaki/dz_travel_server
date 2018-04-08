@@ -44,7 +44,7 @@ class DoubleController extends Controller {
         }
         //查询对应 code 相关信息
         let doubleInfo = await this.app.redis.hgetall(info.inviteCode);
-        if(!doubleInfo || !doubleInfo.inviteCode){
+        if(!doubleInfo || !doubleInfo.code){
             this.logger.info("房间不存在");
             info.code = apis.Code.ROOM_EXPIRED;
             info.submit();
@@ -54,7 +54,7 @@ class DoubleController extends Controller {
         let code = await this.app.redis.get(info.uid);
         if(code){
             //用户所在房间与要进的房间一致
-            if(code == doubleInfo.inviteCode){
+            if(code == doubleInfo.code){
                 this.logger.info("已经在房间内了");
                 info.code = apis.Code.ROOM_USER_EXISTS;
                 info.submit();
@@ -62,7 +62,7 @@ class DoubleController extends Controller {
             }else{
                 //更新用户已经离开的房间信息
                 let dInfo = await this.app.redis.hgetall(code);
-                if(dInfo && dInfo.inviteCode){
+                if(dInfo && dInfo.code){
                     if(dInfo.invitee == info.uid){
                         dInfo.invitee = "0";
                         await this.app.redis.hmset(code,dInfo);
