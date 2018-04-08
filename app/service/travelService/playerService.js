@@ -24,7 +24,7 @@ class PlayerService extends Service {
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
         let comment = await this.ctx.model.TravelModel.Comment.count({"uid":ui.uid});
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", likes: {$sum: "$likes"}});
-        let specialty = await this.ctx.model.TravelModel.Specialty.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
+        let specialty = await this.ctx.model.TravelModel.Speciality.aggregate([{ $match: {"uid":ui.uid} }]).group({ _id: "$uid", number: {$sum: "$number"}});
 
         info.info = {
             uid: ui.uid,
@@ -294,6 +294,7 @@ class PlayerService extends Service {
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.mainUrl =travelConfig.Postcard.Get(postcard.ptid).picture;
+        info.pattern =travelConfig.Postcard.Get(postcard.ptid).pattern;
         let detailLiveMessages = [];
         for(let i = 0 ;i < chats.length ; i++){
             let chat = chats[i];
