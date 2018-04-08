@@ -42,7 +42,12 @@ class NextSpot extends Spot{
     prop needTime:string
     //已经走了多少时间 用来在界面上画图走了多少路 移动多少距离用
     prop elapsedTimeSecond:number
+}
 
+class TourTask {
+    prop spot:number[]      // 3/6 景点完成度 一共6已完成3
+    prop tour:number[]      // 0/2 观光完成度 一共2已完成2
+    prop photo:number[]     // 0/2 拍照完成度 一共2已完成2
 }
 
 //进入城市的经典页面  用户开始该城市的旅游
@@ -51,6 +56,20 @@ api TourIndexInfo extends IndexInfo{
     require cid:number
     //该城市的spot景点列表
     output spots:Spot[]
+    //用户信息
+    output userInfo:UserInfo
+    //完成度信息
+    output task:TourTask
+}
+
+
+api choosespotgo {
+    //用户id
+    require uid:number
+    //城市id
+    require cid:number
+
+    require spotId:string[]
     //用户信息
     output userInfo:UserInfo
 }
