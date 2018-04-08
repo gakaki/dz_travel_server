@@ -7,9 +7,9 @@ module.exports = app => {
         cid:{type:String},          //城市id
         spotIdCur:{type:String},    //当前景点id    当前景点等于最后景点了
         spotIdNext:{type:String},   //目标景点id
-        historySpots:{type:Array},  //历史景点id
-        isFinished:{type:Number},   //说明这个城市的景点走到顶了
-        createDate:{type:Date}      //创建时间 当前景点出发的时间 然后当前时间记录下 可以获得多少时间到
+        // historySpots:{type:Array},  //历史景点id
+        isFinished:{type:Boolean},   //说明这个城市的景点走到顶了
+        createDate:{type:Number}      //创建时间 当前景点出发的时间 然后当前时间记录下 可以获得多少时间到
     });
 
     return mongoose.model('SpotTiming', SpotTimingSchema);

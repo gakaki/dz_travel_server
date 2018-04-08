@@ -7,7 +7,7 @@ const travelConfig  = require("../../../sheets/travel")
 
 describe('test model数据库类', () => {
 
-    it('生成用户表的数据', async () => {
+    it('生成用户表的数据',  async (done) => {
         const ctx   = app.mockContext();
         const sid   = '1000001';
         const row   = await ctx.model.PublicModel.User.create({
@@ -20,7 +20,7 @@ describe('test model数据库类', () => {
             province: '',
             country: '',
             registertime: Date.now() / 1000,
-            pid: 21023,
+            pid: sid,
             items: {
                 '1' : 86800,
                 '2' : 0
@@ -43,7 +43,7 @@ describe('test model数据库类', () => {
         console.log( r );
 
         assert(r.uid == '1000001');
-
+        done();
     });
 
 
