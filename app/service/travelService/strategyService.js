@@ -98,7 +98,7 @@ class StrategyService extends Service {
            maskList.push(mas.maskword);
        }
        for(let key of maskList){
-           context=context.replace(key,"*");
+           context=context.replace(key,"*".repeat(key.length));
        }
 
        this.logger.info(context);
