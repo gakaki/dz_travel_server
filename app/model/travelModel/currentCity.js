@@ -7,7 +7,7 @@ module.exports = app => {
         sspid:{type:String},//景点id
         progress:{type:Number},//完成度
         roadMap:{type:Array},
-        friend:{type:String},
+        friend:{type:String,default:"0"},//默认单人旅行
         rentItems:{type:JSON}
     });
 

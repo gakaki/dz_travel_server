@@ -98,7 +98,7 @@ class PlayerService extends Service {
     async showFlyTicket(info,ui){
         let tickets = await this.ctx.model.TravelModel.FlyTicket.find({uid:ui.uid,isUse:false});
         let flyTickets = [];
-        this.logger.info("赠送机票 "+ tickets)
+        this.logger.info("赠送机票 "+ tickets);
         for(let ticket of tickets){
             let flyTicket ={
                 tid:ticket.id,
@@ -108,6 +108,13 @@ class PlayerService extends Service {
             flyTickets.push(flyTicket);
         }
         info.ticket = flyTickets;
+        //当前为双人旅行时，自动取消组队
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
+        if(visit){
+            if(visit.friend != "0"){
+                await this.ctx.model.TravelModel.CurrentCity.update({uid: [info.uid, visit.friend]},{$set:{friend:"0"}},{multi:true});
+            }
+        }
     }
 
     async getMessage(info,ui,type){
@@ -422,9 +429,13 @@ class PlayerService extends Service {
             }
         }
 
+        if(info.rankType == apis.RankType.FOOT){
+
+        }
+
         let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
-        this.logger.info("weizhi ========")
-        this.logger.info(index)
+        this.logger.info("weizhi ========");
+        this.logger.info(index);
         info.selfRank.rank = index + 1;
         let out = [];
         for(let index = 0; index< rankInfos.length ; index++) {

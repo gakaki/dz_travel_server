@@ -89,9 +89,8 @@ class TravelService extends Service {
     }
 
 
-    async visit(info, ui,visit) {
+    async visit(info, ui,visit,fid) {
         let cid = info.cid;
-        let fid = info.partnerUid;
         let ttype = info.type;
 
         let cost = {
