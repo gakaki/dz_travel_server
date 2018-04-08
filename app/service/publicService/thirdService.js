@@ -15,6 +15,7 @@ class ThirdService extends Service{
 
     async getWeather(city) {
          try{
+             this.logger.info("需要获取天气的城市"+city);
              let meteorological =await weather(city,this);
              let weathers = meteorological.now.cond_txt;
              this.logger.info('weather', weathers);
@@ -35,8 +36,8 @@ class ThirdService extends Service{
     async getRandomTicket(uid,localcid){
         let cityPool = travelConfig.citys;
         let footprints = await this.ctx.model.TravelModel.FlightRecord.aggregate([{ $match: {"uid":uid} }]).group({ _id: "$destination"});
-        this.logger.info(cityPool.length);
-        this.logger.info(footprints);
+     //   this.logger.info(cityPool.length);
+      //  this.logger.info(footprints);
         if(footprints.length == 0 || cityPool.length == footprints.length){
             let index = utils.Rangei(0,cityPool.length);
             while( (index+1) == localcid){

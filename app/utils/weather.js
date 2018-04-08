@@ -2456,6 +2456,7 @@ async function reqWeather(city,that) {
     return new Promise((resolve,reject) => {
         let key = that.config.weatherkey;
         let username = that.config.weatherusername;
+        console.log(key,username);
         let t = Date.parse( new Date())/1000;
         let lang = 'zh';
         let returnParam =
@@ -2473,20 +2474,19 @@ async function reqWeather(city,that) {
         });
         let plain = argus.join("&")+key;
         let sign = utils.MD5(plain);
-        let turl ="https://free-api.heweather.com/s6/weather/now?parameters&location="+encodeURIComponent(city)+"&username="+username+"&t="+t+"&lang="+lang+"&sign="+sign;
-     //   console.log(turl);
+        let turl ="https://free-api.heweather.com/s6/weather/now?parameters&location="+encodeURIComponent(city)+"&username="+username+"&t="+t+"&lang="+lang+"&sign="+encodeURIComponent(sign);
+        console.log(city);
+        console.log(turl);
         request(turl, (err, res, body) => {
             if(err){
-                console.log(err);
                 reject(err);
                 return;
             }
           try{
               let getWeather = JSON.parse(body);
               let heWeather6 = getWeather.HeWeather6[0];
-            //  console.log(heWeather6);
               if (heWeather6.status != 'ok') {
-                  reject({err:'获取天气失败'});
+                  reject(body);
                   return;
               }
               resolve(heWeather6);

@@ -294,6 +294,7 @@ class PlayerService extends Service {
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({pscid:info.id}).sort({createDate:-1}).skip((page-1)*limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({pscid:info.id});
         info.mainUrl =travelConfig.Postcard.Get(postcard.ptid).picture;
+        info.pattern =travelConfig.Postcard.Get(postcard.ptid).pattern;
         let detailLiveMessages = [];
         for(let i = 0 ;i < chats.length ; i++){
             let chat = chats[i];
