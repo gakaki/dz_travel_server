@@ -90,8 +90,14 @@ api PartnerInfo{
     output season:Season
     //天气(返回weather表中对应的id，由客户端读表选择图片)
     output weather:number
+    //目的地城市
+    output cid:string
     //现在所在城市
     output location:string
     //节日信息
     output holiday:string
+    //伙伴所在城市
+    output parLocation:string
+    //是否起飞
+    output isFly:number
 }
