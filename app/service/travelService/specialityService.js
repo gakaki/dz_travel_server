@@ -71,7 +71,7 @@ class SpecialityService extends Service {
        let baglimit = sheets.Parameter.Get(sheets.Parameter.BAGLIMIT).value;
        let hasCnt = await this.ctx.model.TravelModel.Specialty.find({uid: ui.uid}).reduce((total, record) => {
           return total + record.number;
-       });
+       }, 0);
        if (hasCnt >= baglimit) {
           info.code = apis.Code.BAG_FULLED;
           this.logger.info(`购买特产失败，背包已满`);
