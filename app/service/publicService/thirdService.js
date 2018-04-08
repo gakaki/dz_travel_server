@@ -15,8 +15,8 @@ class ThirdService extends Service{
 
     async getWeather(city) {
          try{
-             let meteorological =await weather(city);
-             let weathers = meteorological.now.text;
+             let meteorological =await weather(city,this);
+             let weathers = meteorological.now.cond_txt;
              this.logger.info('weather', weathers);
              return weathers;
          }catch(err){

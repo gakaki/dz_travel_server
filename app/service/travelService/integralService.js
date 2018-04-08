@@ -1,7 +1,7 @@
 //积分相关数据逻辑
 const Service = require('egg').Service;
 const sheets = require('../../../sheets/travel');
-const apis = require('../../../apis/travel')
+const apis = require('../../../apis/travel');
 
 
 class IntegralService extends Service {
@@ -65,7 +65,7 @@ class IntegralService extends Service {
 
             //update user data
             //await userModel.update({uid: uid}, {$set: {items: ui.items}});
-            this.ctx.service.publicService.itemChange(ui,{["items."+sheets.Item.POINT]:num});
+            this.ctx.service.publicService.itemChange(uid,{["items."+sheets.Item.POINT]:num});
             //update integral data
             let integralRM = this.ctx.model.TravelModel.IntegralRecord;
             await integralRM.update({uid: uid}, {$set : {integral: all, updateDate: new Date()}}, {upsert: true});
@@ -127,7 +127,7 @@ class IntegralService extends Service {
             createDate: new Date()
         });
 
-        await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.POINT]: -item.integral}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.POINT]: -item.integral}, 'travel');
 
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}成功兑换了物品${item.name}`);
     }

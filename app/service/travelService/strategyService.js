@@ -151,7 +151,7 @@ class StrategyService extends Service {
            );
 
        //被点赞的人获得金币
-       this.ctx.service.publicService.itemService.itemChange(info.ui,{["items."+travelConfig.Item.GOLD]:travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value});
+       this.ctx.service.publicService.itemService.itemChange(info.ui.uid,{["items."+travelConfig.Item.GOLD]:travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value});
 
 
        //通知被赞人

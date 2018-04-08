@@ -55,7 +55,8 @@
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
     "sheet": "node ./app/tools/genSheet/genSheet.js",
-    "api": "node ./app/tools/genApi/genApi.js"
+    "api": "node ./app/tools/genApi/genApi.js",
+    "xy": "node ./app/tools/sceneXy/toXY.js"
   },
   "ci": {
     "version": "8"

@@ -4,7 +4,7 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://mongouser:' + encodeURIComponent("Mandao#dzhy@2018") + '@172.17.16.5:27017/travel?authSource=admin',
+        url: 'mongodb://travel:'+encodeURIComponent('travel#h5group')+'@'+encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com')+':3717/travel',
     };
 
     config.env = "prod";
@@ -45,6 +45,9 @@ module.exports = appInfo => {
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
     config.noticeurl = "https://h5t.ddz2018.com/weChat/shopdone";
+
+    config.weatherkey="e8c488c457f9402aa363b327009b9ac8";
+    config.weatherusername="HE1804081525551353";
 
     return config;
 };
