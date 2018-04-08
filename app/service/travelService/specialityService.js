@@ -71,7 +71,7 @@ class SpecialityService extends Service {
        let baglimit = sheets.Parameter.Get(sheets.Parameter.BAGLIMIT).value;
        let hasCnt = await this.ctx.model.TravelModel.Specialty.find({uid: ui.uid}).reduce((total, record) => {
           return total + record.number;
-       });
+       }, 0);
        if (hasCnt >= baglimit) {
           info.code = apis.Code.BAG_FULLED;
           this.logger.info(`购买特产失败，背包已满`);
@@ -79,7 +79,8 @@ class SpecialityService extends Service {
        }
 
        //扣钱
-       await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
+       await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
+       ui = info.ui = await this.ctx.model.PublicModel.User.find({uid: ui.uid});
        //加特产
        let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
            {
@@ -127,7 +128,8 @@ class SpecialityService extends Service {
        let money = cfg.sellingprice * info.count;
 
        //加钱
-       await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + sheets.Item.GOLD]: money}, 'travel');
+       await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: money}, 'travel');
+       ui = info.ui = await this.ctx.model.PublicModel.User.find({uid: ui.uid});
        //扣特产
        if (sp.number == info.count) {
            await this.ctx.model.TravelModel.Speciality.remove({uid: ui.uid, spid: cfg.id});

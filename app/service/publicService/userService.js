@@ -161,7 +161,7 @@ class UserService extends Service {
 
             isFirst = true;
             //发奖励
-            await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+            await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + itemId]: itemCnt}, 'travel');
 
             this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`)
             //插入分享记录
@@ -190,7 +190,7 @@ class UserService extends Service {
     //带来一个新用户奖励
     async newUserShareReward(uid, itemId, itemCnt) {
         //直接发奖励
-        await this.ctx.service.publicService.itemService.itemChange(ui, {["items." + itemId]: itemCnt}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(uid, {["items." + itemId]: itemCnt}, 'travel');
         //通知到消息中心
         let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE);
         await this.ctx.model.TravelModel.UserMsg.create({
@@ -255,7 +255,7 @@ class UserService extends Service {
             items: items,
         });
        // items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
-        this.ctx.service.publicService.itemService.itemChange(ui,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
