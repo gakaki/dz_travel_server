@@ -54,8 +54,8 @@ api StartGame{
     require cid:number
     //花费的金币
     require cost:number
-    //小伙伴uid
-    optional partnerUid:string
+    //邀请码
+    optional inviteCode:string
     //赠送机票id
     optional tid:string
 }
@@ -64,6 +64,16 @@ api StartGame{
 //生成邀请码
 api CreateCode{
     output inviteCode:string
+}
+
+//检查邀请码是否过期
+api CheckCode{
+    require inviteCode:string
+}
+
+//取消组队
+api DeleteCode{
+    require inviteCode:string
 }
 
 //获取被邀请人用户信息

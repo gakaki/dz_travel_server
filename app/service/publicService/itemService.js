@@ -10,8 +10,7 @@ class ItemService extends Service {
             try {
                 let update = delta[indexs] < 0 ?
                     await this.ctx.model.PublicModel.User.update({uid:ui.uid,[indexs] : {$gte: dcost}},{$inc:{[indexs]:delta[indexs]}}):
-                    await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:{[indexs]:delta[indexs]}})
-                 ;
+                    await this.ctx.model.PublicModel.User.update({uid:ui.uid},{$inc:{[indexs]:delta[indexs]}});
                 if(update.nModified){
                     let r = await this.ctx.model.PublicModel.UserItemCounter.update({
                         pid: ui.pid, index: index, appName: appMame

@@ -6,6 +6,8 @@ module.exports = app => {
         cid:{type:String},      //cityId
         spotId:{type:String},   //景点id
         isPhotography:{type:Boolean}, //是否拍照
+        isTour:{type:Boolean}, //是否为观光
+        trackedNo:{type:String},  //访问顺序
         createDate:{type:Date}
     });
 

@@ -108,6 +108,13 @@ class PlayerService extends Service {
             flyTickets.push(flyTicket);
         }
         info.ticket = flyTickets;
+        //当前为双人旅行时，自动取消组队
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
+        if(visit){
+            if(visit.friend != "0"){
+                await this.ctx.model.TravelModel.CurrentCity.update({uid: [info.uid, visit.friend]},{$set:{friend:"0"}},{multi:true});
+            }
+        }
     }
 
     async getMessage(info,ui,type){
