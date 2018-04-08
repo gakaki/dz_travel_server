@@ -59,3 +59,29 @@ api StartGame{
     //赠送机票id
     optional tid:string
 }
+
+
+//生成邀请码
+api CreateCode{
+    output inviteCode:string
+}
+
+//获取被邀请人用户信息
+api PartnerInfo{
+    //邀请码
+    require inviteCode:string
+    //返回昵称
+    output nickName:string
+    //返回头像
+    output avatarUrl:string
+    //返回个人的金币
+    output gold:number
+    //季节
+    output season:Season
+    //天气(返回weather表中对应的id，由客户端读表选择图片)
+    output weather:number
+    //现在所在城市
+    output location:string
+    //节日信息
+    output holiday:string
+}

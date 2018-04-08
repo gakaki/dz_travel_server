@@ -146,7 +146,11 @@ class PlayerController extends Controller {
 
     async showmypostcards(ctx){
         let info = apis.MyPostcards.Init(ctx);
-        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        let userId = info.uid;
+        if(info.playerUid){
+            userId = info.playerUid;
+        }
+        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
         if(!ui){
             this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
@@ -161,7 +165,11 @@ class PlayerController extends Controller {
 
     async showcitypostcards(ctx){
         let info =apis.CityPostcards.Init(ctx);
-        let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
+        let userId = info.uid;
+        if(info.playerUid){
+            userId = info.playerUid;
+        }
+        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
         if(!ui){
             this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
