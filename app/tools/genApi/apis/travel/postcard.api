@@ -58,6 +58,8 @@ class DetailLiveMessage extends  OneBriefMessage {
 
 //我的省份明信片
 api MyPostcards {
+    //好友uid
+    optional playerUid:string
     //所有的省明信片简略信息
     output postcardInfo:ProvincePostcardInfo[]
 }
@@ -65,6 +67,8 @@ api MyPostcards {
 
 //全部明信片和留言明信片
 api CityPostcards {
+    //好友uid
+    optional playerUid:string
     //0为全部明信片,1位留言明信片
     optional LM:number
     //省份名
