@@ -1458,11 +1458,14 @@ class PartnerInfo extends Base {
         this._gold = null;
         this._season = null;
         this._weather = null;
+        this._cid = null;
         this._location = null;
         this._holiday = null;
+        this._parLocation = null;
+        this._isFly = null;
         this.requireFileds = ["inviteCode"];
         this.reqFields = ["inviteCode"];
-        this.resFields = ["nickName","avatarUrl","gold","season","weather","location","holiday"];
+        this.resFields = ["nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly"];
     }
     //client input, require, type: string
     get inviteCode() {return this._inviteCode}
@@ -1483,11 +1486,20 @@ class PartnerInfo extends Base {
     get weather() {return this._weather}
     set weather(v) {this._weather = v}
     //server output, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //server output, type: string
     get location() {return this._location}
     set location(v) {this._location = v}
     //server output, type: string
     get holiday() {return this._holiday}
     set holiday(v) {this._holiday = v}
+    //server output, type: string
+    get parLocation() {return this._parLocation}
+    set parLocation(v) {this._parLocation = v}
+    //server output, type: number
+    get isFly() {return this._isFly}
+    set isFly(v) {this._isFly = v}
     static Init(ctx, checkLogin = false) {
         let o = new PartnerInfo();
         o.ctx = ctx;
@@ -2183,28 +2195,18 @@ class DetailPostcard extends Base {
         this.action = 'postcard.detailpostcard';
     
         this._id = null;
-        this._pattern = null;
         this._page = null;
         this._messageLength = null;
         this._pattern = null;
         this._mainUrl = null;
         this._lastestMessage = null;
-<<<<<<< HEAD
-        this.requireFileds = ["id","pattern"];
-        this.reqFields = ["id","pattern","page","messageLength"];
-        this.resFields = ["mainUrl","lastestMessage"];
-=======
         this.requireFileds = ["id"];
         this.reqFields = ["id","page","messageLength"];
         this.resFields = ["pattern","mainUrl","lastestMessage"];
->>>>>>> 0172a0f5957f5ab6f10b9a06b0700fac6a04ed38
     }
     //client input, require, type: number
     get id() {return this._id}
     set id(v) {this._id = v}
-    //client input, require, type: number
-    get pattern() {return this._pattern}
-    set pattern(v) {this._pattern = v}
     //client input, optional, type: number
     get page() {return this._page}
     set page(v) {this._page = v}
@@ -2867,16 +2869,20 @@ class TourIndexInfo extends IndexInfo {
         this.action = 'tour.tourindexinfo';
     
         this._cid = null;
+        this._firstPlay = null;
         this._spots = null;
         this._userInfo = null;
         this._task = null;
         this.requireFileds = ["cid"];
         this.reqFields = ["cid"];
-        this.resFields = ["spots","userInfo","task","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
+        this.resFields = ["firstPlay","spots","userInfo","task","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
     set cid(v) {this._cid = v}
+    //server output, type: boolean
+    get firstPlay() {return this._firstPlay}
+    set firstPlay(v) {this._firstPlay = v}
     //server output, type: Spot[]
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
