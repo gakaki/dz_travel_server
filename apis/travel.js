@@ -2183,17 +2183,21 @@ class DetailPostcard extends Base {
         this.action = 'postcard.detailpostcard';
     
         this._id = null;
+        this._pattern = null;
         this._page = null;
         this._messageLength = null;
         this._mainUrl = null;
         this._lastestMessage = null;
-        this.requireFileds = ["id"];
-        this.reqFields = ["id","page","messageLength"];
+        this.requireFileds = ["id","pattern"];
+        this.reqFields = ["id","pattern","page","messageLength"];
         this.resFields = ["mainUrl","lastestMessage"];
     }
     //client input, require, type: number
     get id() {return this._id}
     set id(v) {this._id = v}
+    //client input, require, type: number
+    get pattern() {return this._pattern}
+    set pattern(v) {this._pattern = v}
     //client input, optional, type: number
     get page() {return this._page}
     set page(v) {this._page = v}
