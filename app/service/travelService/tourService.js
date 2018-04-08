@@ -1,30 +1,25 @@
-const Service = require('egg').Service;
-const travelConfig = require("../../../sheets/travel");
-const utils = require("../../utils/utils");
-const apis = require("../../../apis/travel");
+const Service       = require('egg').Service;
+const travelConfig  = require("../../../sheets/travel");
+const utils         = require("../../utils/utils");
+const apis          = require("../../../apis/travel");
+const constant      = require('../../utils/constant');
 
 class TourService extends Service {
 
-    //返回该用户所有经过的路线和时间点
-    async spotsRouter(info,ui){
-        // info.routes = await this.ctx.model
+    async userSpots(info, ui) {
 
-    }
-    //随机事件 直接下发就可以了
-    async spotsInDB(info,ui) {
-        //所有该城市配置
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
 
         info.spots          = [];
         let spot_map        = {};
 
-        // 经度 Longitude 简写Lng 纬度 Latitude 简写Lat
         let lng             = cityConfig['coordinate'][0];
         let lat             = cityConfig['coordinate'][1];
         if (!lng || !lat){
             
         }
+
         //起点添加
         info.spots.push({
            'cid'        : cid,
@@ -80,7 +75,7 @@ class TourService extends Service {
                 task_tour_finished++;
             }
         }
-        
+
         //任务完成汇报
         let isPair          = false;          //是否双人默认否
         let task_spot_full  = isPair ? 3 : 6;
@@ -89,6 +84,55 @@ class TourService extends Service {
             tour :  [task_tour_finished,2],
             photo : [task_photo_finished,2]
         }
+    }
+
+    //查询该城市的拍照次数限制 注意购买单反相机之后的拍照次数 注意单反相机的逻辑
+    async limitByCityAndSpotPhotoGraphyCount(uid,spotId){
+        let r = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: uid });
+        if ( parseInt(r['photographyCount']) >= 2 ){
+            return false;
+        }
+        if ( spotId in r['photographySpots'] ){
+            return false;
+        }
+        return true;
+    }
+
+
+
+    // 拍照
+    async photography(info, ui) {
+
+        let cid             = parseInt(info.cid);
+        let cityConfig      = travelConfig.City.Get( cid );
+
+        //查询城市的拍照次数
+        if ( this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId ) ) {
+            let result  = { data: {} };
+            result.code = constant.Code.EXCEED_COUNT;
+            return result;
+        }
+
+        // 增加拍照次数
+        await this.ctx.model.TravelModel.CurrentCity.update({}, {
+            $inc: { 'photographyCount':  1 },
+            $push: { 'photographySpots': info.spotId}
+        })
+        // 获得明信片 读配置表
+        await ctx.model.TravelModel.Postcard.Create({
+            uid: ui.uid,
+            cid: info.cid,
+            country: "",
+            province: "",
+            city:"",
+            ptid:"",
+            pscid:info.spotId,
+            type:"",                                 //明信片类型
+            createDate: parseInt(Date.now()/1000)     //创建时间
+        });
+        // sysGiveLog表记录
+        
+
 
     }
 
