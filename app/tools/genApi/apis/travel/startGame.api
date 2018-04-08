@@ -66,6 +66,18 @@ api CreateCode{
     output inviteCode:string
 }
 
+//检查邀请码是否过期
+api CheckCode{
+    require inviteCode:string
+
+    output expire:Boolean
+}
+
+//取消组队
+api DeleteCode{
+    require inviteCode:string
+}
+
 //获取被邀请人用户信息
 api PartnerInfo{
     //邀请码
