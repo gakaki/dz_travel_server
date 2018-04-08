@@ -121,6 +121,7 @@ class DoubleController extends Controller {
             return;
         }
         await ctx.service.travelService.doubleService.deleteCode(info);
+        info.submit();
     }
 
 
