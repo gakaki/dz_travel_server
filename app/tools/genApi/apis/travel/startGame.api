@@ -54,7 +54,7 @@ api StartGame{
     require cid:number
     //花费的金币
     require cost:number
-    //小伙伴uid
+    //邀请码
     optional inviteCode:string
     //赠送机票id
     optional tid:string
