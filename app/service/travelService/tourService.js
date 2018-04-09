@@ -8,7 +8,7 @@ class TourService extends Service {
 
     async tourindexinfo(info, ui) {
 
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        await this.service.travelService.travelService.fillIndexInfo(info,ui);
 
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );

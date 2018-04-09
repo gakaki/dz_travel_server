@@ -137,7 +137,7 @@ api Photography {
 
 // 进入景点
 api Enterspot extends UserInfo {
-    
+
 }
 
 

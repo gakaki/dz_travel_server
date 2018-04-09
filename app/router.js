@@ -21,8 +21,6 @@ module.exports = app => {
 
 
 
-
-
     router.get('/player/playerinfo', controller.travelController.playerController.showplayerinfo);
     router.get('/player/lookticket', controller.travelController.playerController.showflyticket);
     router.get('/player/signinfo', controller.travelController.playerController.signinfo);
@@ -69,6 +67,8 @@ module.exports = app => {
     router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
 
+    //游玩界面 新手引导完成标记
+    router.get('/tour/finishguide',                     controller.travelController.tourController.finishguide);
     //游玩界面 首页
     router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
     //游玩界面 进入景点
