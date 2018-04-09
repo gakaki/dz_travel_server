@@ -2003,7 +2003,7 @@ class IntegralShop extends Base {
         }
     }
 }
-class checkGuide extends Base {
+class CheckGuide extends Base {
     constructor() {
         super();
         this.action = 'tour.checkguide';
@@ -2017,7 +2017,7 @@ class checkGuide extends Base {
     get hasPlay() {return this._hasPlay}
     set hasPlay(v) {this._hasPlay = v}
     static Init(ctx, checkLogin = false) {
-        let o = new checkGuide();
+        let o = new CheckGuide();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3238,7 +3238,7 @@ exports.MySpes = MySpes;
 exports.Spe = Spe;
 exports.ExchangeDetail = ExchangeDetail;
 exports.IntegralShop = IntegralShop;
-exports.checkGuide = checkGuide;
+exports.CheckGuide = CheckGuide;
 exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
 exports.ToSign = ToSign;
