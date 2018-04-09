@@ -8,7 +8,10 @@ module.exports = app => {
         progress:{type:Number},//完成度
         roadMap:{type:Array},
         friend:{type:String,default:"0"},//默认单人旅行
-        rentItems:{type:JSON}
+        rentItems:{type:JSON},
+        photographyCount:{type:Number,default:"0"}, //城市拍照次数 前2次免费
+        photographySpots:{type:Array,default:[]},    //拍照的景点id
+        tourCount:{type:Number,default:"0"}, //城市观光次数 前2次免费
     });
 
     return mongoose.model('CurrentCity', CurrentCitySchema);

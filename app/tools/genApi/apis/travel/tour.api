@@ -24,6 +24,8 @@ class Spot {
     prop spotId:number
     prop x:number
     prop y:number
+    //景点配置表描述
+    prop name:string
 
     //是否起点
     prop isStart:boolean
@@ -139,9 +141,35 @@ api Photography {
     output postcard:Postcard
 }
 
-// 进入景点
-api Enterspot extends UserInfo {
 
+// 哎这个enterspot算是犯规 不太符合规矩
+class EnterSpot {
+    prop id:string
+    prop scenicspot:string
+    prop season:string
+    prop weather:number
+    prop freePhoto:number[]
+    prop freeSight:number[]
+    prop picture:string
+    prop description:string
+}
+class QuestList {
+    prop time:number
+    prop id:string
+    prop describe:string
+    prop gold_used:number
+    prop item:KV[]
+}
+
+// 进入景点
+api Enterspot {
+    require uid:number
+    //景点id
+    require spotId:number
+    //景点数据
+    output spot:EnterSpot
+    //景点事件列表
+    output questList:QuestList[]
 }
 
 
