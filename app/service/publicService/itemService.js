@@ -11,6 +11,7 @@ class ItemService extends Service {
                 let update = delta[indexs] < 0 ?
                     await this.ctx.model.PublicModel.User.update({uid:uid,[indexs] : {$gte: dcost}},{$inc:{[indexs]:delta[indexs]}}):
                     await this.ctx.model.PublicModel.User.update({uid:uid},{$inc:{[indexs]:delta[indexs]}});
+                this.logger.info(update);
                 if(update.nModified){
                     await this.ctx.model.PublicModel.UserItemCounter.update({
                         uid: uid, index: index, appName: appMame
@@ -28,9 +29,9 @@ class ItemService extends Service {
 
                     });
 
-                    this.logger.info(`用户道具 ${index} +" 更新成功 ${delta[indexs]}`);
+                    this.logger.info(`用户道具 ${index} 更新成功 ${delta[indexs]}`);
                 }else{
-                    this.logger.error(`道具 ${index} 更新失败 ，用户当前数量 ${ui[indexs]}  , 准备更新的数量 ${delta[indexs]}`);
+                    this.logger.error(`道具 ${index} 更新失败, 准备更新的数量 ${delta[indexs]}`);
                 }
 
             } catch (err) {

@@ -148,11 +148,22 @@ class TravelService extends Service {
             cid: cid,
             rentItems: rentItems
         };
+        let footprint = {
+            uid:ui.uid,
+            fid:flyid,
+            cid:cid,
+            country:travelConfig.City.Get(cid).country,
+            province:travelConfig.City.Get(cid).province,
+            city:travelConfig.City.Get(cid).city,
+          //  scenicspot:"0",
+            createDate:new Date(),
+        }
         //双人旅行
         if (fid) {
             flyRecord.friend = fid;
             currentCity.friend = fid;
             await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
+            await this.ctx.model.TravelModel.Footprints.create(footprint);
             await this.ctx.model.TravelModel.CurrentCity.update({uid: ui.uid}, currentCity, {upsert: true});
             //更新好友
             await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$addToSet: {friendsList: fid}});
@@ -162,6 +173,7 @@ class TravelService extends Service {
             flyRecord.from = fvisit ? fvisit.cid : "初次旅行";
             currentCity.uid = fid;
             currentCity.friend = ui.uid;
+            footprint.uid = fid;
             await this.ctx.model.PublicModel.User.update({uid: fid}, {$addToSet: {friendsList: ui.uid}});
 
         }
@@ -169,7 +181,9 @@ class TravelService extends Service {
         //添加飞行记录
         await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
         //更新玩家所在地
-        await this.ctx.model.TravelModel.CurrentCity.update({uid: ui.uid}, currentCity, {upsert: true})
+        await this.ctx.model.TravelModel.CurrentCity.update({uid: ui.uid}, currentCity, {upsert: true});
+        //添加足迹
+        await this.ctx.model.TravelModel.Footprints.create(footprint);
     }
 
 
