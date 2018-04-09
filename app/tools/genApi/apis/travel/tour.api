@@ -50,6 +50,15 @@ class TourTask {
     prop photo:number[]     // 0/2 拍照完成度 一共2已完成2
 }
 
+
+// 标记新手引导结束
+api FinishGuide {
+    //用户id
+    require uid:number
+    //是否第一次玩
+    output firstPlay:boolean
+}
+
 //进入城市的经典页面  用户开始该城市的旅游
 api TourIndexInfo extends IndexInfo{
     //城市id
@@ -62,18 +71,6 @@ api TourIndexInfo extends IndexInfo{
     output userInfo:UserInfo
     //完成度信息
     output task:TourTask
-}
-
-
-api choosespotgo {
-    //用户id
-    require uid:number
-    //城市id
-    require cid:number
-
-    require spotId:string[]
-    //用户信息
-    output userInfo:UserInfo
 }
 
 // 修改路线 注意不可回退 并且正在行进的路线change了就不能选择了
@@ -137,6 +134,25 @@ api Photography {
     //返回明信片
     output postcard:Postcard
 }
+
+// 进入景点
+api Enterspot extends UserInfo {
+
+}
+
+
+// 到达景点观光
+api SpotTour {
+    require sid:number
+    //城市id
+    require cid:number
+    //景点id
+    require spotId:number
+    //随机事件会获得的东西不同
+    output userinfo:UserInfo
+}
+
+
 //已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
 api QuestRandom {
    //列表总长多少

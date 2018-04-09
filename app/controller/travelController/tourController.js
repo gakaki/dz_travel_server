@@ -6,13 +6,19 @@ const utilTime      = require("../../utils/time");
 //观光相关
 class TourController extends Controller {
 
-    async tourindexinfo(ctx) {
+    //前端新手引导 标记一下已经完成新手引导了
+    async finishguide(ctx){
+        let info            = apis.FinishGuide.Init(ctx);
+        await this.ctx.model.PublicModel.User.update({uid: ctx.query.uid }, {$set: {firstPlay: true}});
+        info.firstPlay      = true;
+        info.submit();
+    }
 
+    async tourindexinfo(ctx) {
         let info            = apis.TourIndexInfo.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
-        await this.service.travelService.tourService.userSpots(info,user_info);
-        
+        await this.service.travelService.tourService.tourindexinfo(info,user_info);
+        info.firstPlay      = user_info.firstPlay;
         info.submit();
     }
     
@@ -35,10 +41,8 @@ class TourController extends Controller {
     }
 
 
-    // 进入景点
-    async enterspot(ctx){
-        //返回已经触发的随机事件
-    }
+
+
     // 拍照
     async photography(ctx) {
         /*
@@ -56,12 +60,12 @@ class TourController extends Controller {
     }
 
     // 观光
-    async tour(ctx) {
+    async tourspot(ctx) {
         // 用户到达景点后，跳转至景点界面，可使用观光功能，
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
         let info            = apis.TourTour.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.tour(info,user_info);
+        await this.service.travelService.tourService.tourspot(info,user_info);
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
@@ -127,38 +131,31 @@ class TourController extends Controller {
         info.submit();
     }
     // 进入景点观光 触发随机事件
-    async questenterspot(ctx) {
+    async enterspot(ctx) {
         // 1 消耗金币
         this.logger.info("进入景点观光 并触发随机事件");
+
         let result  = {data:{}};
         let itemId  = 1;    //金币
-        let info    = apis.UserInfo.Init(ctx);
-        info.submit();
-        // info['items']
+        let info    = apis.Enterspot.Init(ctx);
 
-        if (!_sid) {
-            result.code = constant.Code.PARAMETER_NOT_MATCH;
-            ctx.body = result;
-            return;
-        }
-        let ui = await this.service.publicService.userService.findUserBySid(_sid);
-        if (ui == null) {
-            result.code = constant.Code.USER_NOT_FOUND;
-            ctx.body = result;
-            return;
-        }
-        result.code = constant.Code.OK;
         if(itemId){
             result.data.stock = ui.items[itemId];
         }else{
             result.data.stock = ui.items;
         }
 
-        ctx.body = result;
 
 
         // 2 触发观光的随机事件根据事件类型哦
 
+
+
+
+
+
+
+        info.submit();
     }
 
     // 行程途中随机事件  每隔一分钟定时call 之后获得处理

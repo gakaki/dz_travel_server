@@ -21,8 +21,6 @@ module.exports = app => {
 
 
 
-
-
     router.get('/player/playerinfo', controller.travelController.playerController.showplayerinfo);
     router.get('/player/lookticket', controller.travelController.playerController.showflyticket);
     router.get('/player/signinfo', controller.travelController.playerController.signinfo);
@@ -68,14 +66,19 @@ module.exports = app => {
     router.get('/post/thumbcomment', controller.travelController.strategyController.givethumbsup);
     router.get('/post/commentpost', controller.travelController.strategyController.sendcomment);
 
-    //游玩界面
-    router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
-    router.get('/tour/nextrouter', routerUserInfo,  controller.travelController.tourController.nextrouter);
 
+    //游玩界面 新手引导完成标记
+    router.get('/tour/finishguide',                     controller.travelController.tourController.finishguide);
+    //游玩界面 首页
+    router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
+    //游玩界面 进入景点
+    router.get('/tour/enterspot',routerUserInfo,  controller.travelController.tourController.enterspot);
+    //游玩界面 进入景点->拍照按钮
     router.get('/tour/photography', routerUserInfo, controller.travelController.tourController.photography);
+    //游玩界面 进入景点->观光按钮
+    router.get('/tour/tourspot', routerUserInfo, controller.travelController.tourController.tourspot);
 
     router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
-    router.get('/tour/questenterspot',routerUserInfo,  controller.travelController.tourController.questenterspot);
     router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);
     router.get('/tour/questrandomlist', routerUserInfo, controller.travelController.tourController.questrandomlist);
     router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
