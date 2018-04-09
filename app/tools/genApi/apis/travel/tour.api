@@ -51,12 +51,16 @@ class TourTask {
 }
 
 
+// 查询用户是否需要新手引导
+api CheckGuide {
+    //是否玩过
+    output hasPlay:boolean
+}
+
 // 标记新手引导结束
 api FinishGuide {
-    //用户id
-    require uid:number
-    //是否第一次玩
-    output firstPlay:boolean
+    //用户引导结束
+    require play:boolean
 }
 
 //进入城市的经典页面  用户开始该城市的旅游

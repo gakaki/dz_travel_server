@@ -34,7 +34,15 @@ class DoubleService extends Service {
         }
         let outw = 1;
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
-        let pvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+        if(ui) {
+            let pvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+            if(pvisit) {
+                info.parLocation = pvisit.cid;
+            }
+            info.nickName = ui.nickName;
+            info.avatarUrl = ui.avatarUrl;
+        }
+
         if (visit) {
             let cid = visit.cid;
             let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
@@ -46,18 +54,16 @@ class DoubleService extends Service {
             }
             info.location = cid;
         }
-        if(pvisit){
-            info.parLocation = visit.cid;
-        }
-        info.nickName = ui.nickName;
-        info.avatarUrl = ui.avatarUrl;
 
-        info.gold = info.ui.items[travelConfig.Item.Gold];
+
+
+        info.gold = info.ui.items[travelConfig.Item.GOLD];
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
         info.weather = outw;
     }
 
     async deleteCode(info){
+        await this.app.redis.del(info.uid);
         let dInfo = await this.app.redis.hgetall(info.inviteCode);
         if(dInfo && dInfo.code){
             if(dInfo.invitee == info.uid){
