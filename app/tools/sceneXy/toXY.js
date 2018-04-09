@@ -7,6 +7,9 @@ const HT = 1000;
 //格子尺寸
 const GW = WD / COL;
 const GH = HT / ROW;
+//第一次分格，格子尺寸小一写，以解决坐标聚集问题
+const GWT = GW / 10;
+const GHT = GH / 10;
 
 function toXY(points) {
     //find bounds value
@@ -29,19 +32,88 @@ function toXY(points) {
     });
 
     //scale arr's value to fix WD & HT
-    let rateX = WD / (prev.maxJ - prev.minJ);
-    let rateY = HT / (prev.maxW - prev.minW);
+    let dmx = prev.maxJ - prev.minJ;
+    let dmy = prev.maxW - prev.minW;
+    let rateX = WD / dmx;
+    let rateY = HT / dmy;
     
     //scale
+    let cgx = 0;
+    let cgy = 0;
+
+    let lgx = 0;
+    let rgx = 0;
+    let lgy = 0;
+    let rgy = 0;
+
+    let topleft = {gx: 0, gy: 0};
+    let topRight = {gx: Math.floor(WD / GWT), gy: 0};
+    let bottomLeft = {gx: 0, gy: Math.floor(HT / GHT)};
+    let bottomRight = {gx: topRight.gx, gy: bottomLeft.gy};
+
     arr = arr.map(d => {
         let o = {name: d.name};
         o.x = (d.j - prev.minJ) * rateX;
         o.y = (prev.maxW - d.w) * rateY; //纬度跟直角坐标的y是反的
 
         //计算格子坐标
-        o.gx = Math.floor(o.x / GW);
-        o.gy = Math.floor(o.y / GH);
+        o.gx = Math.floor(o.x / GWT);
+        o.gy = Math.floor(o.y / GHT);
+
+        if (o.gx < lgx) {
+            lgx = o.gx;
+        }
+        if (o.gx > rgx) {
+            rgx = o.gx;
+        }
+        if (o.gy < lgy) {
+            lgy = o.gy;
+        }
+        if (o.gy > rgy) {
+            rgy = o.gy;
+        }
         return o;
+    });
+
+    //集聚中心
+    cgx = lgx + (rgx - lgx) / 2;
+    cgy = lgy + (rgy - lgy) / 2;
+    //四个象限的缩放比率
+    let distTL = Math.sqrt((cgx - topleft.gx) ** 2 + (cgy - topleft.gy) ** 2);
+    let distTR = Math.sqrt((cgx - topRight.gx) ** 2 + (cgy - topRight.gy) ** 2);
+    let distBL = Math.sqrt((cgx - bottomLeft.gx) ** 2 + (cgy - topleft.gy) ** 2);
+    let distBR = Math.sqrt((cgx - bottomRight.gx) ** 2 + (cgy - bottomRight.gy) ** 2);
+    let distAll = distTL + distTR + distBL + distBR;
+    let rate = 10;//放大率
+    //格子坐标放大
+    let scaleTL = distTL / distAll * rate;
+    let scaleTR = distTR / distAll * rate;
+    let scaleBL = distBL / distAll * rate;
+    let scaleBR = distBR / distAll * rate;
+    arr.every(a => {
+        //判断此点相对于集聚中心的象限
+        let dx = a.gx - cgx;
+        let dy = a.gy - cgy;
+        let rotation = Math.atan2(dy, dx) * 180 / Math.PI + 360;
+        rotation %= 360;
+
+        if (0 < rotation && rotation <= 90) {
+            a.gx *= scaleBR;
+            a.gy *= scaleBR;
+        }
+        else if (90 < rotation && rotation <= 180) {
+            a.gx *= scaleBL;
+            a.gy *= scaleBL;
+        }
+        else if (180 < rotation && rotation <= 270) {
+            a.gx *= scaleTL;
+            a.gy *= scaleTL;
+        }
+        else {
+            a.gx *= scaleTR;
+            a.gy *= scaleTR;
+        }
+        return true;
     })
 
     return arr;
