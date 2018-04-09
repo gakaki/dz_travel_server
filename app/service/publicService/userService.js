@@ -174,7 +174,7 @@ class UserService extends Service {
                 itemId: itemId
             })
             //通知到消息中心
-            let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).value;
+            let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).content;
             await this.ctx.model.TravelModel.UserMsg.create({
                 uid:uid,
                 mid:"msg"+travelConfig.Message.SHAREMESSAGE+new Date().getTime(),
@@ -192,7 +192,7 @@ class UserService extends Service {
         //直接发奖励
         await this.ctx.service.publicService.itemService.itemChange(uid, {["items." + itemId]: itemCnt}, 'travel');
         //通知到消息中心
-        let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).value;
+        let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).content;
         await this.ctx.model.TravelModel.UserMsg.create({
             uid:uid,
             mid:"msg"+travelConfig.Message.INVITEMESSAGE+new Date().getTime(),

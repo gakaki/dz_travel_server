@@ -7,7 +7,7 @@ module.exports = app => {
         destination:{type:String},   //目的地
         ticketType:{type:String},//机票类型
         isDoublue:{type:Boolean,default:false},//是否双人旅行
-        friend:{type:String},                    //双人旅行同伴
+        friend:{type:String,default:"0"},                    //双人旅行同伴,默认单人
         cost:{type:Number},                        //花费的金币
         createDate:{type:Date}
 
