@@ -1,21 +1,24 @@
-//格子分配
-const ROW = 8;
-const COL = 6;
+const config = require('./config')
 //视图尺寸
-const WD = 750;
-const HT = 1000;
-//格子尺寸
-const GW = WD / COL;
-const GH = HT / ROW;
-//第一次分格，格子尺寸小一写，以解决坐标聚集问题
-const GWT = GW / 10;
-const GHT = GH / 10;
+const WD = config.viewWidth;
+const HT = config.viewHeight;
 
-function toXY(points) {
-    //find bounds value
+const PD_TOP = config.paddingTop;
+const PD_BTM = config.paddingBottom;
+const PD_LFT = config.paddingLeft;
+const PD_RT = config.paddingRight;
+
+const VW = WD - PD_LFT - PD_RT;
+const VH = HT - PD_TOP - PD_BTM;
+
+
+let points;
+
+function gen(sourcePoints) {
+
     const tempV = -1000;
     let prev = {minJ: -tempV, minW: -tempV, maxJ: tempV, maxW: tempV};
-    let arr = points.concat();
+    let arr = sourcePoints.concat();
     arr.forEach(cur => {
         if (prev.minJ > cur.j) {
             prev.minJ = cur.j;
@@ -34,93 +37,86 @@ function toXY(points) {
     //scale arr's value to fix WD & HT
     let dmx = prev.maxJ - prev.minJ;
     let dmy = prev.maxW - prev.minW;
-    let rateX = WD / dmx;
-    let rateY = HT / dmy;
-    
-    //scale
-    let cgx = 0;
-    let cgy = 0;
+    let rateX = VW / dmx;
+    let rateY = VH / dmy;
 
-    let lgx = 0;
-    let rgx = 0;
-    let lgy = 0;
-    let rgy = 0;
-
-    let topleft = {gx: 0, gy: 0};
-    let topRight = {gx: Math.floor(WD / GWT), gy: 0};
-    let bottomLeft = {gx: 0, gy: Math.floor(HT / GHT)};
-    let bottomRight = {gx: topRight.gx, gy: bottomLeft.gy};
-
-    arr = arr.map(d => {
-        let o = {name: d.name};
-        o.x = (d.j - prev.minJ) * rateX;
-        o.y = (prev.maxW - d.w) * rateY; //纬度跟直角坐标的y是反的
-
-        //计算格子坐标
-        o.gx = Math.floor(o.x / GWT);
-        o.gy = Math.floor(o.y / GHT);
-
-        if (o.gx < lgx) {
-            lgx = o.gx;
-        }
-        if (o.gx > rgx) {
-            rgx = o.gx;
-        }
-        if (o.gy < lgy) {
-            lgy = o.gy;
-        }
-        if (o.gy > rgy) {
-            rgy = o.gy;
-        }
+    points = arr.map(d => {
+        let o = {};
+        o.x = (d.j - prev.minJ) * rateX >> 0;
+        o.y = (prev.maxW - d.w) * rateY >> 0; //纬度跟直角坐标的y是反的
+        o.cityId = d.cityId;
+        o.id = d.id;
         return o;
     });
 
-    //集聚中心
-    cgx = lgx + (rgx - lgx) / 2;
-    cgy = lgy + (rgy - lgy) / 2;
-    //四个象限的缩放比率
-    let distTL = Math.sqrt((cgx - topleft.gx) ** 2 + (cgy - topleft.gy) ** 2);
-    let distTR = Math.sqrt((cgx - topRight.gx) ** 2 + (cgy - topRight.gy) ** 2);
-    let distBL = Math.sqrt((cgx - bottomLeft.gx) ** 2 + (cgy - topleft.gy) ** 2);
-    let distBR = Math.sqrt((cgx - bottomRight.gx) ** 2 + (cgy - bottomRight.gy) ** 2);
-    let distAll = distTL + distTR + distBL + distBR;
-    let rate = 10;//放大率
-    //格子坐标放大
-    let scaleTL = distTL / distAll * rate;
-    let scaleTR = distTR / distAll * rate;
-    let scaleBL = distBL / distAll * rate;
-    let scaleBR = distBR / distAll * rate;
-    arr.every(a => {
-        //判断此点相对于集聚中心的象限
-        let dx = a.gx - cgx;
-        let dy = a.gy - cgy;
-        let rotation = Math.atan2(dy, dx) * 180 / Math.PI + 360;
-        rotation %= 360;
 
-        if (0 < rotation && rotation <= 90) {
-            a.gx *= scaleBR;
-            a.gy *= scaleBR;
-        }
-        else if (90 < rotation && rotation <= 180) {
-            a.gx *= scaleBL;
-            a.gy *= scaleBL;
-        }
-        else if (180 < rotation && rotation <= 270) {
-            a.gx *= scaleTL;
-            a.gy *= scaleTL;
-        }
-        else {
-            a.gx *= scaleTR;
-            a.gy *= scaleTR;
-        }
+    //进行N次布朗运行
+    for (let i = 0; i < 8; i++) {
+        brang()
+    }
+
+    //to int
+    points.every(p => {
+        p.x = p.x >> 0 + PD_LFT;
+        p.y = p.y >> 0 + PD_TOP;
+        delete p.cityId; // cityId只在执行时以备检测错误，不导出
         return true;
-    })
+    });
 
-    return arr;
+    return points;
+
+}
+
+function brang() {
+
+    for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+            if (j >= points.length) {
+                break;
+            }
+            //假设a在左上，b右下
+            let a = points[i];
+            let b = points[j];
+            let dx = b.x - a.x;
+            let dy = b.y - a.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+            let angle = Math.atan2(dy, dx);
+            let mv = dist * 0.01;
+
+            //相对移动
+            let sx = Math.cos(angle) * mv;
+            let sy = Math.sin(angle) * mv;
+
+            a.x += sx;
+            a.y += sy;
+
+            b.x -= sx;
+            b.y -= sy;
+
+            fix(a, b);
+        }
+    }
+}
+
+function fix(...nodes) {
+    nodes.forEach(n => {
+        if (n.x < 0) {
+            n.x = 0;
+        }
+        if (n.y < 0) {
+            n.y = 0;
+        }
+        if (n.x > VW) {
+            n.x = VW;
+        }
+        if (n.y > VH) {
+            n.y = VH;
+        }
+    })
 }
 
 //test
-let points = [{
+let testPoints = [{
     name: 'A',
     id: 1,
     j: 116.403414,
@@ -183,6 +179,5 @@ let points = [{
     }
 ]
 
-let xys = toXY(points);
 
-console.log(xys);
+module.exports = gen;
