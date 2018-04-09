@@ -26,7 +26,7 @@ module.exports = app => {
         birth:{type:String},
         mobile:{type:String},
         address:{type:String},
-        firstPlay:{type:Boolean,default:false},//是否体验过新手引导了指游玩界面
+        hasPlay:{type:Boolean,default:false},//是否体验过新手引导了指游玩界面
     });
 
     return mongoose.model('User', UserSchema);
