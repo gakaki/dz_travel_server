@@ -6,7 +6,9 @@ const constant      = require('../../utils/constant');
 
 class TourService extends Service {
 
-    async userSpots(info, ui) {
+    async tourindexinfo(info, ui) {
+
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
 
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
@@ -151,6 +153,97 @@ class TourService extends Service {
         //返回明信片 id 图片
         info.postcard   =  cfgPostcard;
     }
+
+    // 景点观光
+    async spotTour(info, ui) {
+
+        let cost = travelConfig.Parameter.TOURCONSUME;
+        if (ui.items[travelConfig.Item.GOLD] < cost) {
+            info.code = apis.Code.NEED_MONEY;
+            this.logger.info('小样你的钱不够啊。。快去充值才能观光');
+            return;
+        }
+
+        //随机事件
+
+        //扣钱
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: - cost}, 'travel');
+        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        //加特产
+        let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
+            {
+                uid: ui.uid,
+                spid: cfg.id,
+                $inc: {number: info.count},
+                createDate: new Date()
+            },
+            {upsert: true});
+        //购买记录
+        await this.ctx.model.TravelModel.SpecialityBuy.create({
+            uid: ui.uid,
+            spid: cfg.id,
+            number: info.count,
+            numberLeft: sp.number,
+            createDate: new Date()
+        });
+        this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
+
+        info.goldNum = ui.items[sheets.Item.GOLD];
+        // no money return
+
+        // one random event
+
+
+
+        // info typeof apis.IndexInfo
+        let cid             = parseInt(info.cid);
+        let cityConfig      = travelConfig.City.Get( cid );
+
+        //查询城市的拍照次数
+        if ( !this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId )  ) {
+            let result      = { data: {} };
+            result.code     = constant.Code.EXCEED_COUNT;
+            this.ctx.body   = result;
+            return result;
+        }
+
+        // 增加拍照次数
+        await this.ctx.model.TravelModel.CurrentCity.update({}, {
+            $inc: { 'photographyCount':  1 },
+            $push: { 'photographySpots': info.spotId}
+        })
+
+        //TODO post card 查询是否有存在的 明信片id
+
+        // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
+        let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
+        let dateNow         = new Date();
+        await this.ctx.model.TravelModel.Postcard.create({
+            uid: ui.uid,
+            cid: info.cid,
+            country: "",
+            province: "",
+            city:"",
+            ptid:"",
+            pscid:info.spotId,
+            type: cfgPostcard.type,                   //明信片类型
+            createDate:dateNow      //创建时间
+        });
+        // sysGiveLog表记录
+        await this.ctx.model.TravelModel.SysGiveLog.create({
+            uid:    ui.uid,
+            sgid:   "",                                 //唯一id
+            type:   3,                                  // 3.明信片
+            iid:   info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
+            number: 1,                                  //数量
+            isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+            createDate: dateNow                         //当前时间创建
+        });
+
+        //返回明信片 id 图片
+        info.postcard   =  cfgPostcard;
+    }
+
 
     //观光
     async tour(info, ui) {
