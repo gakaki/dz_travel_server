@@ -9,7 +9,7 @@ class TourController extends Controller {
     //前端新手引导 标记一下已经完成新手引导了
     async finishguide(ctx){
         let info            = apis.FinishGuide.Init(ctx);
-        await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {firstPlay: true}});
+        await this.ctx.model.PublicModel.User.update({uid: ctx.query.uid }, {$set: {firstPlay: true}});
         info.firstPlay      = true;
         info.submit();
     }
