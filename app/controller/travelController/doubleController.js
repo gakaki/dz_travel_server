@@ -42,8 +42,10 @@ class DoubleController extends Controller {
         if(!info.ui){
             return;
         }
+        this.logger.info("传入的邀请码 "+ info.inviteCode);
         //查询对应 code 相关信息
         let doubleInfo = await this.app.redis.hgetall(info.inviteCode);
+        this.logger.info("房间信息 ", doubleInfo);
         if(!doubleInfo || !doubleInfo.code){
             this.logger.info("房间不存在");
             info.code = apis.Code.ROOM_EXPIRED;
@@ -75,7 +77,7 @@ class DoubleController extends Controller {
         }
 
         if(doubleInfo.invitee != "0"){
-            this.logger.info("房间已满 ",doubleInfo.invitee);
+            this.logger.info("check房间已满 ",doubleInfo.invitee);
             info.code = apis.Code.ROOM_FULLED;
             info.submit();
             return;
@@ -92,12 +94,15 @@ class DoubleController extends Controller {
             return;
         }
         let doubleInfo = await this.app.redis.hgetall(info.inviteCode);
-        if(!doubleInfo || !doubleInfo.inviteCode){
+        this.logger.info("传入的code "+ info.inviteCode);
+        this.logger.info("房间信息 " , doubleInfo);
+        if(!doubleInfo || !doubleInfo.code){
             info.code = apis.Code.ROOM_EXPIRED;
             info.submit();
             return;
         }
-        if(doubleInfo.inviter != info.uid && doubleInfo.invitee != info.ui){
+        if(doubleInfo.inviter != info.uid && doubleInfo.invitee != info.uid){
+            this.logger.info("接口轮询 房间已满 " + info.uid, doubleInfo.inviter , doubleInfo.invitee != info.uid,doubleInfo.invitee);
             info.code = apis.Code.ROOM_FULLED;
             info.submit();
             return;
@@ -112,6 +117,8 @@ class DoubleController extends Controller {
         }
         info.isFly = Number(doubleInfo.isFly);
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
+        this.logger.info("哪位大大轮询的 " + info.uid);
+        this.logger.info("等待的同伴信息 " +userId , ui);
         await ctx.service.travelService.doubleService.doubleInfo(info,ui);
         info.submit();
     }
@@ -121,6 +128,7 @@ class DoubleController extends Controller {
         if(!info.ui){
             return;
         }
+        this.logger.info("删除邀请码 "+info.inviteCode);
         await ctx.service.travelService.doubleService.deleteCode(info);
         info.submit();
     }
