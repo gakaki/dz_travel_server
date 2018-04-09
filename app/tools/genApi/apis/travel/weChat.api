@@ -1,0 +1,17 @@
+
+class Payload {
+    prop timeStamp:string
+    prop nonceStr:string
+    prop package:string
+    prop signType:string
+    prop paySign:string
+}
+
+
+api Minapppay {
+    //购买的金币
+    require goodsId:number
+    //购买相应金币需要的现金
+    require payCount:number
+    output payload:Payload
+}

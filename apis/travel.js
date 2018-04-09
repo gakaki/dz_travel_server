@@ -218,18 +218,39 @@ class MessageType{
     
 }
 //------------classes--------------
-class ProvencePer {
+class Payload {
+    constructor() {
+    
+    
+        //prop type: string
+        this.timeStamp = null;
+    
+        //prop type: string
+        this.nonceStr = null;
+    
+        //prop type: string
+        this.package = null;
+    
+        //prop type: string
+        this.signType = null;
+    
+        //prop type: string
+        this.paySign = null;
+    
+        
+        
+        
+    }
+}
+class Event {
     constructor() {
     
     
         //prop type: 
-        this.proLetter = null;
+        this.cityname = null;
     
         //prop type: 
-        this.proName = null;
-    
-        //prop type: 
-        this.citys = null;
+        this.cityper = null;
     
         
         
@@ -239,6 +260,21 @@ class ProvencePer {
 class oneSpot {
     constructor() {
     
+    
+        
+        
+        
+    }
+}
+class OneDayLog {
+    constructor() {
+    
+    
+        //prop type: string
+        this.time = null;
+    
+        //prop type: string[]
+        this.spots = null;
     
         
         
@@ -647,15 +683,18 @@ class Speciality {
         
     }
 }
-class OneDayLog {
+class ProvencePer {
     constructor() {
     
     
-        //prop type: string
-        this.time = null;
+        //prop type: 
+        this.proLetter = null;
     
-        //prop type: string[]
-        this.spots = null;
+        //prop type: 
+        this.proName = null;
+    
+        //prop type: 
+        this.citys = null;
     
         
         
@@ -875,19 +914,56 @@ class TourTask {
         
     }
 }
-class Event {
+class TravelFootprint extends Base {
     constructor() {
+        super();
+        this.action = 'player.travelfootprint';
     
-    
-        //prop type: 
-        this.cityname = null;
-    
-        //prop type: 
-        this.cityper = null;
-    
-        
-        
-        
+        this._playerUid = null;
+        this._userInfo = null;
+        this._items = null;
+        this._reachrovince = null;
+        this._totalArrive = null;
+        this._totalArrivePercent = null;
+        this._travelPercent = null;
+        this.requireFileds = [];
+        this.reqFields = ["playerUid"];
+        this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
+    }
+    //client input, optional, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
+    //server output, type: UserBriefInfo
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
+    //server output, type: KV[]
+    get items() {return this._items}
+    set items(v) {this._items = v}
+    //server output, type: number
+    get reachrovince() {return this._reachrovince}
+    set reachrovince(v) {this._reachrovince = v}
+    //server output, type: number
+    get totalArrive() {return this._totalArrive}
+    set totalArrive(v) {this._totalArrive = v}
+    //server output, type: number
+    get totalArrivePercent() {return this._totalArrivePercent}
+    set totalArrivePercent(v) {this._totalArrivePercent = v}
+    //server output, type: number
+    get travelPercent() {return this._travelPercent}
+    set travelPercent(v) {this._travelPercent = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new TravelFootprint();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class NextSpot extends Spot {
@@ -912,6 +988,34 @@ class NextSpot extends Spot {
         
         
         
+    }
+}
+class FinishGuide extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.finishguide';
+    
+        this._play = null;
+        this.requireFileds = ["play"];
+        this.reqFields = ["play"];
+        this.resFields = [];
+    }
+    //client input, require, type: boolean
+    get play() {return this._play}
+    set play(v) {this._play = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new FinishGuide();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class GetUserLocation extends Base {
@@ -1323,25 +1427,29 @@ class LeaveTour extends Base {
         }
     }
 }
-class RentProp extends Base {
+class Minapppay extends Base {
     constructor() {
         super();
-        this.action = 'tour.rentprop';
+        this.action = 'weChat.minapppay';
     
-        this._rentId = null;
-        this._rentItems = null;
-        this.requireFileds = ["rentId"];
-        this.reqFields = ["rentId"];
-        this.resFields = ["rentItems"];
+        this._goodsId = null;
+        this._payCount = null;
+        this._payload = null;
+        this.requireFileds = ["goodsId","payCount"];
+        this.reqFields = ["goodsId","payCount"];
+        this.resFields = ["payload"];
     }
     //client input, require, type: number
-    get rentId() {return this._rentId}
-    set rentId(v) {this._rentId = v}
-    //server output, type: KV[]//已租用的所有道具。
-    get rentItems() {return this._rentItems}
-    set rentItems(v) {this._rentItems = v}
+    get goodsId() {return this._goodsId}
+    set goodsId(v) {this._goodsId = v}
+    //client input, require, type: number
+    get payCount() {return this._payCount}
+    set payCount(v) {this._payCount = v}
+    //server output, type: Payload
+    get payload() {return this._payload}
+    set payload(v) {this._payload = v}
     static Init(ctx, checkLogin = false) {
-        let o = new RentProp();
+        let o = new Minapppay();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1895,25 +2003,21 @@ class IntegralShop extends Base {
         }
     }
 }
-class FinishGuide extends Base {
+class checkGuide extends Base {
     constructor() {
         super();
-        this.action = 'tour.finishguide';
+        this.action = 'tour.checkguide';
     
-        this._uid = null;
-        this._firstPlay = null;
-        this.requireFileds = ["uid"];
-        this.reqFields = ["uid"];
-        this.resFields = ["firstPlay"];
+        this._hasPlay = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["hasPlay"];
     }
-    //client input, require, type: number
-    get uid() {return this._uid}
-    set uid(v) {this._uid = v}
     //server output, type: boolean
-    get firstPlay() {return this._firstPlay}
-    set firstPlay(v) {this._firstPlay = v}
+    get hasPlay() {return this._hasPlay}
+    set hasPlay(v) {this._hasPlay = v}
     static Init(ctx, checkLogin = false) {
-        let o = new FinishGuide();
+        let o = new checkGuide();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2836,45 +2940,25 @@ class ClearMsg extends Base {
         }
     }
 }
-class TravelFootprint extends Base {
+class RentProp extends Base {
     constructor() {
         super();
-        this.action = 'player.travelfootprint';
+        this.action = 'tour.rentprop';
     
-        this._playerUid = null;
-        this._userInfo = null;
-        this._items = null;
-        this._reachrovince = null;
-        this._totalArrive = null;
-        this._totalArrivePercent = null;
-        this._travelPercent = null;
-        this.requireFileds = [];
-        this.reqFields = ["playerUid"];
-        this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
+        this._rentId = null;
+        this._rentItems = null;
+        this.requireFileds = ["rentId"];
+        this.reqFields = ["rentId"];
+        this.resFields = ["rentItems"];
     }
-    //client input, optional, type: string
-    get playerUid() {return this._playerUid}
-    set playerUid(v) {this._playerUid = v}
-    //server output, type: UserBriefInfo
-    get userInfo() {return this._userInfo}
-    set userInfo(v) {this._userInfo = v}
-    //server output, type: KV[]
-    get items() {return this._items}
-    set items(v) {this._items = v}
-    //server output, type: number
-    get reachrovince() {return this._reachrovince}
-    set reachrovince(v) {this._reachrovince = v}
-    //server output, type: number
-    get totalArrive() {return this._totalArrive}
-    set totalArrive(v) {this._totalArrive = v}
-    //server output, type: number
-    get totalArrivePercent() {return this._totalArrivePercent}
-    set totalArrivePercent(v) {this._totalArrivePercent = v}
-    //server output, type: number
-    get travelPercent() {return this._travelPercent}
-    set travelPercent(v) {this._travelPercent = v}
+    //client input, require, type: number
+    get rentId() {return this._rentId}
+    set rentId(v) {this._rentId = v}
+    //server output, type: KV[]//已租用的所有道具。
+    get rentItems() {return this._rentItems}
+    set rentItems(v) {this._rentItems = v}
     static Init(ctx, checkLogin = false) {
-        let o = new TravelFootprint();
+        let o = new RentProp();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3089,8 +3173,10 @@ exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
 exports.MessageType = MessageType;
-exports.ProvencePer = ProvencePer;
+exports.Payload = Payload;
+exports.Event = Event;
 exports.oneSpot = oneSpot;
+exports.OneDayLog = OneDayLog;
 exports.OneCityLog = OneCityLog;
 exports.Log = Log;
 exports.Shop = Shop;
@@ -3110,7 +3196,7 @@ exports.SelfRank = SelfRank;
 exports.RankItem = RankItem;
 exports.Sight = Sight;
 exports.Speciality = Speciality;
-exports.OneDayLog = OneDayLog;
+exports.ProvencePer = ProvencePer;
 exports.Base = Base;
 exports.CityPer = CityPer;
 exports.Postcard = Postcard;
@@ -3120,8 +3206,9 @@ exports.QuestReport = QuestReport;
 exports.Position = Position;
 exports.Spot = Spot;
 exports.TourTask = TourTask;
-exports.Event = Event;
+exports.TravelFootprint = TravelFootprint;
 exports.NextSpot = NextSpot;
+exports.FinishGuide = FinishGuide;
 exports.GetUserLocation = GetUserLocation;
 exports.ChangeRouter = ChangeRouter;
 exports.NextRouter = NextRouter;
@@ -3134,7 +3221,7 @@ exports.ExchangeShop = ExchangeShop;
 exports.SpotTour = SpotTour;
 exports.ShowQuestReport = ShowQuestReport;
 exports.LeaveTour = LeaveTour;
-exports.RentProp = RentProp;
+exports.Minapppay = Minapppay;
 exports.WsSend = WsSend;
 exports.ShareInfo = ShareInfo;
 exports.CityListPer = CityListPer;
@@ -3151,7 +3238,7 @@ exports.MySpes = MySpes;
 exports.Spe = Spe;
 exports.ExchangeDetail = ExchangeDetail;
 exports.IntegralShop = IntegralShop;
-exports.FinishGuide = FinishGuide;
+exports.checkGuide = checkGuide;
 exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
 exports.ToSign = ToSign;
@@ -3176,7 +3263,7 @@ exports.TravelLog = TravelLog;
 exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
 exports.ClearMsg = ClearMsg;
-exports.TravelFootprint = TravelFootprint;
+exports.RentProp = RentProp;
 exports.TestSend = TestSend;
 exports.SysMessage = SysMessage;
 exports.SellSpe = SellSpe;

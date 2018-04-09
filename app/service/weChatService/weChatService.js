@@ -101,7 +101,7 @@ class WeChatService extends Service {
                     wuo.success = false;
                 }
                 let realResult = wxresult["xml"];
-
+                that.logger.info(realResult);
                 let returnCode = realResult["return_code"][0];
                 that.logger.info("微信返回的数据 ：" + returnCode);
                 if (returnCode === "SUCCESS") {
