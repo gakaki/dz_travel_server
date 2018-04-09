@@ -58,6 +58,8 @@ class TravelController extends Controller {
                 info.submit();
                 return
             }
+            dInfo.isFly = 1;
+            await this.app.redis.hmset(info.inviteCode,dInfo);
             fid = dInfo.invitee;
         }
 
@@ -100,14 +102,17 @@ class TravelController extends Controller {
                 return
             }
         }
-        if (visit.cid == info.cid) {
-            this.logger.info("已经在当前城市了 ：" + info.cid);
-            info.code = apis.Code.REQUIREMENT_FAILED;
-            info.submit();
-            return
+        if(visit){
+            if (visit.cid == info.cid) {
+                this.logger.info("已经在当前城市了 ：" + info.cid);
+                info.code = apis.Code.REQUIREMENT_FAILED;
+                info.submit();
+                return
+            }
+
         }
 
-        await this.service.travelService.travelService.visit(info, ui, visit,);
+        await this.service.travelService.travelService.visit(info, ui, visit,fid);
 
         info.submit();
     }

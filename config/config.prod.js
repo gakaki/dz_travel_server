@@ -9,13 +9,14 @@ module.exports = appInfo => {
 
     config.env = "prod";
 
+    let config_redis = {
+        host: '127.0.0.1',
+        port: '6379',
+        password: 'Douzihuyu2018',
+        db: '0',
+    }
     config.redis = {
-        client: {
-            host: '127.0.0.1',
-            port: '6379',
-            password: 'Douzihuyu2018',
-            db: '0',
-        },
+        client: config_redis
     };
 
     config.logger = {
@@ -28,11 +29,20 @@ module.exports = appInfo => {
                 packetMiddleware: [],
             },
         },
-        redis: {
-            host: '127.0.0.1',
-            port: '6379',
-            password: 'Douzihuyu2018',
-            db: '0',
+        redis: config_redis
+    };
+
+    //事件队列
+    config.kue =  {
+        app : true,
+        agent : false,
+        client: {
+            queuePrefix: 'q',
+            redis: Object.assign( {},config_redis,{
+                auth: 'Douzihuyu2018',
+                db: 1,
+                options: {},
+            })
         },
     };
 

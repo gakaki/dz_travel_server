@@ -110,6 +110,7 @@ class DoubleController extends Controller {
         if(doubleInfo.invitee == info.uid){
             userId = doubleInfo.inviter;
         }
+        info.isFly = Number(doubleInfo.isFly);
         let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
         await ctx.service.travelService.doubleService.doubleInfo(info,ui);
         info.submit();

@@ -57,7 +57,6 @@ module.exports = appInfo => {
                     options: {},
                 })
         },
-        // clients: {}
     };
 
     return config;

@@ -10,11 +10,11 @@ run/
 .DS_Store
 *.sw*
 *.un~
-<<<<<<< HEAD
+
 /dump.rdb
-=======
+
 .travis.yml
 appveyor.yml
 /dz-kue/.travis.yml
 /dz-kue/appveyor.yml
->>>>>>> 5d8140f85832591231b09d7041cee850f837bc4c
+

@@ -10,6 +10,7 @@ class DoubleService extends Service {
             code:invitationCode,
             inviter:info.uid,
             invitee:"0",
+            isFly:"0"
         };
         await this.app.redis.hmset(invitationCode,doubleFly);
         await this.app.redis.set(info.uid,invitationCode);
@@ -32,10 +33,10 @@ class DoubleService extends Service {
             info.holiday = holiday[0];
         }
         let outw = 1;
-        let cid = null;
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
+        let pvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         if (visit) {
-            cid = visit.cid;
+            let cid = visit.cid;
             let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
             for (let we of travelConfig.weathers) {
                 if (we.weather == weather) {
@@ -45,8 +46,12 @@ class DoubleService extends Service {
             }
             info.location = cid;
         }
+        if(pvisit){
+            info.parLocation = visit.cid;
+        }
         info.nickName = ui.nickName;
         info.avatarUrl = ui.avatarUrl;
+
         info.gold = info.ui.items[travelConfig.Item.Gold];
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
         info.weather = outw;
