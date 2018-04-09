@@ -1,7 +1,7 @@
-const Controller    = require('egg').Controller;
-const apis          = require("../../../apis/travel");
-const travelConfig  = require("../../../sheets/travel");
-const utilTime      = require("../../utils/time");
+const Controller        = require('egg').Controller;
+const apis              = require("../../../apis/travel");
+const travelConfig      = require("../../../sheets/travel");
+const utilTime          = require("../../utils/time");
 
 //观光相关
 class TourController extends Controller {
@@ -137,72 +137,8 @@ class TourController extends Controller {
 
     // 进入景点
     async enterspot(ctx) {
-
         this.logger.info("进入景点观光");
-
-        let result          = { data:{} };
-        let itemId          = 1;    //金币
-        let info            = apis.Enterspot.Init(ctx);
-
-        //获得对当前城市拍照次数
-        let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: uid ,cid: info.cid });
-        let photographyCount        = parseInt(r['photographyCount']);
-        let tourCount               = parseInt(r['tourCount']);
-        let cfgSpot                 = travelConfig.Scenicspot.Get(info.spotId);
-        let spot                    = {
-            season: await this.ctx.service.publicService.thirdService.getSeason(),
-            weather: await this.ctx.service.publicService.thirdService.getWeather(),
-            freePhoto: [photographyCount, 2],       //免费拍照次数
-            freeSight: [tourCount, 2],  //免费观光次数
-            picture: cfgSpot.picture,
-            description: cfgSpot.description
-        }
-        this.logger.info("进入景点");
-
-
-        // let result  = {data:{}};
-        // let itemId  = 1;    //金币
-        // let info    = apis.Enterspot.Init(ctx);
-
-        //获得触发的事件列表 当然是指景点的那些随机触发事件
-        let events = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: uid ,cid: info.cid });
-        let questList = [];
-        for ( let row of events ){
-            questList.push({
-                'time' : row['createDate'],
-                'id'   : row["eid"],
-                "describe" : row["describe"]
-            });
-        }
-
-        //
-        // uid:{type:String},
-        // :{type:String},      //事件id
-        // cid:{type:String},      //cityId
-        // spotId:{type:String},   //景点id
-        // isPhotography:{type:Boolean}, //是否拍照
-        // isTour:{type:Boolean}, //是否为观光
-        // trackedNo:{type:String},  //访问顺序
-        // createDate:{type:Date}
-
-
-        // if(itemId){
-        //     result.data.stock = ui.items[itemId];
-        // }else{
-        //     result.data.stock = ui.items;
-        // }
-
-
-
-        // 2 触发观光的随机事件根据事件类型哦
-
-
-
-
-
-
-
-        info.submit();
+        await this.service.questService.questService.enterspot(ctx);
     }
 
     // 行程途中随机事件  每隔一分钟定时call 之后获得处理
