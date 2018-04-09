@@ -13,33 +13,7 @@ class QuestService extends Service{
 
     //获得具体的奖励描述 reward 字段
     async rewardDescription(eid){
-        let row       = QuestRepoInstance.find(eid);
-        let reward    = row['reward'];
-        if( !reward ) return "";
-        //1,100;5,203
-        let items    = reward.split(";");
-        let itemComments = [];
-        /*
-            1金币
-            2时间
-            3明信片：后面跟明信片id，明信片id填-1表示该城市随机特产明信片
-            4特产：后面跟特产id，
-            5积分
-         */
-        let kv =  {
-            "1" :"金币",
-            "2" :"时间",
-            "3" :"明信",
-            "4" :"特产",
-            "5" :"积分"
-        };
-        // for(let item of items){
-        //     let {type_id,count} = item.split(",")
-        //     itemComments.push({
-        //         kv[item] :
-        //     })
-        // }
-        return kv;
+        return QuestRepoInstance.find(eid);
     }
 
     //下面的2个方法暂时不用

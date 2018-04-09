@@ -18,7 +18,7 @@ describe('test 事件系统',  () => {
         const ctx   = app.mockContext();
         let eid     = '130010';
         const row   = await ctx.service.questService.questService.rewardDescription(eid);
-        assert(row.id == '130050');
+        assert(row.id == eid);
     });
 
     it('当前环境是否是local', async () => {
@@ -29,16 +29,6 @@ describe('test 事件系统',  () => {
         assert( app.config.env == 'local');
     });
 
-    it('测试产看配置表', async () => {
-        // 创建 ctx
-        const ctx           = app.mockContext();
-        const c             = constant.AppItem['travel'];
-        console.log(travelConfig .scenicspots);
-        console.log(c);
-        assert( c.lenth > 0 );
 
-        let scenespots      = travelConfig .scenicspots.filter(s => s.cid == "2" && s.id == parseInt('100202') );
-        assert( scenespots.id = 100202 );
-    });
 
 });

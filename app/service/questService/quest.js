@@ -26,11 +26,7 @@ class Quest extends TreeNode {
         this.trigger_type   = d.subtype;    //事件触发类型
                                             // 1、通用城市事件：在所有城市游玩都可以触发的事件；
                                             // 2、特定城市事件：在特定城市游玩才能触发的事件；
-<<<<<<< Updated upstream
                                             // 3、通用观光checkGuide事件：在所有城市观光都可以触发的事件；
-=======
-                                            // 3、通用观光事件：在所有城市观光都可以触发的事件；
->>>>>>> Stashed changes
                                             // 4、特定观光事件：在特定城市观光才能触发的事件；
         // this.loc_name       = d['loc_name']; //地点中文
 
@@ -50,12 +46,7 @@ class Quest extends TreeNode {
 
         this.picture        =  d.picture;       //0表示没有图片
         this.reward         =  d.reward;        //事件奖励
-// 1金币
-// 2时间
-// 3明信片：后面跟明信片id，明信片id填-1表示该城市随机特产明信片
-// 4特产：后面跟特产id，
-// 5积分
-
+        this.rewardComment  =  this.formatRewardComment(d.reward);
         this.errorreward        =  d.errorreward;   //答题错误奖励0表示无奖励
         this.condition1_parent  =  d.condition1;    //前置事件
         // 0表示无前置事件
@@ -80,6 +71,35 @@ class Quest extends TreeNode {
         this.wrong1         =  d.wrong1;        //错误答案1
         this.wrong2         =  d.wrong2;        //错误答案2
         this.wrong3         =  d.wrong3;        //错误答案3
+    }
+
+
+    formatRewardComment(reward){
+        //1,100;5,203
+        let rewardComment  = "";        //事件奖励描述语句
+        if( !reward ) return "";
+
+        let t             = [];
+        for( let r of reward){
+            t.push(r.k);
+        }
+
+        let rewardStr = t.join(",");
+        let items     = rewardStr.split(";");
+        let itemComments = {};
+        let kv =  {
+            "1" :"金币",
+            "2" :"时间",
+            "3" :"明信",
+            "4" :"特产",
+            "5" :"积分"
+        };
+        for(let item of items){
+            let [type_id,count] = item.split(",")
+            let name = kv[type_id];
+            itemComments[name] =  count;
+        }
+        return itemComments;
     }
 }
 
