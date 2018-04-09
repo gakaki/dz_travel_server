@@ -5,12 +5,17 @@ const utilTime      = require("../../utils/time");
 
 //观光相关
 class TourController extends Controller {
-
+    // 查询用户是否需要新手引导
+    async checkguide(ctx){
+        let info            = apis.CheckGuide.Init(ctx);
+        let user            = await this.ctx.model.PublicModel.User.findOne({uid: ctx.query.uid });
+        info.hasPlay        = user['hasPlay'] ? true : false;
+        info.submit();
+    }
     //前端新手引导 标记一下已经完成新手引导了
     async finishguide(ctx){
         let info            = apis.FinishGuide.Init(ctx);
-        await this.ctx.model.PublicModel.User.update({uid: ctx.query.uid }, {$set: {firstPlay: true}});
-        info.firstPlay      = true;
+        await this.ctx.model.PublicModel.User.update({uid: ctx.query.uid }, {$set: {hasPlay: info.play}});
         info.submit();
     }
 

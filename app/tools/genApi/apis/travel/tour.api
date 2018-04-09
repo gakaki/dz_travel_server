@@ -52,7 +52,7 @@ class TourTask {
 
 
 // 查询用户是否需要新手引导
-api checkGuide {
+api CheckGuide {
     //是否玩过
     output hasPlay:boolean
 }

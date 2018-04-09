@@ -218,18 +218,21 @@ class MessageType{
     
 }
 //------------classes--------------
-class ProvencePer {
+class CityPer {
     constructor() {
     
     
-        //prop type: 
-        this.proLetter = null;
+        //prop type: string//城市id
+        this.cityId = null;
     
         //prop type: 
-        this.proName = null;
+        this.cityname = null;
     
         //prop type: 
-        this.citys = null;
+        this.cityper = null;
+    
+        //prop type: 
+        this.cityEff = null;
     
         
         
@@ -647,15 +650,18 @@ class Speciality {
         
     }
 }
-class OneDayLog {
+class ProvencePer {
     constructor() {
     
     
-        //prop type: string
-        this.time = null;
+        //prop type: 
+        this.proLetter = null;
     
-        //prop type: string[]
-        this.spots = null;
+        //prop type: 
+        this.proName = null;
+    
+        //prop type: 
+        this.citys = null;
     
         
         
@@ -734,21 +740,15 @@ class Base {
         }
     }
 }
-class CityPer {
+class OneDayLog {
     constructor() {
     
     
-        //prop type: string//城市id
-        this.cityId = null;
+        //prop type: string
+        this.time = null;
     
-        //prop type: 
-        this.cityname = null;
-    
-        //prop type: 
-        this.cityper = null;
-    
-        //prop type: 
-        this.cityEff = null;
+        //prop type: string[]
+        this.spots = null;
     
         
         
@@ -912,6 +912,34 @@ class NextSpot extends Spot {
         
         
         
+    }
+}
+class FinishGuide extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.finishguide';
+    
+        this._play = null;
+        this.requireFileds = ["play"];
+        this.reqFields = ["play"];
+        this.resFields = [];
+    }
+    //client input, require, type: boolean
+    get play() {return this._play}
+    set play(v) {this._play = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new FinishGuide();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
     }
 }
 class GetUserLocation extends Base {
@@ -1895,25 +1923,21 @@ class IntegralShop extends Base {
         }
     }
 }
-class FinishGuide extends Base {
+class CheckGuide extends Base {
     constructor() {
         super();
-        this.action = 'tour.finishguide';
+        this.action = 'tour.checkguide';
     
-        this._uid = null;
-        this._firstPlay = null;
-        this.requireFileds = ["uid"];
-        this.reqFields = ["uid"];
-        this.resFields = ["firstPlay"];
+        this._hasPlay = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["hasPlay"];
     }
-    //client input, require, type: number
-    get uid() {return this._uid}
-    set uid(v) {this._uid = v}
     //server output, type: boolean
-    get firstPlay() {return this._firstPlay}
-    set firstPlay(v) {this._firstPlay = v}
+    get hasPlay() {return this._hasPlay}
+    set hasPlay(v) {this._hasPlay = v}
     static Init(ctx, checkLogin = false) {
-        let o = new FinishGuide();
+        let o = new CheckGuide();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3089,7 +3113,7 @@ exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;
 exports.PostType = PostType;
 exports.MessageType = MessageType;
-exports.ProvencePer = ProvencePer;
+exports.CityPer = CityPer;
 exports.oneSpot = oneSpot;
 exports.OneCityLog = OneCityLog;
 exports.Log = Log;
@@ -3110,9 +3134,9 @@ exports.SelfRank = SelfRank;
 exports.RankItem = RankItem;
 exports.Sight = Sight;
 exports.Speciality = Speciality;
-exports.OneDayLog = OneDayLog;
+exports.ProvencePer = ProvencePer;
 exports.Base = Base;
-exports.CityPer = CityPer;
+exports.OneDayLog = OneDayLog;
 exports.Postcard = Postcard;
 exports.Ws = Ws;
 exports.Http = Http;
@@ -3122,6 +3146,7 @@ exports.Spot = Spot;
 exports.TourTask = TourTask;
 exports.Event = Event;
 exports.NextSpot = NextSpot;
+exports.FinishGuide = FinishGuide;
 exports.GetUserLocation = GetUserLocation;
 exports.ChangeRouter = ChangeRouter;
 exports.NextRouter = NextRouter;
@@ -3151,7 +3176,7 @@ exports.MySpes = MySpes;
 exports.Spe = Spe;
 exports.ExchangeDetail = ExchangeDetail;
 exports.IntegralShop = IntegralShop;
-exports.FinishGuide = FinishGuide;
+exports.CheckGuide = CheckGuide;
 exports.viewpointInfo = viewpointInfo;
 exports.Photograph = Photograph;
 exports.ToSign = ToSign;

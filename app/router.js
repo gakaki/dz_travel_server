@@ -68,6 +68,7 @@ module.exports = app => {
 
 
     //游玩界面 新手引导完成标记
+    router.get('/tour/checkguide',                      controller.travelController.tourController.checkguide);
     router.get('/tour/finishguide',                     controller.travelController.tourController.finishguide);
     //游玩界面 首页
     router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
