@@ -61,11 +61,10 @@ function gen(sourcePoints) {
     //to int
     let scalex = (maxx - minx) / VW;
     let scaley = (maxy - miny) / VH;
-    let scale = Math.min(scalex, scaley);
     points.every(p => {
 
-        p.x *= scale;
-        p.y *= scale;
+        p.x *= scalex;
+        p.y *= scaley;
         p.x += PD_LFT;
         p.y += PD_TOP;
         p.x = p.x >> 0;
