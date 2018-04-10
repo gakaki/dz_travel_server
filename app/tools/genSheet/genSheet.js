@@ -7,7 +7,7 @@ const dust = require("../dust");
 const SHEET_HEADS = 3; //表头所占据的行数
 
 //支持的字段类型
-const TYPE_TAG  = {
+const TYPE_TAG = {
     STR: "Str",
     STRS: "Strs",
     INT: "Int",
@@ -29,6 +29,7 @@ class Field {
         this.comments = cmts;
     }
 }
+
 class Sheet {
     constructor(shtName) {
         this.fileds = [];
@@ -36,15 +37,18 @@ class Sheet {
         this.classname = shtName.substr(0, 1).toUpperCase() + shtName.substr(1);
         this._consts = [];
     }
+
     consts(k, v) {
-        this._consts.push({k: k.toUpperCase(), v:v})
+        this._consts.push({k: k.toUpperCase(), v: v})
     }
 }
+
 class Data {
-    constructor(){
+    constructor() {
         this.jsondata = {};
         this.sheets = [];
     }
+
     get json() {
         return JSON.stringify(this.jsondata);
     }
@@ -52,7 +56,7 @@ class Data {
 
 //-------------enter---------------------------------
 //读取配置
-let curFl,curSheet;
+let curFl, curSheet;
 const cfg = require('./config');
 const parsedData = {
     client: new Data(),
@@ -60,9 +64,9 @@ const parsedData = {
 }
 
 //开始处理
-Promise.all(Object.keys(cfg).map( key => {
+Promise.all(Object.keys(cfg).map(key => {
     gen(key, cfg[key]);
-})).then(()=> {
+})).then(() => {
     console.log('处理完成！')
 })
 //--------------end----------------------------------
@@ -88,7 +92,7 @@ async function gen(cfgKey, cfgNode) {
             files = fs.readdirSync(inDir).map(f => {
                 return path.resolve(inDir, f);
             })
-        }catch (e) {
+        } catch (e) {
             console.error(e)
             console.warn(`未找到${cfgKey}的inputDir配置的目标路径：${inDir} 请检查后重试！！！`);
             return;
@@ -100,10 +104,90 @@ async function gen(cfgKey, cfgNode) {
         })
     }
 
+
     //写入output文件
-    await dust.gen('sheet',
-        {data: parsedData.client, outfile: outFileC},
-        {data: parsedData.server, outfile: outFileS});
+    if (cfgNode.chunkC) {
+        //客户端切分
+        let clientDatas = parsedData.client.jsondata;
+        let chunk = {};
+        let chunks = [];
+        let chunkStr = '';
+        for (let key in clientDatas) {
+            let dt = clientDatas[key];
+            let dtStr = JSON.stringify(dt);
+            chunkStr += dtStr
+
+            //判断是否存在单表就已超限的情况
+            let sheetLen = Buffer.byteLength(dtStr);
+            if (sheetLen >= cfgNode.chunkC) {
+                let sliceNum = Math.round(sheetLen / cfgNode.chunkC);
+                let sheetArr = Object.keys(dt);
+
+                //单表拆分
+                let sheetArrLen = sheetArr.length;
+                let sliceStep = Math.floor(sheetArrLen / sliceNum);
+                let sliceIdx = 0;
+                let subsheets = [];
+                while (sliceIdx < sheetArrLen) {
+                    let sliceEnd = sliceStep + sliceIdx;
+                    subsheets.push(sheetArr.slice(sliceIdx, sliceEnd))
+                    sliceIdx = sliceEnd;
+                }
+
+                //生成chunks
+                subsheets.every(subs => {
+                    let subchunk = {};
+                    subchunk[key] = subs.map(k => {
+                        return {[k]: dt[k]};
+                    })
+                    chunks.push(subchunk);
+                    return true;
+                })
+
+            }
+            else {
+                //累计超限
+                if (Buffer.byteLength(chunkStr) >= cfgNode.chunkC) {
+
+                    //生成新的
+                    chunks.push(chunk);
+                    chunk = {};
+                    chunkStr = '';
+                }
+                else {
+                    //未超标
+                }
+
+                chunk[key] = dt;
+            }
+
+        }
+
+        if (chunks.indexOf(chunk) == -1) {
+            chunks.push(chunk);
+        }
+
+        let outdirC = path.dirname(outFileC);
+        let gens = chunks.map((c, idx) => {
+            let chunkFile = path.join(outdirC, `data${idx}.js`);
+
+            return {data: {json: JSON.stringify(c)}, outfile: chunkFile}
+        });
+        await dust.gen('sheetdata', ...gens);
+        await dust.gen('sheetdeclare', {
+            data: {sheets: parsedData.client.sheets, chunks, chunkCnt: chunks.length},
+            outfile: outFileC
+        });
+        await dust.gen('sheet', {data: parsedData.server, outfile: outFileS});
+    }
+    else {
+        //不切分，正常写入
+        await dust.gen('sheet',
+            {data: parsedData.client, outfile: outFileC},
+            {data: parsedData.server, outfile: outFileS});
+    }
+
+
 }
 
 
@@ -172,7 +256,7 @@ function mergeToJson(sht, sheetName, fl) {
 
 
             //字段过滤
-            if (clName ) {
+            if (clName) {
                 //转换数据
                 clFlag = clFlag || TYPE_TAG.STR;//空值，按Str处理
 
@@ -231,14 +315,24 @@ function mergeToJson(sht, sheetName, fl) {
     }
 
     //记录类声明
-    sheetClzC.fileds.length && parsedData.client.sheets.push(sheetClzC);
-    sheetClzS.fileds.length && parsedData.server.sheets.push(sheetClzS);
+    if (sheetClzC.fileds.length) {
+        parsedData.client.sheets.push(sheetClzC);
+    }
+    else {
+        delete parsedData.client.jsondata[sheetName];
+    }
+    if (sheetClzS.fileds.length) {
+        parsedData.server.sheets.push(sheetClzS);
+    }
+    else {
+        delete parsedData.server.jsondata[sheetName];
+    }
 }
 
 
 function parseType(type, data) {
     if (data || data == 0)
-        data +=''//转字符串
+        data += ''//转字符串
     else
         data = '';
     switch (type) {
@@ -253,8 +347,8 @@ function parseType(type, data) {
             let arr = data.split(':');
             kv.k = arr[0];
             kv.v = arr[1];
-            if (kv.k == 'undefined'){
-                console.log('has blank row in',curSheet, curFl);
+            if (kv.k == 'undefined') {
+                console.log('has blank row in', curSheet, curFl);
                 return null;
             }
             return kv;

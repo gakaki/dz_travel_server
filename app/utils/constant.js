@@ -138,7 +138,11 @@ exports.Code = {
     FAILED: -1, // 一般失败
     OK: 0, // 成功
     DELAY_RESPOND: 10000, // 延迟响应
-    REST_NEED_RELISTEN: 10001 // rest访问需要重新启动监听
+    REST_NEED_RELISTEN: 10001, // rest访问需要重新启动监听
+
+    NO_DB_ROW:  11001,  //没有对应的数据库行
+    NO_CFG_ROW: 11002  //没有对应的配置表行
+
 };
 
 exports.UserActionRecordType = {
