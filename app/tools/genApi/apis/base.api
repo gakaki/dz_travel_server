@@ -447,7 +447,7 @@ class Ws {
         this.IO.on(action, this._onReceive.bind(this));
     }
 
-    func client static unlisten(wsReceiveCls) {
+    func client static unlisten(wsReceiveCls, cb, ctx) {
         if (!this._listenings) {
             console.error('ws has not inited');
             return;
@@ -517,7 +517,7 @@ class Http {
         this.loopListen();
     }
 
-    func client static unlisten(apiCls) {
+    func client static unlisten(apiCls, cb, ctx) {
         if (!this._listenings) {
             console.error('Http loop has not inited');
             return;
