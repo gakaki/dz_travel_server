@@ -15,7 +15,7 @@ class QuestService extends Service{
 
     async eventshow(info){
 
-        eventshow
+
 
     }
     async enterspot(info) {
@@ -57,7 +57,7 @@ class QuestService extends Service{
                 'id': questRow.id,
                 "describe": questRow.describe,
                 "gold_used": 5,
-                "item": questRow.rewardComment
+                "item": questRow.rewardFull
             });
         }
 
