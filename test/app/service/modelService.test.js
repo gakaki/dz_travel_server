@@ -101,4 +101,21 @@ describe('test model数据库类', () => {
         await ctx.model.TravelModel.SpotTravelEvent.create(row);
         assert(row.uid == sid);
     });
+
+
+    it('生成SpotTravelEvent数据  随机事件 1和5 金币和积分',  async () => {
+        const ctx   = app.mockContext();
+        const sid   = '1000001';
+
+        let row     = {
+            uid: sid,
+            eid: '130010', // 类型3 明信片 -1
+            cid: '1',
+            spotId: '1000001',
+            isPhotography: false,
+            isTour:false
+        };
+        await ctx.model.TravelModel.SpotTravelEvent.create(row);
+        assert(row.uid == sid);
+    });
 });

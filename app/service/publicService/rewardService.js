@@ -30,7 +30,7 @@ class RewardService extends Service{
             let  v = eventCfg.rewardKV[k];
 
             if ( k == eventCfg.RewardType.GOLD){ // 金币
-                await this.gold(v);
+                await this.gold( uid , v);
             }
             if ( k == eventCfg.RewardType.TIME){// 城市总时间
                 await this.time( uid , cid , eid , timeAppend = v );
@@ -50,7 +50,7 @@ class RewardService extends Service{
     }
     // 奖励金钱
     async gold( uid , num = 0 ) {
-        await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  v }, "travel");
+        await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
     }
 
     // 该用户在该城市的总游玩时间 追加时间

@@ -1413,9 +1413,10 @@ class EventShow extends Base {
         this._uid = null;
         this._cid = null;
         this._quest = null;
+        this._userinfo = null;
         this.requireFileds = ["uid","cid"];
         this.reqFields = ["uid","cid"];
-        this.resFields = ["quest"];
+        this.resFields = ["quest","userinfo"];
     }
     //client input, require, type: number
     get uid() {return this._uid}
@@ -1426,6 +1427,9 @@ class EventShow extends Base {
     //server output, type: Quest
     get quest() {return this._quest}
     set quest(v) {this._quest = v}
+    //server output, type: UserInfo
+    get userinfo() {return this._userinfo}
+    set userinfo(v) {this._userinfo = v}
     static Init(ctx, checkLogin = false) {
         let o = new EventShow();
         o.ctx = ctx;
