@@ -1,7 +1,7 @@
-const Controller    = require('egg').Controller;
-const apis          = require("../../../apis/travel");
-const travelConfig  = require("../../../sheets/travel");
-const utilTime      = require("../../utils/time");
+const Controller        = require('egg').Controller;
+const apis              = require("../../../apis/travel");
+const travelConfig      = require("../../../sheets/travel");
+const utilTime          = require("../../utils/time");
 
 //观光相关
 class TourController extends Controller {
@@ -60,7 +60,6 @@ class TourController extends Controller {
         let info            = apis.Photography.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.photography(info,user_info);
-        // await this.service.travelService.travelService.fillIndexInfo(info,user_info); //消耗50金币
         info.submit();
     }
 
@@ -135,32 +134,11 @@ class TourController extends Controller {
 
         info.submit();
     }
-    // 进入景点观光 触发随机事件
+
+    // 进入景点
     async enterspot(ctx) {
-        // 1 消耗金币
-        this.logger.info("进入景点观光 并触发随机事件");
-
-        let result  = {data:{}};
-        let itemId  = 1;    //金币
-        let info    = apis.Enterspot.Init(ctx);
-
-        if(itemId){
-            result.data.stock = ui.items[itemId];
-        }else{
-            result.data.stock = ui.items;
-        }
-
-
-
-        // 2 触发观光的随机事件根据事件类型哦
-
-
-
-
-
-
-
-        info.submit();
+        this.logger.info("进入景点观光");
+        await this.service.questService.questService.enterspot(ctx);
     }
 
     // 行程途中随机事件  每隔一分钟定时call 之后获得处理
