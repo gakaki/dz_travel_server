@@ -153,12 +153,12 @@ class EnterSpot {
     prop picture:string
     prop description:string
 }
-class QuestList {
+class Quest {
     prop time:number
     prop id:string
     prop describe:string
     prop gold_used:number
-    prop item:KV[]
+    prop rewards:KV[]
 }
 
 // 进入景点
@@ -169,7 +169,7 @@ api Enterspot {
     //景点数据
     output spot:EnterSpot
     //景点事件列表
-    output questList:QuestList[]
+    output quests:Quest[]
 }
 
 

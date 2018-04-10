@@ -244,13 +244,12 @@ class TourService extends Service {
         info.postcard   =  cfgPostcard;
     }
 
-    // 游玩 事件查看
+    // 游玩 事件查看 http://127.0.0.1:7001/tour/eventshow?uid=1000001&cid=1
     async eventshow(info){
-
         //设置领取状态
-        let row             = await this.ctx.model.TravelModel.SpotTiming.findOneAndUpdate(
+        let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOneAndUpdate(
         {
-            sid: info.uid,
+            uid: info.uid,
             cid: info.cid,
             received:false
         },
@@ -259,12 +258,27 @@ class TourService extends Service {
                 "receivedDate" : new Date() ,
                 "received": true           //设置为已经领取
             }
+        },
+        {
+            returnNewDocument: true
         });
 
+        if ( !row ) {
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
         let eid           = row["eid"];
         let rewardCfg     = await this.ctx.service.publicService.rewardService.reward(info.uid,info.cid,eid);
-        info.rewardTxt    = rewardCfg.rewardTxt();
 
+        info.quest        = {
+            time:          row['receivedDate'],
+            id:            "",
+            describe:      rewardCfg['describe'],
+            gold_used:     0,
+            rewards:       rewardCfg.rewards
+        }
+        info.submit();
     }
 
 

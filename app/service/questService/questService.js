@@ -13,11 +13,8 @@ class QuestService extends Service{
         return row;
     }
 
-    async eventshow(info){
 
 
-
-    }
     async enterspot(info) {
         //http://127.0.0.1:7001/tour/enterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
 
@@ -57,7 +54,7 @@ class QuestService extends Service{
                 'id': questRow.id,
                 "describe": questRow.describe,
                 "gold_used": 5,
-                "item": questRow.rewardFull
+                "rewards": questRow.rewards
             });
         }
 

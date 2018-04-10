@@ -102,7 +102,7 @@ class Quest extends TreeNode {
         let rewardStr       = t.join(",");
         let items           = rewardStr.split(";");
         this.rewardKV       = {};
-        this.rewardFull     = {};
+        this.rewards        = {};
 
 
         // 显示标准化：
@@ -116,9 +116,9 @@ class Quest extends TreeNode {
             let countText     = "0";
             if ( count > 0 )  countText = `+${count}`;
             if ( count < 0 )  countText = `-${count}`;
-            this.rewardFull[type_id] = {
+            this.rewards[type_id] = {
                 'name'      :  this.RewardKey[type_id],
-                'id'        :  type_id,
+                'type_id'   :  type_id,
                 'count'     :  count,
                 'countText' :  countText
             }

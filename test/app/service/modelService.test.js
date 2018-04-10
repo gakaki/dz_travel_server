@@ -76,7 +76,7 @@ describe('test model数据库类', () => {
             uid: sid,
             eid: '200049',
             cid: '1',
-            spotId: '100101',
+            spotId: '1000001',
             isPhotography: true,
             isTour:true,
             trackedNo:0,//默认单人旅行
