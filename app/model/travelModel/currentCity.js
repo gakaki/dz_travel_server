@@ -12,6 +12,7 @@ module.exports = app => {
         photographyCount:{type:Number,default:"0"}, //城市拍照次数 前2次免费
         photographySpots:{type:Array,default:[]},    //拍照的景点id
         tourCount:{type:Number,default:"0"}, //城市观光次数 前2次免费
+        rewardAppendTime:Array, //被奖励？惩罚的 该城市游玩追加时间可以为负数
     });
 
     return mongoose.model('CurrentCity', CurrentCitySchema);

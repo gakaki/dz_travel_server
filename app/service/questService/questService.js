@@ -13,7 +13,11 @@ class QuestService extends Service{
         return row;
     }
 
+    async eventshow(info){
 
+        eventshow
+
+    }
     async enterspot(info) {
         //http://127.0.0.1:7001/tour/enterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
 
@@ -53,7 +57,7 @@ class QuestService extends Service{
                 'id': questRow.id,
                 "describe": questRow.describe,
                 "gold_used": 5,
-                "reward": questRow.rewardComment
+                "item": questRow.rewardComment
             });
         }
 
@@ -62,10 +66,7 @@ class QuestService extends Service{
         info.submit();
     }
 
-    //获得具体的奖励描述 reward 字段
-    async rewardDescription(eid){
-        return QuestRepoInstance.find(eid);
-    }
+
 
     //下面的2个方法暂时不用
     // async kue_startEvent() {
