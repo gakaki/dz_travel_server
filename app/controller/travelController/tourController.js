@@ -1,6 +1,7 @@
 const Controller        = require('egg').Controller;
 const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
+const scenicpos = require('../../../sheets/sc')
 const utilTime          = require("../../utils/time");
 
 //观光相关
@@ -20,6 +21,30 @@ class TourController extends Controller {
     }
 
     async tourindexinfo(ctx) {
+        let cid = 1;
+        let city = travelConfig.City.Get(cid);
+        let result ={
+           data:{
+               task: {
+                   'spot': [0, 6],
+                   'tour': [0, 2],
+                   'photo': [0, 2]
+               },
+               spots:[
+                   {cid:1,
+
+                   }
+               ],
+           }
+        };
+
+
+
+
+
+
+
+        return
         let info            = apis.TourIndexInfo.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.tourindexinfo(info,user_info);
