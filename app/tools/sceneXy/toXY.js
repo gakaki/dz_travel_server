@@ -57,8 +57,10 @@ function gen(sourcePoints) {
 
     //to int
     points.every(p => {
-        p.x = p.x >> 0 + PD_LFT;
-        p.y = p.y >> 0 + PD_TOP;
+        p.x += PD_LFT;
+        p.y += PD_TOP;
+        p.x = p.x >> 0;
+        p.y = p.y >> 0;
         delete p.cityId; // cityId只在执行时以备检测错误，不导出
         return true;
     });
