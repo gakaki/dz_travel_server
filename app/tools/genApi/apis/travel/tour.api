@@ -69,6 +69,7 @@ api FinishGuide {
 api TourIndexInfo extends IndexInfo{
     //城市id
     require cid:number
+    optional line: array
     //用户是否是第一次游玩
     output firstPlay:boolean
     //该城市的spot景点列表
