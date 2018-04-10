@@ -164,6 +164,8 @@ class TourController extends Controller {
         info.submit();
     }
 
+
+
     //点开显示随机事件
     async eventshow(ctx){
         let info            = apis.EventShow.Init(ctx);

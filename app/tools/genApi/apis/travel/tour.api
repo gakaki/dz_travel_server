@@ -154,9 +154,11 @@ class EnterSpot {
     prop picture:string
     prop description:string
 }
+
 class Quest {
     prop time:number
     prop id:string
+    prop type:string
     prop describe:string
     prop gold_used:number
     prop rewards:KV[]
@@ -189,6 +191,7 @@ api SpotTour {
 api EventShow   {
     require uid:number
     require cid:number
+
     output quest:Quest
     output userinfo:UserInfo
 }
