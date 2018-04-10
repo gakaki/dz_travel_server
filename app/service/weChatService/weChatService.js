@@ -6,6 +6,7 @@ const moment = require("moment");
 const xml2js = require('xml2js');
 const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
+const travelConfig = require("../../../sheets/travel");
 
 class WeChatService extends Service {
     async auth(sdkAuth) {
@@ -45,7 +46,7 @@ class WeChatService extends Service {
         let payInfo = {
             price: payCount,
             //  price:1,
-            good: good,
+            goods: good,
             pid: ui.pid,
             type: "recharge",
             orderid: orderid,
@@ -261,8 +262,8 @@ class WeChatService extends Service {
                     }, {$set: {close: true}});
 
 
-                    if(appName == constant.AppName.ENGLISH){
-                        that.service.englishService.englishService.doComplete(resultParam.out_trade_no, appName);
+                    if(appName == constant.AppName.TRAVEL){
+                        that.doComplete(resultParam.out_trade_no, appName);
                     }
 
 
@@ -272,14 +273,29 @@ class WeChatService extends Service {
             });
 
         });
-      /*  this.ctx.req.on('end',()=>{
-            this.logger.info("接收数据结束");
 
-         //   this.ctx.res.setHeader('Content-Type','application/xml').end(xmlreturn);
-           // this.ctx.res.end(xmlreturn);
+    }
+
+    async doComplete(orderid , appName) {
+        let rcd = await this.ctx.model.WeChatModel.RechargeRecord.findOne({
+            orderid: orderid,
+            close: true,
+            appName: appName
         });
-*/
+        this.logger.info("修改预下单状态 ：" + JSON.stringify(rcd));
+        if (rcd == null) {
+            return false;
+        }
+        let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid, appName: appName});
+        //修改数据库;
+        let good = travelConfig.Pay.Get(rcd.goods);
+        this.logger.info("商品 :", good);
+        let cost = {
+            ["items." + travelConfig.Item.GOLD]: Number(good.gold),
+        };
+        await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
 
+        return true;
     }
 
 

@@ -78,7 +78,7 @@ class UserService extends Service {
             ui = await this.ctx.model.PublicModel.User.findOne({
                 uid: uid,
                 appName: appName,
-                third: true
+                third: true,
             });
 
             if (!ui) {
@@ -89,7 +89,7 @@ class UserService extends Service {
                 this.recruitSid(sid, ui.pid);
             } else {
                 //更新一次userInfo
-                await this.ctx.model.PublicModel.User.update({pid: ui.pid, appName: appName}, {
+                await this.ctx.model.PublicModel.User.update({ pid: ui.pid, appName: appName }, {
                     $set: {
                         nickName: info.nickName,
                         avatarUrl: info.avatarUrl,
@@ -97,12 +97,12 @@ class UserService extends Service {
                         city: info.city,
                         province: info.province,
                         country: info.country,
-                    }
+                    },
                 });
                 ui = await this.ctx.model.PublicModel.User.findOne({
                     uid: uid,
                     appName: appName,
-                    third: true
+                    third: true,
                 });
             }
         }
@@ -120,7 +120,7 @@ class UserService extends Service {
         this.logger.info(JSON.stringify(ses));
 
 
-        this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", {user: ui.pid, sid: ses.sid});
+        this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
@@ -132,7 +132,7 @@ class UserService extends Service {
                 host: this.ctx.request.header.host,
                 addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
             },
-            createDate:new Date()
+            createDate: new Date(),
         });
 
         result.sid = ses.sid;
@@ -148,22 +148,21 @@ class UserService extends Service {
         let today = new Date();
         today.setHours(0);
         today.setMinutes(0);
-        today.setSeconds(0,1);
+        today.setSeconds(0, 1);
         let isFirst = false;
-        let shareRcd = await this.ctx.model.PublicModel.UserShareRecord.findOne({uid: uid, createDate: {$gte: today}});
+        let shareRcd = await this.ctx.model.PublicModel.UserShareRecord.findOne({ uid: uid, createDate: { $gte: today } });
         if (shareRcd) {
 
-            this.logger.info(shareRcd,'非第一次分享，不发奖励')
+            this.logger.info(shareRcd, '非第一次分享，不发奖励');
             //更新分享次数
-            await this.ctx.model.PublicModel.UserShareRecord.update({_id: shareRcd._id}, {$inc: {num: 1}});
-        }
-        else {
+            await this.ctx.model.PublicModel.UserShareRecord.update({ _id: shareRcd._id }, { $inc: { num: 1 } });
+        } else {
 
             isFirst = true;
             //发奖励
-            await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + itemId]: itemCnt}, 'travel');
+            await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + itemId]: itemCnt }, 'travel');
 
-            this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`)
+            this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`);
             //插入分享记录
             await this.ctx.model.PublicModel.UserShareRecord.create({
                 uid: uid,
@@ -171,17 +170,20 @@ class UserService extends Service {
                 createDate: new Date(),
                 num: 1,
                 getItem: true,
-                itemId: itemId
+                itemId: itemId,
             })
+
             //通知到消息中心
             let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).content;
+            content = content.replace("s%", itemCnt);
+            this.logger.info(content);
             await this.ctx.model.TravelModel.UserMsg.create({
-                uid:uid,
-                mid:"msg"+travelConfig.Message.SHAREMESSAGE+new Date().getTime(),
-                type:travelConfig.Message.SHAREMESSAGE,
-                title:travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).topic,
-                content:content,
-                date:new Date()
+                uid: uid,
+                mid: "msg" + travelConfig.Message.SHAREMESSAGE + new Date().getTime(),
+                type: travelConfig.Message.SHAREMESSAGE,
+                title: travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).topic,
+                content: content,
+                date: new Date(),
             })
         }
 
@@ -190,16 +192,17 @@ class UserService extends Service {
     //带来一个新用户奖励
     async newUserShareReward(uid, itemId, itemCnt) {
         //直接发奖励
-        await this.ctx.service.publicService.itemService.itemChange(uid, {["items." + itemId]: itemCnt}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(uid, { ["items." + itemId]: itemCnt }, 'travel');
         //通知到消息中心
         let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).content;
+        content = content.replace("s%", itemCnt);
         await this.ctx.model.TravelModel.UserMsg.create({
-            uid:uid,
-            mid:"msg"+travelConfig.Message.INVITEMESSAGE+new Date().getTime(),
-            type:travelConfig.Message.INVITEMESSAGE,
-            title:travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).topic,
-            content:content,
-            date:new Date()
+            uid: uid,
+            mid: "msg" + travelConfig.Message.INVITEMESSAGE + new Date().getTime(),
+            type: travelConfig.Message.INVITEMESSAGE,
+            title: travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).topic,
+            content: content,
+            date: new Date(),
         })
     }
 

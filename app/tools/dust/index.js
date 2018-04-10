@@ -42,6 +42,7 @@ function render(templateNm, data, outfile) {
                 console.log('去除多余的空行')
                 out = out.replace(/(\r\n){2,}/g, '\r\n')
             }
+
             //create outdir
             let outDir = path.dirname(outfile);
             mkdirp.sync(outDir);
