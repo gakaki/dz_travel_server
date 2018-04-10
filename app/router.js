@@ -79,6 +79,8 @@ module.exports = app => {
     router.get('/tour/photography', routerUserInfo, controller.travelController.tourController.photography);
     //游玩界面 进入景点->观光按钮
     router.get('/tour/tourspot', routerUserInfo, controller.travelController.tourController.tourspot);
+    //游玩界面 进入景点->人物点击-》显示事件（获得奖励）
+    router.get('/tour/eventshow', routerUserInfo, controller.travelController.tourController.eventshow);
 
     router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);

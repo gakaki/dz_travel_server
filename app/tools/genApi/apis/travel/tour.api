@@ -185,6 +185,12 @@ api SpotTour {
     output userinfo:UserInfo
 }
 
+//点开显示随机事件
+api EventShow {
+    require uid:number
+    require cid:number
+    output quest:Quest
+}
 
 //已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
 api QuestRandom {

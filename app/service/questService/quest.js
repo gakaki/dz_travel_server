@@ -14,12 +14,27 @@ class TreeNode {
     }
 }
 
+
 //事件（或者叫任务）类 有前后置关系 所以做成树状
 class Quest extends TreeNode {
 
     constructor(data) {
         super(data);
 
+        this.RewardKey =  {
+            "1" :"金币",
+            "2" :"游玩时间",
+            "3" :"明信片",
+            "4" :"特产",
+            "5" :"积分"
+        };
+        this.RewardType     = {
+            GOLD:       "1", //金币
+            TIME:       "2", // 时间追加 减少
+            POSTCARD:   "3", // 明信片
+            Speciality: "4", // 特产
+            POINT:      "5", // 积分
+        };
         let d               = this.data;
         this.id             = d.id;
         this.describe       = d.describe;   //事件描述 '以下特产中，哪个是s%的特产？',
@@ -46,7 +61,7 @@ class Quest extends TreeNode {
 
         this.picture        =  d.picture;       //0表示没有图片
         this.reward         =  d.reward;        //事件奖励
-        this.rewardComment  =  this.formatRewardComment(d.reward);
+        this.formatRewardComment();
         this.errorreward        =  d.errorreward;   //答题错误奖励0表示无奖励
         this.condition1_parent  =  d.condition1;    //前置事件
         // 0表示无前置事件
@@ -73,34 +88,45 @@ class Quest extends TreeNode {
         this.wrong3         =  d.wrong3;        //错误答案3
     }
 
-
-    formatRewardComment(reward){
+    formatRewardComment(){
         //1,100;5,203
         let rewardComment  = "";        //事件奖励描述语句
-        if( !reward ) return "";
+
+        if( !this.reward ) return "";
 
         let t             = [];
-        for( let r of reward){
+        for( let r of this.reward){
             t.push(r.k);
         }
 
-        let rewardStr = t.join(",");
-        let items     = rewardStr.split(";");
-        let itemComments = {};
-        let kv =  {
-            "1" :"金币",
-            "2" :"时间",
-            "3" :"明信",
-            "4" :"特产",
-            "5" :"积分"
-        };
+        let rewardStr       = t.join(",");
+        let items           = rewardStr.split(";");
+        this.rewardKV       = {};
+        this.rewardFull     = {};
+
+
+        // 显示标准化：
+        // 金币 +500
+        // 明信片 +1，积分+5
+        // 游玩时间 +100秒
         for(let item of items){
             let [type_id,count] = item.split(",")
-            let name = kv[type_id];
-            itemComments[name] =  count;
+            this.rewardKV[type_id]  = count;
+
+            let countText     = "0";
+            if ( count > 0 )  countText = `+${count}`;
+            if ( count < 0 )  countText = `-${count}`;
+            this.rewardFull[type_id] = {
+                'name'      :  this.RewardKey[type_id],
+                'id'        :  type_id,
+                'count'     :  count,
+                'countText' :  countText
+            }
         }
-        return itemComments;
     }
+
+
+
 }
 
 module.exports =  Quest;

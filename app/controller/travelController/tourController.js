@@ -159,12 +159,17 @@ class TourController extends Controller {
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
         let info            = apis.TourTour.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.tourspot(info,user_info);
+        await this.service.travelService.tourService.spotTour(info,user_info);
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 
-  
+    //点开显示随机事件
+    async eventshow(ctx){
+        let info            = apis.EventShow.Init(ctx);
+        await this.service.travelService.questService.eventshow(info);
+        info.submit();
+    }
 
     async nextrouter(ctx) {
 
