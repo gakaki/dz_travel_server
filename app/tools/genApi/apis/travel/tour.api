@@ -69,6 +69,7 @@ api FinishGuide {
 api TourIndexInfo extends IndexInfo{
     //城市id
     require cid:number
+    optional line: array
     //用户是否是第一次游玩
     output firstPlay:boolean
     //该城市的spot景点列表
@@ -184,6 +185,12 @@ api SpotTour {
     output userinfo:UserInfo
 }
 
+//点开显示随机事件
+api EventShow {
+    require uid:number
+    require cid:number
+    output quest:Quest
+}
 
 //已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
 api QuestRandom {

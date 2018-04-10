@@ -244,6 +244,29 @@ class TourService extends Service {
         info.postcard   =  cfgPostcard;
     }
 
+    // 游玩 事件查看
+    async eventshow(info){
+
+        //设置领取状态
+        let row             = await this.ctx.model.TravelModel.SpotTiming.findOneAndUpdate(
+        {
+            sid: info.uid,
+            cid: info.cid,
+            received:false
+        },
+        {
+            $set: {
+                "receivedDate" : new Date() ,
+                "received": true           //设置为已经领取
+            }
+        });
+
+        let eid           = row["eid"];
+        let rewardCfg     = await this.ctx.service.publicService.rewardService.reward(info.uid,info.cid,eid);
+        info.rewardTxt    = rewardCfg.rewardTxt();
+
+    }
+
 
     //观光
     async tour(info, ui) {

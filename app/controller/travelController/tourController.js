@@ -1,8 +1,12 @@
 const Controller        = require('egg').Controller;
 const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
-const scenicpos = require('../../../sheets/sc')
+const ScenicPos = require('../../../sheets/scenicpos');
 const utilTime          = require("../../utils/time");
+
+let lines = [];
+
+
 //观光相关
 class TourController extends Controller {
     // 查询用户是否需要新手引导
@@ -20,35 +24,97 @@ class TourController extends Controller {
     }
 
     async tourindexinfo(ctx) {
+        this.logger.info("进来了");
+        this.logger.info(ctx.query);
+        if(ctx.query.line){
+            lines = JSON.parse(ctx.query.line);
+        }
+        this.logger.info(ctx.query.line);
+        this.logger.info(lines);
         let cid = 1;
         let city = travelConfig.City.Get(cid);
         let result ={
+            code : "0",
            data:{
                task: {
                    'spot': [0, 6],
                    'tour': [0, 2],
                    'photo': [0, 2]
                },
-               spots:[
-                   {cid:1,
+               spots: city.scenicspot.map((s, idx) => {
+                   let o = {};
+                   let cfg = travelConfig.Scenicspot.Get(s);
+                   let xy = ScenicPos.Get(s);
+                   o.id = s;
+                   o.cid = cid;
+                   o.name = cfg.scenicspot;
+                   o.building = cfg.building;
+                   o.x = xy.x;
+                   o.y = xy.y;
+                   o.tracked = false;
+                   if(ctx.query.line){
+                       let index = lines.findIndex((n) => n == s);
+                       o.index = index;
+                       if(index != -1){
+                           o.createDate = new Date().getTime() + (index+1) * 10000;
+                       }
 
+                   }else{
+                       o.index = idx;// 真实情况，应该读库
                    }
-               ],
-           }
+
+                   return o;
+               }),
+               weather: 1,
+           },
+
         };
 
+        ctx.body =result;
 
+        return;
 
-
-
-
-
-        return
         let info            = apis.TourIndexInfo.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.tourindexinfo(info,user_info);
         info.firstPlay      = user_info.firstPlay;
         info.submit();
+    }
+
+    async tourstart(ctx){
+
+
+        let cid = 1;
+        let city = travelConfig.City.Get(cid);
+        let result ={
+            code : "0",
+            data:{
+                task: {
+                    'spot': [0, 6],
+                    'tour': [0, 2],
+                    'photo': [0, 2]
+                },
+                spots: city.scenicspot.map((s, idx) => {
+                    let o = {};
+                    let cfg = travelConfig.Scenicspot.Get(s);
+                    let xy = ScenicPos.Get(s);
+                    o.id = s;
+                    o.cid = cid;
+                    o.name = cfg.scenicspot;
+                    o.building = cfg.building;
+                    o.x = xy.x;
+                    o.y = xy.y;
+                    o.tracked = false;
+                    o.index = lines.findIndex((n) => n == s);
+                    o.createDate = new Date().getTime() + idx * 10000;
+                    return o;
+                }),
+                weather: 1,
+            },
+
+        };
+
+        ctx.body =result;
     }
     
 
@@ -93,12 +159,17 @@ class TourController extends Controller {
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
         let info            = apis.TourTour.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.tourspot(info,user_info);
+        await this.service.travelService.tourService.spotTour(info,user_info);
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 
-  
+    //点开显示随机事件
+    async eventshow(ctx){
+        let info            = apis.EventShow.Init(ctx);
+        await this.service.travelService.questService.eventshow(info);
+        info.submit();
+    }
 
     async nextrouter(ctx) {
 
