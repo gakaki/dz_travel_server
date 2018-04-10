@@ -54,10 +54,10 @@ class StrategyService extends Service {
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
        let comments = await this.ctx.model.TravelModel.Comment.find({ cid: info.cityId , type: Number(info.type) , travel_tips: info.postId }).sort("-likes").skip((page - 1) * limit).limit(limit);
        let outcomments = [];
-       //景点图片url 未配置
        if(info.type == apis.PostType.JINGDIAN) {
            info.content = travelConfig.Scenicspot.Get(info.postId).description;
            info.name = travelConfig.Scenicspot.Get(info.postId).scenicspot;
+           info.img = travelConfig.Scenicspot.Get(info.postId).picture;
        }else if(info.type == apis.PostType.TECHAN) {
            info.name = travelConfig.Speciality.Get(info.postId).specialityname;
            info.img = travelConfig.Speciality.Get(info.postId).picture;
