@@ -11,3 +11,5 @@ class ScenicPos {~lb}
 
     static Get(id) { return id in _data ? new ScenicPos(_data[id]) : null;}
 {~rb}
+
+module.exports = ScenicPos;
