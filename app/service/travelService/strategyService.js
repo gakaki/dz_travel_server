@@ -8,13 +8,13 @@ class StrategyService extends Service {
        let page = info.page ? Number(info.page) : 1;
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
        let tsinfos = await this.ctx.model.TravelModel.Comment.aggregate([
-           { $match: { cid: info.cityId , type: Number(info.type) } },
-           { $group: { _id: { travel_tips: "$travel_tips" } , score: { $sum: "$grade" } , commentNum: { $sum: 1 } } },
-           { $project: { _id: 0 , travel_tip: "$_id.travel_tips" , totalScore: "$score" , commentNum: "$commentNum" } },
+           { $match: { cid: info.cityId, type: Number(info.type) } },
+           { $group: { _id: { travel_tips: "$travel_tips" }, score: { $sum: "$grade" }, commentNum: { $sum: 1 } } },
+           { $project: { _id: 0, travel_tip: "$_id.travel_tips", totalScore: "$score", commentNum: "$commentNum" } },
        ]);
        let tsMap = new Map();
        let travel_tips = new Set(tsinfos.map(value => {
-           tsMap.set(Number(value.travel_tip),value);
+           tsMap.set(Number(value.travel_tip), value);
           return Number(value.travel_tip)
        }));
 
@@ -22,9 +22,9 @@ class StrategyService extends Service {
        let posts = [];
        let travelTips = [];
        if(info.type == apis.PostType.JINGDIAN) {
-            travelTips = (travelConfig.City.Get(info.cityId).scenicspot).slice((page-1)*limit,page*limit);
+            travelTips = (travelConfig.City.Get(info.cityId).scenicspot).slice((page - 1) * limit, page * limit);
        }else if(info.type == apis.PostType.TECHAN) {
-            travelTips = (travelConfig.City.Get(info.cityId).speciality).slice((page-1)*limit,page*limit);
+            travelTips = (travelConfig.City.Get(info.cityId).speciality).slice((page - 1) * limit, page * limit);
        }
        for(let travel_tip of travelTips) {
            let tsinfo = {
@@ -52,7 +52,7 @@ class StrategyService extends Service {
    async getComments(info) {
        let page = info.page ? Number(info.page) : 1;
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
-       let comments = await this.ctx.model.TravelModel.Comment.find({ cid: info.cityId , type: Number(info.type) , travel_tips: info.postId }).sort("-likes").skip((page - 1) * limit).limit(limit);
+       let comments = await this.ctx.model.TravelModel.Comment.find({ cid: info.cityId, type: Number(info.type), travel_tips: info.postId }).sort("-likes").skip((page - 1) * limit).limit(limit);
        let outcomments = [];
        if(info.type == apis.PostType.JINGDIAN) {
            info.content = travelConfig.Scenicspot.Get(info.postId).description;
@@ -65,14 +65,14 @@ class StrategyService extends Service {
 
        for(let comment of comments) {
            let outcomment = {
-            commentId: comment.comid,                        //评论id
-            content: comment.context,                       //评论内容
-            score: comment.grade,                           //评论得分
-            thumbs: comment.likes,                           //点赞数
-            time: comment.createDate.format("yyyy-MM-dd"),  //创建时间
+            commentId: comment.comid, //评论id
+            content: comment.context, //评论内容
+            score: comment.grade, //评论得分
+            thumbs: comment.likes, //点赞数
+            time: comment.createDate.format("yyyy-MM-dd"), //创建时间
            };
-           let user = await this.ctx.model.PublicModel.User.findOne({ uid : comment.uid });
-           let like = await this.ctx.model.TravelModel.LikeRecord.findOne({ uid : info.ui.uid , comid: comment.comid });
+           let user = await this.ctx.model.PublicModel.User.findOne({ uid: comment.uid });
+           let like = await this.ctx.model.TravelModel.LikeRecord.findOne({ uid: info.ui.uid, comid: comment.comid });
            outcomment.haslike = !!like;
            outcomment.user = {
                uid: user.uid,
@@ -98,7 +98,7 @@ class StrategyService extends Service {
            maskList.push(mas.maskword);
        }
        for(let key of maskList) {
-           context = context.replace(key , "*".repeat(key.length));
+           context = context.replace(key, "*".repeat(key.length));
 
        }
 
@@ -117,7 +117,7 @@ class StrategyService extends Service {
            travel_tips: info.postId, //攻略特产id
            comid: comid, //评论id
            context: context, //内容
-           grade: info.score,  //打分
+           grade: info.score, //打分
            hasMaskWord: shielded,
            createDate: date,
        });
@@ -127,51 +127,58 @@ class StrategyService extends Service {
                 nickName: info.ui.nickName,
                 avatarUrl: info.ui.avatarUrl,
             },
-            commentId: comid,                  //评论id
-            content: context,                 //评论内容
-            score: info.score,               //评论得分
-            thumbs: 0,                       //点赞数
+            commentId: comid, //评论id
+            content: context, //评论内容
+            score: info.score, //评论得分
+            thumbs: 0, //点赞数
             haslike: false,
             time: date.format("yyyy-MM-dd"), //创建时间
        }
    }
 
 
-   async giveThumbsUp(info,comment) {
+   async giveThumbsUp(info, comment) {
        //评论点赞 + 1
-       await this.ctx.model.TravelModel.Comment.update({ comid: info.commentId } , { $inc: { likes: 1 } });
+       await this.ctx.model.TravelModel.Comment.update({ comid: info.commentId }, { $inc: { likes: 1 } });
        //更新点赞表
        await this.ctx.model.TravelModel.LikeRecord.update({ uid: info.ui.uid, comid: info.commentId },
-           { uid: info.ui.uid, comid: info.commentId , createDate: new Date() },
+           { uid: info.ui.uid, comid: info.commentId, createDate: new Date() },
            { upsert: true }
            );
 
-       //被点赞的人获得金币
-       this.ctx.service.publicService.itemService.itemChange(info.ui.uid , { ["items." + travelConfig.Item.GOLD]: travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value });
-
-
-       //通知被赞人
-       let type = comment.type;
-       let id = comment.travel_tips;
-       let context = travelConfig.Message.Get(travelConfig.Message.LIKESMESSAGE).content;
-       let content = "";
-       if(type == apis.PostType.JINGDIAN) {
-           let scenicspot = travelConfig.Scenicspot.Get(id).scenicspot;
-           content = context.replace("s%" , scenicspot);
+       let today = new Date();
+       today.setHours(0);
+       today.setMinutes(0);
+       today.setSeconds(0, 1);
+       let count = await this.ctx.model.TravelModel.LikeRecord.count({ comid: info.commentId, createDate: { $gte: today } });
+       //每日点赞金币上限
+       if(count * travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value < travelConfig.Parameter.Get(travelConfig.Parameter.THUMLIMIT).value) {
+           //被点赞的人获得金币
+           this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value });
+           //通知被赞人
+           let type = comment.type;
+           let id = comment.travel_tips;
+           let context = travelConfig.Message.Get(travelConfig.Message.LIKESMESSAGE).content;
+           context = context.replace("b%", travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value);
+           if(type == apis.PostType.JINGDIAN) {
+               let scenicspot = travelConfig.Scenicspot.Get(id).scenicspot;
+               context = context.replace("s%", scenicspot);
+               this.logger.info(`景点发送消息 ${context}`);
+           }
+           if(type == apis.PostType.TECHAN) {
+               let specialityname = travelConfig.Speciality.Get(id).specialityname;
+               context = context.replace("s%", specialityname);
+               this.logger.info(`特产发送消息 ${context}`);
+           }
+           await this.ctx.model.TravelModel.UserMsg.create({
+               uid: comment.uid,
+               mid: "msg" + travelConfig.Message.LIKESMESSAGE + new Date().getTime(),
+               type: travelConfig.Message.LIKESMESSAGE,
+               title: travelConfig.Message.Get(travelConfig.Message.LIKESMESSAGE).topic,
+               content: context,
+               date: new Date(),
+           })
        }
-       if(type == apis.PostType.TECHAN) {
-           let specialityname = travelConfig.Speciality.Get(id).specialityname;
-           content = context.replace("s%",specialityname);
-       }
-       await this.ctx.model.TravelModel.UserMsg.create({
-           uid: comment.uid,
-           mid: "msg" + travelConfig.Message.LIKESMESSAGE + new Date().getTime(),
-           type: travelConfig.Message.LIKESMESSAGE,
-           title: travelConfig.Message.Get(travelConfig.Message.LIKESMESSAGE).topic,
-           content: content,
-           date: new Date(),
-       })
-
    }
 }
 
