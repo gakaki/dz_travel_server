@@ -9,6 +9,7 @@ const travelConfig  = require("../../../sheets/travel");
 const Service       = require('egg').Service;
 const apis          = require('../../../apis/travel');
 const questRepo     = require('../questService/QuestRepo');
+const postcardRepo  = require('../configService/postcardRepo');
 
 
 // 专门处理各种奖励服务
@@ -74,12 +75,16 @@ class RewardService extends Service{
 
     // 奖励明信片的服务
     async postcard( uid , cid , cfgId  ) {
+        let postCard        = null;
         if ( cfgId == "-1") {
             //3  明信片：后面跟明信片id，明信片id 填-1表示该城市随机特产明信片
-
+            postCard            = postcardRepo.randomCitySpecial( cid );
+            cfgId               = postCard.id;
+        }else{
+            // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
+            postCard            = travelConfig.Postcard.Get( cfgId );
         }
-        // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
-        let cfgPostcard     = travelConfig.Postcard.Get( cfgId );
+
         let dateNow         = new Date();
         await this.ctx.model.TravelModel.Postcard.create({
             uid: uid,
@@ -89,7 +94,7 @@ class RewardService extends Service{
             city:"",
             ptid:"",
             pscid:cfgId,
-            type: cfgPostcard.type,                   //明信片类型
+            type: postCard.type,                   //明信片类型
             createDate:dateNow      //创建时间
         });
         // sysGiveLog表记录

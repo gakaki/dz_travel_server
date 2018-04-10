@@ -116,6 +116,12 @@ class Quest extends TreeNode {
             let countText     = "0";
             if ( count > 0 )  countText = `+${count}`;
             if ( count < 0 )  countText = `-${count}`;
+
+            if ( type_id == this.RewardType.POSTCARD ) {
+                countText     = "+1";
+                count         = 1;
+            }
+
             this.rewards[type_id] = {
                 'name'      :  this.RewardKey[type_id],
                 'type_id'   :  type_id,
