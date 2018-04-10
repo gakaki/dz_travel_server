@@ -55,6 +55,8 @@ class Code{
     
     static get FRIEND_DONE() { return -115;}
     
+    static get SPE_LIMIT() { return -116;}
+    
     static get PICKED() { return -117;}
     
     static get REQUIRED_LOST() { return -118;}
