@@ -10,7 +10,10 @@ const PD_RT = config.paddingRight;
 
 const VW = WD - PD_LFT - PD_RT;
 const VH = HT - PD_TOP - PD_BTM;
-
+let offt = 0;
+let offr = 0;
+let offb = 0;
+let offl = 0;
 
 let points;
 
@@ -51,12 +54,27 @@ function gen(sourcePoints) {
 
 
     //进行N次布朗运行
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 5; i++) {
         brang()
     }
 
     //to int
+    let pd = 50;
     points.every(p => {
+        // if (p.x < pd) {
+        //     p.x += offl;
+        // }
+        // if (p.x > VW - pd) {
+        //     p.x -= offr;
+        // }
+        // if (p.y < pd) {
+        //     p.y += offt;
+        // }
+        // if (p.y > VH - pd) {
+        //     p.y -= offb;
+        // }
+
+
         p.x += PD_LFT;
         p.y += PD_TOP;
         p.x = p.x >> 0;
@@ -83,17 +101,21 @@ function brang() {
             let dy = b.y - a.y;
             let dist = Math.sqrt(dx * dx + dy * dy);
             let angle = Math.atan2(dy, dx);
-            let mv = dist * 0.01;
 
+            let val = VW - dist;
+
+            let mv = val * 0.03;
+
+            console.log(dist,mv)
             //相对移动
             let sx = Math.cos(angle) * mv;
             let sy = Math.sin(angle) * mv;
 
-            a.x += sx;
-            a.y += sy;
+            a.x -= sx;
+            a.y -= sy;
 
-            b.x -= sx;
-            b.y -= sy;
+            b.x += sx;
+            b.y += sy;
 
             fix(a, b);
         }
@@ -103,18 +125,34 @@ function brang() {
 function fix(...nodes) {
     nodes.forEach(n => {
         if (n.x < 0) {
-            n.x = 0;
+            // n.x = 0;
+            if (offl > n.x) {
+                offl = n.x;
+            }
         }
         if (n.y < 0) {
-            n.y = 0;
+            // n.y = 0;
+            if (offt > n.y) {
+                offt = n.y;
+            }
         }
-        if (n.x > VW) {
-            n.x = VW;
+        if (n.x > VW ) {
+            let dr = n.x - VW;
+            // n.x += dr;
+            if (offr < dr) {
+                offr = dr;
+            }
         }
         if (n.y > VH) {
-            n.y = VH;
+            let db = n.y - VH;
+            if (offb < db) {
+                offb = db;
+            }
+            // n.y += db;
+            // addBrang = true;
         }
     })
+
 }
 
 //test
