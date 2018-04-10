@@ -35,6 +35,8 @@ enum Code {
     const FRIEND_APPLY = -114
     // 已经是好友
     const FRIEND_DONE = -115
+    // 已经是好友
+    const SPE_LIMIT = -116
     // 已经领取
     const PICKED = -117
     // 条件未满足

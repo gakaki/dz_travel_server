@@ -10,10 +10,10 @@ const PD_RT = config.paddingRight;
 
 const VW = WD - PD_LFT - PD_RT;
 const VH = HT - PD_TOP - PD_BTM;
-let offt = 0;
-let offr = 0;
-let offb = 0;
-let offl = 0;
+let minx = 0;
+let miny = 0;
+let maxx = 0;
+let maxy = 0;
 
 let points;
 
@@ -59,22 +59,13 @@ function gen(sourcePoints) {
     }
 
     //to int
-    let pd = 50;
+    let scalex = (maxx - minx) / VW;
+    let scaley = (maxy - miny) / VH;
+    let scale = Math.min(scalex, scaley);
     points.every(p => {
-        // if (p.x < pd) {
-        //     p.x += offl;
-        // }
-        // if (p.x > VW - pd) {
-        //     p.x -= offr;
-        // }
-        // if (p.y < pd) {
-        //     p.y += offt;
-        // }
-        // if (p.y > VH - pd) {
-        //     p.y -= offb;
-        // }
 
-
+        p.x *= scale;
+        p.y *= scale;
         p.x += PD_LFT;
         p.y += PD_TOP;
         p.x = p.x >> 0;
@@ -117,40 +108,26 @@ function brang() {
             b.x += sx;
             b.y += sy;
 
-            fix(a, b);
+            recxy(a, b);
         }
     }
 }
 
-function fix(...nodes) {
+function recxy(...nodes) {
     nodes.forEach(n => {
-        if (n.x < 0) {
-            // n.x = 0;
-            if (offl > n.x) {
-                offl = n.x;
-            }
+        if (minx > n.x) {
+            minx = n.x;
         }
-        if (n.y < 0) {
-            // n.y = 0;
-            if (offt > n.y) {
-                offt = n.y;
-            }
+        if (miny > n.y) {
+            miny = n.y;
         }
-        if (n.x > VW ) {
-            let dr = n.x - VW;
-            // n.x += dr;
-            if (offr < dr) {
-                offr = dr;
-            }
+        if (maxx < n.x) {
+            maxx = n.x;
         }
-        if (n.y > VH) {
-            let db = n.y - VH;
-            if (offb < db) {
-                offb = db;
-            }
-            // n.y += db;
-            // addBrang = true;
+        if (maxy < n.y) {
+            maxy = n.y;
         }
+
     })
 
 }
