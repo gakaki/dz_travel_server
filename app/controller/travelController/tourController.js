@@ -2,7 +2,6 @@ const Controller        = require('egg').Controller;
 const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const utilTime          = require("../../utils/time");
-
 //观光相关
 class TourController extends Controller {
     // 查询用户是否需要新手引导
@@ -138,7 +137,9 @@ class TourController extends Controller {
     // 进入景点
     async enterspot(ctx) {
         this.logger.info("进入景点观光");
-        await this.service.questService.questService.enterspot(ctx);
+        let info                    = apis.Enterspot.Init(ctx);
+        await this.service.questService.questService.enterspot(info);
+        info.submit();
     }
 
     // 行程途中随机事件  每隔一分钟定时call 之后获得处理
