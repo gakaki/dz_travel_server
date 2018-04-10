@@ -2,7 +2,8 @@ const QuestRepoInstance = require("./QuestRepo");
 const Service = require('egg').Service;
 const utils = require("../../utils/utils");
 const travelConfig  = require("../../../sheets/travel");
-const apis          = require('../../../apis/travel');
+const apis           = require('../../../apis/travel');
+const appUtil        = require("../../utils/constant");
 
 class QuestService extends Service{
     async getEvent(row_id) {
@@ -12,16 +13,25 @@ class QuestService extends Service{
         return row;
     }
 
-    async enterspot(ctx) {
 
-        let info                    = apis.Enterspot.Init(ctx);
-        let result                  = { data:{} };
+    async enterspot(info) {
+        //http://127.0.0.1:7001/tour/enterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
 
         //获得对当前城市拍照次数
-        let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid ,cid: info.cid });
+        let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid ,sspid: info.spotId });
+        if ( !r ) {
+            info.code = appUtil.Code.NO_DB_ROW;
+            info.submit();
+            return;
+        }
         let photographyCount        = parseInt(r['photographyCount']);
         let tourCount               = parseInt(r['tourCount']);
         let cfgSpot                 = travelConfig.Scenicspot.Get(info.spotId);
+        if ( !cfgSpot ) {
+            info.code = appUtil.Code.NO_CFG_ROW;
+            return;
+        }
+
         let spot                    = {
             season:     await this.ctx.service.publicService.thirdService.getSeason(),
             weather:    await this.ctx.service.publicService.thirdService.getWeather(),
@@ -33,7 +43,7 @@ class QuestService extends Service{
         this.logger.info("进入景点");
 
         //获得触发的事件列表 当然是指景点的那些随机触发事件
-        let events = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: uid ,cid: info.cid });
+        let events = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: info.uid ,cid: info.cid });
         let questList = [];
         for ( let row of events ) {
 
