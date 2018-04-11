@@ -413,9 +413,10 @@ class TourService extends Service {
     async leavetour(info) {
         let ui = info.ui;
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid});
+        let tourLog = await this.ctx.model.TravelModel.CityTourLog.findOne({ uid: ui.uid, cid: curCity.cid });
         let log = {};
-        log.cid = curCity.cid;
-        log.uid = ui.uid;
+        //到达过的景点，在游玩轮询里，当每次后端确认到达了这某个景点时，记录到cityTourLog中，所以此处不再处理，只更新一下到达过的景点数
+
     }
 
 }
