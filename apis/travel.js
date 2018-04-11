@@ -803,9 +803,6 @@ class Quest {
     constructor() {
     
     
-        //prop type: number
-        this.time = null;
-    
         //prop type: string
         this.id = null;
     
@@ -820,6 +817,12 @@ class Quest {
     
         //prop type: KV[]
         this.rewards = null;
+    
+        //prop type: string
+        this.question = null;
+    
+        //prop type: string[]
+        this.answers = null;
     
         
         
@@ -1411,6 +1414,54 @@ class SpotTour extends Base {
         }
     }
 }
+class TourSpotAnswer extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.tourspotanswer';
+    
+        this._uid = null;
+        this._id = null;
+        this._answer = null;
+        this._correct = null;
+        this._userInfo = null;
+        this._rewards = null;
+        this.requireFileds = ["uid","id","answer"];
+        this.reqFields = ["uid","id","answer"];
+        this.resFields = ["correct","userInfo","rewards"];
+    }
+    //client input, require, type: number
+    get uid() {return this._uid}
+    set uid(v) {this._uid = v}
+    //client input, require, type: number
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: string
+    get answer() {return this._answer}
+    set answer(v) {this._answer = v}
+    //server output, type: boolean
+    get correct() {return this._correct}
+    set correct(v) {this._correct = v}
+    //server output, type: 
+    get userInfo() {return this._userInfo}
+    set userInfo(v) {this._userInfo = v}
+    //server output, type: 
+    get rewards() {return this._rewards}
+    set rewards(v) {this._rewards = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new TourSpotAnswer();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class EventShow extends Base {
     constructor() {
         super();
@@ -1418,11 +1469,12 @@ class EventShow extends Base {
     
         this._uid = null;
         this._cid = null;
+        this._id = null;
         this._quest = null;
         this._userinfo = null;
         this.requireFileds = ["uid","cid"];
         this.reqFields = ["uid","cid"];
-        this.resFields = ["quest","userinfo"];
+        this.resFields = ["id","quest","userinfo"];
     }
     //client input, require, type: number
     get uid() {return this._uid}
@@ -1430,6 +1482,9 @@ class EventShow extends Base {
     //client input, require, type: number
     get cid() {return this._cid}
     set cid(v) {this._cid = v}
+    //server output, type: string
+    get id() {return this._id}
+    set id(v) {this._id = v}
     //server output, type: Quest
     get quest() {return this._quest}
     set quest(v) {this._quest = v}
@@ -3212,6 +3267,34 @@ class SysMessage extends WsReceive {
         }
     }
 }
+class SellSpe extends Spe {
+    constructor() {
+        super();
+        this.action = 'speciality.sellspe';
+    
+        this._goldNum = null;
+        this.requireFileds = ["propId","count"];
+        this.reqFields = ["propId","count"];
+        this.resFields = ["goldNum"];
+    }
+    //server output, type: number//返回剩余的金币数
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new SellSpe();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class TourIndexInfo extends IndexInfo {
     constructor() {
         super();
@@ -3288,34 +3371,6 @@ class BuySpe extends Spe {
         }
     }
 }
-class SellSpe extends Spe {
-    constructor() {
-        super();
-        this.action = 'speciality.sellspe';
-    
-        this._goldNum = null;
-        this.requireFileds = ["propId","count"];
-        this.reqFields = ["propId","count"];
-        this.resFields = ["goldNum"];
-    }
-    //server output, type: number//返回剩余的金币数
-    get goldNum() {return this._goldNum}
-    set goldNum(v) {this._goldNum = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new SellSpe();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
 //-------------exports---------------
 exports.Season = Season;
 exports.PresentTktType = PresentTktType;
@@ -3373,6 +3428,7 @@ exports.NextSpot = NextSpot;
 exports.WsReceive = WsReceive;
 exports.Enterspot = Enterspot;
 exports.SpotTour = SpotTour;
+exports.TourSpotAnswer = TourSpotAnswer;
 exports.EventShow = EventShow;
 exports.ShowQuestReport = ShowQuestReport;
 exports.Minapppay = Minapppay;
@@ -3423,6 +3479,6 @@ exports.TravelLog = TravelLog;
 exports.IndexInfo = IndexInfo;
 exports.TestSend = TestSend;
 exports.SysMessage = SysMessage;
+exports.SellSpe = SellSpe;
 exports.TourIndexInfo = TourIndexInfo;
 exports.BuySpe = BuySpe;
-exports.SellSpe = SellSpe;

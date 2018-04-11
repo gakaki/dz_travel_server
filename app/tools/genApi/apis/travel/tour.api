@@ -156,12 +156,14 @@ class EnterSpot {
 }
 
 class Quest {
-    prop time:number
+    //prop time:number
     prop id:string
     prop type:string
     prop describe:string
     prop gold_used:number
     prop rewards:KV[]
+    prop question:string
+    prop answers:string[]
 }
 
 // 进入景点
@@ -187,6 +189,15 @@ api SpotTour {
     output userinfo:UserInfo
 }
 
+// 随机事件弹出框 回答答案
+api TourSpotAnswer{
+    require uid:number
+    require id:number
+    require answer:string
+    output correct:boolean
+    output userInfo: UserInfo
+    output rewards: KV[]
+}
 //点开显示随机事件
 api EventShow   {
     require uid:number

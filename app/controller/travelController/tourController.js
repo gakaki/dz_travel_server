@@ -148,26 +148,9 @@ class TourController extends Controller {
         ctx.body =result;
     }
     
-
-    async choosespotgo(ctx){
-        //所有节点信息
-        // uid
-        // cid
-        // spotId[]
-    }
-
-
     async changerouter(ctx) {
 
     }
-
-    // 在界面内每隔几分钟获得行走的状态
-    async freqstatus(ctx){
-        return parseInt(Date.now()/1000);
-    }
-
-
-
 
     // 拍照
     async photography(ctx) {
@@ -195,73 +178,23 @@ class TourController extends Controller {
         info.submit();
     }
 
-
-
+    // 随机事件问答题答案提交
+    async tourspotanswer(ctx){
+        // id   db_id
+        // eid  event id
+        // answer 答案
+        let info            = apis.TourSpotAnswer.Init(ctx);
+        await this.ctx.service.travelService.tourService.tourspotanswer(info);
+        let user_info       = ctx.session.ui;
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        info.submit();
+    }
     //点开显示随机事件
     async eventshow(ctx){
         let info            = apis.EventShow.Init(ctx);
         await this.ctx.service.travelService.tourService.eventshow(info);
         let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
-        info.submit();
-    }
-
-    async nextrouter(ctx) {
-
-        // 给一个spotId景点id  后端计算开始时间 和 spot的景点时间算个差值 返回给前端
-        let info        = apis.NextRouter.Init(ctx);
-        let user_info   = ctx.session.ui;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
-        
-        let nextSpotConfig  = travelConfig.scenicspots.filter( s => s.cid == parseInt(info.cid) && s.id == parseInt(info.spotId) );
-
-        let row             = await ctx.model.TravelModel.SpotTiming.create({
-            sid: ctx.session.sid,
-            cid: info.cid,
-            spotIdCur:info.spotIdCurrent,    //当前景点id    当前景点等于最后景点了
-            spotIdNext:info.spotIdNext,      //目标景点id
-            isFinished:false,           //说明这个城市的景点走到顶了
-            createDate:this.current_timestamp()      //创建时间 当前景点出发的时间 然后当前时间记
-        });
-
-        info.nextSpot = {
-            spotIdNext : info.spotIdNext,
-            createDate : this.current_timestamp(),
-            arrivedDate : 0,
-            needTime    : 0,
-            elapsedTimeSecond: 0
-        }
-
-        info.submit();
-    }
-
-    //到达景点
-    async reachSpot(ctx){
-
-        let info                = apis.ReachSpot.Init(ctx);
-        let user_info           = ctx.session.ui;
-        //天气 玩家信息等
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
-
-        let currentSpotConfig   = travelConfig.scenicspots.filter( s => s.cid == parseInt(info.cid) && s.id == parseInt(info.spotId) );
-
-        let ts                  = utilTime.current_timestamp();
-        let row                 = await ctx.model.TravelModel.SpotTiming.create({
-            sid: ctx.session.sid,
-            cid: info.cid,
-            spotIdCur:info.spotId,      //当前景点id  也就是所谓的到达的景点id
-            tracked: true,              //经过此景点了 当然设置为tracked,
-            createDate: ts     //创建时间 当前景点出发的时间 然后当前时间记
-        });
-
-        info.nextSpot = {
-            spotIdNext : info.spotIdNext,
-            createDate : ts,
-            arrivedDate : 0,
-            needTime    : 0,
-            elapsedTimeSecond: 0
-        }
-
         info.submit();
     }
 
@@ -273,13 +206,8 @@ class TourController extends Controller {
         info.submit();
     }
 
-    // 行程途中随机事件  每隔一分钟定时call 之后获得处理
+    // 行程途中访问是否有随机事件
     async questrandom(ctx) {
-
-    }
-
-    //已触发的随机事件列表？暂时没看到ui 占位
-    async questrandomlist(ctx) {
 
     }
 
