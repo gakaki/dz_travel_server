@@ -22,6 +22,7 @@ class SpecialityService extends Service {
                 s.img = o.picture;
                 s.propId = o.id;
                 s.price = o.localprice;
+                s.limitNum = o.limit;
                 return s;
             }
             else {
@@ -29,7 +30,6 @@ class SpecialityService extends Service {
                 return null
             }
         })
-
         info.specialtys = spes.filter(s => s); // filter not null
     }
 
@@ -38,7 +38,9 @@ class SpecialityService extends Service {
         let now = new Date();
         let speModel = this.ctx.model.TravelModel.Speciality;
         let updateInterval = sheets.Parameter.Get(sheets.Parameter.REFRESHSHOP).value * 3600 * 1000;//配表转毫秒
-        updateInterval = 60000//test set to 1 minute
+        // updateInterval = 6000//test set to 1 minute
+
+        info.specialtys = [];
 
         let spes = await speModel.find({ uid: ui.uid });
         await Promise.all(spes.map(s => {
@@ -64,7 +66,13 @@ class SpecialityService extends Service {
 
                 if (needFreshPrice) {
 
-                    let price = cfg.sellingprice[Math.floor(Math.random() * cfg.sellingprice.length)];
+                    let curCityId = 2;//等待取真实的当前所在城市Id...., 如果在特产出产地卖出，则售价为买入价的九折（折扣读表）
+                    let price = 0;
+                    if (s.cid == curCityId) {
+                        price = parseInt(s.price * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value/100);
+                    } else {
+                        price = cfg.sellingprice[Math.floor(Math.random() * cfg.sellingprice.length)];
+                    }
                     s.sellPrice = price;
                     s.sellPriceDate = now;
 
@@ -185,11 +193,7 @@ class SpecialityService extends Service {
             return;
         }
 
-        let curCityId = 1;//等待取真实的当前所在城市Id...., 如果在特产出产地卖出，则售价为买入价的九折（折扣读表）
-        let money = sp.sellPrice * info.count;
-        if (sp.cid == curCityId) {
-            money = sp.price * info.count * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value;
-        }
+        let money = sp.sellPrice*info.count
 
         //加钱
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: money}, 'travel');

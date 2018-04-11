@@ -680,6 +680,9 @@ class Speciality {
         //prop type: number//特产价格
         this.price = null;
     
+        //prop type: nunber//限购数量
+        this.limitNum = null;
+    
         
         
         
@@ -1518,19 +1521,43 @@ class RentProp extends Base {
         this.action = 'tour.rentprop';
     
         this._rentId = null;
-        this._rentItems = null;
         this.requireFileds = ["rentId"];
         this.reqFields = ["rentId"];
-        this.resFields = ["rentItems"];
+        this.resFields = [];
     }
     //client input, require, type: number
     get rentId() {return this._rentId}
     set rentId(v) {this._rentId = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new RentProp();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class RentedProp extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.rentedprop';
+    
+        this._rentItems = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["rentItems"];
+    }
     //server output, type: KV[]//已租用的所有道具。
     get rentItems() {return this._rentItems}
     set rentItems(v) {this._rentItems = v}
     static Init(ctx, checkLogin = false) {
-        let o = new RentProp();
+        let o = new RentedProp();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3350,6 +3377,7 @@ exports.EventShow = EventShow;
 exports.ShowQuestReport = ShowQuestReport;
 exports.Minapppay = Minapppay;
 exports.RentProp = RentProp;
+exports.RentedProp = RentedProp;
 exports.WsSend = WsSend;
 exports.ShareInfo = ShareInfo;
 exports.CityListPer = CityListPer;

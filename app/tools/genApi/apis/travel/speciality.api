@@ -6,6 +6,7 @@ class Speciality {
     prop name:string//特产名
     prop desc:string//特产介绍
     prop price:number//特产价格
+    prop limitNum:nunber//限购数量
 }
 
 class MySpe extends Speciality{
