@@ -2461,7 +2461,7 @@ async function reqWeather(city,that) {
         let lang = 'zh';
         let returnParam =
             {
-                lang:lang,
+                lang: lang,
                 location: city,
                 t: t,
                 username: username,
@@ -2472,27 +2472,28 @@ async function reqWeather(city,that) {
         field.forEach((v, k) => {
             argus.push(k + "=" + v);
         });
-        let plain = argus.join("&")+key;
+        let plain = argus.join("&") + key;
         let sign = utils.MD5(plain);
-        let turl ="https://free-api.heweather.com/s6/weather/now?parameters&location="+encodeURIComponent(city)+"&username="+username+"&t="+t+"&lang="+lang+"&sign="+encodeURIComponent(sign);
-        console.log(city);
-        console.log(turl);
+        let turl = "https://free-api.heweather.com/s6/weather/now?parameters&location=" + encodeURIComponent(city) + "&username=" + username + "&t=" + t + "&lang=" + lang + "&sign=" + encodeURIComponent(sign);
+        that.logger.info(city);
+        that.logger.info(turl);
         request(turl, (err, res, body) => {
-            if(err){
+            if(err) {
                 reject(err);
                 return;
             }
-          try{
-              let getWeather = JSON.parse(body);
-              let heWeather6 = getWeather.HeWeather6[0];
-              if (heWeather6.status != 'ok') {
-                  reject(body);
-                  return;
-              }
-              resolve(heWeather6);
-          }catch(err){
-              reject(err)
-          }
+            that.logger.info(body);
+          // try{
+          //     let getWeather = JSON.parse(body);
+          //     let heWeather6 = getWeather.HeWeather6[0];
+          //     if (heWeather6.status != 'ok') {
+          //         reject(body);
+          //         return;
+          //     }
+          //     resolve(heWeather6);
+          // }catch(err) {
+          //     reject(err)
+          // }
 
         })
     })
