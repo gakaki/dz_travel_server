@@ -190,12 +190,6 @@ class TourService extends Service {
         this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
 
         info.goldNum = ui.items[sheets.Item.GOLD];
-        // no money return
-
-        // one random event
-
-
-
         // info typeof apis.IndexInfo
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
@@ -246,7 +240,6 @@ class TourService extends Service {
     }
 
     // 游玩 回答问题 http://127.0.0.1:7001/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
-
     async tourspotanswer(info){
         // id   db_id
         // answer 答案
@@ -383,7 +376,6 @@ class TourService extends Service {
         info.friends = ui.friendList;
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
-
 
 }
 
