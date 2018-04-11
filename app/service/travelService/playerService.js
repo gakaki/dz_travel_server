@@ -437,18 +437,23 @@ class PlayerService extends Service {
 
         }
 
-        let index = rankInfos.findIndex((n) => n.uid == info.ui.uid);
+        this.logger.info(rankInfos);
+
+        let rankIndex = rankInfos.findIndex((n) => n.uid == info.ui.uid);
         this.logger.info("weizhi ========");
-        this.logger.info(index);
-        info.selfRank.rank = index + 1;
+        this.logger.info(rankIndex);
+        info.selfRank.rank = rankIndex + 1;
         let out = [];
         for(let index = 0; index < rankInfos.length; index++) {
-            //this.logger.info(value);
+           // this.logger.info(rankInfos[index]);
             let rankItem = {
                 rank: rankInfos[index].rank || (index + 1),
                 achievement: rankInfos[index].integral || rankInfos[index].completionDegree,
             };
-            // this.logger.info(value);
+            if(!rankItem.achievement) {
+               rankItem.achievement = 0;
+            }
+          //   this.logger.info(rankInfos[index].integral);
             let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({ uid: rankInfos[index].uid });
           //  this.logger.info(rankInfos[index]);
           //    this.logger.info(user);
@@ -458,7 +463,7 @@ class PlayerService extends Service {
                 avatarUrl: user.avatarUrl,
             };
             rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
-            //this.logger.info(rankItem)
+          //  this.logger.info(rankItem)
             out.push(rankItem);
         }
       // this.logger.info(out)
