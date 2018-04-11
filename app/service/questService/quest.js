@@ -20,7 +20,6 @@ class Quest extends TreeNode {
 
     constructor(data) {
         super(data);
-
         this.RewardKey =  {
             "1" :"金币",
             "2" :"游玩时间",
@@ -28,6 +27,7 @@ class Quest extends TreeNode {
             "4" :"特产",
             "5" :"积分"
         };
+        let d               = this.data;
 
         this.trigger_type   = d.subtype;    //
         // this.loc_name       = d['loc_name']; //地点中文
@@ -55,7 +55,7 @@ class Quest extends TreeNode {
             Speciality: "4", // 特产
             POINT:      "5", // 积分
         };
-        let d               = this.data;
+
         this.id             = d.id;
         this.describe       = d.describe;   //事件描述 '以下特产中，哪个是s%的特产？',
         this.trigger_type   = d.subtype;    //事件触发类型
