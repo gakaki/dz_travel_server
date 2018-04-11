@@ -81,6 +81,8 @@ module.exports = app => {
     router.get('/tour/tourspot', routerUserInfo, controller.travelController.tourController.tourspot);
     //游玩界面 进入景点->人物点击-》显示事件（获得奖励）
     router.get('/tour/eventshow', routerUserInfo, controller.travelController.tourController.eventshow);
+    //游玩界面 进入景点->人物点击-》显示事件（回答问题）-》提交
+    router.get('/tour/tourspotanswer', routerUserInfo, controller.travelController.tourController.tourspotanswer);
 
     router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);

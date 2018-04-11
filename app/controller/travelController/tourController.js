@@ -167,8 +167,6 @@ class TourController extends Controller {
     }
 
 
-
-
     // 拍照
     async photography(ctx) {
         /*
@@ -196,7 +194,17 @@ class TourController extends Controller {
     }
 
 
-
+    // 随机事件问答题答案提交
+    async tourspotanswer(ctx){
+        // id   db_id
+        // eid  event id
+        // answer 答案
+        let info            = apis.TourSpotAnswer.Init(ctx);
+        await this.ctx.service.travelService.tourService.tourspotanswer(info);
+        let user_info       = ctx.session.ui;
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+        info.submit();
+    }
     //点开显示随机事件
     async eventshow(ctx){
         let info            = apis.EventShow.Init(ctx);

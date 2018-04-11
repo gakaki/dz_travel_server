@@ -109,17 +109,14 @@ class Quest extends TreeNode {
         this.wrong3         =  d.wrong3;        //错误答案3
     }
 
-    genQA(){
-        let answers   = [ questCfg.answer, questCfg.wrong1, questCfg.wrong2, questCfg.wrong3];
-        answers       = answers.filter();
-        if (!answers || count(answers) <= 0) return null;
-        return {
-            question:       {
-                "ask":      this.describe,
-                "answer": _.shuffle( answers )
-            }
-        };
+    answers(){
+        let answers   = [ this.answer, this.wrong1, this.wrong2, this.wrong3 ];
+        answers       = answers.filter(n => n);
+
+        if (!answers || answers.length <= 0) return null;
+        return  _.shuffle( answers )
     }
+
     formatRewardComment(){
         //1,100;5,203
         let rewardComment  = "";        //事件奖励描述语句

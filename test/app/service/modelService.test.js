@@ -118,4 +118,37 @@ describe('test model数据库类', () => {
         await ctx.model.TravelModel.SpotTravelEvent.create(row);
         assert(row.uid == sid);
     });
+
+    it('生成SpotTravelEvent数据  随机问答题事件 问答题测试 无所谓正确与否',  async () => {
+        const ctx   = app.mockContext();
+        const sid   = '1000001';
+
+        let row     = {
+            uid: sid,
+            eid: '120031', // 事件类型为2
+            cid: '1',
+            spotId: '',
+            isPhotography: false,
+            isTour:false
+        };
+        await ctx.model.TravelModel.SpotTravelEvent.create(row);
+        assert(row.uid == sid);
+    });
+
+    it('生成SpotTravelEvent数据  随机问答题事件 问答题测试 正确的才能拿奖励',  async () => {
+        const ctx   = app.mockContext();
+        const sid   = '1000001';
+
+        let row     = {
+            uid: sid,
+            eid: '130217', // 事件类型为3  答题正确与否
+            cid: '1',
+            spotId: '',
+            isPhotography: false,
+            isTour:false
+        };
+        await ctx.model.TravelModel.SpotTravelEvent.create(row);
+        assert(row.uid == sid);
+    });
+
 });
