@@ -68,24 +68,53 @@ describe('test model数据库类', () => {
 
 
 
-    it('生成SpotTravelEvent表',  async () => {
+    it('生成SpotTravelEvent数据 特产',  async () => {
         const ctx   = app.mockContext();
         const sid   = '1000001';
 
         let row     = {
             uid: sid,
-            eid: '200049',
+            eid: '200049', // 类型4 特产
             cid: '1',
-            spotId: '100101',
+            spotId: '1000001',
             isPhotography: true,
             isTour:true,
             trackedNo:0,//默认单人旅行
             createDate: new Date()
         };
         await ctx.model.TravelModel.SpotTravelEvent.create(row);
+        assert(row.uid == sid);
+    });
+
+    it('生成SpotTravelEvent数据  随机事件非经典 明信片为奖励',  async () => {
+        const ctx   = app.mockContext();
+        const sid   = '1000001';
+
+        let row     = {
+            uid: sid,
+            eid: '200404', // 类型3 明信片 -1
+            cid: '1',
+            spotId: '1000001',
+            isPhotography: false,
+            isTour:false
+        };
+        await ctx.model.TravelModel.SpotTravelEvent.create(row);
+        assert(row.uid == sid);
+    });
 
 
-        row['isTour'] = false;
+    it('生成SpotTravelEvent数据  随机事件 1和5 金币和积分',  async () => {
+        const ctx   = app.mockContext();
+        const sid   = '1000001';
+
+        let row     = {
+            uid: sid,
+            eid: '130010', // 类型3 明信片 -1
+            cid: '1',
+            spotId: '1000001',
+            isPhotography: false,
+            isTour:false
+        };
         await ctx.model.TravelModel.SpotTravelEvent.create(row);
         assert(row.uid == sid);
     });

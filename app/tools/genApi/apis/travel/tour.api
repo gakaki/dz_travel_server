@@ -154,12 +154,14 @@ class EnterSpot {
     prop picture:string
     prop description:string
 }
-class QuestList {
+
+class Quest {
     prop time:number
     prop id:string
+    prop type:string
     prop describe:string
     prop gold_used:number
-    prop item:KV[]
+    prop rewards:KV[]
 }
 
 // 进入景点
@@ -170,7 +172,7 @@ api Enterspot {
     //景点数据
     output spot:EnterSpot
     //景点事件列表
-    output questList:QuestList[]
+    output quests:Quest[]
 }
 
 
@@ -186,10 +188,12 @@ api SpotTour {
 }
 
 //点开显示随机事件
-api EventShow {
+api EventShow   {
     require uid:number
     require cid:number
+
     output quest:Quest
+    output userinfo:UserInfo
 }
 
 //已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
