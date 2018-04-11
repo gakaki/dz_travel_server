@@ -45,7 +45,7 @@ class DoubleService extends Service {
 
         if (visit) {
             let cid = visit.cid;
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
+            let weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
             for (let we of travelConfig.weathers) {
                 if (we.weather == weather) {
                     outw = we.id;

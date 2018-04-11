@@ -12,7 +12,7 @@ class TravelService extends Service {
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
         let outw = 1;
         if (visit && visit.cid) {
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(visit.cid).city);
+            let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.cid);
             for (let we of travelConfig.weathers) {
                 if (we.weather == weather) {
                     outw = we.id;
@@ -48,7 +48,7 @@ class TravelService extends Service {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
         if (visit) {
             cid = visit.cid;
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(cid).city);
+            let weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
             for (let we of travelConfig.weathers) {
                 if (we.weather == weather) {
                     outw = we.id;

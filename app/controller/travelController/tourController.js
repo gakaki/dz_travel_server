@@ -10,14 +10,14 @@ let userLines = new Map();
 
 //观光相关
 class TourController extends Controller {
-    // 查询用户是否需要新手引导
+    // 查询用户是否需要新手引导   1
     async checkguide(ctx){
         let info            = apis.CheckGuide.Init(ctx);
         let user            = await this.ctx.model.PublicModel.User.findOne({uid: ctx.query.uid });
         info.hasPlay        = user['hasPlay'] ? true : false;
         info.submit();
     }
-    //前端新手引导 标记一下已经完成新手引导了
+    //前端新手引导 标记一下已经完成新手引导了  1
     async finishguide(ctx){
         let info            = apis.FinishGuide.Init(ctx);
         await this.ctx.model.PublicModel.User.update({uid: ctx.query.uid }, {$set: {hasPlay: info.play}});
@@ -29,14 +29,20 @@ class TourController extends Controller {
         this.logger.info(ctx.query);
         let cid = 1;
         let city = travelConfig.City.Get(cid);
-        let lines = userLines.get(ctx.query.uid);
-        if(ctx.query.line){
-            lines = JSON.parse(ctx.query.line);
-            userLines.set(ctx.query.uid,lines);
-        }
+       // let lines = userLines.get(ctx.query.uid);
+       //  if(ctx.query.line){
+       //      lines = JSON.parse(ctx.query.line);
+       //      userLines.set(ctx.query.uid,lines);
+       //  }
+        let result = tour.get(ctx.query.uid);
+        this.logger.info(result);
 
-        if(!tour.get(ctx.query.uid)){
-            let result ={
+
+        let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
+        let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
+        let startPos   = travelConfig.Scenicspot.Get(cid);
+        if(!result){
+             result ={
                 code : "0",
                 data:{
                     task: {
@@ -44,6 +50,9 @@ class TourController extends Controller {
                         'tour': [0, 2],
                         'photo': [0, 2]
                     },
+                    startPos:       startPos,       //起始点
+                    weather:        weatherTxt,     //service 3rd 调用第三方service,
+                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind 
                     spots: city.scenicspot.map((s, idx) => {
                         let o = {};
                         let cfg = travelConfig.Scenicspot.Get(s);
@@ -56,17 +65,15 @@ class TourController extends Controller {
                         o.y = xy.y;
                         o.tracked = false;
 
-                        if(lines){
-                            let index = lines.findIndex((n) => n == s);
-                            o.index = index;
-                            if(index != -1){
-                                o.createDate = new Date().getTime() + (index+1) * 10000;
-                            }
-                        }else{
+                        // if(lines){
+                        //     let index = lines.findIndex((n) => n == s);
+                        //     o.index = index;
+                        //     if(index != -1){
+                        //         o.createDate = new Date().getTime() + (index+1) * 30000;
+                        //     }
+                        // }else{
                             o.index = -1;// 真实情况，应该读库
-                        }
-
-
+                       // }
 
                         return o;
                     }),
@@ -74,13 +81,12 @@ class TourController extends Controller {
                 },
 
             };
-            if(lines){
-                tour.set(ctx.query.uid,result);
-            }
+            // if(lines){
+            //     tour.set(ctx.query.uid,result);
+            // }
 
-            ctx.body =result;
+
         }else{
-            let result = tour.get(ctx.query.uid);
             let sps = result.data.spots;
          //   this.logger.info(sps);
             result.data.spots=sps.map((s, idx) =>{
@@ -89,19 +95,19 @@ class TourController extends Controller {
                     this.logger.info(o.createDate);
                     let date = new Date().getTime();
                     this.logger.info(date);
-                    if(o.createDate < date) {
+                    if(o.createDate <= date) {
                         o.tracked = true;
                     }
                 }
-                this.logger.info(o);
+              //  this.logger.info(o);
                 return o;
             });
           //  this.logger.info( result.data.spots);
-            ctx.body =result
+
         }
 
-
-
+        tour.set(ctx.query.uid,result);
+        ctx.body =result;
 
         return;
 
@@ -113,43 +119,74 @@ class TourController extends Controller {
     }
 
     async tourstart(ctx){
-
-
         let cid = 1;
         let city = travelConfig.City.Get(cid);
-        let result ={
-            code : "0",
-            data:{
-                task: {
-                    'spot': [0, 6],
-                    'tour': [0, 2],
-                    'photo': [0, 2]
-                },
-                spots: city.scenicspot.map((s, idx) => {
-                    let o = {};
-                    let cfg = travelConfig.Scenicspot.Get(s);
-                    let xy = ScenicPos.Get(s);
-                    o.id = s;
-                    o.cid = cid;
-                    o.name = cfg.scenicspot;
-                    o.building = cfg.building;
-                    o.x = xy.x;
-                    o.y = xy.y;
-                    o.tracked = false;
-                    o.index = lines.findIndex((n) => n == s);
-                    o.createDate = new Date().getTime() + idx * 10000;
-                    return o;
-                }),
-                weather: 1,
-            },
+        let result = tour.get(ctx.query.uid);
+         let lines = JSON.parse(ctx.query.line);
 
-        };
+         this.logger.info(lines);
 
+         userLines.set(ctx.query.uid,lines);
+        let sps = result.data.spots;
+        result.data.spots= .map((s, idx) =>{
+            let o = s;
+            if(o.index != -1){
+                this.logger.info(o.createDate);
+                let date = new Date().getTime();
+                this.logger.info(date);
+                if(o.createDate <= date) {
+                    o.tracked = true;
+                }else{
+                    let index = lines.findIndex((n) => n ==  o.id);
+                    o.index = index;
+                    if(index != -1){
+                        o.createDate = new Date().getTime() + (index+1) * 30000;
+                    }
+                }
+            }else{
+                let index = lines.findIndex((n) => n == o.id);
+                o.index = index;
+                o.createDate = new Date().getTime() + (index+1) * 30000;
+            }
+            this.logger.info(o);
+            return o;
+        });
+
+        tour.set(ctx.query.uid,result);
         ctx.body =result;
     }
     
     async changerouter(ctx) {
+        let lines = JSON.parse(ctx.query.line);
+       //   let oldLines = userLines.get(ctx.query.uid);
+        //  userLines.set(ctx.query.uid,lines);
+        let result = tour.get(ctx.query.uid);
+        let sps = result.data.spots;
 
+        //   this.logger.info(sps);
+        result.data.spots=sps.map((s, idx) =>{
+            let o = s;
+            if(o.index != -1){
+                this.logger.info(o.createDate);
+                let date = new Date().getTime();
+                this.logger.info(date);
+                if(o.createDate <= date) {
+                    o.tracked = true;
+                //    lines.push(o.id);
+                }else{
+                    let index = lines.findIndex((n) => n == o.id);
+                    o.index = index;
+                }
+            }else{
+                o.index = -1;
+            }
+          //  this.logger.info(o);
+            return o;
+        });
+        //  this.logger.info( result.data.spots);
+        userLines.set(ctx.query.uid,lines);
+        tour.set(ctx.query.uid,result);
+        ctx.body =result
     }
 
     // 拍照

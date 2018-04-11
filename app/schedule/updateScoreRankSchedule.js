@@ -1,6 +1,6 @@
 const Subscription = require('egg').Subscription;
 
-class UpdateScoreRank extends Subscription {
+class UpdateScoreRankSchedule extends Subscription {
     // 通过 schedule 属性来设置定时任务的执行间隔等配置
     static get schedule() {
         return {
@@ -17,4 +17,4 @@ class UpdateScoreRank extends Subscription {
     }
 }
 
-module.exports = UpdateScoreRank;
+module.exports = UpdateScoreRankSchedule;
