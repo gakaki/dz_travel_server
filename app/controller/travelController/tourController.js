@@ -218,7 +218,21 @@ class TourController extends Controller {
 
     //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
     async leavetour(ctx) {
+        //离开城市的时候最好有个统计表哦
+        //他还要保存他的进度 效率报告
+        // 查询任务之前注意是否有点亮过
+        // 离开的时候 不保留记录 就是比如他走了3个任务 他离开要重新开始的三个任务 要重来 所以走之前让前端来个提示吧
+    }
 
+    async rentprop(ctx) {
+        let info = await apis.RentProp.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.rentprop(info);
+        info.submit();
+    }
+
+    async rentedprop(ctx) {
+        let info = await apis.RentedProp.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.rentedprop(info);
     }
 
 }

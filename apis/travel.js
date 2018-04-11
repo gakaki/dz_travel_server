@@ -101,6 +101,8 @@ class Code{
     
     static get INTEGRAL_NOT_MEET() { return 151;}
     
+    static get ALREADY_GOT() { return 152;}
+    
     static get HAS_SIGNIN() { return -144;}
     
     static get UNKNOWN() { return -1000;}
@@ -2736,9 +2738,6 @@ class UserInfo extends UserBriefInfo {
     
         //prop type: KV[]
         this.items = null;
-    
-        //prop type: KV[]
-        this.rentItems = null;
     
         //prop type: string[]
         this.friends = null;
