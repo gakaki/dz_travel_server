@@ -88,7 +88,7 @@ class SpecialityService extends Service {
     //每次进入一个新城市游玩时，调用此接口,将自己背包里的特产出售价格清零
     async clearMySpePrice(uid) {
         let speModel = this.ctx.model.TravelModel.Speciality;
-        await speModel.upate({uid:uid}, {sellPrice: 0});
+        await speModel.update({uid:uid}, {sellPrice: 0});
     }
 
     async buy(info) {
