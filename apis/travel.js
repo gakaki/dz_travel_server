@@ -680,6 +680,9 @@ class Speciality {
         //prop type: number//特产价格
         this.price = null;
     
+        //prop type: nunber//限购数量
+        this.limitNum = null;
+    
         
         
         
