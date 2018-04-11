@@ -83,11 +83,13 @@ module.exports = app => {
     router.get('/tour/eventshow', routerUserInfo, controller.travelController.tourController.eventshow);
     //游玩界面 进入景点->人物点击-》显示事件（回答问题）-》提交
     router.get('/tour/tourspotanswer', routerUserInfo, controller.travelController.tourController.tourspotanswer);
-
+    //游玩界面 进入景点->重选路线
     router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
+    //游玩界面 进入景点->定时获取是否有新的随机事件。
     router.get('/tour/questrandom',   routerUserInfo,  controller.travelController.tourController.questrandom);
-    router.get('/tour/questrandomlist', routerUserInfo, controller.travelController.tourController.questrandomlist);
+    //游玩界面 进入景点->展示报告例如最后的最短路径效率。
     router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
+    //游玩界面 进入景点->离开游玩界面。
     router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
 
     router.get('/speciality/cityspes', controller.travelController.specialityController.cityspes);
