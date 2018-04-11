@@ -223,6 +223,9 @@ class TourController extends Controller {
         // 查询任务之前注意是否有点亮过
         // 离开的时候 不保留记录 就是比如他走了3个任务 他离开要重新开始的三个任务 要重来 所以走之前让前端来个提示吧
 
+        let info = await apis.LeaveTour.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.leavetour(info);
+        info.submit();
     }
 
     async rentprop(ctx) {

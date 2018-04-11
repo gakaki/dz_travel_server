@@ -410,6 +410,14 @@ class TourService extends Service {
         info.rentItems = Object.values(curCity.rentItems);
     }
 
+    async leavetour(info) {
+        let ui = info.ui;
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid});
+        let log = {};
+        log.cid = curCity.cid;
+        log.uid = ui.uid;
+    }
+
 }
 
 
