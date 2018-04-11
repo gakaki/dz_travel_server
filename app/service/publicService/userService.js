@@ -260,6 +260,18 @@ class UserService extends Service {
        // items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
         this.ctx.service.publicService.itemService.itemChange(ui.uid,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
 
+        //进入积分榜单
+        await this.ctx.model.TravelModel.IntegralRecord.create({
+            uid: uid,
+            integral: 0,
+            updateDate: new Date(),
+        });
+
+        await this.ctx.model.TravelModel.CompletionDegreeRecord.create({
+            uid: uid, //玩家uid
+            updateDate: new Date(), //更新时间
+        });
+
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
             pid: pid,
