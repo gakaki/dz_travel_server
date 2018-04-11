@@ -231,9 +231,11 @@ api LeaveTour
 //租用道具
 api RentProp {
     require rentId:number  //装备id
-    output rentItems:KV[]//已租用的所有道具。
 }
 
+api RentedProp {
+    output rentItems:KV[]//已租用的所有道具。
+}
 
 
 
