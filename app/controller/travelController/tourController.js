@@ -119,41 +119,100 @@ class TourController extends Controller {
     }
 
     async tourstart(ctx){
-        let cid = 1;
-        let city = travelConfig.City.Get(cid);
-        let result = tour.get(ctx.query.uid);
-         let lines = JSON.parse(ctx.query.line);
+        let cid         = info.cid;
+        let uid         = info.uid;
+        let city        = travelConfig.City.Get(cid);
+        let result      = tour.get(ctx.query.uid);
+        let lines       = JSON.parse(ctx.query.line);
+        
+        this.logger.info(lines);
 
-         this.logger.info(lines);
-
-         userLines.set(ctx.query.uid,lines);
-        let sps = result.data.spots;
-        result.data.spots= .map((s, idx) =>{
-            let o = s;
-            if(o.index != -1){
-                this.logger.info(o.createDate);
-                let date = new Date().getTime();
-                this.logger.info(date);
-                if(o.createDate <= date) {
-                    o.tracked = true;
-                }else{
-                    let index = lines.findIndex((n) => n ==  o.id);
-                    o.index = index;
-                    if(index != -1){
-                        o.createDate = new Date().getTime() + (index+1) * 30000;
-                    }
-                }
-            }else{
-                let index = lines.findIndex((n) => n == o.id);
-                o.index = index;
-                o.createDate = new Date().getTime() + (index+1) * 30000;
+        // 计算每段line的时间 
+        
+        getLine(spotStart,spotEnd) {
+            let dis         = calcDistance(spotStart.point,spotEnd.point);
+            let timeElapsed = dis / speed;
+            
+            let start       = new Date();
+            let end         = start + timeElapsed;
+            
+            let line        = {
+                distance    : dis,
+                timeElapsed : timeElapsed,
+                start       : start,
+                end         : end    
             }
-            this.logger.info(o);
-            return o;
+            return line;
+        }
+        
+        let linesTotal      = [];
+        let timeTotal       = lineFronts.reduce( ( linePrev, lineCurrent ) => {
+            let line        = getLine(linePrev, lineCurrent);
+            linesTotal.push(linesTotal);
+            return line.timeElapsed;
         });
 
-        tour.set(ctx.query.uid,result);
-        ctx.body =result;
+        genEventNonSpot(){
+            // random time elsaped
+
+        }
+        while ( timeTotal < 0 ) {
+            
+            timeTotal = timeTotal - genEventNonSpot();
+            
+        }
+
+        
+        // 按照index 的节点 生成lines 
+            //每段line需要附上时间 计算总时间 
+            //5到15分钟random  计算随机事件 写入event 但要注意每段line生成之后的概率变化
+            //由于景点事件都不是随机事件
+
+
+            //注意新手引导的关系 会让加速不少。
+
+            //redis 记录上一次的持续时间 注意数据库需要恢复哦
+            //redis 记录用户的状态
+            //计算和上一次的触发时间到底差多少
+        
+        20：00 20：15 20：20
+          
+        {
+            spotId,
+            index,
+            createDate,
+            tracked, 
+        }
+
+
+        // userLines.set(ctx.query.uid,lines);
+        // let sps = result.data.spots;
+        // result.data.spots= .map((s, idx) =>{
+        //     let o = s;
+        //     if(o.index != -1){
+        //         this.logger.info(o.createDate);
+        //         let date = new Date().getTime();
+        //         this.logger.info(date);
+        //         if(o.createDate <= date) {
+        //             o.tracked = true;
+        //         }else{
+        //             let index = lines.findIndex((n) => n ==  o.id);
+        //             o.index = index;
+        //             if(index != -1){
+        //                 o.createDate = new Date().getTime() + (index+1) * 30000;
+        //             }
+        //         }
+        //     }else{
+        //         let index = lines.findIndex((n) => n == o.id);
+        //         o.index = index;
+        //         o.createDate = new Date().getTime() + (index+1) * 30000;
+        //     }
+        //     this.logger.info(o);
+        //     return o;
+        // });
+
+        // tour.set(ctx.query.uid,result);
+        // ctx.body =result;
     }
     
     async changerouter(ctx) {
