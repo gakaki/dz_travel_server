@@ -807,6 +807,9 @@ class Quest {
         this.id = null;
     
         //prop type: string
+        this.type = null;
+    
+        //prop type: string
         this.describe = null;
     
         //prop type: number

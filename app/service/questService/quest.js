@@ -20,7 +20,6 @@ class Quest extends TreeNode {
 
     constructor(data) {
         super(data);
-
         this.RewardKey =  {
             "1" :"金币",
             "2" :"游玩时间",
