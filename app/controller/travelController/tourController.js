@@ -221,6 +221,17 @@ class TourController extends Controller {
 
     }
 
+    async rentprop(ctx) {
+        let info = await apis.RentProp.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.rentprop(info);
+        info.submit();
+    }
+
+    async rentedprop(ctx) {
+        let info = await apis.RentedProp.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.rentedprop(info);
+    }
+
 }
 
 module.exports = TourController;
