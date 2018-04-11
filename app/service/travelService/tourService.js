@@ -379,7 +379,7 @@ class TourService extends Service {
 
     async rentprop(info) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
-        if (curCity.rentItems.hasOwnProperty(info.rentId)) {
+        if (curCity.rentItems[info.rentId] > 0) {
             this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
             info.code = apis.Code.ALREADY_GOT;
             return;
@@ -396,7 +396,7 @@ class TourService extends Service {
         rentItems[cfg.id] = 1;
         //扣钱
         let money = cfg.price;
-        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, {["items." + sheets.Item.GOLD]: -money}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, {["items." + travelConfig.Item.GOLD]: -money}, 'travel');
         //加道具
         await this.ctx.model.TravelModel.CurrentCity.update({uid: info.ui.uid}, { rentItems });
         this.logger.info(`租用道具${cfg.id}成功`);

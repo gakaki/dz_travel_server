@@ -91,6 +91,8 @@ module.exports = app => {
     router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
     //游玩界面 进入景点->离开游玩界面。
     router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
+    router.get('/tour/rentprop', routerUserInfo, controller.travelController.tourController.rentprop);
+    router.get('/tour/rentedprop', routerUserInfo, controller.travelController.tourController.rentedprop);
 
     router.get('/speciality/cityspes', controller.travelController.specialityController.cityspes);
     router.get('/speciality/myspes', controller.travelController.specialityController.myspes);

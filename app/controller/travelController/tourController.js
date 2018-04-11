@@ -234,6 +234,7 @@ class TourController extends Controller {
     async rentedprop(ctx) {
         let info = await apis.RentedProp.Init(ctx, true);
         await this.ctx.service.travelService.tourService.rentedprop(info);
+        info.submit();
     }
 
 }
