@@ -54,7 +54,7 @@ function gen(sourcePoints) {
 
 
     //进行N次布朗运行
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
         brang()
     }
 
@@ -92,9 +92,9 @@ function brang() {
             let dist = Math.sqrt(dx * dx + dy * dy);
             let angle = Math.atan2(dy, dx);
 
-            let val = VW - dist;
+            let val = VW * 0.8 - dist;
 
-            let mv = val * 0.03;
+            let mv = val * 0.02;
 
             //相对移动
             let sx = Math.cos(angle) * mv;
@@ -129,70 +129,6 @@ function recxy(...nodes) {
     })
 
 }
-
-//test
-let testPoints = [{
-    name: 'A',
-    id: 1,
-    j: 116.403414,
-    w: 39.924091
-},
-    {
-        name: 'b',
-        id: 2,
-        j: 116.274853,
-        w: 39.998547
-    },
-    {
-        name: 'c',
-        id: 3,
-        j: 116.404081,
-        w: 39.910098
-    },
-    {
-        name: 'd',
-        id: 4,
-        j: 116.417115,
-        w: 39.886376
-    },
-    {
-        name: 'e',
-        id: 5,
-        j: 116.314154,
-        w: 40.01651
-    },
-    {
-        name: 'easd',
-        id: 6,
-        j: 116.395486,
-        w: 39.932913
-    },
-
-    {
-        name: 'f',
-        id: 7,
-        j: 116.016033,
-        w: 40.364233
-    },
-    {
-        name: 'g',
-        id: 8,
-        j: 116.409512,
-        w: 39.93986
-    },
-    {
-        name: 'h',
-        id: 9,
-        j: 116.391656,
-        w: 39.948203
-    },
-    {
-        name: 'i',
-        id: 10,
-        j: 116.402359,
-        w: 39.999763
-    }
-]
 
 
 module.exports = gen;

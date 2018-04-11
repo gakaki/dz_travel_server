@@ -377,6 +377,39 @@ class TourService extends Service {
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
+    async rentprop(info) {
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
+        if (curCity.rentItems.hasOwnProperty(info.rentId)) {
+            this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
+            info.code = apis.Code.ALREADY_GOT;
+            return;
+        }
+
+        let cfg = travelConfig.Shop.Get(info.rentId);
+        if (!cfg) {
+            this.logger.info(`道具商店表shop中未找到id为${info.rentId}的道具`)
+            info.code = apis.Code.NOT_FOUND;
+            return;
+        }
+
+        let rentItems = curCity.rentItems;
+        rentItems[cfg.id] = 1;
+        //扣钱
+        let money = cfg.price;
+        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, {["items." + sheets.Item.GOLD]: -money}, 'travel');
+        //加道具
+        await this.ctx.model.TravelModel.CurrentCity.update({uid: info.ui.uid}, { rentItems });
+        this.logger.info(`租用道具${cfg.id}成功`);
+
+        //此处需要通知事件逻辑层，来检测一下是否需要根据新道具来更新事件。。。。
+    }
+
+
+    async rentedprop(info) {
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
+        info.rentItems = Object.values(curCity.rentItems);
+    }
+
 }
 
 

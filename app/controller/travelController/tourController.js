@@ -224,6 +224,17 @@ class TourController extends Controller {
         // 离开的时候 不保留记录 就是比如他走了3个任务 他离开要重新开始的三个任务 要重来 所以走之前让前端来个提示吧
     }
 
+    async rentprop(ctx) {
+        let info = await apis.RentProp.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.rentprop(info);
+        info.submit();
+    }
+
+    async rentedprop(ctx) {
+        let info = await apis.RentedProp.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.rentedprop(info);
+    }
+
 }
 
 module.exports = TourController;

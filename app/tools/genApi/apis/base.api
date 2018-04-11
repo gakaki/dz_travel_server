@@ -81,6 +81,8 @@ enum Code {
     const RANK_NOT_MEET = 150
     //未达到积分要求
     const INTEGRAL_NOT_MEET = 151
+    //已经拥有了，不能重复购买
+    const ALREADY_GOT = 152
     //已经签到了
     const HAS_SIGNIN = -144
     const UNKNOWN = -1000
