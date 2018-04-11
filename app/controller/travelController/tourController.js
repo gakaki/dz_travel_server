@@ -195,10 +195,14 @@ class TourController extends Controller {
         info.submit();
     }
 
+
+
     //点开显示随机事件
     async eventshow(ctx){
         let info            = apis.EventShow.Init(ctx);
-        await this.service.travelService.questService.eventshow(info);
+        await this.ctx.service.travelService.tourService.eventshow(info);
+        let user_info       = ctx.session.ui;
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 

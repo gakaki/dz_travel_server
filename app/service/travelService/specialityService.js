@@ -33,20 +33,62 @@ class SpecialityService extends Service {
     }
 
     async myspes(info) {
-        let spes = await this.ctx.model.TravelModel.Speciality.find({uid: info.ui.uid});
-        info.specialtys = spes.map(s => {
-            let cfg = sheets.Speciality.Get(s.spid);
+        let ui = info.ui;
+        let now = new Date();
+        let speModel = this.ctx.model.TravelModel.Speciality;
+        let updateInterval = sheets.Parameter.Get(sheets.Parameter.REFRESHSHOP).value * 3600 * 1000;//配表转毫秒
+
+        let spes = await speModel.find({uid: ui.uid});
+        await Promise.all(spes.map(s => {
+            return new Promise(async resolve => {
+                let needFreshPrice = false;
+                let cfg = sheets.Speciality.Get(s.spid);
+
+                if (s.sellPrice > 0) {
+                    let pDate = s.sellPriceDate;
+                    if (now.getTime() - pDate.getTime() > updateInterval) {
+                        //need fresh
+                        needFreshPrice = true;
+                    }
+                    else {
+                        fillRes(info.specialtys, cfg, s);
+                        resolve();
+                    }
+                }
+                else {
+                    needFreshPrice = true;
+                }
+
+                if (needFreshPrice) {
+
+                    let price = cfg.sellingprice[Math.floor(Math.random() * cfg.sellingprice.length)];
+                    s.sellPrice = price;
+                    s.sellPriceDate = now;
+
+                    await speModel.update(s, s);
+                    fillRes(info.specialtys, cfg, s);
+                    resolve();
+                }
+            })
+        }));
+
+        function fillRes(arr, cfg, s) {
             let o = new apis.MySpe();
             o.propId = s.spid;
             o.name = s.specialityname;
             o.img = cfg.picture;
             o.price = cfg.localprice;
-            o.sellPrice = cfg.sellingprice;
+            o.sellPrice = s.sellPrice;
             o.num = s.number;
 
-            return o;
-        });
+            arr.push(o);
+        }
 
+    }
+    //每次进入一个新城市游玩时，调用此接口,将自己背包里的特产出售价格清零
+    async clearMySpePrice(uid) {
+        let speModel = this.ctx.model.TravelModel.Speciality;
+        await speModel.upate({uid:uid}, {sellPrice: 0});
     }
 
     async buy(info) {
@@ -69,15 +111,24 @@ class SpecialityService extends Service {
         //特产背包上限
         let baglimit = sheets.Parameter.Get(sheets.Parameter.BAGLIMIT).value;
         let hasCnt = 0;
+        let spCnt = 0;//同id的已经拥有的数量
         let sps = await this.ctx.model.TravelModel.Speciality.find({uid: ui.uid});
         if (sps && sps.length) {
             hasCnt = sps.reduce((total, record) => {
+                if (record.spid == info.propId) {
+                    spCnt = record.number;
+                }
                 return total + record.number;
             }, 0);
         }
         if (hasCnt >= baglimit) {
             info.code = apis.Code.BAG_FULLED;
             this.logger.info(`购买特产失败，背包已满`);
+            return;
+        }
+        if (cfg.limit > 0 && spCnt >= cfg.limit) {
+            info.code = apis.Code.SPE_LIMIT;
+            this.logger.info(`购买特产失败，物品限购`);
             return;
         }
 
@@ -87,8 +138,10 @@ class SpecialityService extends Service {
         //加特产
         let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
             {
+                cid: cfg.cityid,
                 uid: ui.uid,
                 spid: cfg.id,
+                price: cfg.localprice,
                 $inc: {number: info.count},
                 createDate: new Date()
             },
@@ -128,7 +181,11 @@ class SpecialityService extends Service {
             return;
         }
 
-        let money = cfg.sellingprice * info.count;
+        let curCityId = 1;//等待取真实的当前所在城市Id...., 如果在特产出产地卖出，则售价为买入价的九折（折扣读表）
+        let money = sp.sellPrice * info.count;
+        if (sp.cid == curCityId) {
+            money = sp.price * info.count * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value;
+        }
 
         //加钱
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: money}, 'travel');

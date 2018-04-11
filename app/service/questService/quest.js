@@ -28,6 +28,26 @@ class Quest extends TreeNode {
             "4" :"特产",
             "5" :"积分"
         };
+
+        this.trigger_type   = d.subtype;    //
+        // this.loc_name       = d['loc_name']; //地点中文
+
+        this.belong         =  d.belong;     //事件归属
+        this.type           =  d.type;       //事件触发的景点或城市，通用事件填0
+
+        this.EventTypeKeys =  { //事件触发类型
+            COMMON:             "1",       // 1、普通事件
+            QA_NEED_RESULT:     "2",       // 2、剧情类答题事件（无需显示是否答对）
+            QA_NO_NEED_RESULT:  "3",       // 3、知识类答题事件（需要显示是否答对）
+        };
+
+        this.TriggerTypeKeys =  { //事件触发类型
+            RANDOM_COMMON:      "1",       // 1、通用城市事件：在所有城市游玩都可以触发的事件；
+            RANDOM_CITY:        "2",       // 2、特定城市事件：在特定城市游玩才能触发的事件；
+            TOUR_COMMON:        "3",       // 3、通用观光checkGuide事件：在所有城市观光都可以触发的事件；
+            TOUR_CITY:          "4",       // 4、特定观光事件：在特定城市观光才能触发的事件；
+        };
+
         this.RewardType     = {
             GOLD:       "1", //金币
             TIME:       "2", // 时间追加 减少
@@ -102,7 +122,7 @@ class Quest extends TreeNode {
         let rewardStr       = t.join(",");
         let items           = rewardStr.split(";");
         this.rewardKV       = {};
-        this.rewardFull     = {};
+        this.rewards        = {};
 
 
         // 显示标准化：
@@ -116,9 +136,15 @@ class Quest extends TreeNode {
             let countText     = "0";
             if ( count > 0 )  countText = `+${count}`;
             if ( count < 0 )  countText = `-${count}`;
-            this.rewardFull[type_id] = {
+
+            if ( type_id == this.RewardType.POSTCARD ) {
+                countText     = "+1";
+                count         = 1;
+            }
+
+            this.rewards[type_id] = {
                 'name'      :  this.RewardKey[type_id],
-                'id'        :  type_id,
+                'type_id'   :  type_id,
                 'count'     :  count,
                 'countText' :  countText
             }
