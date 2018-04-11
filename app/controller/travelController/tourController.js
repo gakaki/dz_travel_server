@@ -206,12 +206,12 @@ class TourController extends Controller {
         info.submit();
     }
 
-    // 行程途中访问是否有随机事件
+    // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
     async questrandom(ctx) {
 
     }
 
-    //玩家完成该城市的经典的具体报告
+    //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口
     async showquestreport(ctx) {
 
     }
@@ -222,6 +222,7 @@ class TourController extends Controller {
         //他还要保存他的进度 效率报告
         // 查询任务之前注意是否有点亮过
         // 离开的时候 不保留记录 就是比如他走了3个任务 他离开要重新开始的三个任务 要重来 所以走之前让前端来个提示吧
+
     }
 
     async rentprop(ctx) {
