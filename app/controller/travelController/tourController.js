@@ -45,6 +45,9 @@ class TourController extends Controller {
                         'tour': [0, 2],
                         'photo': [0, 2]
                     },
+                    startPos: travelConfig.Scenicspot.Get(info.cid), //起始点
+                    weather: "", //service 3rd 调用第三方service,
+                    friendList:"", //该城市的人 优先好友 随便放 randomefind 
                     spots: city.scenicspot.map((s, idx) => {
                         let o = {};
                         let cfg = travelConfig.Scenicspot.Get(s);
@@ -120,7 +123,7 @@ class TourController extends Controller {
 
          userLines.set(ctx.query.uid,lines);
         let sps = result.data.spots;
-        result.data.spots=sps.map((s, idx) =>{
+        result.data.spots= .map((s, idx) =>{
             let o = s;
             if(o.index != -1){
                 this.logger.info(o.createDate);
