@@ -4,8 +4,9 @@ const travelConfig      = require("../../../sheets/travel");
 const ScenicPos = require('../../../sheets/scenicpos');
 const utilTime          = require("../../utils/time");
 
-let lines = [];
 
+let tour = new Map();
+let userLines = new Map();
 
 //观光相关
 class TourController extends Controller {
@@ -26,51 +27,81 @@ class TourController extends Controller {
     async tourindexinfo(ctx) {
         this.logger.info("进来了");
         this.logger.info(ctx.query);
-        if(ctx.query.line){
-            lines = JSON.parse(ctx.query.line);
-        }
-        this.logger.info(ctx.query.line);
-        this.logger.info(lines);
         let cid = 1;
         let city = travelConfig.City.Get(cid);
-        let result ={
-            code : "0",
-           data:{
-               task: {
-                   'spot': [0, 6],
-                   'tour': [0, 2],
-                   'photo': [0, 2]
-               },
-               spots: city.scenicspot.map((s, idx) => {
-                   let o = {};
-                   let cfg = travelConfig.Scenicspot.Get(s);
-                   let xy = ScenicPos.Get(s);
-                   o.id = s;
-                   o.cid = cid;
-                   o.name = cfg.scenicspot;
-                   o.building = cfg.building;
-                   o.x = xy.x;
-                   o.y = xy.y;
-                   o.tracked = false;
-                   if(ctx.query.line){
-                       let index = lines.findIndex((n) => n == s);
-                       o.index = index;
-                       if(index != -1){
-                           o.createDate = new Date().getTime() + (index+1) * 10000;
-                       }
+        let lines = userLines.get(ctx.query.uid);
+        if(ctx.query.line){
+            lines = JSON.parse(ctx.query.line);
+            userLines.set(ctx.query.uid,lines);
+        }
 
-                   }else{
-                       o.index = idx;// 真实情况，应该读库
-                   }
+        if(!tour.get(ctx.query.uid)){
+            let result ={
+                code : "0",
+                data:{
+                    task: {
+                        'spot': [0, 6],
+                        'tour': [0, 2],
+                        'photo': [0, 2]
+                    },
+                    spots: city.scenicspot.map((s, idx) => {
+                        let o = {};
+                        let cfg = travelConfig.Scenicspot.Get(s);
+                        let xy = ScenicPos.Get(s);
+                        o.id = s;
+                        o.cid = cid;
+                        o.name = cfg.scenicspot;
+                        o.building = cfg.building;
+                        o.x = xy.x;
+                        o.y = xy.y;
+                        o.tracked = false;
 
-                   return o;
-               }),
-               weather: 1,
-           },
+                        if(lines){
+                            let index = lines.findIndex((n) => n == s);
+                            o.index = index;
+                            if(index != -1){
+                                o.createDate = new Date().getTime() + (index+1) * 10000;
+                            }
+                        }else{
+                            o.index = -1;// 真实情况，应该读库
+                        }
 
-        };
 
-        ctx.body =result;
+
+                        return o;
+                    }),
+                    weather: 1,
+                },
+
+            };
+            if(lines){
+                tour.set(ctx.query.uid,result);
+            }
+
+            ctx.body =result;
+        }else{
+            let result = tour.get(ctx.query.uid);
+            let sps = result.data.spots;
+         //   this.logger.info(sps);
+            result.data.spots=sps.map((s, idx) =>{
+                let o = s;
+                if(o.index != -1){
+                    this.logger.info(o.createDate);
+                    let date = new Date().getTime();
+                    this.logger.info(date);
+                    if(o.createDate < date) {
+                        o.tracked = true;
+                    }
+                }
+                this.logger.info(o);
+                return o;
+            });
+          //  this.logger.info( result.data.spots);
+            ctx.body =result
+        }
+
+
+
 
         return;
 
