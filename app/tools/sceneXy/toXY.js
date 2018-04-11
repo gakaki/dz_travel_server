@@ -59,8 +59,8 @@ function gen(sourcePoints) {
     }
 
     //to int
-    let scalex = (maxx - minx) / VW;
-    let scaley = (maxy - miny) / VH;
+    let scalex = VW / (maxx - minx);
+    let scaley = VH / (maxy - miny);
     points.every(p => {
 
         p.x *= scalex;
@@ -96,7 +96,6 @@ function brang() {
 
             let mv = val * 0.03;
 
-            console.log(dist,mv)
             //相对移动
             let sx = Math.cos(angle) * mv;
             let sy = Math.sin(angle) * mv;

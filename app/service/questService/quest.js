@@ -28,6 +28,7 @@ class Quest extends TreeNode {
             "4" :"特产",
             "5" :"积分"
         };
+        let d               = this.data;
 
         this.trigger_type   = d.subtype;    //
         // this.loc_name       = d['loc_name']; //地点中文
