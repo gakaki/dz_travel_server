@@ -191,7 +191,7 @@ api SpotTour {
 api EventShow   {
     require uid:number
     require cid:number
-
+    output id:string
     output quest:Quest
     output userinfo:UserInfo
 }
