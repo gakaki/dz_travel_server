@@ -1,7 +1,7 @@
 const Subscription = require('egg').Subscription;
 const travelConfig = require("../../sheets/travel");
 const apis = require("../../apis/travel");
-class UpdateRewardRank extends Subscription {
+class UpdateRewardRankSchedule extends Subscription {
     // 通过 schedule 属性来设置定时任务的执行间隔等配置
     static get schedule() {
         return {
@@ -34,4 +34,4 @@ class UpdateRewardRank extends Subscription {
     }
 }
 
-module.exports = UpdateRewardRank;
+module.exports = UpdateRewardRankSchedule;

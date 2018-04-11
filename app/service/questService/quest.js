@@ -14,6 +14,7 @@ class TreeNode {
     }
 }
 
+const _             = require("lodash");
 
 //事件（或者叫任务）类 有前后置关系 所以做成树状
 class Quest extends TreeNode {
@@ -106,6 +107,14 @@ class Quest extends TreeNode {
         this.wrong1         =  d.wrong1;        //错误答案1
         this.wrong2         =  d.wrong2;        //错误答案2
         this.wrong3         =  d.wrong3;        //错误答案3
+    }
+
+    answers(){
+        let answers   = [ this.answer, this.wrong1, this.wrong2, this.wrong3 ];
+        answers       = answers.filter(n => n);
+
+        if (!answers || answers.length <= 0) return null;
+        return  _.shuffle( answers )
     }
 
     formatRewardComment(){

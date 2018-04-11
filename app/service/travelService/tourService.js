@@ -4,7 +4,6 @@ const utilsTime     = require("../../utils/time");
 const apis          = require("../../../apis/travel");
 const constant      = require('../../utils/constant');
 const questRepo     = require('../questService/questRepo');
-const _             = require("lodash");
 
 class TourService extends Service {
 
@@ -191,12 +190,6 @@ class TourService extends Service {
         this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
 
         info.goldNum = ui.items[sheets.Item.GOLD];
-        // no money return
-
-        // one random event
-
-
-
         // info typeof apis.IndexInfo
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
@@ -246,6 +239,49 @@ class TourService extends Service {
         info.postcard   =  cfgPostcard;
     }
 
+    // 游玩 回答问题 http://127.0.0.1:7001/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
+    async tourspotanswer(info){
+        // id   db_id
+        // answer 答案
+        let uid    = info.uid;
+        let id     = info.id;
+        let answer = info.answer;
+
+        let row    = await this.ctx.model.TravelModel.SpotTravelEvent.findOne({
+            _id:     id
+        });
+        if ( !row ) {
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+        let eid           = row['eid'];
+        let questCfg      = questRepo.find(eid);
+        let cid           = row['cid'];
+
+        if (questCfg.answer == answer){
+
+            //给予奖励写入数据库
+            await this.rewardThanMark(  uid , cid , eid );
+
+            //回答正确 给予正确奖励
+            info.correct      = true;
+            info.rewards      = questCfg.rewards;
+        }else
+        {
+            //回答错误 给予错误奖励 现在暂时没逻辑
+            let rewardError  = questCfg['errorreward'];
+            if ( rewardError == "0" ){
+
+            }else{
+
+            }
+            info.correct      = false;
+        }
+        info.submit();
+    }
+
     // 游玩 事件查看 http://127.0.0.1:7001/tour/eventshow?uid=1000001&cid=1
     async eventshow(info){
 
@@ -258,85 +294,64 @@ class TourService extends Service {
             received:false
         });
 
-        // let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOneAndUpdate(
-        // {
-        //     uid: info.uid,
-        //     cid: info.cid,
-        //     received:false
-        // },
-        // {
-        //     $set: {
-        //         "receivedDate" : new Date() ,
-        //         "received": true           //设置为已经领取
-        //     }
-        // },
-        // {
-        //     returnNewDocument: true
-        // });
-
         if ( !row ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
+
         let eid           = row["eid"];
         let questCfg      = questRepo.find(eid);
-        let questType     = questCfg.type;
 
-        if (questType == questType.EventTypeKeys.COMMON){
+        //数据库记录id 方便答对答错之后的奖励
+        info.id           = row['_id'];
+        info.quest        = {
+            id:            eid,
+            type:          questCfg.type,
+            describe:      questCfg['describe'],
+            gold_used:     0,
+            rewards:       questCfg.rewards,
+            question:      questCfg['describe'],
+            answers:       questCfg.answers(),
+        };
+
+        if (questCfg.type == questCfg.EventTypeKeys.COMMON){
             //若是 普通的随机事件 那么直接触发获得奖励了
-            let rewardCfg     = await this.ctx.service.publicService.rewardService.reward(info.uid,info.cid,eid);
-            //直接给予奖励
-            let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOneAndUpdate(
-            {
-                uid: info.uid,
-                cid: info.cid,
-                received:false
-            },
-            {
-                $set: {
-                    "receivedDate" : new Date() ,
-                    "received": true           //设置为已经领取
-                }
-            },
-            {
-                returnNewDocument: true
-            });
+            let row                 = await this.rewardThanMark(info.uid,info.cid,eid);
+            info.quest['time']      = row['receivedDate'];
 
-            info.quest        = {
-                time:          row['receivedDate'],
-                id:            eid,
-                type:          questCfg.type,
-                describe:      rewardCfg['describe'],
-                gold_used:     0,
-                rewards:       rewardCfg.rewards
-            }
-            info.submit();
-
-
-        }else if ( questType == questType.EventTypeKeys.QA_NO_NEED_RESULT ) {
-
-        }else if ( questType == questType.EventTypeKeys.QA_NEED_RESULT ) {
-            //返回结果答案 然后回答正确在给奖励
-
-            info.quest        = {
-                time:          row['receivedDate'],
-                id:            eid,
-                type:          questCfg.type,
-                describe:      rewardCfg['describe'],
-                gold_used:     0,
-                rewards:       [],
-                question:       {
-                    "ask":  questCfg.describe,
-                    "answer": _.shuffle( [ questCfg.answer, questCfg.wrong1, questCfg.wrong2, questCfg.wrong3] )
-                }
-            }
-            info.submit();
+        }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
+            info.quest['rewards']   = {};
+        }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
+            info.quest['rewards']   = {};
         }
 
-
+        info.submit();
     }
 
+    // 写入数据库获得了奖励 并给予标记
+    async rewardThanMark(  uid , cid , eid  ){
+        //若是 普通的随机事件 那么直接触发获得奖励了
+        await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
+        //标记已经获得奖励了
+        let row  = await this.ctx.model.TravelModel.SpotTravelEvent.findOneAndUpdate(
+        {
+            uid: uid,
+            cid: cid,
+            received:false
+        },
+        {
+            $set: {
+                "receivedDate" : new Date() ,
+                "received": true           //设置为已经领取
+            }
+        },
+        {
+            returnNewDocument: true
+        });
+        return row;
+        // info.quest['time']      = row['receivedDate'];
+    }
 
     //观光
     async tour(info, ui) {
@@ -362,6 +377,38 @@ class TourService extends Service {
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
+    async rentprop(info) {
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
+        if (curCity.rentItems[info.rentId] > 0) {
+            this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
+            info.code = apis.Code.ALREADY_GOT;
+            return;
+        }
+
+        let cfg = travelConfig.Shop.Get(info.rentId);
+        if (!cfg) {
+            this.logger.info(`道具商店表shop中未找到id为${info.rentId}的道具`)
+            info.code = apis.Code.NOT_FOUND;
+            return;
+        }
+
+        let rentItems = curCity.rentItems;
+        rentItems[cfg.id] = 1;
+        //扣钱
+        let money = cfg.price;
+        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, {["items." + travelConfig.Item.GOLD]: -money}, 'travel');
+        //加道具
+        await this.ctx.model.TravelModel.CurrentCity.update({uid: info.ui.uid}, { rentItems });
+        this.logger.info(`租用道具${cfg.id}成功`);
+
+        //此处需要通知事件逻辑层，来检测一下是否需要根据新道具来更新事件。。。。
+    }
+
+
+    async rentedprop(info) {
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
+        info.rentItems = Object.values(curCity.rentItems);
+    }
 
 }
 

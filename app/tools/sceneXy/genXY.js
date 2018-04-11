@@ -26,11 +26,14 @@ sheets.citys.forEach(c => {
                 spots.push({id: s, j: jw[0], w: jw[1], cityId: c.id})
         }
         else {
-            console.log(`未找到id为${s}的景点,跳过。。。`)
+            console.log(`city表id为${c.id}的行scenicspot中未找到id为${s}的景点,跳过。。。`)
         }
 
         return true;
     });
+
+    //将城市坐标放入其中，作为游玩景点的起点
+    spots.push({id: c.id, j: c.coordinate[0], w: c.coordinate[1], cityId: c.id});
 
     let xys = toXY(spots);
     // console.log(xys)
