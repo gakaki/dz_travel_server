@@ -108,10 +108,10 @@ class TravelController extends Controller {
             info.submit();
             return
         }
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
         //道具不足
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
-            let ticket = await this.ctx.model.TravelModel.FlyTicket.findOne({uid: ui.uid, id: info.tid});
+            let ticket = await this.ctx.model.TravelModel.FlyTicket.findOne({ uid: ui.uid, id: info.tid });
             if (!ticket || ticket.isUse) {
                 this.logger.info("道具不存在或者已使用");
                 info.code = apis.Code.NOT_FOUND;
@@ -119,8 +119,8 @@ class TravelController extends Controller {
                 return
             }
         }
-        if(visit){
-            if (visit.cid == info.cid) {
+        if(currentCity) {
+            if (currentCity.cid == info.cid) {
                 this.logger.info("已经在当前城市了 ：" + info.cid);
                 info.code = apis.Code.REQUIREMENT_FAILED;
                 info.submit();
@@ -129,7 +129,7 @@ class TravelController extends Controller {
 
         }
 
-        await this.service.travelService.travelService.visit(info, ui, visit,fui);
+        await this.service.travelService.travelService.visit(info, ui, currentCity, fui);
 
         info.submit();
     }
