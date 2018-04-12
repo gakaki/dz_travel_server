@@ -89,13 +89,25 @@ class TravelService extends Service {
     }
 
 
-    async visit(info, ui, visit, fui) {
+    async visit(info, ui, lastCity, fui) {
         let cid = info.cid;
         let ttype = info.type;
-
         let cost = {
+            //机票钱
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1,
+
         };
+        if(lastCity) {
+            //上个城市走的实际景点数
+            let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: lastCity.fid });
+            let reward = lastCity.efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
+            //上个城市的评分奖励
+            cost[ "items." + travelConfig.Item.GOLD] = reward;
+            info.score = lastCity.efficiency;
+            info.reward = reward;
+        }
+
+
         //使用赠送机票
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
             this.logger.info("使用赠送机票");
@@ -111,37 +123,37 @@ class TravelService extends Service {
         //     ["items." + travelConfig.Item.GOLD]: {$gt: 0}
         // }, {$inc: {["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1}});
         this.ctx.service.publicService.itemService.itemChange(ui.uid, cost);
-        if (ui.isFirst){
+        if (ui.isFirst) {
             this.logger.info("首次飞行");
-            await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isFirst: false}});
+            await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isFirst: false } });
         }
-        if(fui && fui.isFirst){
+        if(fui && fui.isFirst) {
             this.logger.info("好友首次飞行");
-            await this.ctx.model.PublicModel.User.update({uid: fui.uid}, {$set: {isFirst: false}});
+            await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $set: { isFirst: false } });
         }
         //飞行消耗为0 ，为免费飞行或者使用赠送机票
         if (!Number(info.cost) && (ui.isSingleFirst || ui.isDoubleFirst)) {
             //使用的不是免费机票
-            if (info.type.indexOf("0") != -1 ) {
+            if (info.type.indexOf("0") != -1) {
                 if (fui && ui.isDoubleFirst) {
-                    await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isDoubleFirst: false}});
+                    await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isDoubleFirst: false } });
                 } else if (!fui && ui.isSingleFirst) {
-                    await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$set: {isSingleFirst: false}});
+                    await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isSingleFirst: false } });
                 }
             }
 
         }
-        let flyid = "fly"+new Date().getTime();
+        let flyid = "fly" + new Date().getTime();
         let flyRecord = {
-            uid: ui.uid,      //用户ID
-            fid:flyid,
-            from: visit ? visit.cid : "初次旅行",           //出发地
-            destination: cid,   //目的地
-            ticketType: ttype,//机票类型
-            isDoublue: fui ? true : false,//是否双人旅行
-            friend:"0",
-            cost: Number(info.cost),                        //花费的金币
-            createDate: new Date()
+            uid: ui.uid, //用户ID
+            fid: flyid,
+            from: lastCity ? lastCity.cid : "初次旅行", //出发地
+            destination: cid, //目的地
+            ticketType: ttype, //机票类型
+            isDoublue: !!fui, //是否双人旅行
+            friend: "0",
+            cost: Number(info.cost), //花费的金币
+            createDate: new Date(),
         };
         let rentItems = {};
         for (let rentItem of travelConfig.shops) {
@@ -149,39 +161,42 @@ class TravelService extends Service {
         }
         let currentCity = {
             uid: ui.uid,
-            fid:flyid,
+            fid: flyid,
             cid: cid,
             rentItems: rentItems,
-            friend:"0",
+            friend: "0",
         };
         let footprint = {
-            uid:ui.uid,
-            fid:flyid,
-            cid:cid,
-            country:travelConfig.City.Get(cid).country,
-            province:travelConfig.City.Get(cid).province,
-            city:travelConfig.City.Get(cid).city,
+            uid: ui.uid,
+            fid: flyid,
+            cid: cid,
+            country: travelConfig.City.Get(cid).country,
+            province: travelConfig.City.Get(cid).province,
+            city: travelConfig.City.Get(cid).city,
           //  scenicspot:"0",
-            createDate:new Date(),
-        }
+            createDate: new Date(),
+        };
         //双人旅行
         if (fui) {
             flyRecord.friend = fui.uid;
             currentCity.friend = fui.uid;
+            currentCity.efficiency = 0;
             await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
             await this.ctx.model.TravelModel.Footprints.create(footprint);
-            await this.ctx.model.TravelModel.CurrentCity.update({uid: currentCity.uid}, currentCity, {upsert: true});
+            await this.ctx.model.TravelModel.CurrentCity.update({ uid: currentCity.uid }, currentCity, { upsert: true });
+
             //更新好友
-            await this.ctx.model.PublicModel.User.update({uid: ui.uid}, {$addToSet: {friendList: fui.uid}});
-            let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: fui.uid});
+            await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $addToSet: { friendList: fui.uid } });
+            let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: fui.uid });
             flyRecord.uid = fui.uid;
             flyRecord.friend = ui.uid;
             flyRecord.from = fvisit ? fvisit.cid : "初次旅行";
             currentCity.uid = fui.uid;
             currentCity.friend = ui.uid;
             footprint.uid = fui.uid;
-            await this.ctx.model.PublicModel.User.update({uid: fui.uid}, {$addToSet: {friendList: ui.uid}});
-
+            await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
+        }else{
+            currentCity.efficiency = 0;
         }
 
         //添加飞行记录
