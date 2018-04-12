@@ -108,7 +108,7 @@ class TourController extends Controller {
         //         return o;
         //     });
         //     //  this.logger.info( result.data.spots);
-
+ 
         // }
 
         // tour.set(ctx.query.uid,result);
