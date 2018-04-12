@@ -18,6 +18,18 @@ class QuestRepo {
     update(quest){}
     remove(quest){}
     query(specification){}
+
+
+    filter(option){
+        return this.quests.filter( e  => ( e.trigger_type  == e.TriggerTypeKeys.RANDOM_CITY ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_COMMON ));
+            // e.cid                == option.cid &&
+            // e.condition3_weather == option.weather &&
+            // e.condition3_date    == option.today &&
+            // e.condition4_        == option.itemSpecial &&
+
+            //表示为游玩事件     
+
+    }
 }
 
 module.exports = new QuestRepo();
