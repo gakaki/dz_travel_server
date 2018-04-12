@@ -39,8 +39,10 @@ class TourController extends Controller {
 
 
         let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
-        let startPos   = travelConfig.Scenicspot.Get(cid);
+      //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
+        let friendList = [];
+        let startPos   = ScenicPos.Get(cid);
+        this.logger.info(cid, startPos)
         if(!result){
              result ={
                 code : "0",
@@ -119,8 +121,10 @@ class TourController extends Controller {
     }
 
     async tourstart(ctx){
-        let cid         = info.cid;
-        let uid         = info.uid;
+      //  let info = apis.TourStart.Init(ctx);
+      //  let cid         = info.cid;
+     //   let uid         = info.uid;
+        let cid =1;
         let city        = travelConfig.City.Get(cid);
         let result      = tour.get(ctx.query.uid);
         let lines       = JSON.parse(ctx.query.line);
@@ -129,34 +133,34 @@ class TourController extends Controller {
         
 
 
-        // userLines.set(ctx.query.uid,lines);
-        // let sps = result.data.spots;
-        // result.data.spots= .map((s, idx) =>{
-        //     let o = s;
-        //     if(o.index != -1){
-        //         this.logger.info(o.createDate);
-        //         let date = new Date().getTime();
-        //         this.logger.info(date);
-        //         if(o.createDate <= date) {
-        //             o.tracked = true;
-        //         }else{
-        //             let index = lines.findIndex((n) => n ==  o.id);
-        //             o.index = index;
-        //             if(index != -1){
-        //                 o.createDate = new Date().getTime() + (index+1) * 30000;
-        //             }
-        //         }
-        //     }else{
-        //         let index = lines.findIndex((n) => n == o.id);
-        //         o.index = index;
-        //         o.createDate = new Date().getTime() + (index+1) * 30000;
-        //     }
-        //     this.logger.info(o);
-        //     return o;
-        // });
+        userLines.set(ctx.query.uid,lines);
+        let sps = result.data.spots;
+        result.data.spots=sps .map((s, idx) =>{
+            let o = s;
+            if(o.index != -1){
+                this.logger.info(o.createDate);
+                let date = new Date().getTime();
+                this.logger.info(date);
+                if(o.createDate <= date) {
+                    o.tracked = true;
+                }else{
+                    let index = lines.findIndex((n) => n ==  o.id);
+                    o.index = index;
+                    if(index != -1){
+                        o.createDate = new Date().getTime() + (index+1) * 30000;
+                    }
+                }
+            }else{
+                let index = lines.findIndex((n) => n == o.id);
+                o.index = index;
+                o.createDate = new Date().getTime() + (index+1) * 30000;
+            }
+            this.logger.info(o);
+            return o;
+        });
 
-        // tour.set(ctx.query.uid,result);
-        // ctx.body =result;
+        tour.set(ctx.query.uid,result);
+        ctx.body =result;
     }
     
     async changerouter(ctx) {
