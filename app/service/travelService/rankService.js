@@ -29,6 +29,7 @@ class RankService extends Service {
      * 获取当前全国积分榜单
      * @param page 页码
      * @param limit 查询条数
+     *
      * */
     async getScoreRankList( page,limit) {
         return await this.ctx.model.TravelModel.IntegralRank.find().skip((page - 1) * limit).limit(limit);
@@ -52,18 +53,91 @@ class RankService extends Service {
         return await this.ctx.model.TravelModel.IntegralRecord.find({ uid: friendList }).sort({ integral: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
     }
 
-
     /**
-     * 更新一次达人榜单
+     * 更新一次足迹榜单
+     *
      * */
-    async updateCompletionDegreeRankList() {
-        let list = await this.ctx.model.TravelModel.CompletionDegreeRecord.find().sort({ completionDegree: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+    async updateFootRankList() {
+        let list = await this.ctx.model.TravelModel.FootRecord.find().sort({ weeklightCityNum: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
             let o = {};
             o.uid = l.uid;
-            o.completionDegree = l.completionDegree;
+            o.lightCityNum = l.weeklightCityNum;
+            o.rank = idx++;
+            o.createDate = date;
+            return o;
+        });
+
+        await this.ctx.model.TravelModel.FootRank.remove();
+        await this.ctx.model.TravelModel.FootRank.insertMany(list);
+
+        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
+    }
+
+    /**
+     * 更新足迹记录表
+     * @param uid  require
+     *
+     * */
+    async updateFootRecord(uid) {
+        await this.ctx.model.TravelModel.FootRecord.update(
+            { uid: uid },
+            { $set: { uid: uid, updateDate: new Date() } },
+            { $inc: { lightCityNum: 1, weeklightCityNum: 1 } },
+            { upsert: true }
+        );
+    }
+
+    /**
+     * 获取当前足迹榜单
+     * @page 页码
+     * @param limit 查询条数
+     * */
+    async getFootRankList(page = 1, limit = travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value) {
+        return await this.ctx.model.TravelModel.FootRank.find().skip((page - 1) * limit).limit(limit);
+    }
+
+    /**
+     * 获取玩家在足迹榜单中的排名
+     * */
+    async getUserFootRank(uid) {
+        let rankInfo = await this.ctx.model.TravelModel.FootRank.findOne({ uid: uid });
+        return rankInfo ? rankInfo.rank : 0; //0表示未上榜
+    }
+
+    /**
+     * 获取玩家点亮的城市
+     * */
+    async getUserFoot(uid) {
+        return await this.ctx.model.TravelModel.FootRecord.findOne({ uid: uid });
+    }
+
+    /**
+     * 获取当前好友足迹榜单
+     * @param friendList 好友列表
+     * @param page 页码
+     * @param limit 查询条数
+     * */
+    async getUserFriendFootRankList(friendList, page, limit) {
+        return await this.ctx.model.TravelModel.FootRecord.find({ uid: friendList }).sort({ lightCityNum: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
+    }
+
+
+    /**
+     *
+     * 更新一次达人榜单
+     *
+     * */
+    async updateCompletionDegreeRankList() {
+        let list = await this.ctx.model.TravelModel.CompletionDegreeRecord.find().sort({ weekCompletionDegree: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+        let idx = 1;
+        let date = new Date();
+        list = list.map(l => {
+            let o = {};
+            o.uid = l.uid;
+            o.completionDegree = l.weekCompletionDegree;
             o.rank = idx++;
             o.createDate = date;
             return o;
@@ -71,10 +145,10 @@ class RankService extends Service {
 
         await this.ctx.model.TravelModel.CompletionDegreeRank.remove();
         await this.ctx.model.TravelModel.CompletionDegreeRank.insertMany(list);
-
-        return list;
-
+        //刷新周记录
+        await this.ctx.model.TravelModel.CompletionDegreeRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
     }
+
     /**
      * 更新达人记录表
      * @param uid  require
@@ -127,8 +201,8 @@ class RankService extends Service {
         let weekProgress = parseFloat((weekUserCityScenicspotsPro + weekUserCityPostcardPro + weekUserCityEventPro).toFixed(1));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
-            { uid: uid },
-            { $set: { uid: uid, completionDegree: progress, weekCompletionDegree: weekProgress, updateDate: new Date() } },
+            { uid: uid, cid: cid },
+            { $set: { uid: uid, cid: cid, completionDegree: progress, weekCompletionDegree: weekProgress, updateDate: new Date() } },
             { upsert: true }
             );
     }
@@ -138,7 +212,7 @@ class RankService extends Service {
      * @page 页码
      * @param limit 查询条数
      * */
-    async getCompletionDegreeRankList(page = 1, limit = 20) {
+    async getCompletionDegreeRankList(page = 1, limit = travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value) {
         return await this.ctx.model.TravelModel.CompletionDegreeRank.find().skip((page - 1) * limit).limit(limit);
     }
 

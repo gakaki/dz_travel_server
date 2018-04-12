@@ -401,7 +401,7 @@ class PlayerService extends Service {
 
     }
 
-    //TODO 足迹榜未做
+
     async getRankInfo(info) {
         let page = Number(info.page) ? Number(info.page) : 1;
         let limit = Number(info.limit) ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
@@ -422,19 +422,34 @@ class PlayerService extends Service {
         }
         if(info.rankType == apis.RankType.THUMBS) {
             let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
-            info.selfRank = {
-                achievement: selfCompletionDegree ? selfCompletionDegree.completionDegree : 0,
-            };
             if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                info.selfRank = {
+                    achievement: selfCompletionDegree ? selfCompletionDegree.weekCompletionDegree : 0,
+                };
                 rankInfos = await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page, limit);
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                info.selfRank = {
+                    achievement: selfCompletionDegree ? selfCompletionDegree.completionDegree : 0,
+                };
                 rankInfos = await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList, page, limit);
             }
         }
 
         if(info.rankType == apis.RankType.FOOT) {
-
+            let selfFoot = await this.ctx.service.travelService.rankService.getUserFoot(info.ui.uid);
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                info.selfRank = {
+                    achievement: selfFoot ? selfFoot.weeklightCityNum : 0,
+                };
+                rankInfos = await this.ctx.service.travelService.rankService.getFootRankList(page, limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                info.selfRank = {
+                    achievement: selfFoot ? selfFoot.lightCityNum : 0,
+                };
+                rankInfos = await this.ctx.service.travelService.rankService.getUserFriendFootRankList(friendList, page, limit);
+            }
         }
 
         this.logger.info(rankInfos);
@@ -448,8 +463,13 @@ class PlayerService extends Service {
            // this.logger.info(rankInfos[index]);
             let rankItem = {
                 rank: rankInfos[index].rank || (index + 1),
-                achievement: rankInfos[index].integral || rankInfos[index].completionDegree,
             };
+            // if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+            //     rankItem.achievement = rankInfos[index].integral || rankInfos[index].completionDegree || rankInfos[index].lightCityNum;
+            // }
+       //     if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                rankItem.achievement = rankInfos[index].integral || rankInfos[index].weekCompletionDegree || rankInfos[index].weeklightCityNum;
+        //    }
             if(!rankItem.achievement) {
                rankItem.achievement = 0;
             }
@@ -462,7 +482,14 @@ class PlayerService extends Service {
                 nickName: user.nickName,
                 avatarUrl: user.avatarUrl,
             };
-            rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
+
+            if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                rankItem.reward = 0;
+            }
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
+            }
+
           //  this.logger.info(rankItem)
             out.push(rankItem);
         }
