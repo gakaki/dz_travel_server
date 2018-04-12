@@ -11,6 +11,7 @@ module.exports = app => {
         progress: {type: Number}, //城市完成度百分比,根据事件数、到达景点数、明信片数，综合计算的完成度，取值0-100
         efficiency: {type: Number}, //效率评分，根据规划的路径与最短路径比值计算
         lighten: {type: Boolean}, //是否已经点亮该城市
+        provinceLighten: {type: Boolean}, //所在省是否点亮
         createDate: {type: Date, default: new Date()}
     })
 
