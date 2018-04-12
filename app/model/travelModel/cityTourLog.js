@@ -3,6 +3,7 @@ module.exports = app => {
     const CityTourLog = new mongoose.Schema({
         cid: {type: String},// 城市id
         uid: {type: String}, //用户uid
+        fid: {type: String},//飞行记录id
         scenicSpots: {type: JSON}, //到过的景点：{id:name,id:name}
         scenicNum: {type: Number}, //到达景点数量
         eventNum: {type: Number}, //触发事件数量

@@ -186,10 +186,12 @@ class TravelService extends Service {
 
         //添加飞行记录
         await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
-        //更新玩家所在地
-        await this.ctx.model.TravelModel.CurrentCity.update({uid: currentCity.uid}, currentCity, {upsert: true});
         //添加足迹
         await this.ctx.model.TravelModel.Footprints.create(footprint);
+        //更新玩家所在地
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: currentCity.uid }, currentCity, { upsert: true });
+        //生成新的游玩日志
+        await this.ctx.model.TravelModel.CityTourLog.create({ uid: ui.uid, cid, fid: flyid });
     }
 
 
