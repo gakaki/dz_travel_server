@@ -33,8 +33,8 @@ sheets.citys.forEach(c => {
     });
 
     //将城市坐标放入其中，作为游玩景点的起点
-    spots.push({id: c.id, j: c.coordinate[0], w: c.coordinate[1], cityId: c.id});
-
+    c.coordinate && c.coordinate.length && spots.push({id: c.id, j: c.coordinate[0], w: c.coordinate[1], cityId: c.id});
+    console.log(c.id, c.coordinate)
     let xys = toXY(spots);
     // console.log(xys)
 

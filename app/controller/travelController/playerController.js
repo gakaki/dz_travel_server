@@ -7,16 +7,16 @@ class PlayerController extends Controller {
     async showplayerinfo(ctx) {
         let info = apis.PlayerInfo.Init(ctx);
         let userId = info.uid;
-        if(info.playerUid){
+        if(info.playerUid) {
             userId = info.playerUid;
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
-        if(!ui){
+        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+        if(!ui) {
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
         }
-        await ctx.service.travelService.playerService.showPlayerInfo(info,ui);
+        await ctx.service.travelService.playerService.showPlayerInfo(info, ui);
         //send data
         info.submit();
     }
@@ -261,13 +261,13 @@ class PlayerController extends Controller {
     }
 
 
-    async getrankinfo(ctx){
-        let info =await apis.RankInfo.Init(ctx,true);
-        if(!info.ui){
+    async getrankinfo(ctx) {
+        let info = await apis.RankInfo.Init(ctx, true);
+        if(!info.ui) {
             return;
         }
         if(info.rankType != apis.RankType.THUMBS && info.rankType != apis.RankType.FOOT && info.rankType != apis.RankType.SCORE){
-            this.logger.info("榜单类型错误 "+ info.rankType);
+            this.logger.info("榜单类型错误 " + info.rankType);
             info.code = apis.Code.NOT_FOUND;
             info.submit();
             return;
@@ -275,7 +275,7 @@ class PlayerController extends Controller {
 
 
         if(info.rankSubtype != apis.RankSubtype.COUNTRY && info.rankSubtype != apis.RankSubtype.FRIEND){
-            this.logger.info("榜单子类型错误 "+ info.rankSubtype);
+            this.logger.info("榜单子类型错误 " + info.rankSubtype);
             info.code = apis.Code.NOT_FOUND;
             info.submit();
             return;

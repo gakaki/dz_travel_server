@@ -58,6 +58,11 @@ api StartGame{
     optional inviteCode:string
     //赠送机票id
     optional tid:string
+
+    //返回上次旅行的得分
+    output score:number
+    //返回奖励积分
+    output reward:number
 }
 
 
@@ -100,4 +105,8 @@ api PartnerInfo{
     output parLocation:string
     //是否起飞
     output isFly:number
+    //被邀请人上次旅行得分
+    output score:number
+    //奖励积分
+    output reward:number
 }

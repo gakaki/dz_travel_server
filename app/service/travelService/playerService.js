@@ -8,11 +8,11 @@ class PlayerService extends Service {
     async showPlayerInfo(info, ui) {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
         let totalFootprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $sortByCount: "$uid" }]);
-        let playerFootprints = totalFootprints.find((n) => n._id == ui.uid);
+       // let playerFootprints = totalFootprints.find((n) => n._id == ui.uid);
         let playerIndex = totalFootprints.findIndex((n) => n._id == ui.uid);
         let total = totalFootprints.length;
-        this.logger.info(totalFootprints);
-        this.logger.info(playerIndex + '   6666666666666666');
+      //  this.logger.info(totalFootprints);
+      //  this.logger.info(playerIndex + '   6666666666666666');
         let overMatch = 0;
         if (playerIndex == -1) {
            playerIndex = total;
@@ -20,6 +20,10 @@ class PlayerService extends Service {
         if (total) {
             overMatch = (((total - playerIndex) / total) * 100).toFixed(2);
         }
+
+        let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
+
+
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({ uid: ui.uid, index: travelConfig.Item.POINT });
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", number: { $sum: "$number" } });
         let comment = await this.ctx.model.TravelModel.Comment.count({ uid: ui.uid });
@@ -31,7 +35,7 @@ class PlayerService extends Service {
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
             gender: ui.gender,
-            totalArrive: playerFootprints ? playerFootprints.count : 0,
+            totalArrive: playerFootprints ? playerFootprints.lightCityNum : 0,
             overmatch: overMatch,
             city: visit ? travelConfig.City.Get(visit.cid).city : "初次旅行",
             province: visit ? travelConfig.City.Get(visit.cid).province : "初次旅行",
@@ -54,30 +58,16 @@ class PlayerService extends Service {
 
     //TODO 足迹重做
     async travelFootprint(info, ui) {
-        let userfootprints = await this.ctx.model.TravelModel.Footprints.aggregate([
-            { $match: { uid: ui.uid } },
-            { $group: { _id: "$province", citys: { $addToSet: { cid: "$cid" } }, scenicspots: { $addToSet: { scenicspot: "$scenicspot" } } } },
-            { $project: { _id: 0, province: "$_id", citys: 1, scenicspots: 1 } },
-            ]);
-
         let totalCitys = travelConfig.citys.length;
-        let totalScenicspots = travelConfig.scenicspots.length;
-        let totalEvents = travelConfig.events.length;
-        let totalPostcards = travelConfig.postcards.length;
         this.logger.info("总城市 " + totalCitys);
-        this.logger.info("总景点 " + totalScenicspots);
-        this.logger.info("总事件 " + totalEvents);
-        this.logger.info("总明信片 " + totalPostcards);
-        let totalArrive = 0;
-        let userscenicspots = 0;
-        for(let footprint of userfootprints) {
-            let citys = footprint.citys;
-            let scenicspots = footprint.scenicspots;
-            totalArrive += citys.length;
-            userscenicspots += scenicspots.length;
-        }
+        let totalArrive = await this.ctx.model.TravelModel.CityLightLog.count({ uid: info.uid, lighten: true });
+        let provinces = await this.ctx.model.TravelModel.CityLightLog.aggregate([
+            { $match: { uid: info.uid, lighten: true } },
+            { $group: { _id: "$province" } },
+        ]);
+
         this.logger.info("用户去过的城市 " + totalArrive);
-        let totalArrivePercent = ((totalArrive / totalCitys) * 100).toFixed(2);
+        let totalArrivePercent = parseFloat(((totalArrive / totalCitys) * 100).toFixed(1));
         this.logger.info("城市百分比 " + totalArrivePercent);
         info.items = ui.items;
         info.userInfo = {
@@ -85,12 +75,11 @@ class PlayerService extends Service {
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
         };
-        info.reachrovince = userfootprints.length;
+        info.reachrovince = provinces.length;
         info.totalArrive = totalArrive;
         info.totalArrivePercent = totalArrivePercent;
-        //完成度计算  (用户到达的景点数+ 触发的事件数+ 收集明星片数）/ (总景点数 + 总事件数 + 总明信片数)
-        let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(ui.uid);
 
+        let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(ui.uid);
         info.travelPercent = selfCompletionDegree ? selfCompletionDegree.completionDegree : 0;
 
 
@@ -401,7 +390,7 @@ class PlayerService extends Service {
 
     }
 
-    //TODO 足迹榜未做
+
     async getRankInfo(info) {
         let page = Number(info.page) ? Number(info.page) : 1;
         let limit = Number(info.limit) ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
@@ -422,19 +411,34 @@ class PlayerService extends Service {
         }
         if(info.rankType == apis.RankType.THUMBS) {
             let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
-            info.selfRank = {
-                achievement: selfCompletionDegree ? selfCompletionDegree.completionDegree : 0,
-            };
             if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                info.selfRank = {
+                    achievement: selfCompletionDegree ? selfCompletionDegree.weekCompletionDegree : 0,
+                };
                 rankInfos = await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page, limit);
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                info.selfRank = {
+                    achievement: selfCompletionDegree ? selfCompletionDegree.completionDegree : 0,
+                };
                 rankInfos = await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList, page, limit);
             }
         }
 
         if(info.rankType == apis.RankType.FOOT) {
-
+            let selfFoot = await this.ctx.service.travelService.rankService.getUserFoot(info.ui.uid);
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                info.selfRank = {
+                    achievement: selfFoot ? selfFoot.weeklightCityNum : 0,
+                };
+                rankInfos = await this.ctx.service.travelService.rankService.getFootRankList(page, limit);
+            }
+            if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                info.selfRank = {
+                    achievement: selfFoot ? selfFoot.lightCityNum : 0,
+                };
+                rankInfos = await this.ctx.service.travelService.rankService.getUserFriendFootRankList(friendList, page, limit);
+            }
         }
 
         this.logger.info(rankInfos);
@@ -448,8 +452,13 @@ class PlayerService extends Service {
            // this.logger.info(rankInfos[index]);
             let rankItem = {
                 rank: rankInfos[index].rank || (index + 1),
-                achievement: rankInfos[index].integral || rankInfos[index].completionDegree,
             };
+            // if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+            //     rankItem.achievement = rankInfos[index].integral || rankInfos[index].completionDegree || rankInfos[index].lightCityNum;
+            // }
+       //     if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                rankItem.achievement = rankInfos[index].integral || rankInfos[index].weekCompletionDegree || rankInfos[index].weeklightCityNum;
+        //    }
             if(!rankItem.achievement) {
                rankItem.achievement = 0;
             }
@@ -462,7 +471,14 @@ class PlayerService extends Service {
                 nickName: user.nickName,
                 avatarUrl: user.avatarUrl,
             };
-            rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
+
+            if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                rankItem.reward = 0;
+            }
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
+            }
+
           //  this.logger.info(rankItem)
             out.push(rankItem);
         }

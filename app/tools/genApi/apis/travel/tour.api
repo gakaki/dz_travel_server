@@ -21,7 +21,7 @@ class Spot {
     //城市id
     prop cid:number
     //景点配置表id
-    prop spotId:number
+    prop id:number
     prop x:number
     prop y:number
     //景点配置表描述
@@ -33,6 +33,8 @@ class Spot {
     prop tracked:boolean
     //经过的顺序
     prop index:number
+    //预计达到时间
+    prop createDate:number
 }
 class NextSpot extends Spot{
     prop spodIdNext:number
@@ -248,5 +250,13 @@ api RentedProp {
     output rentItems:KV[]//已租用的所有道具。
 }
 
-
+api TourStart {
+    require cid:string
+    require line:array
+    output friendList:array
+    output spots:Spot[]
+    output startPos:Position
+    output task:TourTask
+    output weather:number
+}
 

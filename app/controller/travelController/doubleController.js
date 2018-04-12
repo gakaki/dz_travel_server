@@ -88,47 +88,54 @@ class DoubleController extends Controller {
     }
 
 
-    async doubleinfo(ctx){
+    async doubleinfo(ctx) {
         let info = await apis.PartnerInfo.Init(ctx,true);
-        if(!info.ui){
+        if(!info.ui) {
             return;
         }
         let doubleInfo = await this.app.redis.hgetall(info.inviteCode);
-        this.logger.info("传入的code "+ info.inviteCode);
-        this.logger.info("房间信息 " , doubleInfo);
-        if(!doubleInfo || !doubleInfo.code){
+        this.logger.info("传入的code " + info.inviteCode);
+        this.logger.info("房间信息 ", doubleInfo);
+        if(!doubleInfo || !doubleInfo.code) {
             info.code = apis.Code.ROOM_EXPIRED;
             info.submit();
             return;
         }
-        if(doubleInfo.inviter != info.uid && doubleInfo.invitee != info.uid){
-            this.logger.info("接口轮询 房间已满 " + info.uid, doubleInfo.inviter , doubleInfo.invitee != info.uid,doubleInfo.invitee);
+        if(doubleInfo.inviter != info.uid && doubleInfo.invitee != info.uid) {
+            this.logger.info("接口轮询 房间已满 " + info.uid, doubleInfo.inviter, doubleInfo.invitee != info.uid, doubleInfo.invitee);
             info.code = apis.Code.ROOM_FULLED;
             info.submit();
             return;
         }
 
         let userId = info.uid;
-        if(doubleInfo.inviter == info.uid){
+        if(doubleInfo.inviter == info.uid) {
             userId = doubleInfo.invitee
         }
-        if(doubleInfo.invitee == info.uid){
+        if(doubleInfo.invitee == info.uid) {
             userId = doubleInfo.inviter;
         }
-        info.isFly = Number(doubleInfo.isFly);
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
+        let isFly = Number(doubleInfo.isFly);
+        info.isFly = isFly;
+        let invitee = false;
+        if(isFly) {
+            if(info.uid == doubleInfo.invitee) {
+                invitee = true;
+            }
+        }
+        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
         this.logger.info("哪位大大轮询的 " + info.uid);
-        this.logger.info("等待的同伴信息 " +userId , ui);
-        await ctx.service.travelService.doubleService.doubleInfo(info,ui);
+        this.logger.info("等待的同伴信息 " + userId, ui);
+        await ctx.service.travelService.doubleService.doubleInfo(info, ui, isFly, invitee);
         info.submit();
     }
 
-    async deletecode(ctx){
-        let info = await apis.DeleteCode.Init(ctx,true);
-        if(!info.ui){
+    async deletecode(ctx) {
+        let info = await apis.DeleteCode.Init(ctx, true);
+        if(!info.ui) {
             return;
         }
-        this.logger.info("删除邀请码 "+info.inviteCode);
+        this.logger.info("删除邀请码 " + info.inviteCode);
         await ctx.service.travelService.doubleService.deleteCode(info);
         info.submit();
     }

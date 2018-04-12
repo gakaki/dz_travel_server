@@ -173,6 +173,10 @@ class Code{
     
     static get REST_NEED_RELISTEN() { return 10001;}
     
+    static get NO_DB_ROW() { return 11001;}
+    
+    static get NO_CFG_ROW() { return 11002;}
+    
 }
 class TicketType{
     
@@ -890,7 +894,7 @@ class Spot {
         this.cid = null;
     
         //prop type: number
-        this.spotId = null;
+        this.id = null;
     
         //prop type: number
         this.x = null;
@@ -909,6 +913,9 @@ class Spot {
     
         //prop type: number
         this.index = null;
+    
+        //prop type: number
+        this.createDate = null;
     
         
         
@@ -1628,6 +1635,58 @@ class RentedProp extends Base {
         }
     }
 }
+class TourStart extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.tourstart';
+    
+        this._cid = null;
+        this._line = null;
+        this._friendList = null;
+        this._spots = null;
+        this._startPos = null;
+        this._task = null;
+        this._weather = null;
+        this.requireFileds = ["cid","line"];
+        this.reqFields = ["cid","line"];
+        this.resFields = ["friendList","spots","startPos","task","weather"];
+    }
+    //client input, require, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: array
+    get line() {return this._line}
+    set line(v) {this._line = v}
+    //server output, type: array
+    get friendList() {return this._friendList}
+    set friendList(v) {this._friendList = v}
+    //server output, type: Spot[]
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    //server output, type: Position
+    get startPos() {return this._startPos}
+    set startPos(v) {this._startPos = v}
+    //server output, type: TourTask
+    get task() {return this._task}
+    set task(v) {this._task = v}
+    //server output, type: number
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new TourStart();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class WsSend extends Base {
     constructor() {
         super();
@@ -1771,9 +1830,11 @@ class StartGame extends Base {
         this._cost = null;
         this._inviteCode = null;
         this._tid = null;
+        this._score = null;
+        this._reward = null;
         this.requireFileds = ["type","cid","cost"];
         this.reqFields = ["type","cid","cost","inviteCode","tid"];
-        this.resFields = [];
+        this.resFields = ["score","reward"];
     }
     //client input, require, type: TicketType
     get type() {return this._type}
@@ -1790,6 +1851,12 @@ class StartGame extends Base {
     //client input, optional, type: string
     get tid() {return this._tid}
     set tid(v) {this._tid = v}
+    //server output, type: number
+    get score() {return this._score}
+    set score(v) {this._score = v}
+    //server output, type: number
+    get reward() {return this._reward}
+    set reward(v) {this._reward = v}
     static Init(ctx, checkLogin = false) {
         let o = new StartGame();
         o.ctx = ctx;
@@ -1905,9 +1972,11 @@ class PartnerInfo extends Base {
         this._holiday = null;
         this._parLocation = null;
         this._isFly = null;
+        this._score = null;
+        this._reward = null;
         this.requireFileds = ["inviteCode"];
         this.reqFields = ["inviteCode"];
-        this.resFields = ["nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly"];
+        this.resFields = ["nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly","score","reward"];
     }
     //client input, require, type: string
     get inviteCode() {return this._inviteCode}
@@ -1942,6 +2011,12 @@ class PartnerInfo extends Base {
     //server output, type: number
     get isFly() {return this._isFly}
     set isFly(v) {this._isFly = v}
+    //server output, type: number
+    get score() {return this._score}
+    set score(v) {this._score = v}
+    //server output, type: number
+    get reward() {return this._reward}
+    set reward(v) {this._reward = v}
     static Init(ctx, checkLogin = false) {
         let o = new PartnerInfo();
         o.ctx = ctx;
@@ -3433,6 +3508,7 @@ exports.ShowQuestReport = ShowQuestReport;
 exports.Minapppay = Minapppay;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
+exports.TourStart = TourStart;
 exports.WsSend = WsSend;
 exports.ShareInfo = ShareInfo;
 exports.CityListPer = CityListPer;

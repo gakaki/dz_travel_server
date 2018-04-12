@@ -267,7 +267,14 @@ class UserService extends Service {
             updateDate: new Date(),
         });
 
+        //进入达人榜
         await this.ctx.model.TravelModel.CompletionDegreeRecord.create({
+            uid: uid, //玩家uid
+            updateDate: new Date(), //更新时间
+        });
+
+        //进入足迹榜
+        await this.ctx.model.TravelModel.FootRecord.create({
             uid: uid, //玩家uid
             updateDate: new Date(), //更新时间
         });
