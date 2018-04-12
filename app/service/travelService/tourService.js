@@ -432,7 +432,7 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.CityTourLog.update({ _id: tourLog._id }, tourLog);
 
         //根据评论给予奖励
-        
+
 
     }
 

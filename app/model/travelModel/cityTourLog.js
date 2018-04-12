@@ -13,4 +13,6 @@ module.exports = app => {
         lighten: {type: Boolean}, //是否已经点亮该城市
         createDate: {type: Date, default: new Date()}
     })
+
+    return mongoose.model('CityTourLog', CityTourLog);
 }
