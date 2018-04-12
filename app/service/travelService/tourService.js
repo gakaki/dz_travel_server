@@ -429,6 +429,8 @@ class TourService extends Service {
             curCity.tourCount >= travelConfig.Paremeter.Get(travelConfig.Paremeter.TOURNUMBER).value &&
             curCity.photographyCount >= travelConfig.Paremeter.Get(travelConfig.Paremeter.PHOTOGRAPH).value;
 
+        let allLogs = await this.ctx.model.TravelModel.CityTourLog.find({ uid: ui.uid, _id: { $ne: tourLog._id } });
+
         await this.ctx.model.TravelModel.CityTourLog.update({ _id: tourLog._id }, tourLog);
 
         //根据评论给予奖励
