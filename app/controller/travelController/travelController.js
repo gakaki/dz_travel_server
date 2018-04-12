@@ -51,34 +51,7 @@ class TravelController extends Controller {
 
         let fid = null;
         let fui = null;
-        if (info.inviteCode) {
-            let dInfo = await this.app.redis.hgetall(info.inviteCode);
-            if(!dInfo || !dInfo.code) {
-                this.logger.info("房间不存在");
-                info.code = apis.Code.ROOM_EXPIRED;
-                info.submit();
-                return
-            }
-            if (dInfo.invitee == "0") {
-                this.logger.info("房间未满");
-                info.code = apis.Code.FRIEND_WAIT;
-                info.submit();
-                return
-            }
-            dInfo.isFly = 1;
-            await this.app.redis.hmset(info.inviteCode,dInfo);
-            fid = dInfo.invitee;
-            fui = await this.ctx.model.PublicModel.User.findOne({uid: fid});
-            if(!fui){
-                this.logger.info("好友不存在");
-                info.code = apis.Code.USER_NOT_FOUND;
-                info.submit();
-                return
-            }
 
-        }
-        this.logger.info("飞机起飞喽   " , info.inviteCode);
-        this.logger.info(fid);
 
         //非法传参
         if (!Number(info.cost)) {
@@ -108,10 +81,10 @@ class TravelController extends Controller {
             info.submit();
             return
         }
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
         //道具不足
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
-            let ticket = await this.ctx.model.TravelModel.FlyTicket.findOne({uid: ui.uid, id: info.tid});
+            let ticket = await this.ctx.model.TravelModel.FlyTicket.findOne({ uid: ui.uid, id: info.tid });
             if (!ticket || ticket.isUse) {
                 this.logger.info("道具不存在或者已使用");
                 info.code = apis.Code.NOT_FOUND;
@@ -119,8 +92,8 @@ class TravelController extends Controller {
                 return
             }
         }
-        if(visit){
-            if (visit.cid == info.cid) {
+        if(currentCity) {
+            if (currentCity.cid == info.cid) {
                 this.logger.info("已经在当前城市了 ：" + info.cid);
                 info.code = apis.Code.REQUIREMENT_FAILED;
                 info.submit();
@@ -128,8 +101,36 @@ class TravelController extends Controller {
             }
 
         }
+        if (info.inviteCode) {
+            let dInfo = await this.app.redis.hgetall(info.inviteCode);
+            if(!dInfo || !dInfo.code) {
+                this.logger.info("房间不存在");
+                info.code = apis.Code.ROOM_EXPIRED;
+                info.submit();
+                return
+            }
+            if (dInfo.invitee == "0") {
+                this.logger.info("房间未满");
+                info.code = apis.Code.FRIEND_WAIT;
+                info.submit();
+                return
+            }
+            dInfo.isFly = 1;
+            await this.app.redis.hmset(info.inviteCode,dInfo);
+            fid = dInfo.invitee;
+            fui = await this.ctx.model.PublicModel.User.findOne({uid: fid});
+            if(!fui) {
+                this.logger.info("好友不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return
+            }
 
-        await this.service.travelService.travelService.visit(info, ui, visit,fui);
+        }
+        this.logger.info("飞机起飞喽   ", info.inviteCode);
+        this.logger.info(fid);
+
+        await this.service.travelService.travelService.visit(info, ui, currentCity, fui);
 
         info.submit();
     }

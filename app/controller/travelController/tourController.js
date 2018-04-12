@@ -39,10 +39,14 @@ class TourController extends Controller {
 
 
         let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
+
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
         let friendList = [];
         let startPos   = ScenicPos.Get(cid);
         this.logger.info(cid, startPos)
+      //  let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
+        let friendList = [];
+        let startPos   = travelConfig.Scenicspot.Get(cid);
         if(!result){
              result ={
                 code : "0",
@@ -125,6 +129,9 @@ class TourController extends Controller {
       //  let cid         = info.cid;
      //   let uid         = info.uid;
         let cid =1;
+     //   let cid         = info.cid;
+       // let uid         = info.uid;
+        let cid = 1;
         let city        = travelConfig.City.Get(cid);
         let result      = tour.get(ctx.query.uid);
         let lines       = JSON.parse(ctx.query.line);
@@ -135,7 +142,8 @@ class TourController extends Controller {
 
         userLines.set(ctx.query.uid,lines);
         let sps = result.data.spots;
-        result.data.spots=sps .map((s, idx) =>{
+
+        result.data.spots= sps.map((s, idx) =>{
             let o = s;
             if(o.index != -1){
                 this.logger.info(o.createDate);
@@ -161,6 +169,7 @@ class TourController extends Controller {
 
         tour.set(ctx.query.uid,result);
         ctx.body =result;
+
     }
     
     async changerouter(ctx) {

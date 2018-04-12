@@ -1830,9 +1830,11 @@ class StartGame extends Base {
         this._cost = null;
         this._inviteCode = null;
         this._tid = null;
+        this._score = null;
+        this._reward = null;
         this.requireFileds = ["type","cid","cost"];
         this.reqFields = ["type","cid","cost","inviteCode","tid"];
-        this.resFields = [];
+        this.resFields = ["score","reward"];
     }
     //client input, require, type: TicketType
     get type() {return this._type}
@@ -1849,6 +1851,12 @@ class StartGame extends Base {
     //client input, optional, type: string
     get tid() {return this._tid}
     set tid(v) {this._tid = v}
+    //server output, type: number
+    get score() {return this._score}
+    set score(v) {this._score = v}
+    //server output, type: number
+    get reward() {return this._reward}
+    set reward(v) {this._reward = v}
     static Init(ctx, checkLogin = false) {
         let o = new StartGame();
         o.ctx = ctx;
@@ -1964,9 +1972,11 @@ class PartnerInfo extends Base {
         this._holiday = null;
         this._parLocation = null;
         this._isFly = null;
+        this._score = null;
+        this._reward = null;
         this.requireFileds = ["inviteCode"];
         this.reqFields = ["inviteCode"];
-        this.resFields = ["nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly"];
+        this.resFields = ["nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly","score","reward"];
     }
     //client input, require, type: string
     get inviteCode() {return this._inviteCode}
@@ -2001,6 +2011,12 @@ class PartnerInfo extends Base {
     //server output, type: number
     get isFly() {return this._isFly}
     set isFly(v) {this._isFly = v}
+    //server output, type: number
+    get score() {return this._score}
+    set score(v) {this._score = v}
+    //server output, type: number
+    get reward() {return this._reward}
+    set reward(v) {this._reward = v}
     static Init(ctx, checkLogin = false) {
         let o = new PartnerInfo();
         o.ctx = ctx;
