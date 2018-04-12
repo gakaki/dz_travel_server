@@ -150,18 +150,19 @@ class EventRandom {
     }
 }
 
+module.exports = EventRandom;
 // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
-let objParametes   = {
-    line           : [100107,100102,100109],
-    cid            : 101,
-    weather        : 0,
-    today          : 0,
-    itemSpecial    : 0
-};
-
-
-let er      = new EventRandom(objParametes);
-console.log(er.events);
+// let objParametes   = {
+//     line           : [100107,100102,100109],
+//     cid            : 101,
+//     weather        : 0,
+//     today          : 0,
+//     itemSpecial    : 0
+// };
+//
+//
+// let er      = new EventRandom(objParametes);
+// console.log(er.events);
 
 
 
