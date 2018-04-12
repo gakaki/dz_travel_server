@@ -26,109 +26,108 @@ class TourController extends Controller {
 
 
     async tourindexinfor(ctx) {
-        let info    = apis.TourIndexInfo.Init(ctx);
-        let cid     = info.cid;
-        let city    = travelConfig.City.Get(cid);
-        let uid     = info.uid;
+        // let info    = apis.TourIndexInfo.Init(ctx);
+        // let cid     = info.cid;
+        // let uid     = info.uid;
 
-        // 获取user的lines
-        // let lines   = userLines.get(ctx.query.uid);
-        let result  = tour.get(ctx.query.uid);
-        this.logger.info(result);
+        // // 获取user的lines
+        // // let lines   = userLines.get(ctx.query.uid);
+        // let result  = tour.get(ctx.query.uid);
+        // this.logger.info(result);
 
-        let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
-        let startPos   = ScenicPos.Get(cid);
+        // let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
+        // let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
+        // let startPos   = ScenicPos.Get(cid);
 
-        let task       = {
-            'spot': [0, 6],
-            'tour': [0, 2],
-            'photo': [0, 2]
-        };
+        // let task       = {
+        //     'spot': [0, 6],
+        //     'tour': [0, 2],
+        //     'photo': [0, 2]
+        // };
 
         
-        if(!result){
-            result ={
-                code : "0",
-                data:{
-                    task: {
-                        'spot': [0, 6],
-                        'tour': [0, 2],
-                        'photo': [0, 2]
-                    },
-                    startPos:       startPos,       //起始点
-                    weather:        weatherTxt,     //service 3rd 调用第三方service,
-                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind
-                    spots: city.scenicspot.map((s, idx) => {
-                        let o = {};
-                        let cfg = travelConfig.Scenicspot.Get(s);
-                        let xy = ScenicPos.Get(s);
-                        o.id = s;
-                        o.cid = cid;
-                        o.name = cfg.scenicspot;
-                        o.building = cfg.building;
-                        o.x = xy.x;
-                        o.y = xy.y;
-                        o.tracked = false;
+        // if(!result){
+        //     result ={
+        //         code : "0",
+        //         data:{
+        //             task: {
+        //                 'spot': [0, 6],
+        //                 'tour': [0, 2],
+        //                 'photo': [0, 2]
+        //             },
+        //             startPos:       startPos,       //起始点
+        //             weather:        weatherTxt,     //service 3rd 调用第三方service,
+        //             friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind
+        //             spots: city.scenicspot.map((s, idx) => {
+        //                 let o = {};
+        //                 let cfg = travelConfig.Scenicspot.Get(s);
+        //                 let xy = ScenicPos.Get(s);
+        //                 o.id = s;
+        //                 o.cid = cid;
+        //                 o.name = cfg.scenicspot;
+        //                 o.building = cfg.building;
+        //                 o.x = xy.x;
+        //                 o.y = xy.y;
+        //                 o.tracked = false;
 
-                        // if(lines){
-                        //     let index = lines.findIndex((n) => n == s);
-                        //     o.index = index;
-                        //     if(index != -1){
-                        //         o.createDate = new Date().getTime() + (index+1) * 30000;
-                        //     }
-                        // }else{
-                        o.index = -1;// 真实情况，应该读库
-                        // }
+        //                 // if(lines){
+        //                 //     let index = lines.findIndex((n) => n == s);
+        //                 //     o.index = index;
+        //                 //     if(index != -1){
+        //                 //         o.createDate = new Date().getTime() + (index+1) * 30000;
+        //                 //     }
+        //                 // }else{
+        //                 o.index = -1;// 真实情况，应该读库
+        //                 // }
 
-                        return o;
-                    }),
-                    weather: 1,
-                },
+        //                 return o;
+        //             }),
+        //             weather: 1,
+        //         },
 
-            };
-            // if(lines){
-            //     tour.set(ctx.query.uid,result);
-            // }
+        //     };
+        //     // if(lines){
+        //     //     tour.set(ctx.query.uid,result);
+        //     // }
 
 
-        }else{
-            let sps = result.data.spots;
-            //   this.logger.info(sps);
-            result.data.spots=sps.map((s, idx) =>{
-                let o = s;
-                if(o.index != -1){
-                    this.logger.info(o.createDate);
-                    let date = new Date().getTime();
-                    this.logger.info(date);
-                    if(o.createDate <= date) {
-                        o.tracked = true;
-                    }
-                }
-                //  this.logger.info(o);
-                return o;
-            });
-            //  this.logger.info( result.data.spots);
+        // }else{
+        //     let sps = result.data.spots;
+        //     //   this.logger.info(sps);
+        //     result.data.spots=sps.map((s, idx) =>{
+        //         let o = s;
+        //         if(o.index != -1){
+        //             this.logger.info(o.createDate);
+        //             let date = new Date().getTime();
+        //             this.logger.info(date);
+        //             if(o.createDate <= date) {
+        //                 o.tracked = true;
+        //             }
+        //         }
+        //         //  this.logger.info(o);
+        //         return o;
+        //     });
+        //     //  this.logger.info( result.data.spots);
 
-        }
+        // }
 
-        tour.set(ctx.query.uid,result);
-        ctx.body =result;
+        // tour.set(ctx.query.uid,result);
+        // ctx.body =result;
 
-        return;
+        // return;
 
-        let info            = apis.TourIndexInfo.Init(ctx);
-        let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.tourindexinfo(info,user_info);
-        info.firstPlay      = user_info.firstPlay;
-        info.submit();
+        // let info            = apis.TourIndexInfo.Init(ctx);
+        // let user_info       = ctx.session.ui;
+        // await this.service.travelService.tourService.tourindexinfo(info,user_info);
+        // info.firstPlay      = user_info.firstPlay;
+        // info.submit();
     }
 
     async tourindexinfo(ctx) {
         this.logger.info("进来了");
         this.logger.info(ctx.query);
         let cid = 1;
-        let city = travelConfig.City.Get(cid);
+        let city = travelConfifriendListg.City.Get(cid);
        // let lines = userLines.get(ctx.query.uid);
        //  if(ctx.query.line){
        //      lines = JSON.parse(ctx.query.line);
@@ -141,9 +140,8 @@ class TourController extends Controller {
         let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
-        let friendList = [];
         let startPos   = ScenicPos.Get(cid);
-        this.logger.info(cid, startPos)
+        this.lowgger.info(cid, startPos)
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
         let friendList = [];
         let startPos   = travelConfig.Scenicspot.Get(cid);
