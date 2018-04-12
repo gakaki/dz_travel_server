@@ -1,12 +1,14 @@
 const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const apis = require("../../../apis/travel");
+const moment = require("moment");
+
 class RankService extends Service {
     /**
      * 更新一次积分榜单
      * */
     async updateScoreRankList() {
-        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort({'integral':-1, 'updateDate':1}).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.IntegralRecord.find().sort({ integral: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
@@ -29,14 +31,14 @@ class RankService extends Service {
      * @param limit 查询条数
      * */
     async getScoreRankList( page,limit) {
-        return await this.ctx.model.TravelModel.IntegralRank.find().skip((page-1)*limit).limit(limit);
+        return await this.ctx.model.TravelModel.IntegralRank.find().skip((page - 1) * limit).limit(limit);
     }
 
     /**
      * 获取玩家在榜单中的排名
      * */
     async getUserScoreRank(uid) {
-        let rankInfo = await this.ctx.model.TravelModel.IntegralRank.findOne({uid: uid});
+        let rankInfo = await this.ctx.model.TravelModel.IntegralRank.findOne({ uid: uid });
         return rankInfo ? rankInfo.rank : 0; //0表示未上榜
     }
 
@@ -46,8 +48,8 @@ class RankService extends Service {
      * @param page 页码
      * @param limit 查询条数
      * */
-    async getUserFriendScoreRankList(friendList,page,limit){
-        return  await this.ctx.model.TravelModel.IntegralRecord.find({uid:friendList}).sort({'integral':-1, 'updateDate':1}).skip((page-1)*limit).limit(limit);
+    async getUserFriendScoreRankList(friendList, page, limit) {
+        return await this.ctx.model.TravelModel.IntegralRecord.find({ uid: friendList }).sort({ integral: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
     }
 
 
@@ -55,7 +57,7 @@ class RankService extends Service {
      * 更新一次达人榜单
      * */
     async updateCompletionDegreeRankList() {
-        let list = await this.ctx.model.TravelModel.CompletionDegreeRecord.find().sort({"completionDegree":-1, "updateDate":1}).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.CompletionDegreeRecord.find().sort({ completionDegree: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
@@ -78,38 +80,56 @@ class RankService extends Service {
      * @param uid  require
      *
      * */
-    async updateCompletionDegreeRecord( uid ) {
-        let totalScenicspots = travelConfig.Scenicspot.length;
-        let totalPostcards = travelConfig.Postcard.length;
-        let totalEvents = travelConfig.Event.length;
+    async updateCompletionDegreeRecord(uid, cid) {
+        let totalCityScenicspots = travelConfig.City.Get(cid).scenicspot.length;
+        let totalCityPostcards = travelConfig.City.Get(cid).postcardnum;
+        let totalCityEvents = travelConfig.City.Get(cid).eventnum;
 
         let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
-            {$match:{uid:uid}},
-            {$group:{_id:"$scenicspot"}},
+            { $match: { uid: uid, cid: cid } },
+            { $group: { _id: "$scenicspot" } },
         ]);
 
         let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            {$match:{uid:uid}},
-            {$group:{_id:"$eid"}}
+            { $match: { uid: uid, cid: cid } },
+            { $group: { _id: "$eid" } },
         ]);
         let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
-            {$match:{uid:uid}},
-            {$group:{_id:"$ptid"}}
+            { $match: { uid: uid, cid: cid } },
+            { $group: { _id: "$ptid" } },
+        ]);
+        let day = new Date().getDay() ? new Date().getDay() : 7;
+        let thisMonday = moment().subtract(day, 'days');
+        let weekUserScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
+            { $match: { uid: uid, cid: cid, createDate: { $gt: thisMonday } } },
+            { $group: { _id: "$scenicspot" } },
         ]);
 
-        let userProgress = userScenicspots.length * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100 +
-                              userPostcards.length * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100 +
-                                 userEvents.length * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100;
+        let weekUserEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
+            { $match: { uid: uid, cid: cid, createDate: { $gt: thisMonday } } },
+            { $group: { _id: "$eid" } },
+        ]);
+        let weekUserPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
+            { $match: { uid: uid, cid: cid, createDate: { $gt: thisMonday } } },
+            { $group: { _id: "$ptid" } },
+        ]);
 
-        let totalProgress =  totalScenicspots * travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value/100 +
-                              totalPostcards * travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value/100 +
-                              totalEvents * travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value/100;
-        let progress = parseFloat(((userProgress / totalProgress) * 100).toFixed(1));
+        let userCityScenicspotsPro = userScenicspots.length / totalCityScenicspots * (travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value / 100);
+        let weekUserCityScenicspotsPro = weekUserScenicspots.length / totalCityScenicspots * (travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value / 100);
+
+        let userCityPostcardPro = userPostcards.length / totalCityPostcards * (travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value / 100);
+        let weekUserCityPostcardPro = weekUserEvents.length / totalCityPostcards * (travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value / 100);
+
+        let userCityEventPro = userEvents.length / totalCityEvents * (travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value / 100);
+        let weekUserCityEventPro = weekUserPostcards.length / totalCityEvents * (travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value / 100);
+
+        let progress = parseFloat((userCityScenicspotsPro + userCityPostcardPro + userCityEventPro).toFixed(1));
+        let weekProgress = parseFloat((weekUserCityScenicspotsPro + weekUserCityPostcardPro + weekUserCityEventPro).toFixed(1));
 
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
-            {uid:uid},
-            {$set:{uid:uid,scenicspots:userScenicspots.length,postcards:userPostcards.length,events:userEvents.length,completionDegree:progress,updateDate:new Date()}},
-            {upsert:true}
+            { uid: uid },
+            { $set: { uid: uid, completionDegree: progress, weekCompletionDegree: weekProgress, updateDate: new Date() } },
+            { upsert: true }
             );
     }
 
@@ -118,15 +138,15 @@ class RankService extends Service {
      * @page 页码
      * @param limit 查询条数
      * */
-    async getCompletionDegreeRankList( page = 1, limit = 20) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRank.find().skip((page-1)*limit).limit(limit);
+    async getCompletionDegreeRankList(page = 1, limit = 20) {
+        return await this.ctx.model.TravelModel.CompletionDegreeRank.find().skip((page - 1) * limit).limit(limit);
     }
 
     /**
      * 获取玩家在全国达人榜单中的排名
      * */
     async getUserCompletionDegreeRank(uid) {
-        let rankInfo = await this.ctx.model.TravelModel.CompletionDegreeRank.findOne({uid: uid});
+        let rankInfo = await this.ctx.model.TravelModel.CompletionDegreeRank.findOne({ uid: uid });
         return rankInfo ? rankInfo.rank : 0; //0表示未上榜
     }
 
@@ -134,7 +154,7 @@ class RankService extends Service {
      * 获取玩家完成度
      * */
     async getUserCompletionDegree(uid) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({uid: uid});
+        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({ uid: uid });
     }
     /**
      * 获取当前好友达人榜单
@@ -142,25 +162,25 @@ class RankService extends Service {
      * @param page 页码
      * @param limit 查询条数
      * */
-    async getUserFriendCompletionDegreeRankList(friendList,page,limit){
-        return  await this.ctx.model.TravelModel.CompletionDegreeRecord.find({uid:friendList}).sort({'completionDegree':-1, 'updateDate':1}).skip((page-1)*limit).limit(limit);
+    async getUserFriendCompletionDegreeRankList(friendList, page, limit) {
+        return await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: friendList }).sort({ completionDegree: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
     }
     /**
      * 获取榜单奖励
      * @param type 榜单类别
      * @param rank 排名
      * */
-     getReward(type,rank){
+     getReward(type, rank) {
         let ranks = travelConfig.ranks;
-        if(type == apis.RankType.THUMBS){
-            for(let rankR of ranks){
-                if(rank <= rankR.ranking){
+        if(type == apis.RankType.THUMBS) {
+            for(let rankR of ranks) {
+                if(rank <= rankR.ranking) {
                     return travelConfig.Rank.Get(rankR.id).doyenreward
                 }
             }
-        } else if(type == apis.RankType.FOOT){
-            for(let rankR of ranks){
-                if(rank <= rankR.ranking){
+        } else if(type == apis.RankType.FOOT) {
+            for(let rankR of ranks) {
+                if(rank <= rankR.ranking) {
                     return travelConfig.Rank.Get(rankR.id).trackreward
                 }
             }

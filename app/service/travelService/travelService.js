@@ -89,20 +89,20 @@ class TravelService extends Service {
     }
 
 
-    async visit(info, ui,visit,fui) {
+    async visit(info, ui, visit, fui) {
         let cid = info.cid;
         let ttype = info.type;
 
         let cost = {
-            ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1
+            ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1,
         };
         //使用赠送机票
         if (info.type == apis.TicketType.SINGLEPRESENT || info.type == apis.TicketType.DOUBLEPRESENT) {
             this.logger.info("使用赠送机票");
             await this.ctx.model.TravelModel.FlyTicket.update({
                 uid: ui.uid,
-                id:info.tid,
-            },{$set:{isUse:true}});
+                id: info.tid,
+            }, { $set: { isUse: true } });
 
         }
         //道具更新
@@ -186,10 +186,11 @@ class TravelService extends Service {
 
         //添加飞行记录
         await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
-        //更新玩家所在地
-        await this.ctx.model.TravelModel.CurrentCity.update({uid: currentCity.uid}, currentCity, {upsert: true});
         //添加足迹
         await this.ctx.model.TravelModel.Footprints.create(footprint);
+        //更新玩家所在地
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: currentCity.uid }, currentCity, { upsert: true });
+
     }
 
 

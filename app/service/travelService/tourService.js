@@ -413,9 +413,28 @@ class TourService extends Service {
     async leavetour(info) {
         let ui = info.ui;
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid});
-        let tourLog = await this.ctx.model.TravelModel.CityTourLog.findOne({ uid: ui.uid, cid: curCity.cid });
-        let log = {};
+        let tourLog = await this.ctx.model.TravelModel.CityTourLog.findOne({ uid: ui.uid, cid: curCity.cid, fid: curCity.fid });
+        let cfg = travelConfig.City.Get(curCity.cid);
         //到达过的景点，在游玩轮询里，当每次后端确认到达了这某个景点时，记录到cityTourLog中，所以此处不再处理，只更新一下到达过的景点数
+        tourLog.scenicNum = Object.keys(tourLog.scenicspots).length;
+        tourLog.postcardNum = curCity.photographyCount;
+        //事件数量，在每次后端确认到达了某个景点时，记录路径中的事件到cityTourLog中；每次观光触发事件时，记录事件到cityTourLog中
+        tourLog.efficiency = 5;//等待使用路径/最短路径比值，取值0-10
+        tourLog.progress =
+            (tourLog.eventNum / cfg.eventnum * travelConfig.Paremeter.Get(travelConfig.Paremeter.EVENTCOMPLETION).value ) +
+            (tourLog.scenicNum / cfg.scenicspot.length * travelConfig.Paremeter.Get(travelConfig.Paremeter.SCENICSPOTCOMPLETION).value) +
+            (tourLog.postcardNum / cfg.postcardnum * travelConfig.Paremeter.Get(travelConfig.Paremeter.POSTCARDCOMPLETION).value);
+        tourLog.lighten =
+            tourLog.scenicNum >= travelConfig.Paremeter.Get(travelConfig.Paremeter.SCENICSPOTNUMBER).value &&
+            curCity.tourCount >= travelConfig.Paremeter.Get(travelConfig.Paremeter.TOURNUMBER).value &&
+            curCity.photographyCount >= travelConfig.Paremeter.Get(travelConfig.Paremeter.PHOTOGRAPH).value;
+
+        let allLogs = await this.ctx.model.TravelModel.CityTourLog.find({ uid: ui.uid, _id: { $ne: tourLog._id } });
+
+        await this.ctx.model.TravelModel.CityTourLog.update({ _id: tourLog._id }, tourLog);
+
+        //根据评论给予奖励
+
 
     }
 
