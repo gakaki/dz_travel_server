@@ -3,84 +3,84 @@ const _ = require("lodash");
 
 class EventRandom {
 
-    constructor( linesFront ){
+    constructor(linesFront) {
         this.lineFronts = this.lineFronts;
-        this.lines      = [];
-        this.events     = [];
-        this.timeTotal  = 0;
-        this.timeEnd    = "";
+        this.lines = [];
+        this.events = [];
+        this.timeTotal = 0;
+        this.timeEnd = "";
 
         // 20：00 20：15 20：20
-  
+
         // linesFront = {
         //     spotId,
         //     index,
         //     createDate,
         //     tracked, 
         // }
-        
+
     }
 
-    calcTotalTime(){
-        let linesTotal      = [];
-        this.timeTotal      = this.lineFronts.reduce( ( linePrev, lineCurrent ) => {
-            let line        = getLine(linePrev, lineCurrent);
+    calcTotalTime() {
+        let linesTotal = [];
+        this.timeTotal = this.lineFronts.reduce((linePrev, lineCurrent) => {
+            let line = getLine(linePrev, lineCurrent);
             linesTotal.push(line);
             return line.timeElapsed;
         });
     }
-    
+
     //生成lines 和 events 数据
-    gen(){
+    gen() {
         // 计算总时间 并生成具体的 line线
         this.calcTotalTime();
         // 生成事件(非景点)
         this.genEventNonSpots();
     }
 
-    genEventNonSpot(){
+    async genEventNonSpot() {
         let eventRows = [];
-        while ( timeTotal < 0 ) {
+        while (timeTotal < 0) {
             let dbRow = genEventNonSpot();
             eventRows.push(dbRow);
             timeTotal = timeTotal - dbRow.timeElapsed;
         }
         await this.ctx.model.CurrentCity.create(eventRows);
         this.events = eventRows;
-    }   
+    }
 
-    genSingleEventNonSpot(){
-        let timeElsaped =  _.random(5,15); // 随机个5到15分钟的时间出来
-        let quest       = QuestRepo.random(..samples);
-        // write to current city eventlist strim event
-        let questDbRow  : {
-            createDate : new Date() + elspaed,
-            eid         : eid,
-            received    : false,
-            timeElsaped : timeElsaped,
-            quest       : quest
-        };
-        return questDbRow;
+    genSingleEventNonSpot() {
+        // let timeElsaped =  _.random(5,15); // 随机个5到15分钟的时间出来
+        // let quest       = QuestRepo.random(...samples);
+        // // write to current city eventlist strim event
+        // let questDbRow  = {
+        //     createDate : new Date() + elspaed,
+        //     eid         : eid,
+        //     received    : false,
+        //     timeElsaped : timeElsaped,
+        //     quest       : quest
+        // };
+        // return questDbRow;
     }
 
     // 计算每段line的时间 
-    getLine(spotStart,spotEnd) {
-        let dis         = calcDistance(spotStart.point,spotEnd.point);
-        let timeElapsed = dis / speed;
-        
-        let start       = new Date();
-        let end         = start + timeElapsed;
-        
-        let line        = {
-            distance    : dis,
-            timeElapsed : timeElapsed,
-            start       : start,
-            end         : end    
-        }
-        return line;
+    getLine(spotStart, spotEnd) {
+        // let dis = calcDistance(spotStart.point, spotEnd.point);
+        // let timeElapsed = dis / speed;
+        //
+        // let start = new Date();
+        // let end = start + timeElapsed;
+        //
+        // let line = {
+        //     distance: dis,
+        //     timeElapsed: timeElapsed,
+        //     start: start,
+        //     end: end
+        // }
+        // return line;
     }
 
-    
+}
 
 // 按照index 的节点 生成lines 
     //每段line需要附上时间 计算总时间 
