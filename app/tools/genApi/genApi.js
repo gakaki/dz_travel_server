@@ -254,6 +254,10 @@ class Syntax {
         }
         else {
             //clear
+            if (!this._funcParsing) {
+                console.log('warn:',parsing.name, 'find extra { or }')
+                return;
+            }
             this._funcParsing.genContentStr();
             parsing.funcs.push(this._funcParsing);
             this._funcParsing = null;
