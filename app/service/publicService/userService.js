@@ -14,14 +14,14 @@ class UserService extends Service {
         if (sid) {
             let authUi = await this.collect(sid, appName);
             if (authUi == null) {
-                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: appName});
+                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: appName });
                 if (loginUser != null) {
                     this.logger.info("通过openid查库 ：" + loginUser.uid + "昵称 ：" + loginUser.nickName);
                     let _sid = this.GEN_SID();
                     this.recruitSid(_sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + _sid);
 
-                    await this.ctx.model.PublicModel.User.update({pid: loginUser.pid, appName: appName}, {
+                    await this.ctx.model.PublicModel.User.update({pid: loginUser.pid, appName: appName }, {
                         $set: {
                             nickName: info.nickName,
                             avatarUrl: info.avatarUrl,
@@ -29,7 +29,7 @@ class UserService extends Service {
                             city: info.city,
                             province: info.province,
                             country: info.country,
-                        }
+                        },
                     });
                     result.sid = _sid;
                 }
@@ -40,10 +40,9 @@ class UserService extends Service {
                 this.logger.info("老用户登陆  uid：" + authUi.uid + " 老用户的昵称 ：" + authUi.nickName);
                 if (uid && authUi.uid != uid) {
                     result.info = null;
-                }
-                else {
+                } else {
 
-                    await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName}, {
+                    await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName }, {
                         $set: {
                             nickName: info.nickName,
                             avatarUrl: info.avatarUrl,
@@ -51,7 +50,7 @@ class UserService extends Service {
                             city: info.city,
                             province: info.province,
                             country: info.country,
-                        }
+                        },
                     });
 
                     result.sid = sid;
@@ -130,7 +129,7 @@ class UserService extends Service {
             data: {
                 agent: this.ctx.request.header['user-agent'],
                 host: this.ctx.request.header.host,
-                addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
+                addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
             },
             createDate: new Date(),
         });
@@ -171,7 +170,7 @@ class UserService extends Service {
                 num: 1,
                 getItem: true,
                 itemId: itemId,
-            })
+            });
 
             //通知到消息中心
             let content = travelConfig.Message.Get(travelConfig.Message.SHAREMESSAGE).content;
@@ -222,14 +221,12 @@ class UserService extends Service {
                     host: this.ctx.request.header.host,
                     addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
                 },
-                createDate:new Date()
+                createDate: new Date(),
             });
-            return ui;
+        }else{
+            this.logger.error("提供了一个错误的sid {{=it.sid}}", { sid: sid });
         }
-        else {
-            this.logger.error("提供了一个错误的sid {{=it.sid}}", {sid: sid});
-            return null;
-        }
+        return ui;
 
     }
 
@@ -258,7 +255,7 @@ class UserService extends Service {
             items: items,
         });
        // items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
-        this.ctx.service.publicService.itemService.itemChange(ui.uid,  {["items."+travelConfig.Item.GOLD] :  travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value}, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "travel");
 
         //进入积分榜单
         await this.ctx.model.TravelModel.IntegralRecord.create({
@@ -267,11 +264,6 @@ class UserService extends Service {
             updateDate: new Date(),
         });
 
-        //进入达人榜
-        await this.ctx.model.TravelModel.CompletionDegreeRecord.create({
-            uid: uid, //玩家uid
-            updateDate: new Date(), //更新时间
-        });
         let key = "lightCity" + 0;
         this.app.redis.setnx(key, 0);
         //进入足迹榜
@@ -279,13 +271,14 @@ class UserService extends Service {
             uid: uid, //玩家uid
             updateDate: new Date(), //更新时间
         });
+        //设置点亮城市段集
         await this.app.redis.incr(key);
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
             pid: pid,
             type: constant.UserActionRecordType.REGISTER,
             appName: appName,
-            createDate:new Date()
+            createDate: new Date(),
         });
 
         return ui;
@@ -295,7 +288,7 @@ class UserService extends Service {
         let session = {
             pid: pid,
             sid: sid,
-            expire: new Date().getTime() + this.config.session.maxAge
+            expire: new Date().getTime() + this.config.session.maxAge,
         };
         this.logger.info("存储session : " + JSON.stringify(session));
         this.app.redis.set(pid, JSON.stringify(session));
@@ -311,8 +304,8 @@ class UserService extends Service {
                 return null;
             }
             this.logger.info("用户PID: " + ses.pid);
-            return await this.ctx.model.PublicModel.User.findOne({pid: ses.pid});
-        }catch(err){
+            return await this.ctx.model.PublicModel.User.findOne({ pid: ses.pid });
+        }catch(err) {
             this.logger.error(err);
             return null;
         }
@@ -323,7 +316,7 @@ class UserService extends Service {
 
     GEN_SID() {
         return crypto.createHash('md5').update(new Date().getTime().toString()).digest('hex');
-    };
+    }
 
 
 }

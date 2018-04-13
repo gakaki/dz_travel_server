@@ -22,23 +22,7 @@ class TravelService extends Service {
         }
         info.weather = outw;
         info.playerCnt = await this.app.redis.get("travel_userid");
-        let friends = [];
-        let userFriends = ui.friendList;
-        for(let friend of userFriends) {
-            let userCurrentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: friend });
-            let fiInfo = await this.ctx.model.PublicModel.User.findOne({ uid: friend });
-            if(userCurrentCity) {
-                let frdInfo = {
-                    uid: friend,
-                    nickName: fiInfo.nickName,
-                    avatarUrl: fiInfo.avatarUrl,
-                    cid: userCurrentCity.cid,
-                    cityName: userCurrentCity.city
-                };
-                friends.push(frdInfo);
-            }
-        }
-        info.friends = friends;
+        info.friends = await this.ctx.service.travelService.friendService.findMyFriends(ui.friendList, info.uid);
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
