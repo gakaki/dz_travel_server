@@ -3,6 +3,8 @@ const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const ScenicPos         = require('../../../sheets/scenicpos');
 const utilTime          = require("../../utils/time");
+const MakeRoadMap       = require("../../service/makeRoadMap");
+const MakeEvent         = require("../../service/makeEvent");
 
 let tour = new Map();
 let userLines = new Map();
@@ -163,36 +165,19 @@ class TourController extends Controller {
             today          : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             itemSpecial    : 0  //这轮配置表里没有出现数据 留着下回做逻辑
         };
-        let roadMap     = new EventRandom(para);
-        let events      = roadMap;
+
+        let rm          = new MakeRoadMap(para);
+        let roadMaps    = rm.linesFormat;
+        let e           = new MakeEvents(para);
+        let events      = rm.linesFormat;
+
         this.logger.info(events);
+        this.logger.info(roadMaps);
 
         //生成的路线图和事件写入currentCity
-        let  spots      = sps.map((s, idx) =>{
-            let o = s;
-            if(o.index != -1){
-                this.logger.info(o.createDate);
-                let date = new Date().getTime();
-                this.logger.info(date);
-                if(o.createDate <= date) {
-                    o.tracked = true;
-                }else{
-                    let index = lines.findIndex((n) => n ==  o.id);
-                    o.index = index;
-                    if(index != -1){
-                        o.createDate = new Date().getTime() + (index+1) * 30000;
-                    }
-                }
-            }else{
-                let index = lines.findIndex((n) => n == o.id);
-                o.index = index;
-                o.createDate = new Date().getTime() + (index+1) * 30000;
-            }
-            this.logger.info(o);
-            return o;
-        });
-
-        ctx.body = [1,2,3];
+        info.events     = events;
+        info.spots      = roadMaps;
+        info.submit();
     }
     async tourstart(ctx){
         // http://127.0.0.1:7001/tour/tourstart/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
