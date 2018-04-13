@@ -457,7 +457,7 @@ class PlayerService extends Service {
         info.selfRank.rank = rankIndex + 1;
         let out = [];
         for(let index = 0; index < rankInfos.length; index++) {
-           // this.logger.info(rankInfos[index]);
+          //  this.logger.info(rankInfos[index]);
             let rankItem = {
                 rank: rankInfos[index].rank || (index + 1),
             };
@@ -465,10 +465,10 @@ class PlayerService extends Service {
             if(info.rankType == apis.RankType.SCORE) {
                 rankItem.achievement = rankInfos[index].integral;
             }
-            if(info.rankType != apis.RankType.FOOT) {
+            if(info.rankType == apis.RankType.FOOT) {
                 rankItem.achievement = rankInfos[index].lightCityNum;
             }
-            if(info.rankType != apis.RankType.THUMBS) {
+            if(info.rankType == apis.RankType.THUMBS) {
                 rankItem.achievement = rankInfos[index].completionDegree;
             }
 
