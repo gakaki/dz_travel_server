@@ -4,7 +4,7 @@ module.exports = app => {
     const FootRecordSchema = new mongoose.Schema({
         uid: { type: String }, //玩家uid
         lightCityNum: { type: Number, default: 0 }, //点亮的城市数量
-        weeklightCityNum: { type: Number, default: 0 }, //本周点亮的城市数量
+        weekLightCityNum: { type: Number, default: 0 }, //本周点亮的城市数量
         updateDate: { type: Date }, //更新时间
     });
 

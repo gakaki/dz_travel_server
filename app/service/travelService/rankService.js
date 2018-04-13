@@ -58,13 +58,14 @@ class RankService extends Service {
      *
      * */
     async updateFootRankList() {
-        let list = await this.ctx.model.TravelModel.FootRecord.find().sort({ weeklightCityNum: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.FootRecord.find().sort({ weekLightCityNum: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
             let o = {};
             o.uid = l.uid;
-            o.lightCityNum = l.weeklightCityNum;
+            o.lightCityNum = l.lightCityNum;
+            o.weekLightCityNum = l.weekLightCityNum;
             o.rank = idx++;
             o.createDate = date;
             return o;
@@ -73,7 +74,7 @@ class RankService extends Service {
         await this.ctx.model.TravelModel.FootRank.remove();
         await this.ctx.model.TravelModel.FootRank.insertMany(list);
 
-        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
+        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekLightCityNum: 0 } }, { multi: true });
     }
 
     /**
@@ -81,13 +82,24 @@ class RankService extends Service {
      * @param uid  require
      *
      * */
-    async updateFootRecord(uid) {
-        await this.ctx.model.TravelModel.FootRecord.update(
-            { uid: uid },
-            { $set: { uid: uid, updateDate: new Date() } },
-            { $inc: { lightCityNum: 1, weeklightCityNum: 1 } },
-            { upsert: true }
-        );
+    async updateFootRecord(uid, cid) {
+        let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid, lighten: true });
+        if(cityLight) {
+            await this.ctx.model.TravelModel.FootRecord.update(
+                { uid: uid },
+                { $set: { uid: uid, updateDate: new Date() } },
+                { $inc: { lightCityNum: 1, weekLightCityNum: 1 } },
+                { upsert: true }
+            );
+            let userFoot = await this.getUserFoot(uid);
+            let key = "lightCity" + userFoot.lightCityNum;
+            this.app.redis.setnx(key, 0);
+            if(userFoot.lightCityNum) {
+                await this.app.redis.decr(key);
+            }
+            await this.app.redis.incr(key);
+        }
+
     }
 
     /**
@@ -111,7 +123,7 @@ class RankService extends Service {
      * 获取玩家点亮的城市
      * */
     async getUserFoot(uid) {
-        return await this.ctx.model.TravelModel.FootRecord.findOne({ uid: uid });
+        return await this.ctx.model.TravelModel.FootRecord.findOne({ uid: uid});
     }
 
     /**
@@ -137,7 +149,8 @@ class RankService extends Service {
         list = list.map(l => {
             let o = {};
             o.uid = l.uid;
-            o.completionDegree = l.weekCompletionDegree;
+            o.weekCompletionDegree = l.weekCompletionDegree;
+            o.completionDegree = l.completionDegree;
             o.rank = idx++;
             o.createDate = date;
             return o;
@@ -225,11 +238,36 @@ class RankService extends Service {
     }
 
     /**
-     * 获取玩家完成度
+     * 获取玩家全国完成度
      * */
     async getUserCompletionDegree(uid) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({ uid: uid });
+        let cityCompletionDegrees = await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: uid });
+        let totalCitys = travelConfig.citys.length;
+        let userCompletionDegree = {
+            completionDegree: 0,
+            weekCompletionDegree: 0,
+        };
+        let totalCompletionDegree = 0;
+        let weekCompletionDegree = 0;
+        for(let completionDegree of cityCompletionDegrees) {
+            totalCompletionDegree += completionDegree.completionDegree;
+            weekCompletionDegree += completionDegree.weekCompletionDegree;
+
+        }
+        userCompletionDegree.completionDegree = parseFloat((totalCompletionDegree / totalCitys).toFixed(1));
+        userCompletionDegree.weekCompletionDegree = parseFloat((weekCompletionDegree / totalCitys).toFixed(1));
+        return userCompletionDegree
     }
+
+    /**
+     * 获取玩家城市完成度
+     *
+     * */
+    async getUserCityCompletionDegree(uid, cid) {
+         return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({ uid: uid, cid: cid });
+    }
+
+
     /**
      * 获取当前好友达人榜单
      * @param friendList 好友列表

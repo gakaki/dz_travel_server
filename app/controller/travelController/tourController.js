@@ -1,9 +1,8 @@
 const Controller        = require('egg').Controller;
 const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
-const ScenicPos = require('../../../sheets/scenicpos');
+const ScenicPos         = require('../../../sheets/scenicpos');
 const utilTime          = require("../../utils/time");
-
 
 let tour = new Map();
 let userLines = new Map();
@@ -24,11 +23,39 @@ class TourController extends Controller {
         info.submit();
     }
 
+
+    async tourindexinfor(ctx) {
+        // http://127.0.0.1:7001/tour/tourindexinfor?uid=1000001&cid=1
+        let info          = apis.TourIndexInfo.Init(ctx);
+        let cid           = info.cid;
+        let uid           = info.uid;
+
+        let userInfo      = await ctx.service.publicService.userService.findUserBySid(uid);
+        let weatherId     = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
+        let friends       = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
+        
+        let startPos      = ScenicPos.Get(cid);
+        let firstPlay     = false;
+
+        let taskSpots     = await this.ctx.service.travelService.tourService.taskSpots(uid,cid);
+        let task          = taskSpots['task'];
+        let spots         = taskSpots['spots'];
+
+        info.task         = task;
+        info.startPos     = startPos;
+        info.weather      = weatherId;
+        info.friendList   = friends;
+        info.task         = task;
+        info.spots        = spots;
+
+        info.submit();
+    }
+
     async tourindexinfo(ctx) {
         this.logger.info("进来了");
         this.logger.info(ctx.query);
         let cid = 1;
-        let city = travelConfig.City.Get(cid);
+        let city = travelConf.City.Get(cid);
        // let lines = userLines.get(ctx.query.uid);
        //  if(ctx.query.line){
        //      lines = JSON.parse(ctx.query.line);
@@ -41,7 +68,6 @@ class TourController extends Controller {
         let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
-        let friendList = [];
         let startPos   = ScenicPos.Get(cid);
         this.logger.info(cid, startPos)
 
@@ -56,7 +82,7 @@ class TourController extends Controller {
                     },
                     startPos:       startPos,       //起始点
                     weather:        weatherTxt,     //service 3rd 调用第三方service,
-                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind 
+                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind
                     spots: city.scenicspot.map((s, idx) => {
                         let o = {};
                         let cfg = travelConfig.Scenicspot.Get(s);
@@ -122,19 +148,67 @@ class TourController extends Controller {
         info.submit();
     }
 
+    async tourstartr(ctx){
+        // http://127.0.0.1:7001/tour/tourstartr/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
+        let info        = apis.TourStart.Init(ctx);
+        let cid         = info.cid;
+        let uid         = info.uid;
+        let weather     = info.weather;
+        let lines       = JSON.parse(ctx.query.line);
+
+        let para        = {
+            line           : lines,
+            cid            : cid,
+            weather        : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            today          : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            itemSpecial    : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+        };
+        let roadMap     = new EventRandom(para);
+        let events      = roadMap;
+        this.logger.info(events);
+
+        //生成的路线图和事件写入currentCity
+        let  spots      = sps.map((s, idx) =>{
+            let o = s;
+            if(o.index != -1){
+                this.logger.info(o.createDate);
+                let date = new Date().getTime();
+                this.logger.info(date);
+                if(o.createDate <= date) {
+                    o.tracked = true;
+                }else{
+                    let index = lines.findIndex((n) => n ==  o.id);
+                    o.index = index;
+                    if(index != -1){
+                        o.createDate = new Date().getTime() + (index+1) * 30000;
+                    }
+                }
+            }else{
+                let index = lines.findIndex((n) => n == o.id);
+                o.index = index;
+                o.createDate = new Date().getTime() + (index+1) * 30000;
+            }
+            this.logger.info(o);
+            return o;
+        });
+
+        ctx.body = [1,2,3];
+    }
     async tourstart(ctx){
-      //  let info = apis.TourStart.Init(ctx);
+        // http://127.0.0.1:7001/tour/tourstart/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
+        // let info = apis.TourStart.Init(ctx);
       //  let cid         = info.cid;
      //   let uid         = info.uid;
-        let cid = 1;
+        let cid =1;
+     //   let cid         = info.cid;
+       // let uid         = info.uid;
+
         let city        = travelConfig.City.Get(cid);
         let result      = tour.get(ctx.query.uid);
         let lines       = JSON.parse(ctx.query.line);
         
         this.logger.info(lines);
         
-
-
         userLines.set(ctx.query.uid,lines);
         let sps = result.data.spots;
 
@@ -200,6 +274,7 @@ class TourController extends Controller {
         ctx.body =result
     }
 
+
     // 拍照
     async photography(ctx) {
         /*
@@ -256,7 +331,14 @@ class TourController extends Controller {
 
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
     async questrandom(ctx) {
-
+        ctx.body = {
+            'newEvent' : true, //是否有新事件
+            'spotsTracked': {
+                '100107': true,
+                '100102': true,
+                '100109': false
+            }
+        };
     }
 
     //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口
