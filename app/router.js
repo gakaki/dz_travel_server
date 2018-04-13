@@ -26,6 +26,7 @@ module.exports = app => {
     router.get('/player/signinfo', controller.travelController.playerController.signinfo);
     router.get('/player/tosign', controller.travelController.playerController.tosign);
     router.get('/player/travelfootprint', controller.travelController.playerController.travelfootprint);
+    router.get('/player/traveledplaces', controller.travelController.playerController.traveledplaces);
     router.get('/player/modifyrealinfo', controller.travelController.playerController.setrealinfo);
     router.get('/player/getrealinfo', controller.travelController.playerController.getrealinfo);
     router.get('/player/shareinfo', controller.travelController.playerController.shareInfo);

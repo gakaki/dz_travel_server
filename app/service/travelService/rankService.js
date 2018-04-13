@@ -81,13 +81,24 @@ class RankService extends Service {
      * @param uid  require
      *
      * */
-    async updateFootRecord(uid) {
-        await this.ctx.model.TravelModel.FootRecord.update(
-            { uid: uid },
-            { $set: { uid: uid, updateDate: new Date() } },
-            { $inc: { lightCityNum: 1, weeklightCityNum: 1 } },
-            { upsert: true }
-        );
+    async updateFootRecord(uid, cid) {
+        let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid, lighten: true });
+        if(cityLight) {
+            await this.ctx.model.TravelModel.FootRecord.update(
+                { uid: uid },
+                { $set: { uid: uid, updateDate: new Date() } },
+                { $inc: { lightCityNum: 1, weeklightCityNum: 1 } },
+                { upsert: true }
+            );
+            let userFoot = await this.getUserFoot(uid);
+            let key = "lightCity" + userFoot.lightCityNum;
+            this.app.redis.setnx(key, 0);
+            if(userFoot.lightCityNum) {
+                await this.app.redis.decr(key);
+            }
+            await this.app.redis.incr(key);
+        }
+
     }
 
     /**
@@ -111,7 +122,7 @@ class RankService extends Service {
      * 获取玩家点亮的城市
      * */
     async getUserFoot(uid) {
-        return await this.ctx.model.TravelModel.FootRecord.findOne({ uid: uid });
+        return await this.ctx.model.TravelModel.FootRecord.findOne({ uid: uid});
     }
 
     /**
@@ -225,7 +236,7 @@ class RankService extends Service {
     }
 
     /**
-     * 获取玩家完成度
+     * 获取玩家全国完成度
      * */
     async getUserCompletionDegree(uid) {
         let cityCompletionDegrees = await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: uid });
@@ -245,6 +256,16 @@ class RankService extends Service {
         userCompletionDegree.weekCompletionDegree = parseFloat((weekCompletionDegree / totalCitys).toFixed(1));
         return userCompletionDegree
     }
+
+    /**
+     * 获取玩家城市完成度
+     *
+     * */
+    async getUserCityCompletionDegree(uid, cid) {
+         return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({ uid: uid, cid: cid });
+    }
+
+
     /**
      * 获取当前好友达人榜单
      * @param friendList 好友列表

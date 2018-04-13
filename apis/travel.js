@@ -322,6 +322,21 @@ class Log {
         
     }
 }
+class FriendInfo {
+    constructor() {
+    
+    
+        //prop type: string
+        this.cid = null;
+    
+        //prop type: string
+        this.cityName = null;
+    
+        
+        
+        
+    }
+}
 class Shop {
     constructor() {
     
@@ -624,6 +639,9 @@ class SelfRank {
         this.rank = null;
     
         //prop type: number
+        this.weekAchievement = null;
+    
+        //prop type: number
         this.achievement = null;
     
         
@@ -637,6 +655,9 @@ class RankItem {
     
         //prop type: number
         this.rank = null;
+    
+        //prop type: number
+        this.weekAchievement = null;
     
         //prop type: number
         this.achievement = null;
@@ -1642,13 +1663,14 @@ class TourStart extends Base {
     
         this._cid = null;
         this._line = null;
+        this._weather = null;
         this._friendList = null;
         this._spots = null;
         this._startPos = null;
         this._task = null;
         this._weather = null;
-        this.requireFileds = ["cid","line"];
-        this.reqFields = ["cid","line"];
+        this.requireFileds = ["cid","line","weather"];
+        this.reqFields = ["cid","line","weather"];
         this.resFields = ["friendList","spots","startPos","task","weather"];
     }
     //client input, require, type: string
@@ -1657,6 +1679,9 @@ class TourStart extends Base {
     //client input, require, type: array
     get line() {return this._line}
     set line(v) {this._line = v}
+    //client input, require, type: string
+    get weather() {return this._weather}
+    set weather(v) {this._weather = v}
     //server output, type: array
     get friendList() {return this._friendList}
     set friendList(v) {this._friendList = v}
@@ -3246,7 +3271,7 @@ class IndexInfo extends Base {
     //server output, type: number
     get playerCnt() {return this._playerCnt}
     set playerCnt(v) {this._playerCnt = v}
-    //server output, type: string[]
+    //server output, type: FriendInfo[]
     get friends() {return this._friends}
     set friends(v) {this._friends = v}
     //server output, type: number
@@ -3375,18 +3400,22 @@ class TourIndexInfo extends IndexInfo {
         this.action = 'tour.tourindexinfo';
     
         this._cid = null;
+        this._uid = null;
         this._line = null;
         this._firstPlay = null;
         this._spots = null;
         this._userInfo = null;
         this._task = null;
-        this.requireFileds = ["cid"];
-        this.reqFields = ["cid","line"];
+        this.requireFileds = ["cid","uid"];
+        this.reqFields = ["cid","uid","line"];
         this.resFields = ["firstPlay","spots","userInfo","task","isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
     set cid(v) {this._cid = v}
+    //client input, require, type: number
+    get uid() {return this._uid}
+    set uid(v) {this._uid = v}
     //client input, optional, type: 
     get line() {return this._line}
     set line(v) {this._line = v}
@@ -3460,6 +3489,7 @@ exports.oneSpot = oneSpot;
 exports.OneDayLog = OneDayLog;
 exports.OneCityLog = OneCityLog;
 exports.Log = Log;
+exports.FriendInfo = FriendInfo;
 exports.Shop = Shop;
 exports.ExchangeShopDetail = ExchangeShopDetail;
 exports.MessageItem = MessageItem;

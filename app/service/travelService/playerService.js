@@ -7,23 +7,15 @@ class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
-        let totalFootprints = await this.ctx.model.TravelModel.Footprints.aggregate([{ $sortByCount: "$uid" }]);
-       // let playerFootprints = totalFootprints.find((n) => n._id == ui.uid);
-        let playerIndex = totalFootprints.findIndex((n) => n._id == ui.uid);
-        let total = totalFootprints.length;
-      //  this.logger.info(totalFootprints);
-      //  this.logger.info(playerIndex + '   6666666666666666');
-        let overMatch = 0;
-        if (playerIndex == -1) {
-           playerIndex = total;
-        }
-        if (total) {
-            overMatch = (((total - playerIndex) / total) * 100).toFixed(2);
-        }
-
         let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
-
-
+        let totalArrive = playerFootprints ? playerFootprints.lightCityNum : 0;
+        let total = await this.app.redis.get("travel_userid");
+        let readyMatch = 0;
+        for(let i = 0; i < totalArrive; i++) {
+            let key = "lightCity" + i;
+            readyMatch += Number(await this.app.redis.get(key));
+        }
+        let overMatch = parseFloat(((readyMatch / total) * 100).toFixed(1));
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({ uid: ui.uid, index: travelConfig.Item.POINT });
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", number: { $sum: "$number" } });
         let comment = await this.ctx.model.TravelModel.Comment.count({ uid: ui.uid });
@@ -35,7 +27,7 @@ class PlayerService extends Service {
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
             gender: ui.gender,
-            totalArrive: playerFootprints ? playerFootprints.lightCityNum : 0,
+            totalArrive: totalArrive,
             overmatch: overMatch,
             city: visit ? travelConfig.City.Get(visit.cid).city : "初次旅行",
             province: visit ? travelConfig.City.Get(visit.cid).province : "初次旅行",
@@ -56,11 +48,12 @@ class PlayerService extends Service {
 
     }
 
-    //TODO 足迹重做
+
     async travelFootprint(info, ui) {
         let totalCitys = travelConfig.citys.length;
         this.logger.info("总城市 " + totalCitys);
-        let totalArrive = await this.ctx.model.TravelModel.CityLightLog.count({ uid: info.uid, lighten: true });
+        let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
+        let totalArrive = playerFootprints ? playerFootprints.lightCityNum : 0;
         let provinces = await this.ctx.model.TravelModel.CityLightLog.aggregate([
             { $match: { uid: info.uid, lighten: true } },
             { $group: { _id: "$province" } },
@@ -82,6 +75,19 @@ class PlayerService extends Service {
         let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(ui.uid);
         info.travelPercent = selfCompletionDegree ? selfCompletionDegree.completionDegree : 0;
 
+    }
+
+    async traveledPlaces(info, ui) {
+        let lightenCitys = await this.ctx.model.TravelModel.CityLightLog.find({ uid: ui.uid, lighten: true });
+        let provincesSet = new Set();
+        let citySet = new Set();
+        for(let lightenCity of lightenCitys) {
+            provincesSet.add(lightenCity.province);
+            let city = travelConfig.City.Get(lightenCity.cid);
+            citySet.add(city);
+        }
+        info.provinces = Array.from(provincesSet);
+        info.citys = Array.from(citySet);
 
     }
 
