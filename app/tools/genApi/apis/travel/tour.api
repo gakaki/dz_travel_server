@@ -49,7 +49,7 @@ api FinishGuide {
 }
 
 //进入城市的经典页面  用户开始该城市的旅游
-api TourIndexInfo extends IndexInfo{
+api TourIndexInfo{
     //城市id
     require cid:number
     require uid:number
@@ -105,7 +105,7 @@ class Quest {
 }
 
 // 进入景点
-api Enterspot {
+api ReqEnterspot {
     //景点id
     require spotId:number
     //景点数据
@@ -133,12 +133,12 @@ api AnswerQuest{
 
     output correct:boolean
     //更新后的用户信息
-    output userInfo: UserInfo
+    output userInfo:UserInfo
     //奖励物品
-    output rewards: KV[]
+    output rewards:KV[]
 }
 //点开显示随机事件
-api EventShow   {
+api EventShow {
     require cid:number
     //列表总长多少
     output total:number
@@ -153,7 +153,7 @@ api EventShow   {
 //玩家完成该城市的景点的具体报告
 api ShowQuestReport {
    //返回报告信息
-   output  questReport:QuestReport
+   output questReport:QuestReport
 }
 
 //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
