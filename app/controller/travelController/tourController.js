@@ -41,7 +41,7 @@ class TourController extends Controller {
         let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
         let friendList = [];
-        let startPos   = travelConfig.Scenicspot.Get(cid);
+        let startPos   = travelConfig.Scenicspot.Get(cid).cfg;
         if(!result){
              result ={
                 code : "0",
@@ -78,7 +78,6 @@ class TourController extends Controller {
 
                         return o;
                     }),
-                    weather: 1,
                 },
 
             };
