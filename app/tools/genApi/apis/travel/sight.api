@@ -15,7 +15,7 @@ class Sight {
 }
 
 //拉取景点信息
-api viewpointInfo {
+api ViewpointInfo {
     require pointId:string
     //季节
     output season:Season
