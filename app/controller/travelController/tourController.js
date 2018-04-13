@@ -23,6 +23,7 @@ class TourController extends Controller {
         info.submit();
     }
 
+
     async tourindexinfor(ctx) {
         // http://127.0.0.1:7001/tour/tourindexinfor?uid=1000001&cid=1
         let info          = apis.TourIndexInfo.Init(ctx);
@@ -35,42 +36,17 @@ class TourController extends Controller {
         
         let startPos      = ScenicPos.Get(cid);
         let firstPlay     = false;
-        
-        let task          = await this.ctx.service.travelService.tourService.cityTasksInfo(uid,cid);
-        let spots         = await this.ctx.service.travelService.tourService.spotsInfo(uid,cid);
-        
-  
+
+        let taskSpots     = await this.ctx.service.travelService.tourService.taskSpots(uid,cid);
+        let task          = taskSpots['task'];
+        let spots         = taskSpots['spots'];
+
         info.task         = task;
         info.startPos     = startPos;
         info.weather      = weatherId;
         info.friendList   = friends;
-        info.spots        = spots;
         info.task         = task;
-
-        // : city.scenicspot.map((s, idx) => {
-        //     let o = {};
-        //     let cfg = travelConfig.Scenicspot.Get(s);
-        //     let xy = ScenicPos.Get(s);
-        //     o.id = s;
-        //     o.cid = cid;
-        //     o.name = cfg.scenicspot;
-        //     o.building = cfg.building;
-        //     o.x = xy.x;
-        //     o.y = xy.y;
-        //     o.tracked = false;
-        //
-        //     // if(lines){
-        //     //     let index = lines.findIndex((n) => n == s);
-        //     //     o.index = index;
-        //     //     if(index != -1){
-        //     //         o.createDate = new Date().getTime() + (index+1) * 30000;
-        //     //     }
-        //     // }else{
-        //         o.index = -1;// 真实情况，应该读库
-        //    // }
-        //
-        //     return o;
-        // }),
+        info.spots        = spots;
 
         info.submit();
     }
@@ -181,10 +157,42 @@ class TourController extends Controller {
         let uid         = info.uid;
         let weather     = info.weather;
         let lines       = JSON.parse(ctx.query.line);
-        this.logger.info(lines);
 
+        let para        = {
+            line           : lines,
+            cid            : cid,
+            weather        : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            today          : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            itemSpecial    : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+        };
+        let roadMap     = new EventRandom(para);
+        let events      = roadMap;
+        this.logger.info(events);
 
-
+        //生成的路线图和事件写入currentCity
+        let  spots      = sps.map((s, idx) =>{
+            let o = s;
+            if(o.index != -1){
+                this.logger.info(o.createDate);
+                let date = new Date().getTime();
+                this.logger.info(date);
+                if(o.createDate <= date) {
+                    o.tracked = true;
+                }else{
+                    let index = lines.findIndex((n) => n ==  o.id);
+                    o.index = index;
+                    if(index != -1){
+                        o.createDate = new Date().getTime() + (index+1) * 30000;
+                    }
+                }
+            }else{
+                let index = lines.findIndex((n) => n == o.id);
+                o.index = index;
+                o.createDate = new Date().getTime() + (index+1) * 30000;
+            }
+            this.logger.info(o);
+            return o;
+        });
 
         ctx.body = [1,2,3];
     }
@@ -267,6 +275,7 @@ class TourController extends Controller {
         ctx.body =result
     }
 
+
     // 拍照
     async photography(ctx) {
         /*
@@ -323,7 +332,14 @@ class TourController extends Controller {
 
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
     async questrandom(ctx) {
-
+        ctx.body = {
+            'newEvent' : true, //是否有新事件
+            'spotsTracked': {
+                '100107': true,
+                '100102': true,
+                '100109': false
+            }
+        };
     }
 
     //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口
