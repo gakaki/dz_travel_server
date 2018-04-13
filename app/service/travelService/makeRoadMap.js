@@ -23,6 +23,21 @@ class MakeRoadMap {
         this.clacSpeed();        // 时间配置
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
+        this.linesFormat();      // 输出最后的结果
+    }
+
+    linesFormat(){
+
+        let res = {
+            timeTotal : this.timeTotal,
+            roadMap   : []
+        };
+
+        for ( let line of this.lin)
+
+
+
+
     }
 
     clacSpeed(){
@@ -66,6 +81,7 @@ class MakeRoadMap {
             o.y              = xy.y;
             o.tracked        = false;
             o.index          = index; //这个index 有必要吗
+            o.endTime        = "";    //结束时间 123123412341
             let [lng,lat]    = cfg["coordinate"];
             o.lng            = lng;
             o.lat            = lat;
@@ -104,6 +120,8 @@ class MakeRoadMap {
             timeStart   : start,
             timeEnd     : end,
             spotStart   : spotStart,
+            spotIdStart : spotStart.id,
+            spotIdEnd   : spotEnd.id,
             spotEnd     : spotEnd,
             timeStartFull : moment(start).format('YYYY-MM-DD HH:mm:ss'),
             timeStartEnd  : moment(end).format('YYYY-MM-DD HH:mm:ss')
@@ -122,5 +140,7 @@ let objParametes   = {
     itemSpecial    : 0
 };
 
-let er      = new MakeRoadMap(objParametes);
-console.log(er.lines);
+// let er      = new MakeRoadMap(objParametes);
+// console.log(er.lines);
+// console.log(er.timeTotal);
+// console.log(er.linesFormat);

@@ -162,8 +162,8 @@ let objParametes   = {
 };
 //
 //
-let er      = new RandomEvent(objParametes);
-console.log(er.events);
+// let er      = new RandomEvent(objParametes);
+// console.log(er.events);
 
 
 
