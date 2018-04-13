@@ -5,8 +5,8 @@ const QuestRepo             = require("../questService/questRepo");
 const ScenicPos             = require("../../../sheets/scenicpos");
 const moment                = require("moment");
 
-// 生成路线
-class MakeRoadMap {
+// 生成随机事件
+class MakeEvent {
 
     constructor( obj ){
 
