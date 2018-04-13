@@ -22,7 +22,7 @@ class TravelService extends Service {
         }
         info.weather = outw;
         info.playerCnt = await this.app.redis.get("travel_userid");
-        //info.friends = await this.ctx.service.publicService.friendService.findMyFriends(ui.friendList, info.uid);
+        info.friends = await this.ctx.service.publicService.friendService.findMyFriends(ui.friendList, info.uid);
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 

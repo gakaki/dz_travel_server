@@ -1,5 +1,6 @@
 const Service = require('egg').Service;
 const utils = require("../../utils/utils");
+const travelConfig = require("../../../sheets/travel");
 
 
 class FriendService extends Service {
@@ -12,12 +13,13 @@ class FriendService extends Service {
     async findMyFriends(friendList, uid) {
         let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList });
         let friends = await this.getUsersInfo(friendCurrentCitys);
-        if (friends.length < 2) {
-            // 人员不足的时候同城市的来几个
+        if (friends.length < travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value) {
+            // 人员不足的时候全国来几个
             friendList.push(uid);
-            let cityFriends = await this.findCountryFriends(friendList, 5);
+            let cityFriends = await this.findCountryFriends(friendList, (travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value - friends.length));
             friends = friends.concat(cityFriends);
         }
+       // this.logger.info(friends);
         return friends;
     }
 
@@ -31,10 +33,10 @@ class FriendService extends Service {
     async findMySameCityFriends(friendList, cid, uid) {
         let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList, cid: cid });
         let friends = await this.getUsersInfo(friendCurrentCitys);
-        if (friends.length < 2) {
+        if (friends.length < travelConfig.Parameter.Get(travelConfig.Parameter.PLAYERFRIEND).value) {
             // 人员不足的时候同城市的来几个
             friendList.push(uid);
-            let cityFriends = this.findSameCityFriends(friendList, cid, 5);
+            let cityFriends = this.findSameCityFriends(friendList, cid, (travelConfig.Parameter.Get(travelConfig.Parameter.PLAYERFRIEND).value - friends.length));
             friends = friends.concat(cityFriends);
         }
         return friends;
@@ -50,12 +52,11 @@ class FriendService extends Service {
      */
     async findSameCityFriends(myFriendList, cid, number) {
         //若是微信里找不到或者数量太少了 那么寻找同一个城市的人吧
-        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ cid: cid }, { uid: { $ne: myFriendList } });
-        let friends = await this.getUsersInfo(friendCurrentCitys);
+        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ cid: cid, uid: { $nin: myFriendList } });
         if(number) {
-            friends = utils.shuffle(friends).slice(0, number);
+            friendCurrentCitys = utils.shuffle(friendCurrentCitys).slice(0, number);
         }
-        return friends;
+        return await this.getUsersInfo(friendCurrentCitys);
     }
 
     /**
@@ -65,13 +66,11 @@ class FriendService extends Service {
      * @return {Promise<*>}
      */
     async findCountryFriends(myFriendList, number) {
-        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({}, { uid: { $ne: myFriendList } });
-        let friends = await this.getUsersInfo(friendCurrentCitys);
+        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: { $nin: myFriendList } });
         if(number) {
-            friends = utils.shuffle(friends).slice(0, number);
+            friendCurrentCitys = utils.shuffle(friendCurrentCitys).slice(0, number);
         }
-
-        return friends;
+        return await this.getUsersInfo(friendCurrentCitys);
     }
 
     async getUsersInfo(users) {
@@ -83,7 +82,7 @@ class FriendService extends Service {
                 nickName: friendInfo.nickName,
                 avatarUrl: friendInfo.avatarUrl,
                 cid: user.cid,
-                cityName: user.city,
+                cityName: travelConfig.City.Get(user.cid).city,
             };
             friends.push(friend);
         }

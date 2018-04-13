@@ -3,6 +3,8 @@ const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const ScenicPos         = require('../../../sheets/scenicpos');
 const utilTime          = require("../../utils/time");
+const MakeRoadMap       = require("../../service/makeRoadMap");
+const MakeEvent         = require("../../service/makeEvent");
 
 let tour = new Map();
 let userLines = new Map();
@@ -55,7 +57,7 @@ class TourController extends Controller {
         this.logger.info("进来了");
         this.logger.info(ctx.query);
         let cid = 1;
-        let city = travelConf.City.Get(cid);
+        let city = travelConfig.City.Get(cid);
        // let lines = userLines.get(ctx.query.uid);
        //  if(ctx.query.line){
        //      lines = JSON.parse(ctx.query.line);
@@ -65,14 +67,18 @@ class TourController extends Controller {
         this.logger.info(result);
 
 
-        let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
+        // let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
         let startPos   = ScenicPos.Get(cid);
         this.logger.info(cid, startPos)
+<<<<<<< HEAD
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
         let friendList = [];
         let startPos   = travelConfig.Scenicspot.Get(cid).cfg;
+=======
+
+>>>>>>> bffd62afffab302b3c98a1ae903ae53f26b1f2fc
         if(!result){
              result ={
                 code : "0",
@@ -83,8 +89,8 @@ class TourController extends Controller {
                         'photo': [0, 2]
                     },
                     startPos:       startPos,       //起始点
-                    weather:        weatherTxt,     //service 3rd 调用第三方service,
-                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind
+                    // weather:        weatherTxt,     //service 3rd 调用第三方service,
+                    friendList:     [],//friendList,     //该城市的人 优先好友 随便放 randomefind
                     spots: city.scenicspot.map((s, idx) => {
                         let o = {};
                         let cfg = travelConfig.Scenicspot.Get(s);
@@ -164,36 +170,19 @@ class TourController extends Controller {
             today          : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             itemSpecial    : 0  //这轮配置表里没有出现数据 留着下回做逻辑
         };
-        let roadMap     = new EventRandom(para);
-        let events      = roadMap;
+
+        let rm          = new MakeRoadMap(para);
+        let roadMaps    = rm.linesFormat;
+        let e           = new MakeEvents(para);
+        let events      = rm.linesFormat;
+
         this.logger.info(events);
+        this.logger.info(roadMaps);
 
         //生成的路线图和事件写入currentCity
-        let  spots      = sps.map((s, idx) =>{
-            let o = s;
-            if(o.index != -1){
-                this.logger.info(o.createDate);
-                let date = new Date().getTime();
-                this.logger.info(date);
-                if(o.createDate <= date) {
-                    o.tracked = true;
-                }else{
-                    let index = lines.findIndex((n) => n ==  o.id);
-                    o.index = index;
-                    if(index != -1){
-                        o.createDate = new Date().getTime() + (index+1) * 30000;
-                    }
-                }
-            }else{
-                let index = lines.findIndex((n) => n == o.id);
-                o.index = index;
-                o.createDate = new Date().getTime() + (index+1) * 30000;
-            }
-            this.logger.info(o);
-            return o;
-        });
-
-        ctx.body = [1,2,3];
+        info.events     = events;
+        info.spots      = roadMaps;
+        info.submit();
     }
     async tourstart(ctx){
         // http://127.0.0.1:7001/tour/tourstart/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
@@ -203,6 +192,7 @@ class TourController extends Controller {
         let cid =1;
      //   let cid         = info.cid;
        // let uid         = info.uid;
+
         let city        = travelConfig.City.Get(cid);
         let result      = tour.get(ctx.query.uid);
         let lines       = JSON.parse(ctx.query.line);

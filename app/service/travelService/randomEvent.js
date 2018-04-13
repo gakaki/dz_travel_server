@@ -160,10 +160,9 @@ let objParametes   = {
     today          : 0,
     itemSpecial    : 0
 };
-//
-//
-let er      = new RandomEvent(objParametes);
-console.log(er.events);
+
+// let er      = new RandomEvent(objParametes);
+// console.log(er.events);
 
 
 

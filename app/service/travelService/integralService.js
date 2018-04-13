@@ -2,7 +2,7 @@
 const Service = require('egg').Service;
 const sheets = require('../../../sheets/travel');
 const apis = require('../../../apis/travel');
-
+const utils = require('../../utils/utils');
 
 class IntegralService extends Service {
     async getInfo(res, ui) {
@@ -11,7 +11,25 @@ class IntegralService extends Service {
         //积分排名
         res.rank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
         //本期积分商店售卖的物品,配置在数据库中
-        res.shops = await this.ctx.model.TravelModel.ExchangeItem.find();
+        let date = new Date().format("yyyy-MM-dd");
+        let shops = await this.ctx.model.TravelModel.ExchangeItem.find();
+
+        if(!shops.length && sheets.exchanges) {
+            shops = sheets.exchanges
+            for (let i = 0;i<shops.length;i++) {
+                shops[i].uid = ui.uid;
+                shops[i].createDate = new Date();
+                shops[i].remaining = shops[i].num;
+                shops[i].time1 = new Date(shops[i].time1)
+                shops[i].time2 = new Date(shops[i].time2)
+                await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
+            }
+        }
+        shops = shops.filter(v=>{
+            return new Date() >= v.time1 && new Date() <= v.time2
+        })
+        res.shops = shops
+
     }
 
     async exchangeDetail(res) {
@@ -81,13 +99,12 @@ class IntegralService extends Service {
             return;
         }
 
-        let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({id: res.id});
+        let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({id: res.id,remaining:{$gt:0}});
         if (!item) {
             res.code = apis.Code.PARAMETER_NOT_MATCH;
             this.logger.info('找不到要兑换的物品，返回');
             return;
         }
-
         let myIntegral = ui.items[sheets.Item.POINT];
 
         if (myIntegral < item.integral) {
@@ -96,6 +113,8 @@ class IntegralService extends Service {
             return;
         }
 
+
+
         let condition = await this.ctx.model.TravelModel.ExchangeCondition.findOne();
         if (!condition) {
             //还未配置兑换条件
@@ -103,7 +122,7 @@ class IntegralService extends Service {
             res.code = apis.Code.FAILED;
             return;
         }
-        let myRank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);;
+        let myRank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
 
         if (myRank > condition.rank) {
             res.code = apis.Code.RANK_NOT_MEET;
@@ -113,21 +132,27 @@ class IntegralService extends Service {
             res.code = apis.Code.INTEGRAL_NOT_MEET;
             return;
         }
+        let result = await this.ctx.model.TravelModel.ExchangeItem.update({id: res.id,remaining:{$gt:0}},{$inc:{remaining:-1}});
+        if(result.nModified){
+            await this.ctx.model.TravelModel.ExchangeRecord.create({
+                uid: ui.uid,
+                nickName: ui.nickName,
+                avatar: ui.avatarUrl,
+                exId: res.id,
+                exName: item.name,
+                integral: item.integral,
+                tel: res.tel,
+                addr: res.addr,
+                sent: false,
+                createDate: new Date()
+            });
+            await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.POINT]: -item.integral}, 'travel');
 
-        await this.ctx.model.TravelModel.ExchangeRecord.create({
-            uid: ui.uid,
-            nickName: ui.nickName,
-            avatar: ui.avatarUrl,
-            exId: res.id,
-            exName: item.name,
-            integral: item.integral,
-            tel: res.tel,
-            addr: res.addr,
-            sent: false,
-            createDate: new Date()
-        });
+        }else{
+            res.code = apis.Code.COUNT_OVER;
+            return;
+        }
 
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.POINT]: -item.integral}, 'travel');
 
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}成功兑换了物品${item.name}`);
     }

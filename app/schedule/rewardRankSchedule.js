@@ -40,7 +40,8 @@ class RewardRankSchedule extends Subscription {
                 createDate: createDate,
             })
         }
-
+        //刷新周记录
+        await this.ctx.model.TravelModel.CompletionDegreeRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
         let footRankList = await this.ctx.service.travelService.rankService.getFootRankList();
         let content = travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).content;
         for(let foot of footRankList) {
@@ -64,6 +65,8 @@ class RewardRankSchedule extends Subscription {
                 createDate: createDate,
             })
         }
+        //清空周记录
+        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekLightCityNum: 0 } }, { multi: true });
     }
 }
 
