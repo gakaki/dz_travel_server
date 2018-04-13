@@ -6,7 +6,7 @@ class FriendService extends Service {
         let friends = findWechatFriends();
         if ( friends.length < 2){
             // 人员不足的时候同城市的来几个
-            let cityFriends = findSameCityFriends();
+            let cityFriends = this.findSameCityFriends();
             friends         = friends.concat(cityFriends);
         }
         return friends;

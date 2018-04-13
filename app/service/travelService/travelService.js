@@ -8,7 +8,7 @@ class TravelService extends Service {
         // info typeof apis.IndexInfo
         info.isFirst = ui.isFirst;
         info.gold = ui.items[travelConfig.Item.GOLD];
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
         let outw = 1;
         if (visit && visit.cid) {
@@ -102,7 +102,7 @@ class TravelService extends Service {
             let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: lastCity.fid });
             let reward = lastCity.efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
             //上个城市的评分奖励
-            cost[ "items." + travelConfig.Item.GOLD] = reward;
+            cost[ "items." + travelConfig.Item.POINT] = reward || 0;
             info.score = lastCity.efficiency;
             info.reward = reward;
         }

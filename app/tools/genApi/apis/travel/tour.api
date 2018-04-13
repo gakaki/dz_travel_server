@@ -253,6 +253,8 @@ api RentedProp {
 api TourStart {
     require cid:string
     require line:array
+    require weather:string
+
     output friendList:array
     output spots:Spot[]
     output startPos:Position

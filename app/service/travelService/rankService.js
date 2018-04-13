@@ -228,7 +228,22 @@ class RankService extends Service {
      * 获取玩家完成度
      * */
     async getUserCompletionDegree(uid) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRecord.findOne({ uid: uid });
+        let cityCompletionDegrees = await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: uid });
+        let totalCitys = travelConfig.citys.length;
+        let userCompletionDegree = {
+            completionDegree: 0,
+            weekCompletionDegree: 0,
+        };
+        let totalCompletionDegree = 0;
+        let weekCompletionDegree = 0;
+        for(let completionDegree of cityCompletionDegrees) {
+            totalCompletionDegree += completionDegree.completionDegree;
+            weekCompletionDegree += completionDegree.weekCompletionDegree;
+
+        }
+        userCompletionDegree.completionDegree = parseFloat((totalCompletionDegree / totalCitys).toFixed(1));
+        userCompletionDegree.weekCompletionDegree = parseFloat((weekCompletionDegree / totalCitys).toFixed(1));
+        return userCompletionDegree
     }
     /**
      * 获取当前好友达人榜单

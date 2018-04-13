@@ -7,16 +7,16 @@ class PlayerController extends Controller {
     async showplayerinfo(ctx) {
         let info = apis.PlayerInfo.Init(ctx);
         let userId = info.uid;
-        if(info.playerUid){
+        if(info.playerUid) {
             userId = info.playerUid;
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
-        if(!ui){
+        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+        if(!ui) {
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
         }
-        await ctx.service.travelService.playerService.showPlayerInfo(info,ui);
+        await ctx.service.travelService.playerService.showPlayerInfo(info, ui);
         //send data
         info.submit();
     }
