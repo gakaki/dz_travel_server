@@ -1,5 +1,6 @@
 const Service       = require('egg').Service;
 const travelConfig  = require("../../../sheets/travel");
+const ScenicPos     = require("../../../sheets/scenicpos");
 const utilsTime     = require("../../utils/time");
 const apis          = require("../../../apis/travel");
 const constant      = require('../../utils/constant');
@@ -437,6 +438,52 @@ class TourService extends Service {
 
 
     }
+
+
+
+    async taskSpots(uid,cid){
+        let r       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+
+        //景点 至少达到 6 个景点。
+        //观光 至少进行 2 次景点观光。
+        //拍照 至少进行 2 次拍照留念。
+        let task    = {
+            'spot':     [r['photographySpots'].length, 6],
+            'tour':     [r['tourCount'], 2],
+            'photo':    [r['photographyCount'], 2]
+        };
+        let city    = travelConfig.City.Get(cid);
+        let dbSpots = r['roadMap'];
+        let spots   = city.scenicspot.map((s, idx) => {
+            let o         = {};
+            let cfg       = travelConfig.Scenicspot.Get(s);
+            let xy        = ScenicPos.Get(s);
+            o.id          = s;
+            o.cid         = cid;
+            o.name        = cfg.scenicspot;
+            o.building    = cfg.building;
+            o.x           = xy.x;
+            o.y           = xy.y;
+            o.tracked     = false;
+            o.index       = -1;
+
+            // 真实情况，读库
+            if ( dbSpots.length > 0 ){
+                let index = dbSpots.findIndex( line => line.id == s );
+                o.index   = index;
+                //if(index != -1){
+                //    o.createDate = new Date().getTime() + (index+1) * 30000;
+                //}
+            }
+            return o;
+        });
+
+        return {
+            'task'  : task,
+            'spots' : spots
+        };
+    }
+
 
 }
 

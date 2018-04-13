@@ -133,12 +133,12 @@ class SpecialityService extends Service {
                 return total + record.number;
             }, 0);
         }
-        if (hasCnt >= baglimit) {
+        if (hasCnt + parseInt(info.count) >= baglimit) {
             info.code = apis.Code.BAG_FULLED;
             this.logger.info(`购买特产失败，背包已满`);
             return;
         }
-        if (cfg.limit > 0 && spCnt >= cfg.limit) {
+        if (cfg.limit > 0 && spCnt + parseInt(info.count) >= cfg.limit) {
             info.code = apis.Code.SPE_LIMIT;
             this.logger.info(`购买特产失败，物品限购`);
             return;

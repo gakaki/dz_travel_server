@@ -2,7 +2,7 @@ const travelConfig = require("../../sheets/travel");
 const weather = require("../utils/weather");
 const utils = require("../utils/utils");
 const moment = require("moment");
-let count = 0;
+
 module.exports = {
     schedule: {
         cron: "0 0 */12 * * * ",      //秒(0-59)，分(0-59)，时(0-23)，日(1-31)，月(1-12)，周(0-7,0和7代表周日)
@@ -14,27 +14,24 @@ module.exports = {
     },
     async task(ctx) {
         ctx.logger.info("每两个小时更新一次天气");
-        count++;
-        ctx.logger.info(count);
-        ctx.logger.info(count === 2 );
-       // let citys = travelConfig.citys;
-       //  let segment = 100;
-       //  let weathers = "晴";
-       //  for(let city of citys) {
-       //      let key = "weather" + Math.round(city.id / segment);
-       //      try {
-       //          let meteorological = await weather(city.city, ctx.app);
-       //          weathers = meteorological.now.cond_txt;
-       //      }catch(err) {
-       //           ctx.logger.error(err);
-       //           return;
-       //      }
-       //
-       //      let map = {
-       //        [city.id]: weathers,
-       //      };
-       //
-       //      await ctx.app.redis.hmset(key, map);
-       //  }
+       let citys = travelConfig.citys;
+        let segment = 100;
+        let weathers = "晴";
+        for(let city of citys) {
+            let key = "weather" + Math.round(city.id / segment);
+            try {
+                let meteorological = await weather(city.city, ctx.app);
+                weathers = meteorological.now.cond_txt;
+            }catch(err) {
+                 ctx.logger.error(err);
+                 return;
+            }
+
+            let map = {
+              [city.id]: weathers,
+            };
+
+            await ctx.app.redis.hmset(key, map);
+        }
     },
 };

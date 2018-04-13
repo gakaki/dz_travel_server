@@ -37,6 +37,13 @@ class Log {
     prop oneCityLog:OneCityLog[]
 }
 
+class FriendInfo extend UserBriefInfo{
+     //城市id
+     prop cid:string
+     //城市名
+     prop cityName:string
+}
+
 api IndexInfo {
     //是否为第一次进来的玩家
     output isFirst:Boolean
@@ -47,7 +54,7 @@ api IndexInfo {
     //旅行人数
     output playerCnt:number
     //好友uid
-    output friends:string[]
+    output friends:FriendInfo[]
     //未读系统信息条数
     output unreadMsgCnt:number
     //当前所在城市

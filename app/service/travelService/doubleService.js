@@ -59,7 +59,7 @@ class DoubleService extends Service {
                 let reward = visit.efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
                 //上个城市的评分奖励
                 let cost = {
-                    [ "items." + travelConfig.Item.GOLD]: reward,
+                    [ "items." + travelConfig.Item.POINT]: reward,
                 };
                 this.ctx.service.publicService.itemService.itemChange(ui.uid, cost);
                 await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { efficiency: 0 });
