@@ -5,6 +5,8 @@ const utilsTime     = require("../../utils/time");
 const apis          = require("../../../apis/travel");
 const constant      = require('../../utils/constant');
 const questRepo     = require('../questService/questRepo');
+const MakeRoadMap   = require("./makeRoadMap");
+const MakeEvent     = require("./makeEvent");
 
 class TourService extends Service {
 
@@ -484,6 +486,59 @@ class TourService extends Service {
         };
     }
 
+    //第一次点击开始游玩按钮
+    async setrouter(info){
+
+        let isChangeRouter = true;
+
+        //扣钱
+        await this.ctx.service.publicService.rewardService.gold(uid, -50);
+
+
+        let cid                  = info.cid;
+        let weather              = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
+        let today                = 0; //new Date().getDate();
+        let lines                = info.line;
+        let uid                  = info.uid;
+
+        let para                 = {
+            line                 : lines,
+            cid                  : cid,
+            weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+        };
+
+        let rm                   = new MakeRoadMap(para);
+        let roadMaps             = rm.linesFormat;
+
+        para['timeTotalHour']    = rm.timeTotalHour;
+        let e                    = new MakeEvent(para);
+        let events               = rm.linesFormat;
+
+        await this.ctx.model.TravelModel.CurrentCity.update({
+            'uid'        : uid,
+            'cid'        : cid,
+        },{ $set: {
+                roadMaps : roadMaps,
+                events   : events,
+                createEventDate : new Date()
+        }});
+
+        this.logger.info(events);
+        this.logger.info(roadMaps);
+
+        info.spots               = roadMaps;
+        //events 这里交给轮询接口了
+    }
+
+    async SetRouter(info){
+
+
+
+
+
+    }
 
 }
 
