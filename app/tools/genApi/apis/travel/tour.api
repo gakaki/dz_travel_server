@@ -1,6 +1,4 @@
 //游玩界面相关的api数据
-import ./travel.api
-import ./city.api
 
 class QuestReport {
     //景点数量
@@ -11,13 +9,15 @@ class QuestReport {
     prop postcardCount:number
 }
 
-// 坐标玩家自身的锁在坐标 再议
-class Position {
-    prop x:number
-    prop y:number
+class RouterSpot {
+    //是否经过
+    prop tracked:boolean
+    //经过的顺序
+    prop index:number
+    //预计达到时间戳
+    prop arriveStamp:number
 }
-
-class Spot {
+class Spot extends RouterSpot{
     //城市id
     prop cid:number
     //景点配置表id
@@ -26,26 +26,8 @@ class Spot {
     prop y:number
     //景点配置表描述
     prop name:string
-
-    //是否起点
-    prop isStart:boolean
-    //是否经过
-    prop tracked:boolean
-    //经过的顺序
-    prop index:number
-    //预计达到时间
-    prop createDate:number
-}
-class NextSpot extends Spot{
-    prop spodIdNext:number
-    //开始时间
-    prop createDate:number
-    //预估到达的时间 根据createdDate
-    prop arrivedDate:number
-    //预估需要多少时间
-    prop needTime:string
-    //已经走了多少时间 用来在界面上画图走了多少路 移动多少距离用
-    prop elapsedTimeSecond:number
+    //建筑图标
+    prop building:string[]
 }
 
 class TourTask {
@@ -53,7 +35,6 @@ class TourTask {
     prop tour:number[]      // 0/2 观光完成度 一共2已完成2
     prop photo:number[]     // 0/2 拍照完成度 一共2已完成2
 }
-
 
 // 查询用户是否需要新手引导
 api CheckGuide {
@@ -72,62 +53,16 @@ api TourIndexInfo extends IndexInfo{
     //城市id
     require cid:number
     require uid:number
-    
-    optional line: array
-    //用户是否是第一次游玩
-    output firstPlay:boolean
+
+    output weather:number
     //该城市的spot景点列表
     output spots:Spot[]
-    //用户信息
-    output userInfo:UserInfo
     //完成度信息
     output task:TourTask
+    //其他玩家头像，为图片url数组
+    output others:string[]
 }
 
-// 修改路线 注意不可回退 并且正在行进的路线change了就不能选择了
-api ChangeRouter {
-    //景点id
-    require spotId:number
-    require position:Position
-    output nextSpot:NextSpot
-}
-
-api NextRouter  {
-    //城市id
-    require cid:string
-    //景点id
-    require spotIdCurrent:string
-    require spotIdNext:string
-    require uid:string
-    output nextSpot:NextSpot
-}
-//进入景点直接触发随机事件 前端触发吧
-api QuestEnterSpot {
-    //用户id
-    require sid:number
-    //景点id
-    require spotId:number
-    //触发的随机事件的event id见配置表
-    output eventId:number
-    //返回个人的金币和积分 在userinfo里
-    output userinfo:UserInfo
-}
-
-//回答问题的接口
-api AnswerQuestion {
-   //回答是否正确
-   output answerResult:boolean
-   //返回个人的金币和积分 在userinfo里
-   output userinfo:UserInfo
-}
-
-//行程途中随机事件  每隔一分钟定时call 之后获得处理
-api QuestRandom {
-    //别的玩家信息 是否是你的好友需要一定的计算 还有对应的坐标
-    playerInfos : PlayerInfo[]
-    //触发随机事件的id
-    output eventId:number
-}
 class Postcard {
     prop id:string
     prop pattern:string
@@ -137,7 +72,6 @@ class Postcard {
 
 // 到达景点拍照按钮
 api Photography {
-    require uid:number
     //城市id
     require cid:number
     //景点id
@@ -147,11 +81,10 @@ api Photography {
 }
 
 
-// 哎这个enterspot算是犯规 不太符合规矩
+// 进入景点
 class EnterSpot {
     prop id:string
     prop scenicspot:string
-    prop season:string
     prop weather:number
     prop freePhoto:number[]
     prop freeSight:number[]
@@ -160,9 +93,10 @@ class EnterSpot {
 }
 
 class Quest {
-    //prop time:number
+    prop time:number
     prop id:string
     prop type:string
+    prop picture:string
     prop describe:string
     prop gold_used:number
     prop rewards:KV[]
@@ -172,7 +106,6 @@ class Quest {
 
 // 进入景点
 api Enterspot {
-    require uid:number
     //景点id
     require spotId:number
     //景点数据
@@ -184,51 +117,40 @@ api Enterspot {
 
 // 到达景点观光
 api SpotTour {
-    require sid:number
     //城市id
     require cid:number
     //景点id
     require spotId:number
+
     //随机事件会获得的东西不同
     output userinfo:UserInfo
 }
 
 // 随机事件弹出框 回答答案
-api TourSpotAnswer{
-    require uid:number
+api AnswerQuest{
     require id:number
     require answer:string
+
     output correct:boolean
+    //更新后的用户信息
     output userInfo: UserInfo
+    //奖励物品
     output rewards: KV[]
 }
 //点开显示随机事件
 api EventShow   {
-    require uid:number
     require cid:number
-    output id:string
+    //列表总长多少
+    output total:number
+    //当前第几个从1开始
+    output current:number
+    //事件
     output quest:Quest
-    output userinfo:UserInfo
+    //更新后的用户信息
+    output userInfo: UserInfo
 }
 
-//已触发的随机事件列表 点按下一步的时候才真的执行触发 无需输入
-api QuestRandom {
-   //列表总长多少
-   output total:number
-   //当前第几个从1开始
-   output current:number
-
-   //事件描述语句 用%占位符替换数据内容
-   //output message:string
-
-   //触发的随机事件的配置表id
-   output eventId:number
-
-   //花费什么获得了什么奖励 调用itemservices
-   output userinfo:UserInfo
-}
-
-//玩家完成该城市的经典的具体报告
+//玩家完成该城市的景点的具体报告
 api ShowQuestReport {
    //返回报告信息
    output  questReport:QuestReport
@@ -247,20 +169,31 @@ api LeaveTour
 api RentProp {
     require rentId:number  //装备id
 }
-
+//已租用的道具
 api RentedProp {
     output rentItems:KV[]//已租用的所有道具。
 }
 
-api TourStart {
+//设置/修改路线，后端判断是否第一次，非第一次且非续接路线则扣钱
+api SetRouter {
     require cid:string
-    require line:array
-    require weather:string
+    require line:array//景点id数组,每次传的都市完整的路线（包含已走过的）
 
-    output friendList:array
-    output spots:Spot[]
-    output startPos:Position
-    output task:TourTask
-    output weather:number
+    //设置后景点数组
+    output spots:RouterSpot[]
+    //设置路线后剩余金币
+    output goldNum:number
 }
 
+//最新景点数组
+api FreshSpots {
+    //最新景点数组
+    output spots:RouterSpot[]
+}
+
+//游玩界面轮询
+api PlayLoop {
+    output newEvent:boolean  //是否有新事件
+    output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+    output spotsTracked:object//{'100107': true}
+}

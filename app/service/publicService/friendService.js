@@ -50,7 +50,7 @@ class FriendService extends Service {
      */
     async findSameCityFriends(myFriendList, cid, number) {
         //若是微信里找不到或者数量太少了 那么寻找同一个城市的人吧
-        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ cid: cid }, { uid: { $ne: myFriendList } });
+        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ cid: cid, uid: { $nin: myFriendList } });
         let friends = await this.getUsersInfo(friendCurrentCitys);
         if(number) {
             friends = utils.shuffle(friends).slice(0, number);
@@ -65,7 +65,7 @@ class FriendService extends Service {
      * @return {Promise<*>}
      */
     async findCountryFriends(myFriendList, number) {
-        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({}, { uid: { $ne: myFriendList } });
+        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: { $nin: myFriendList } });
         let friends = await this.getUsersInfo(friendCurrentCitys);
         if(number) {
             friends = utils.shuffle(friends).slice(0, number);

@@ -37,7 +37,7 @@ class PlayerService extends Service {
             rentItems: visit ? visit.rentItems : {},
             friends: ui.friendList,
             otherUserInfo: {
-                totalIntegral: addScore ? addScore : 0,
+                totalIntegral: addScore ? addScore.addup : 0,
                 mileage: ui.mileage,
                 postcard: postCards.length > 1 ? postCards[0].number : 0,
                 comment: comment,

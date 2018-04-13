@@ -55,7 +55,7 @@ class TourController extends Controller {
         this.logger.info("进来了");
         this.logger.info(ctx.query);
         let cid = 1;
-        let city = travelConf.City.Get(cid);
+        let city = travelConfig.City.Get(cid);
        // let lines = userLines.get(ctx.query.uid);
        //  if(ctx.query.line){
        //      lines = JSON.parse(ctx.query.line);
@@ -65,14 +65,12 @@ class TourController extends Controller {
         this.logger.info(result);
 
 
-        let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
+        // let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
         let startPos   = ScenicPos.Get(cid);
         this.logger.info(cid, startPos)
-      //  let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
-        let friendList = [];
-        let startPos   = travelConfig.Scenicspot.Get(cid);
+
         if(!result){
              result ={
                 code : "0",
@@ -83,8 +81,8 @@ class TourController extends Controller {
                         'photo': [0, 2]
                     },
                     startPos:       startPos,       //起始点
-                    weather:        weatherTxt,     //service 3rd 调用第三方service,
-                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind
+                    // weather:        weatherTxt,     //service 3rd 调用第三方service,
+                    friendList:     [],//friendList,     //该城市的人 优先好友 随便放 randomefind
                     spots: city.scenicspot.map((s, idx) => {
                         let o = {};
                         let cfg = travelConfig.Scenicspot.Get(s);
@@ -204,6 +202,7 @@ class TourController extends Controller {
         let cid =1;
      //   let cid         = info.cid;
        // let uid         = info.uid;
+
         let city        = travelConfig.City.Get(cid);
         let result      = tour.get(ctx.query.uid);
         let lines       = JSON.parse(ctx.query.line);

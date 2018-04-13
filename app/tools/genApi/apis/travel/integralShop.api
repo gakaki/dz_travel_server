@@ -13,7 +13,7 @@ class Shop {
     //该商品id
     prop id:string
     //商品图片地址
-    prop url:string
+    prop pic:string
     //商品名
     prop name:string
     //兑换该商品所需积分

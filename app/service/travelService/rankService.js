@@ -74,7 +74,6 @@ class RankService extends Service {
         await this.ctx.model.TravelModel.FootRank.remove();
         await this.ctx.model.TravelModel.FootRank.insertMany(list);
 
-        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekLightCityNum: 0 } }, { multi: true });
     }
 
     /**
@@ -158,8 +157,7 @@ class RankService extends Service {
 
         await this.ctx.model.TravelModel.CompletionDegreeRank.remove();
         await this.ctx.model.TravelModel.CompletionDegreeRank.insertMany(list);
-        //刷新周记录
-        await this.ctx.model.TravelModel.CompletionDegreeRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
+
     }
 
     /**
