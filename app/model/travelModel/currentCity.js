@@ -15,6 +15,9 @@ module.exports = app => {
         tourCount: { type: Number, default: "0" }, //城市观光次数 前2次免费
         rewardAppendTime: Array, //被奖励？惩罚的 该城市游玩追加时间可以为负数
 
+        roadMaps : { type: Array, default: null},
+        events   : { type: Array, default:  null },
+        modifyEventDate : { type: Date, default: null },
     });
 
     return mongoose.model('CurrentCity', CurrentCitySchema);
