@@ -438,6 +438,21 @@ class TourService extends Service {
 
     }
 
+
+    async cityTasksInfo( uid, cid ) {
+        let task = {
+            'spot': [0, 6],
+            'tour': [0, 2],
+            'photo': [0, 2]
+        };
+        return task;
+    }
+
+    async spotsInfo( uid , cid ){
+        return [];
+    }
+
+
 }
 
 
