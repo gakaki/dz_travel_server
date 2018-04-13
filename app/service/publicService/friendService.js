@@ -1,5 +1,6 @@
 const Service = require('egg').Service;
 const utils = require("../../utils/utils");
+const travelConfig = require("../../../sheets/travel");
 
 
 class FriendService extends Service {
@@ -18,6 +19,7 @@ class FriendService extends Service {
             let cityFriends = await this.findCountryFriends(friendList, 5);
             friends = friends.concat(cityFriends);
         }
+       // this.logger.info(friends);
         return friends;
     }
 
@@ -83,7 +85,7 @@ class FriendService extends Service {
                 nickName: friendInfo.nickName,
                 avatarUrl: friendInfo.avatarUrl,
                 cid: user.cid,
-                cityName: user.city,
+                cityName: travelConfig.City.Get(user.cid).city,
             };
             friends.push(friend);
         }
