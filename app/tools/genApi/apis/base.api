@@ -63,6 +63,8 @@ enum Code {
     const LEVEL_MAX = -140
     //道具上限
     const ITEM_MAX = -141
+    //道具低于最低限制
+    const ITEM_LESS = -142
     //未找到相关信息
     const NOT_FOUND = -10086
     //已经点过赞

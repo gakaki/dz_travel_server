@@ -229,7 +229,7 @@ class PlayerController extends Controller {
         }
         if(!info.message) {
             this.logger.info("留言信息为空");
-            info.code = apis.Code.NOT_FOUND;
+            info.code = apis.Code.ITEM_LESS;
             info.submit();
             return;
         }

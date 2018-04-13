@@ -83,6 +83,8 @@ class Code{
     
     static get ITEM_MAX() { return -141;}
     
+    static get ITEM_LESS() { return -142;}
+    
     static get NOT_FOUND() { return -10086;}
     
     static get HAS_LIKE() { return -521;}
