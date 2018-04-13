@@ -58,13 +58,14 @@ class RankService extends Service {
      *
      * */
     async updateFootRankList() {
-        let list = await this.ctx.model.TravelModel.FootRecord.find().sort({ weeklightCityNum: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.FootRecord.find().sort({ weekLightCityNum: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
             let o = {};
             o.uid = l.uid;
-            o.lightCityNum = l.weeklightCityNum;
+            o.lightCityNum = l.lightCityNum;
+            o.weekLightCityNum = l.weekLightCityNum;
             o.rank = idx++;
             o.createDate = date;
             return o;
@@ -73,7 +74,7 @@ class RankService extends Service {
         await this.ctx.model.TravelModel.FootRank.remove();
         await this.ctx.model.TravelModel.FootRank.insertMany(list);
 
-        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
+        await this.ctx.model.TravelModel.FootRecord.update({}, { $set: { weekLightCityNum: 0 } }, { multi: true });
     }
 
     /**
@@ -87,7 +88,7 @@ class RankService extends Service {
             await this.ctx.model.TravelModel.FootRecord.update(
                 { uid: uid },
                 { $set: { uid: uid, updateDate: new Date() } },
-                { $inc: { lightCityNum: 1, weeklightCityNum: 1 } },
+                { $inc: { lightCityNum: 1, weekLightCityNum: 1 } },
                 { upsert: true }
             );
             let userFoot = await this.getUserFoot(uid);
@@ -148,7 +149,8 @@ class RankService extends Service {
         list = list.map(l => {
             let o = {};
             o.uid = l.uid;
-            o.completionDegree = l.weekCompletionDegree;
+            o.weekCompletionDegree = l.weekCompletionDegree;
+            o.completionDegree = l.completionDegree;
             o.rank = idx++;
             o.createDate = date;
             return o;

@@ -419,7 +419,8 @@ class PlayerService extends Service {
             let selfCompletionDegree = await this.ctx.service.travelService.rankService.getUserCompletionDegree(info.ui.uid);
             if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
                 info.selfRank = {
-                    achievement: selfCompletionDegree ? selfCompletionDegree.weekCompletionDegree : 0,
+                    achievement: selfCompletionDegree ? selfCompletionDegree.completionDegree : 0,
+                    weekAchievement: selfCompletionDegree ? selfCompletionDegree.weekCompletionDegree : 0,
                 };
                 rankInfos = await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page, limit);
             }
@@ -435,7 +436,8 @@ class PlayerService extends Service {
             let selfFoot = await this.ctx.service.travelService.rankService.getUserFoot(info.ui.uid);
             if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
                 info.selfRank = {
-                    achievement: selfFoot ? selfFoot.weeklightCityNum : 0,
+                    achievement: selfFoot ? selfFoot.lightCityNum : 0,
+                    weekAchievement: selfFoot ? selfFoot.weekLightCityNum : 0,
                 };
                 rankInfos = await this.ctx.service.travelService.rankService.getFootRankList(page, limit);
             }
@@ -447,7 +449,7 @@ class PlayerService extends Service {
             }
         }
 
-        this.logger.info(rankInfos);
+       // this.logger.info(rankInfos);
 
         let rankIndex = rankInfos.findIndex((n) => n.uid == info.ui.uid);
         this.logger.info("weizhi ========");
@@ -459,15 +461,27 @@ class PlayerService extends Service {
             let rankItem = {
                 rank: rankInfos[index].rank || (index + 1),
             };
-            // if(info.rankSubtype == apis.RankSubtype.FRIEND) {
-            //     rankItem.achievement = rankInfos[index].integral || rankInfos[index].completionDegree || rankInfos[index].lightCityNum;
-            // }
-       //     if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
-                rankItem.achievement = rankInfos[index].integral || rankInfos[index].weekCompletionDegree || rankInfos[index].weeklightCityNum;
-        //    }
-            if(!rankItem.achievement) {
-               rankItem.achievement = 0;
+
+            if(info.rankType == apis.RankType.SCORE) {
+                rankItem.achievement = rankInfos[index].integral;
             }
+            if(info.rankType != apis.RankType.FOOT) {
+                rankItem.achievement = rankInfos[index].lightCityNum;
+            }
+            if(info.rankType != apis.RankType.THUMBS) {
+                rankItem.achievement = rankInfos[index].completionDegree;
+            }
+
+
+            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                if(info.rankType == apis.RankType.FOOT) {
+                    rankItem.weekAchievement = rankInfos[index].weekLightCityNum;
+                }
+                if(info.rankType == apis.RankType.THUMBS) {
+                    rankItem.weekAchievement = rankInfos[index].weekCompletionDegree;
+                }
+            }
+
           //   this.logger.info(rankInfos[index].integral);
             let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({ uid: rankInfos[index].uid });
           //  this.logger.info(rankInfos[index]);
@@ -478,12 +492,12 @@ class PlayerService extends Service {
                 avatarUrl: user.avatarUrl,
             };
 
-            if(info.rankSubtype == apis.RankSubtype.FRIEND) {
-                rankItem.reward = 0;
-            }
-            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
-                rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
-            }
+            // if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+            //     rankItem.reward = 0;
+            // }
+            // if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+            //     rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
+            // }
 
           //  this.logger.info(rankItem)
             out.push(rankItem);
