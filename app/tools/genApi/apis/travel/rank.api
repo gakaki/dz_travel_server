@@ -19,7 +19,9 @@ enum RankSubtype {
 class RankItem {
     //排名
     prop rank:number
-    //完成的成就
+    //完成的周成就
+    prop weekAchievement:number
+    //完成的总成就
     prop achievement:number
     //用户信息
     prop userInfo:UserBriefInfo
@@ -30,6 +32,7 @@ class RankItem {
 //自己的排行信息
 class SelfRank {
     prop rank:number
+    prop weekAchievement:number
     prop achievement:number
 }
 
