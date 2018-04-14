@@ -44,8 +44,6 @@ api CheckGuide {
 
 // 标记新手引导结束
 api FinishGuide {
-    //用户引导结束
-    require play:boolean
 }
 
 //进入城市的经典页面  用户开始该城市的旅游
