@@ -1021,21 +1021,17 @@ class TourIndexInfo extends Base {
         this.action = 'tour.tourindexinfo';
     
         this._cid = null;
-        this._uid = null;
         this._weather = null;
         this._spots = null;
         this._task = null;
         this._others = null;
-        this.requireFileds = ["cid","uid"];
-        this.reqFields = ["cid","uid"];
+        this.requireFileds = ["cid"];
+        this.reqFields = ["cid"];
         this.resFields = ["weather","spots","task","others"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
     set cid(v) {this._cid = v}
-    //client input, require, type: number
-    get uid() {return this._uid}
-    set uid(v) {this._uid = v}
     //server output, type: number
     get weather() {return this._weather}
     set weather(v) {this._weather = v}
@@ -1479,6 +1475,46 @@ class RentedProp extends Base {
         }
     }
 }
+class SetRouter extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.setrouter';
+    
+        this._cid = null;
+        this._line = null;
+        this._spots = null;
+        this._goldNum = null;
+        this.requireFileds = ["cid","line"];
+        this.reqFields = ["cid","line"];
+        this.resFields = ["spots","goldNum"];
+    }
+    //client input, require, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
+    get line() {return this._line}
+    set line(v) {this._line = v}
+    //server output, type: RouterSpot[]
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    //server output, type: number
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new SetRouter();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class Minapppay extends Base {
     constructor() {
         super();
@@ -1515,21 +1551,29 @@ class Minapppay extends Base {
         }
     }
 }
-class FreshSpots extends Base {
+class PlayLoop extends Base {
     constructor() {
         super();
-        this.action = 'tour.freshspots';
+        this.action = 'tour.playloop';
     
-        this._spots = null;
+        this._newEvent = null;
+        this._freshSpots = null;
+        this._spotsTracked = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["spots"];
+        this.resFields = ["newEvent","freshSpots","spotsTracked"];
     }
-    //server output, type: RouterSpot[]
-    get spots() {return this._spots}
-    set spots(v) {this._spots = v}
+    //server output, type: boolean
+    get newEvent() {return this._newEvent}
+    set newEvent(v) {this._newEvent = v}
+    //server output, type: boolean
+    get freshSpots() {return this._freshSpots}
+    set freshSpots(v) {this._freshSpots = v}
+    //server output, type: object//'100107'
+    get spotsTracked() {return this._spotsTracked}
+    set spotsTracked(v) {this._spotsTracked = v}
     static Init(ctx, checkLogin = false) {
-        let o = new FreshSpots();
+        let o = new PlayLoop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2082,7 +2126,7 @@ class TraveledPlaces extends Base {
         }
     }
 }
-class viewpointInfo extends Base {
+class ViewpointInfo extends Base {
     constructor() {
         super();
         this.action = 'sight.viewpointinfo';
@@ -2116,7 +2160,7 @@ class viewpointInfo extends Base {
     get desc() {return this._desc}
     set desc(v) {this._desc = v}
     static Init(ctx, checkLogin = false) {
-        let o = new viewpointInfo();
+        let o = new ViewpointInfo();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3097,33 +3141,21 @@ class ExchangeShop extends Base {
         }
     }
 }
-class SetRouter extends Base {
+class FreshSpots extends Base {
     constructor() {
         super();
-        this.action = 'tour.setrouter';
+        this.action = 'tour.freshspots';
     
-        this._cid = null;
-        this._line = null;
         this._spots = null;
-        this._goldNum = null;
-        this.requireFileds = ["cid","line"];
-        this.reqFields = ["cid","line"];
-        this.resFields = ["spots","goldNum"];
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["spots"];
     }
-    //client input, require, type: string
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
-    get line() {return this._line}
-    set line(v) {this._line = v}
     //server output, type: RouterSpot[]
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
-    //server output, type: number
-    get goldNum() {return this._goldNum}
-    set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
-        let o = new SetRouter();
+        let o = new FreshSpots();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3319,8 +3351,9 @@ exports.ShowQuestReport = ShowQuestReport;
 exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
+exports.SetRouter = SetRouter;
 exports.Minapppay = Minapppay;
-exports.FreshSpots = FreshSpots;
+exports.PlayLoop = PlayLoop;
 exports.FlyInfo = FlyInfo;
 exports.StartGame = StartGame;
 exports.CreateCode = CreateCode;
@@ -3335,7 +3368,7 @@ exports.Spe = Spe;
 exports.TravelFootprint = TravelFootprint;
 exports.GetUserLocation = GetUserLocation;
 exports.TraveledPlaces = TraveledPlaces;
-exports.viewpointInfo = viewpointInfo;
+exports.ViewpointInfo = ViewpointInfo;
 exports.Photograph = Photograph;
 exports.ShareInfo = ShareInfo;
 exports.CityListPer = CityListPer;
@@ -3364,7 +3397,7 @@ exports.CheckGuide = CheckGuide;
 exports.IntegralShop = IntegralShop;
 exports.ExchangeDetail = ExchangeDetail;
 exports.ExchangeShop = ExchangeShop;
-exports.SetRouter = SetRouter;
+exports.FreshSpots = FreshSpots;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
 exports.SysMessage = SysMessage;

@@ -52,7 +52,6 @@ api FinishGuide {
 api TourIndexInfo{
     //城市id
     require cid:number
-    require uid:number
 
     output weather:number
     //该城市的spot景点列表
@@ -195,5 +194,5 @@ api FreshSpots {
 api PlayLoop {
     output newEvent:boolean  //是否有新事件
     output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-    output spotsTracked:object//{'100107': true}
+    output spotsTracked:object//'100107':true
 }

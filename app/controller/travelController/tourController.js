@@ -70,15 +70,9 @@ class TourController extends Controller {
         // let weatherTxt = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(ctx.session.ui.uid,cid);
-        let startPos   = ScenicPos.Get(cid);
-        this.logger.info(cid, startPos)
-<<<<<<< HEAD
       //  let friendList = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
         let friendList = [];
         let startPos   = travelConfig.Scenicspot.Get(cid).cfg;
-=======
-
->>>>>>> bffd62afffab302b3c98a1ae903ae53f26b1f2fc
         if(!result){
              result ={
                 code : "0",
@@ -90,7 +84,7 @@ class TourController extends Controller {
                     },
                     startPos:       startPos,       //起始点
                     // weather:        weatherTxt,     //service 3rd 调用第三方service,
-                    friendList:     [],//friendList,     //该城市的人 优先好友 随便放 randomefind
+                    friendList:     friendList,     //该城市的人 优先好友 随便放 randomefind
                     spots: city.scenicspot.map((s, idx) => {
                         let o = {};
                         let cfg = travelConfig.Scenicspot.Get(s);
