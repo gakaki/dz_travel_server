@@ -35,7 +35,7 @@ class TourController extends Controller {
         let weatherId     = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
         let friends       = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
         
-        let startPos      = ScenicPos.Get(cid);
+        let startPos      = ScenicPos.Get(cid).cfg;
         let firstPlay     = false;
 
         let taskSpots     = await this.ctx.service.travelService.tourService.taskSpots(uid,cid);
