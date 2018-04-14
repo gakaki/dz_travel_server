@@ -76,7 +76,7 @@ class SpecialityService extends Service {
                     s.sellPrice = price;
                     s.sellPriceDate = now;
 
-                    await speModel.update({ uid: s.uid, spid: s.spid }, { sellPrice: price, sellPriceDate: now });
+                    await speModel.update({ uid: s.uid, spid: s.spid }, { $set: { sellPrice: price, sellPriceDate: now }});
                     fillRes(info.specialtys, cfg, s);
                     resolve();
                 }
@@ -100,7 +100,7 @@ class SpecialityService extends Service {
     //每次进入一个新城市游玩时，调用此接口,将自己背包里的特产出售价格清零
     async clearMySpePrice(uid) {
         let speModel = this.ctx.model.TravelModel.Speciality;
-        await speModel.update({ uid }, { sellPrice: 0 });
+        await speModel.update({ uid }, { $set: { sellPrice: 0 }});
     }
 
     async buy(info) {
@@ -148,16 +148,19 @@ class SpecialityService extends Service {
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
         //加特产
-        let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
+        let sp = await this.ctx.model.TravelModel.Speciality.update(
+            {uid: ui.uid, spid: cfg.id},
             {
-                cid: cfg.cityid,
-                uid: ui.uid,
-                spid: cfg.id,
-                price: cfg.localprice,
-                $inc: {number: info.count},
-                createDate: new Date()
+                $set: {
+                    cid: cfg.cityid,
+                    uid: ui.uid,
+                    spid: cfg.id,
+                    price: cfg.localprice,
+                    createDate: new Date()
+                },
+                $inc: { number: info.count },
             },
-            {upsert: true});
+            { upsert: true });
         //购买记录
         await this.ctx.model.TravelModel.SpecialityBuy.create({
             uid: ui.uid,
