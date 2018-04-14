@@ -441,8 +441,6 @@ class TourService extends Service {
 
     }
 
-
-
     async taskSpots(uid,cid){
         let r       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
 
@@ -472,11 +470,13 @@ class TourService extends Service {
             // 真实情况，读库
             if ( dbSpots.length > 0 ){
                 let index = dbSpots.findIndex( line => line.id == s );
+                let dbRow = dbSpots.find( r => r.id == s ) ;
                 o.index   = index;
-                //if(index != -1){
-                //    o.createDate = new Date().getTime() + (index+1) * 30000;
-                //}
+                if ( dbRow['arriveStamp'] < timeUtil.currentTimestamp() ){
+                    o.tracked = true;
+                }
             }
+            
             return o;
         });
 
@@ -484,6 +484,69 @@ class TourService extends Service {
             'task'  : task,
             'spots' : spots
         };
+    }
+
+    //轮询访问地址
+    async playloop(){
+
+        // output newEvent:boolean  //是否有新事件
+        // output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+        // output spotsTracked:number//有几个到达了
+        // output spotsAllTraced:boolean
+
+        // let uid              = info.uid;
+        // let cid              = info.cid;
+        // let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
+        // if (!currentCity) {
+        //     info.code = apis.Code.NOT_FOUND;
+        //     info.submit();
+        //     return;
+        // }
+
+
+        // let timeNow              = new Date().getTime();
+        // let redisKey             = `playloop:${uid}:time`;
+        // let timePrev             = await this.app.redis.get(redisKey);
+        // if ( timePrev ){
+        //     let events           = currentCity['events'];
+        //     let eventsLastTrigged= events.filter(  r =>  r.createtime  > timePrev && r.createtime < timeNow  );
+        //     if ( events.length > 0 ){   //读取上次访问的时间 可能还要过滤掉已经触发的事件列表
+        //         info.newEvent    = true;    //是否有新事件
+        //     }
+        // }
+        
+        // let spots                = currentCity['spots'];
+        // let spotsHasArrived      = spots.filter(  r =>  r.createtime  <= timeNow );
+        // if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
+        //     needFreshSpots   = true;
+        // }
+
+        // let spotsTracked         = 3; //计算currentcity的spots的数量
+        // let spotsAllTracked  = false;
+
+        // info.freshSpots      = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
+        // info.spotsTracked    = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
+
+        // //是否已经把地图上所有的【=p景点都走过了 对比cid和currentcity的是否全了
+        // info.spotsAllTraced  = await this.ctx.service.travelService.tourService.playloop(uid,cid);
+
+        //是否有新事件
+
+        //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+
+        //有几个到达了
+
+        //是否已经把地图上所有的景点都走过了
+
+        ctx.body = {
+            'newEvent' : true, //是否有新事件
+            'spotsTracked': {
+                '100107': true,
+                '100102': true,
+                '100109': false
+            }
+        };
+
     }
 
     //第一次点击开始游玩按钮
@@ -516,7 +579,7 @@ class TourService extends Service {
         };
 
         let rm                   = new MakeRoadMap(para);
-        let roadMaps             = rm.linesFormat;
+        let roadMap              = rm.linesFormat;
         para['timeTotalHour']    = rm.timeTotalHour;
 
         if ( isChangeRouter ){
@@ -527,37 +590,28 @@ class TourService extends Service {
                 'uid'        : uid,
                 'cid'        : cid,
             },{ $set: {
-                    roadMaps : roadMaps,
+                    roadMap  : roadMap,
                     modifyEventDate : new Date()
             }});
 
         }else{
             // 第一次生成的时候修改事件 后面修改的时候不改了
-            let rm                   = new MakeRoadMap(para);
-            let roadMaps             = rm.linesFormat;
             let e                    = new MakeEvent(para);
-            let events               = rm.linesFormat;
+            let events               = e.events;
 
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : uid,
                 'cid'        : cid,
             },{ $set: {
-                    roadMaps : roadMaps,
+                    roadMap  : roadMap,
                     events   : events,
                     modifyEventDate : new Date()
             }});
         }
 
-        info.spots               = roadMaps;
+        info.spots               = roadMap;
     }
 
-    async SetRouter(info){
-
-
-
-
-
-    }
 
 }
 

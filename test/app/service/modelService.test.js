@@ -47,23 +47,32 @@ describe('test model数据库类', () => {
 
     it('生成currentcity表',  async () => {
         const ctx   = app.mockContext();
-        const sid   = '1000001';
+        const uid   = 'ov5W35XwjECAWGq0UK3omMfu9nak';
         const row   = await ctx.model.TravelModel.CurrentCity.create({
-            uid: sid,
+            uid: uid,
             fid: '',
             cid: '1',
             sspid: '100101',
             progress: 0,
-            roadMap:[],
+            roadMap:[
+
+
+            ],
             friend:0,//默认单人旅行
             rentItems:{},
             photographyCount:0, //城市拍照次数 前2次免费
             photographySpots:[],    //拍照的景点id
-            tourCount:0 //城市观光次数 前2次免费
+            tourCount:0 ,//城市观光次数 前2次免费,
+            rewardAppendTime: 2000, //被奖励？惩罚的 该城市游玩追加时间可以为负数
+
+            events   : [
+
+            ],
+            modifyEventDate : new Date(),
         });
 
         console.log( row );
-        assert(row.uid == '1000001');
+        assert(row.uid == uid);
     });
 
 

@@ -33,7 +33,8 @@ class TourController extends Controller {
 
         let userInfo      = await ctx.service.publicService.userService.findUserBySid(uid);
         let weatherId     = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
-        let friends       = await this.ctx.service.publicService.friendService.findFriends(uid,cid);
+        //需要check下面的
+        let friends       = await this.ctx.service.publicService.friendService.findMyFriends(uid,cid);
         
         let startPos      = ScenicPos.Get(cid).cfg;
         let firstPlay     = false;
@@ -48,6 +49,11 @@ class TourController extends Controller {
         info.friendList   = friends;
         info.task         = task;
         info.spots        = spots;
+
+     
+        let user_info     = ctx.session.ui;
+        await this.service.travelService.tourService.fillIndexInfo(info,user_info);
+        info.firstPlay    = user_info.firstPlay;
 
         info.submit();
     }
@@ -159,7 +165,7 @@ class TourController extends Controller {
         await this.service.travelService.tourService.setrouter(info);
         let user_info   = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
-
+        
         info.submit();
     }
 

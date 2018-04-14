@@ -1,9 +1,10 @@
+import { currentTimestamp } from "../../utils/time";
 
 const _                     = require("lodash");
 const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
 const ScenicPos             = require("../../../sheets/scenicpos");
-const moment                = require("moment");
+const timeUtil              = require("../../utils/time");
 
 // 生成路线
 class MakeRoadMap {
@@ -27,13 +28,18 @@ class MakeRoadMap {
         this.formatOutput();      // 输出最后的结果
     }
 
+
+
     formatOutput(){
         let formatRoadMap = [];
         for ( let line of this.lines ){
             let row = {};
+
             let spotStart       = line['spotStart'];
             let spotEnd         = line['spotEnd'];
             spotEnd['endTime']  = line['timeEnd'];
+
+
             if ( this.lines.indexOf(line) == 0 ) {
                 formatRoadMap.push(spotStart);
                 formatRoadMap.push(spotEnd);
@@ -41,10 +47,23 @@ class MakeRoadMap {
                 formatRoadMap.push(spotEnd);
             }
         }
-        this.linesFormat        = {
-            timeTotalHour : this.timeTotalHour,
-            roadMap   : formatRoadMap
-        };
+
+        for ( let line of formatRoadMap ){
+            if ( line['isStart'] == 1) {
+                line['arriveStamp']         = line['startTime'];
+                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['startTime']);
+            }else{
+                line['arriveStamp']         = line['endTime'];
+                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['endTime']);
+            }
+        }
+
+        this.linesFormat        = formatRoadMap;
+        // this.linesFormat        = {
+        //     timeTotalHour : this.timeTotalHour,
+        //     roadMap   : formatRoadMap
+        // };
+
     }
 
     clacSpeed(){
@@ -93,7 +112,8 @@ class MakeRoadMap {
             o.y              = xy.y;
             o.tracked        = false;
             o.index          = index; //这个index 有必要吗
-            o.endTime        = "";    //结束时间 123123412341
+            o.startTime      = "";    //开始时间
+            o.endTime        = "";    //结束时间
             let [lng,lat]    = cfg["coordinate"];
             o.lng            = lng;
             o.lat            = lat;
@@ -110,7 +130,8 @@ class MakeRoadMap {
             y              : 0,
             tracked        : true,  //起点肯定默认就到达了
             index          : 0,     //这个index 有必要吗
-            endTime        : "",
+            startTime      : "",    //开始时间
+            endTime        : "",    //结束时间
             lng            : lng,
             lat            : lat,
             isStart        : true //是否起点
@@ -121,6 +142,7 @@ class MakeRoadMap {
     setLines(){
         let linesTotal      = [];
         this.spotsCfg.reduce( (prev, current, index, arr) => {
+
             let line        = this.makeLine(prev, current);
             linesTotal.push(line);
             if ( index == arr.length - 1 ){
@@ -140,20 +162,31 @@ class MakeRoadMap {
         // 不用距离算法了
         // 中途换道具在写
         let timeHour    = this.timeHumanPreLineHour;
-        let start       = new Date().getTime();
-        let end         = start + timeHour * 60 * 10000;
+        let diffTime    = timeHour * 60 * 60 * 1000;
+
+        if ( spotStart['isStart'] == true ){
+            let start       = new Date().getTime();
+            let end         = start + diffTime;
+
+            spotStart['startime']   = start;
+            spotEnd['endtime']      = end;
+        }else{
+            spotStart['startime']   = spotStart['endtime'];
+            spotEnd['endtime']      = spotStart['endtime'] + diffTime;
+        }
+
 
         let line        = {
             // distance    : dis,
             timeElapsed : timeHour,
-            timeStart   : start,
-            timeEnd     : end,
+            timeStart   : spotStart['startime'],
+            timeEnd     : spotEnd['endtime'],
             spotStart   : spotStart,
             spotEnd     : spotEnd,
             spotIdStart : spotStart.id,
             spotIdEnd   : spotEnd.id,
-            timeStartFull : moment(start).format('YYYY-MM-DD HH:mm:ss'),
-            timeStartEnd  : moment(end).format('YYYY-MM-DD HH:mm:ss')
+            timeStartFull : timeUtil.formatYMDHMS(spotStart['startime']),
+            timeStartEnd  : timeUtil.formatYMDHMS(spotEnd['endtime'])
         }
         return line;
     }
