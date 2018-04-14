@@ -3,8 +3,7 @@ const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const ScenicPos         = require('../../../sheets/scenicpos');
 const utilTime          = require("../../utils/time");
-const MakeRoadMap       = require("../../service/makeRoadMap");
-const MakeEvent         = require("../../service/makeEvent");
+
 
 let tour = new Map();
 let userLines = new Map();
@@ -149,35 +148,22 @@ class TourController extends Controller {
         info.submit();
     }
 
-    async tourstartr(ctx){
-        // http://127.0.0.1:7001/tour/tourstartr/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
-        let info        = apis.TourStart.Init(ctx);
+    async setrouter(ctx){
+        // http://127.0.0.1:7001/tour/setrouter/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
+        let info        = apis.SetRouter.Init(ctx);
         let cid         = info.cid;
         let uid         = info.uid;
         let weather     = info.weather;
-        let lines       = JSON.parse(ctx.query.line);
+        let line        = JSON.parse(info.line);
 
-        let para        = {
-            line           : lines,
-            cid            : cid,
-            weather        : 0, //这轮配置表里没有出现数据 留着下回做逻辑
-            today          : 0, //这轮配置表里没有出现数据 留着下回做逻辑
-            itemSpecial    : 0  //这轮配置表里没有出现数据 留着下回做逻辑
-        };
+        await this.service.travelService.tourService.setrouter(info);
+        let user_info   = ctx.session.ui;
+        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
 
-        let rm          = new MakeRoadMap(para);
-        let roadMaps    = rm.linesFormat;
-        let e           = new MakeEvents(para);
-        let events      = rm.linesFormat;
-
-        this.logger.info(events);
-        this.logger.info(roadMaps);
-
-        //生成的路线图和事件写入currentCity
-        info.events     = events;
-        info.spots      = roadMaps;
         info.submit();
     }
+
+
     async tourstart(ctx){
         // http://127.0.0.1:7001/tour/tourstart/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
         // let info = apis.TourStart.Init(ctx);

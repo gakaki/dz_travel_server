@@ -5,6 +5,8 @@ const utilsTime     = require("../../utils/time");
 const apis          = require("../../../apis/travel");
 const constant      = require('../../utils/constant');
 const questRepo     = require('../questService/questRepo');
+const MakeRoadMap   = require("./makeRoadMap");
+const MakeEvent     = require("./makeEvent");
 
 class TourService extends Service {
 
@@ -484,6 +486,78 @@ class TourService extends Service {
         };
     }
 
+    //第一次点击开始游玩按钮
+    async setrouter(info){
+
+        let uid                  = info.uid;
+        let cid                  = info.cid;
+        let weather              = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
+        let today                = 0; //new Date().getDate();
+        let lines                = JSON.parse(info.line);
+
+        //判断是否是第一次设置路线
+        let isChangeRouter       = true;
+        let currentCity          = await this.ctx.model.TravelModel.CurrentCity.findOne({
+            'uid'        : uid,
+            'cid'        : cid
+        });
+        this.logger.info(currentCity);
+
+        if ( currentCity['modifyEventDate'] == null ){
+            isChangeRouter       = false;
+        }
+
+        let para                 = {
+            line                 : lines,
+            cid                  : cid,
+            weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+            itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+        };
+
+        let rm                   = new MakeRoadMap(para);
+        let roadMaps             = rm.linesFormat;
+        para['timeTotalHour']    = rm.timeTotalHour;
+
+        if ( isChangeRouter ){
+            //扣钱
+            await this.ctx.service.publicService.rewardService.gold(uid, -50);
+            //修改路线
+            await this.ctx.model.TravelModel.CurrentCity.update({
+                'uid'        : uid,
+                'cid'        : cid,
+            },{ $set: {
+                    roadMaps : roadMaps,
+                    modifyEventDate : new Date()
+            }});
+
+        }else{
+            // 第一次生成的时候修改事件 后面修改的时候不改了
+            let rm                   = new MakeRoadMap(para);
+            let roadMaps             = rm.linesFormat;
+            let e                    = new MakeEvent(para);
+            let events               = rm.linesFormat;
+
+            await this.ctx.model.TravelModel.CurrentCity.update({
+                'uid'        : uid,
+                'cid'        : cid,
+            },{ $set: {
+                    roadMaps : roadMaps,
+                    events   : events,
+                    modifyEventDate : new Date()
+            }});
+        }
+
+        info.spots               = roadMaps;
+    }
+
+    async SetRouter(info){
+
+
+
+
+
+    }
 
 }
 
