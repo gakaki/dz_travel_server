@@ -1559,9 +1559,10 @@ class PlayLoop extends Base {
         this._newEvent = null;
         this._freshSpots = null;
         this._spotsTracked = null;
+        this._spotsAllTraced = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","freshSpots","spotsTracked"];
+        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTraced"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
@@ -1569,9 +1570,12 @@ class PlayLoop extends Base {
     //server output, type: boolean
     get freshSpots() {return this._freshSpots}
     set freshSpots(v) {this._freshSpots = v}
-    //server output, type: object//'100107'
+    //server output, type: number//有几个到达了
     get spotsTracked() {return this._spotsTracked}
     set spotsTracked(v) {this._spotsTracked = v}
+    //server output, type: boolean//是否已经把地图上所有的景点都走过了
+    get spotsAllTraced() {return this._spotsAllTraced}
+    set spotsAllTraced(v) {this._spotsAllTraced = v}
     static Init(ctx, checkLogin = false) {
         let o = new PlayLoop();
         o.ctx = ctx;

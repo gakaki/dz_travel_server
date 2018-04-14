@@ -3,11 +3,11 @@ let _data = {"1":{"x":410,"y":668,"id":1},"2":{"x":181,"y":668,"id":2},"3":{"x":
 
 class ScenicPos {
     constructor (cfg) {
-        this._cfg = cfg;
+        this.cfg = cfg;
     }
-    get id () {return this._cfg.id}
-    get x () {return this._cfg.x}
-    get y () {return this._cfg.y}
+    get id () {return this.cfg.id}
+    get x () {return this.cfg.x}
+    get y () {return this.cfg.y}
 
     static Get(id) { return id in _data ? new ScenicPos(_data[id]) : null;}
 }
