@@ -9,7 +9,8 @@ describe('test model数据库类', () => {
 
     it('生成用户表的数据',  async () => {
         const ctx   = app.mockContext();
-        const sid   = '1000001';
+        const sid   = 'ov5W35XwjECAWGq0UK3omMfu9nak';
+
         const row   = await ctx.model.PublicModel.User.create({
             uid: sid,
             appName: 'travel',
@@ -68,7 +69,7 @@ describe('test model数据库类', () => {
             events   : [
 
             ],
-            modifyEventDate : new Date(),
+            modifyEventDate : null,
         });
 
         console.log( row );

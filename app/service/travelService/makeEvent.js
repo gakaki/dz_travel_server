@@ -1,6 +1,7 @@
 const _                     = require("lodash");
 const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
+const timeUtil              = require("../../utils/time");
 
 class MakeEvent {
 
@@ -24,42 +25,60 @@ class MakeEvent {
         this.eventsFormat =  this.events.map( e => {
             return {
                 id              : e.eid,
-                minuteLength    : e.minuteLength,
-                received        : false,
-                quest           : e.quest
+                // minuteLength    : e.minuteLength,     //似乎没有必要
+                received        : false,                 //似乎没有必要 是记录在另一张表内
+                triggerDate     : e.triggerDate,
+                triggerDateYHM  : e.triggerDateYHM,
+                // quest           : e.quest
             }
         })
 
     }
 
     async genEventNonSpot(){
-        let eventRows = [];
+
+        let eventRows       = [];
         let timeTotalMinute = this.timeTotalHour * 60;
+        let timestamp       = new Date().getTime();
+
         while ( timeTotalMinute > 0 ) {
-            let dbRow = this.genSingleEventNonSpot();
+
+            let minuteLength        =  _.random(5,15); // 随机个5到15分钟的时间出来
+            //这里的时间生成逻辑需要递增
+            let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
+
+            let dbRow               = this.genSingleEventNonSpot( triggerTimeStamp );
             eventRows.push(dbRow);
-            timeTotalMinute = timeTotalMinute - dbRow.minuteLength;
+            timeTotalMinute = timeTotalMinute - minuteLength;
+
+            //循环生成新的事件
+            timestamp               = triggerTimeStamp;
         }
         //创建数据库吧
         this.events = eventRows;
         //将事件发生顺序写入数据库
         // await this.ctx.model.CurrentCity.create(eventRows);
     }
-    genSingleEventNonSpot(){
-        let minuteLength =  _.random(5,15); // 随机个5到15分钟的时间出来
+
+    genSingleEventNonSpot( triggerDateTimeStamp ){
+
         let quest        = this.randomQuest();
 
-        let triggerDate  = this.get_trigger_date( minuteLength );
         let questDbRow   = {
-            triggerDate     : triggerDate,
+            triggerDate     : triggerDateTimeStamp,
             eid             : quest.id,
             received        : false,
-            minuteLength    : minuteLength,
-            quest           : quest
+            triggerDateYHM  : timeUtil.formatYMDHMS(triggerDateTimeStamp)
+            // minuteLength    : minuteLength,
+            // quest           : quest
         };
         return questDbRow;
     }
 
+    get_trigger_date( prevTimestamp , minutes  = 0  ){
+        let trigger_date =  new Date( prevTimestamp + minutes * 60 * 1000).getTime();
+        return trigger_date;
+    }
 
     randomQuest(){
         let quests = QuestRepo.filter(
@@ -75,10 +94,7 @@ class MakeEvent {
         return randomEl;
     }
 
-    get_trigger_date( minutes  = 0, dt = new Date() ){
-        let trigger_date =  new Date(dt.getTime() + minutes*60000);
-        return trigger_date;
-    }
+
 }
 
 module.exports = MakeEvent;

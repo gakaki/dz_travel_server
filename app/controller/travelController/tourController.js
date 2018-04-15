@@ -317,6 +317,12 @@ class TourController extends Controller {
         };
     }
 
+    async playloop(ctx){
+        this.logger.info("play loop");
+        let info                    = apis.PlayLoop.Init(ctx);
+        await this.service.travelService.tourService.playloop(info);
+        info.submit();
+    }
     //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口
     async showquestreport(ctx) {
 

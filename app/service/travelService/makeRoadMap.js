@@ -1,5 +1,3 @@
-import { currentTimestamp } from "../../utils/time";
-
 const _                     = require("lodash");
 const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");

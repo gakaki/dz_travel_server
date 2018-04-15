@@ -494,19 +494,19 @@ class TourService extends Service {
         // output spotsTracked:number//有几个到达了
         // output spotsAllTraced:boolean
 
-        // let uid              = info.uid;
-        // let cid              = info.cid;
-        // let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
-        // if (!currentCity) {
-        //     info.code = apis.Code.NOT_FOUND;
-        //     info.submit();
-        //     return;
-        // }
+        let uid              = info.uid;
+        let cid              = info.cid;
+        let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
+        if (!currentCity ) {
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
 
 
-        // let timeNow              = new Date().getTime();
-        // let redisKey             = `playloop:${uid}:time`;
-        // let timePrev             = await this.app.redis.get(redisKey);
+        let timeNow              = new Date().getTime();
+        let redisKey             = `playloop:${uid}:time`;
+        let timePrev             = await this.app.redis.get(redisKey);
         // if ( timePrev ){
         //     let events           = currentCity['events'];
         //     let eventsLastTrigged= events.filter(  r =>  r.createtime  > timePrev && r.createtime < timeNow  );
@@ -558,8 +558,8 @@ class TourService extends Service {
         let today                = 0; //new Date().getDate();
         let lines                = JSON.parse(info.line);
 
-        //判断是否是第一次设置路线
         let isChangeRouter       = true;
+        //判断是否是第一次设置路线
         let currentCity          = await this.ctx.model.TravelModel.CurrentCity.findOne({
             'uid'        : uid,
             'cid'        : cid
@@ -582,6 +582,7 @@ class TourService extends Service {
         let roadMap              = rm.linesFormat;
         para['timeTotalHour']    = rm.timeTotalHour;
 
+        // isChangeRouter = false;
         if ( isChangeRouter ){
             //扣钱
             await this.ctx.service.publicService.rewardService.gold(uid, -50);
@@ -597,7 +598,7 @@ class TourService extends Service {
         }else{
             // 第一次生成的时候修改事件 后面修改的时候不改了
             let e                    = new MakeEvent(para);
-            let events               = e.events;
+            let events               = e.eventsFormat;
 
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : uid,
@@ -607,6 +608,7 @@ class TourService extends Service {
                     events   : events,
                     modifyEventDate : new Date()
             }});
+
         }
 
         info.spots               = roadMap;
