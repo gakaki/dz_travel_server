@@ -77,7 +77,7 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-
+        info.startTime = currentCity.startTime.getTime();
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
         let task_tour_finished  = 0;
@@ -647,22 +647,27 @@ class TourService extends Service {
     async modifyRouter(info, ui) {
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
         let roadMap = currentCity.roadMap;
-        for(let route of roadMap) {
-            if(route.index != -1) {
-                if(!route.tracked || route.startime > new Date().getTime()) {
-                    route.index = -1;
-                    route.startime = "";
-                    route.starTime = "";
-                    route.endtime = "";
-                    route.endTime = "";
-                    route.arriveStamp = "";
-                    route.arriveStampYMDHMS = "";
+        for(let i = 0; i < roadMap.length; i++) {
+            if(roadMap[i].index != -1) {
+                if(roadMap[i].index != 0) {
+                    let index = roadMap.findIndex((n) => n.index == (roadMap[i].index - 1));
+                    if (!roadMap[i].tracked || roadMap[index].startime <= new Date().getTime()) {
+                        roadMap[i].index = -1;
+                        roadMap[i].startime = "";
+                        roadMap[i].starTime = "";
+                        roadMap[i].endtime = "";
+                        roadMap[i].endTime = "";
+                        roadMap[i].arriveStamp = "";
+                        roadMap[i].arriveStampYMDHMS = "";
+                    }
                 }
             }
         }
+
+
         //扣钱
         await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
-        info.startTime = currentCity.startTime;
+        info.startTime = currentCity.startTime.getTime();
         info.spots = roadMap;
         info.goldNum = ui.items[travelConfig.Parameter.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
         await this.ctx.model.TravelModel.CurrentCity.update({

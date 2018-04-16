@@ -85,6 +85,11 @@ class TourController extends Controller {
     async modifyrouter(ctx) {
         let info = apis.ModifyRouter.Init(ctx);
         let user_info       = ctx.session.ui;
+        if(user_info.items[travelConfig.Parameter.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value){
+            info.code = apis.Code.NEED_MONEY;
+            info.submit();
+            return
+        }
         await this.service.travelService.tourService.modifyRouter(info, user_info);
         info.submit();
     }
