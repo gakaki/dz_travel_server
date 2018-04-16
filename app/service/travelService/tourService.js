@@ -661,7 +661,7 @@ class TourService extends Service {
             }
         }
         //扣钱
-        await this.ctx.service.publicService.rewardService.gold(uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
+        await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
         info.startTime = currentCity.startTime;
         info.spots = roadMap;
         info.goldNum = ui.items[travelConfig.Parameter.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
