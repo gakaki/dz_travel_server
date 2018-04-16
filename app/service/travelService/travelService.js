@@ -157,6 +157,11 @@ class TravelService extends Service {
             friend: "0",
             roadMap: [],
             modifyEventDate: null,
+            startTime: null,
+            events: null,
+            photographyCount: 0,
+            photographySpots: [],
+            tourCount: 0,
         };
         let footprint = {
             uid: ui.uid,

@@ -1484,10 +1484,9 @@ class SetRouter extends Base {
         this._line = null;
         this._spots = null;
         this._startTime = null;
-        this._goldNum = null;
         this.requireFileds = ["cid","line"];
         this.reqFields = ["cid","line"];
-        this.resFields = ["spots","startTime","goldNum"];
+        this.resFields = ["spots","startTime"];
     }
     //client input, require, type: string
     get cid() {return this._cid}
@@ -1501,9 +1500,6 @@ class SetRouter extends Base {
     //server output, type: 
     get startTime() {return this._startTime}
     set startTime(v) {this._startTime = v}
-    //server output, type: number
-    get goldNum() {return this._goldNum}
-    set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
         let o = new SetRouter();
         o.ctx = ctx;
@@ -1542,6 +1538,34 @@ class Minapppay extends Base {
     set payload(v) {this._payload = v}
     static Init(ctx, checkLogin = false) {
         let o = new Minapppay();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class FreshSpots extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.freshspots';
+    
+        this._spots = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["spots"];
+    }
+    //server output, type: RouterSpot[]
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new FreshSpots();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3149,21 +3173,29 @@ class ExchangeShop extends Base {
         }
     }
 }
-class FreshSpots extends Base {
+class ModifyRouter extends Base {
     constructor() {
         super();
-        this.action = 'tour.freshspots';
+        this.action = 'tour.modifyrouter';
     
         this._spots = null;
+        this._startTime = null;
+        this._goldNum = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["spots"];
+        this.resFields = ["spots","startTime","goldNum"];
     }
-    //server output, type: RouterSpot[]
+    //server output, type: RouterSpot[]//不包括起点
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
+    //server output, type: 
+    get startTime() {return this._startTime}
+    set startTime(v) {this._startTime = v}
+    //server output, type: number
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
-        let o = new FreshSpots();
+        let o = new ModifyRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3361,6 +3393,7 @@ exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
 exports.SetRouter = SetRouter;
 exports.Minapppay = Minapppay;
+exports.FreshSpots = FreshSpots;
 exports.PlayLoop = PlayLoop;
 exports.FlyInfo = FlyInfo;
 exports.StartGame = StartGame;
@@ -3405,7 +3438,7 @@ exports.CheckGuide = CheckGuide;
 exports.IntegralShop = IntegralShop;
 exports.ExchangeDetail = ExchangeDetail;
 exports.ExchangeShop = ExchangeShop;
-exports.FreshSpots = FreshSpots;
+exports.ModifyRouter = ModifyRouter;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
 exports.SysMessage = SysMessage;

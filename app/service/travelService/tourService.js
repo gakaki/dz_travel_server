@@ -76,8 +76,7 @@ class TourService extends Service {
         // });
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-
-
+        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
 
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
@@ -572,11 +571,10 @@ class TourService extends Service {
 
         let uid                  = info.uid;
         let cid                  = info.cid;
-        let weather              = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
+        let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
         let today                = 0; //new Date().getDate();
         //设置的路线
         let lines                = JSON.parse(info.line);
-
         let isChangeRouter       = true;
         //判断是否是第一次设置路线
         let currentCity          = await this.ctx.model.TravelModel.CurrentCity.findOne({
@@ -590,6 +588,7 @@ class TourService extends Service {
         }
 
         let para                 = {
+            oldLine              : currentCity.roadMap,
             line                 : lines,
             cid                  : cid,
             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
@@ -612,6 +611,7 @@ class TourService extends Service {
 
         para['timeTotalHour']    = rm.timeTotalHour;
 
+        let startTime = currentCity.startTime;
         // isChangeRouter = false;
         if ( isChangeRouter ){
             //扣钱
@@ -624,8 +624,8 @@ class TourService extends Service {
                     roadMap  : outPMap,
                     modifyEventDate : new Date()
             }});
-
         }else{
+             startTime = new Date();
             // 第一次生成的时候修改事件 后面修改的时候不改了
             let e                    = new MakeEvent(para);
             let events               = e.eventsFormat;
@@ -636,12 +636,38 @@ class TourService extends Service {
             },{ $set: {
                     roadMap  : outPMap,
                     events   : events,
+                    startTime:startTime,
                     modifyEventDate : new Date()
             }});
 
         }
-
+        info.startTime = startTime.getTime();
         info.spots               = outPMap;
+    }
+
+
+    async modifyRouter(info) {
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        let roadMap = currentCity.roadMap;
+        for(let route of roadMap) {
+            if(route.index != -1) {
+                if(!route.tracked || route.startime > new Date().getTime()) {
+                    route.index = -1;
+                    route.startime = "";
+                    route.starTime = "";
+                    route.endtime = "";
+                    route.endTime = "";
+                    route.arriveStamp = "";
+                    route.arriveStampYMDHMS = "";
+                }
+            }
+        }
+        await this.ctx.model.TravelModel.CurrentCity.update({
+            'uid'        : info.uid,
+        },{ $set: {
+                roadMap  : roadMap,
+                modifyEventDate : new Date()
+            }});
     }
 
 

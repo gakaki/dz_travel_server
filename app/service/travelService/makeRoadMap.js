@@ -8,7 +8,7 @@ const timeUtil              = require("../../utils/time");
 class MakeRoadMap {
 
     constructor( obj ){
-
+        this.oldLine      = obj.oldLine;
         this.spotIds        = obj.line || [];
         if (this.spotIds <= 0) {
             throw "spod ids can not be null";
@@ -100,43 +100,61 @@ class MakeRoadMap {
     }
 
     setSpotsCfg(){
+        let hasRouter = [];
+       // let spotsCityStart = null;
         this.spotsCfg        = this.spotIds.map( (spotId,index) => {
             let cfg          = travelConfig.Scenicspot.Get(spotId);
             let xy           = ScenicPos.Get(spotId);
             let o            = {};
-            o.id             = spotId;
-            o.cid            = this.cid;
-            o.name           = cfg.scenicspot;
-            o.building       = cfg.building;
-            o.x              = xy.x;
-            o.y              = xy.y;
-            o.tracked        = false;
-            o.index          = index; //这个index 有必要吗
-            o.startTime      = "";    //开始时间
-            o.endTime        = "";    //结束时间
-            let [lng,lat]    = cfg["coordinate"];
-            o.lng            = lng;
-            o.lat            = lat;
+
+
+           // let oldindex = this.oldLine.findIndex((n) => n.id == spotId);
+            let old = this.oldLine.find((n) => n.id == spotId);
+            if(!old.tracked || old.index == -1) {
+                o.id             = spotId;
+                o.cid            = this.cid;
+                o.name           = cfg.scenicspot;
+                o.building       = cfg.building;
+                o.x              = xy.x;
+                o.y              = xy.y;
+                o.tracked        = false;
+                o.index          = index; //这个index 有必要吗
+                o.startTime      = "";    //开始时间
+                o.endTime        = "";    //结束时间
+                let [lng,lat]    = cfg["coordinate"];
+                o.lng            = lng;
+                o.lat            = lat;
+            }else{
+                hasRouter.push(old.index);
+                o = old;
+            }
             return o;
         });
-        //忘记加上起始点的了 加上起始点
-        let  cityConfig      = travelConfig.City.Get(this.cid);
-        let [lng,lat]        = cityConfig["coordinate"];
-        let spotsCityStart   = {
-            id             : -1, //-1 表示是起点
-            cid            : this.cid,
-            name           : "城市的起点",
-            x              : 0,   //这里的不算数
-            y              : 0,
-            tracked        : true,  //起点肯定默认就到达了
-            index          : 0,     //这个index 有必要吗
-            startTime      : "",    //开始时间
-            endTime        : "",    //结束时间
-            lng            : lng,
-            lat            : lat,
-            isStart        : true //是否起点
-        };
-        this.spotsCfg.unshift(spotsCityStart);
+       if(hasRouter.length == 0) {
+           //忘记加上起始点的了 加上起始点
+           let  cityConfig      = travelConfig.City.Get(this.cid);
+           let [lng,lat]        = cityConfig["coordinate"];
+           let spotsCityStart   = {
+               id             : -1, //-1 表示是起点
+               cid            : this.cid,
+               name           : "城市的起点",
+               x              : 0,   //这里的不算数
+               y              : 0,
+               tracked        : true,  //起点肯定默认就到达了
+               index          : 0,     //这个index 有必要吗
+               startTime      : "",    //开始时间
+               endTime        : "",    //结束时间
+               lng            : lng,
+               lat            : lat,
+               isStart        : true //是否起点
+           };
+           this.spotsCfg.unshift(spotsCityStart);
+       }
+
+
+
+
+
     }
 
     setLines(){
@@ -164,15 +182,20 @@ class MakeRoadMap {
         let timeHour    = this.timeHumanPreLineHour;
         let diffTime    = timeHour * 60 * 60 * 1000;
 
-        if ( spotStart['isStart'] == true ){
-            let start       = new Date().getTime();
-            let end         = start + diffTime;
+        if (spotStart['isStart'] == true) {
+            if(!spotStart['starttime']) {
+                let start       = new Date().getTime();
+                let end         = start + diffTime;
 
-            spotStart['startime']   = start;
-            spotEnd['endtime']      = end;
+                spotStart['startime']   = start;
+                spotEnd['endtime']      = end;
+            }
         }else{
-            spotStart['startime']   = spotStart['endtime'];
-            spotEnd['endtime']      = spotStart['endtime'] + diffTime;
+            if(!spotStart['starttime']) {
+                spotStart['startime']   = spotStart['endtime'];
+                spotEnd['endtime']      = spotStart['endtime'] + diffTime;
+            }
+
         }
 
 
