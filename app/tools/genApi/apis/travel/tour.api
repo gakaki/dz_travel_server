@@ -56,6 +56,8 @@ api TourIndexInfo{
     output spots:Spot[]
     //完成度信息
     output task:TourTask
+    //起点
+    out startPos:object//{x:1,y:1,}
     //其他玩家头像，为图片url数组
     output others:string[]
 }
@@ -177,7 +179,8 @@ api SetRouter {
     require line:array//景点id数组,每次传的都市完整的路线（包含已走过的）
 
     //设置后景点数组
-    output spots:RouterSpot[]
+    output spots:RouterSpot[]//不包括起点
+    out startPos:object//{x:1,y:1,}
     //设置路线后剩余金币
     output goldNum:number
 }
