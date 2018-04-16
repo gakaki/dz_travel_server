@@ -120,7 +120,9 @@ class MakeRoadMap {
                 o.tracked        = false;
                 o.index          = index; //这个index 有必要吗
                 o.startTime      = "";    //开始时间
+                o.starttime      ="";    //不是很清楚 和以上的区别
                 o.endTime        = "";    //结束时间
+                o.endtime        = "";    //不是很清楚 和以上的区别
                 let [lng,lat]    = cfg["coordinate"];
                 o.lng            = lng;
                 o.lat            = lat;
