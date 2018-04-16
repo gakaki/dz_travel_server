@@ -185,7 +185,7 @@ class MakeRoadMap {
         let diffTime    = timeHour * 60 * 60 * 1000;
 
         if (spotStart['isStart'] == true) {
-            if(!spotStart['starttime']) {
+            if(!spotStart['startime']) {
                 let start       = new Date().getTime();
                 let end         = start + diffTime;
 
