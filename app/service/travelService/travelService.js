@@ -155,6 +155,8 @@ class TravelService extends Service {
             cid: cid,
             rentItems: rentItems,
             friend: "0",
+            roadMap: [],
+            modifyEventDate: null,
         };
         let footprint = {
             uid: ui.uid,

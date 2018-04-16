@@ -46,7 +46,7 @@ class MakeRoadMap {
             }
         }
 
-        console.log(formatRoadMap);
+       // console.log(formatRoadMap);
 
         for ( let line of formatRoadMap ){
             if ( line['isStart'] == 1) {

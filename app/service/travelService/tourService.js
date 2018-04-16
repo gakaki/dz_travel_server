@@ -25,6 +25,48 @@ class TourService extends Service {
             
         }
 
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+
+        //this.logger.info(currentCity);
+
+        if(!currentCity.modifyEventDate) {
+            for ( let spot_id of  cityConfig.scenicspot ){
+
+                let spotsConfig = travelConfig.Scenicspot.Get(spot_id);
+                let xy = ScenicPos.Get(spot_id);
+
+                if ( spotsConfig == null ) continue;
+
+                //  let lng           = spotsConfig['coordinate'][0];
+                //  let lat           = spotsConfig['coordinate'][1];
+
+                let row = {
+                    id          : spot_id,
+                    cid         : cid,
+                    x         : xy.x,
+                    y         : xy.y,
+                    isStart     : false,
+                    tracked     : false, //是否经过了 等下从数据库比对
+                    index       : spotsConfig['index'],
+                    trackedNo   : 0, //用户自己走的顺序
+                    name        : spotsConfig['scenicspot'],
+                    desc        : spotsConfig['description'],
+                    building : spotsConfig['building'],
+                    index       : -1,
+
+                }
+                info.spots.push(row);
+                //info.startCoordinate = spotsConfig.coordinate;
+
+                spot_map[spot_id] = row;
+            }
+            await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
+        }else{
+            info.spots = currentCity.roadMap;
+            for(let spot of currentCity.roadMap) {
+                spot_map[spot.id] = spot;
+            }
+        }
         //起点添加
         // info.spots.push({
         //    'cid'        : cid,
@@ -35,36 +77,7 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
-        for ( let spot_id of  cityConfig.scenicspot ){
 
-            let spotsConfig = travelConfig.Scenicspot.Get(spot_id);
-            let xy = ScenicPos.Get(spot_id);
-
-            if ( spotsConfig == null ) continue;
-
-          //  let lng           = spotsConfig['coordinate'][0];
-          //  let lat           = spotsConfig['coordinate'][1];
-            
-            let row = {
-                id          : spot_id,
-                cid         : cid,
-                x         : xy.x,
-                y         : xy.y,
-                isStart     : false,
-                tracked     : false, //是否经过了 等下从数据库比对
-                index       : spotsConfig['index'],
-                trackedNo   : 0, //用户自己走的顺序
-                name        : spotsConfig['scenicspot'],
-                desc        : spotsConfig['description'],
-                building : spotsConfig['building'],
-                index       : -1,
-
-            }
-            info.spots.push(row);
-            //info.startCoordinate = spotsConfig.coordinate;
-
-            spot_map[spot_id] = row;
-        }
 
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
@@ -561,6 +574,7 @@ class TourService extends Service {
         let cid                  = info.cid;
         let weather              = await this.ctx.service.publicService.thirdService.getWeatherId(cid);
         let today                = 0; //new Date().getDate();
+        //设置的路线
         let lines                = JSON.parse(info.line);
 
         let isChangeRouter       = true;
@@ -569,7 +583,7 @@ class TourService extends Service {
             'uid'        : uid,
             'cid'        : cid
         });
-        this.logger.info(currentCity);
+     //   this.logger.info(currentCity);
 
         if ( currentCity['modifyEventDate'] == null ){
             isChangeRouter       = false;
@@ -584,7 +598,18 @@ class TourService extends Service {
         };
 
         let rm                   = new MakeRoadMap(para);
-        let roadMap              = rm.linesFormat;
+
+        let newRoadMap              = rm.linesFormat;
+        let outPMap = [];
+        for(let roadMap of currentCity.roadMap){
+            let index = newRoadMap.findIndex((n) => n.id == roadMap.id);
+            if(index != -1) {
+                outPMap.push(newRoadMap[index]);
+            }else{
+                outPMap.push(roadMap);
+            }
+        }
+
         para['timeTotalHour']    = rm.timeTotalHour;
 
         // isChangeRouter = false;
@@ -596,7 +621,7 @@ class TourService extends Service {
                 'uid'        : uid,
                 'cid'        : cid,
             },{ $set: {
-                    roadMap  : roadMap,
+                    roadMap  : outPMap,
                     modifyEventDate : new Date()
             }});
 
@@ -609,14 +634,14 @@ class TourService extends Service {
                 'uid'        : uid,
                 'cid'        : cid,
             },{ $set: {
-                    roadMap  : roadMap,
+                    roadMap  : outPMap,
                     events   : events,
                     modifyEventDate : new Date()
             }});
 
         }
 
-        info.spots               = roadMap;
+        info.spots               = outPMap;
     }
 
 

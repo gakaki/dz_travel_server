@@ -254,8 +254,10 @@ class UserService extends Service {
             pid: pidStr,
             items: items,
         });
-       // items[travelConfig.Item.GOLD] = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "travel");
+
+        //TODO 测试多给点钱。正式服改回来
+       // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000}, "travel");
 
         //进入积分榜单
         await this.ctx.model.TravelModel.IntegralRecord.create({
