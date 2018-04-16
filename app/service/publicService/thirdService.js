@@ -15,25 +15,34 @@ class ThirdService extends Service {
     async getWeather(cid = 1) {
              this.logger.info(`需要获取天气的城市编号 ${cid}`);
              let key = "weather" + Math.round(parseInt(cid) / 100);
-             let weather = await this.app.redis.hget(key, parseInt(cid));
-             if(!weather) {
+             let cityweather = await this.app.redis.hget(key, parseInt(cid));
+             this.logger.info("缓存的天气", cityweather);
+             if(!cityweather) {
                  try{
                      let meteorological = await weather(travelConfig.City.Get(cid).city, this);
-                      weather = meteorological.now.cond_txt;
+                     cityweather = meteorological.now.cond_txt;
+                  //   this.logger.info(meteorological);
                  }catch (err) {
                      this.logger.error("获取天气失败", err);
                      return "晴"
                  }
-                 this.logger.info('weather', weather);
+                 this.logger.info('weather', cityweather);
                  let map = {
-                     [cid]: weather,
+                     [cid]: cityweather,
                  };
                  await this.app.redis.hmset(key, map);
-                 return weather
+                 return cityweather
+             }
+             this.logger.info('weather', cityweather);
+             let outw = 1;
+             for (let we of travelConfig.weathers) {
+                 if (we.weather == cityweather) {
+                     outw = we.id;
+                     break;
+                 }
              }
 
-             this.logger.info('weather', weather);
-             return weather;
+             return outw;
 
 
     }

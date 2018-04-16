@@ -11,8 +11,7 @@ const MakeEvent     = require("./makeEvent");
 class TourService extends Service {
 
     async tourindexinfo(info, ui) {
-
-        await this.service.travelService.travelService.fillIndexInfo(info,ui);
+      //  await this.service.travelService.travelService.fillIndexInfo(info,ui);
 
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
@@ -27,36 +26,42 @@ class TourService extends Service {
         }
 
         //起点添加
-        info.spots.push({
-           'cid'        : cid,
-           'lng'        : lng,
-           'lat'        : lat,
-           'isStart'    : true
-        });
+        // info.spots.push({
+        //    'cid'        : cid,
+        //    'lng'        : lng,
+        //    'lat'        : lat,
+        //    'isStart'    : true
+        // });
+        info.startPos = ScenicPos.Get(cid).cfg;
+        info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
 
         for ( let spot_id of  cityConfig.scenicspot ){
 
             let spotsConfig = travelConfig.Scenicspot.Get(spot_id);
+            let xy = ScenicPos.Get(spot_id);
+
             if ( spotsConfig == null ) continue;
 
-            let lng           = spotsConfig['coordinate'][0];
-            let lat           = spotsConfig['coordinate'][1];
+          //  let lng           = spotsConfig['coordinate'][0];
+          //  let lat           = spotsConfig['coordinate'][1];
             
             let row = {
                 id          : spot_id,
-                cid         : spotsConfig['cid'],
-                lng         : lng,
-                lat         : lat,
+                cid         : cid,
+                x         : xy.x,
+                y         : xy.y,
                 isStart     : false,
                 tracked     : false, //是否经过了 等下从数据库比对
                 index       : spotsConfig['index'],
                 trackedNo   : 0, //用户自己走的顺序
                 name        : spotsConfig['scenicspot'],
                 desc        : spotsConfig['description'],
-                buildingPic : spotsConfig['building'].split(",")
+                building : spotsConfig['building'],
+                index       : -1,
+
             }
             info.spots.push(row);
-            info.startCoordinate = spotsConfig.coordinate;
+            //info.startCoordinate = spotsConfig.coordinate;
 
             spot_map[spot_id] = row;
         }
@@ -81,7 +86,7 @@ class TourService extends Service {
                 task_tour_finished++;
             }
         }
-
+       // info.spots = spot_map;
         //任务完成汇报
         let isPair          = false;          //是否双人默认否
         let task_spot_full  = isPair ? 3 : 6;

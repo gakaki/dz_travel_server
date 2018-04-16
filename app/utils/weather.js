@@ -2482,18 +2482,18 @@ async function reqWeather(city,that) {
                 reject(err);
                 return;
             }
-            that.logger.info(body);
-          // try{
-          //     let getWeather = JSON.parse(body);
-          //     let heWeather6 = getWeather.HeWeather6[0];
-          //     if (heWeather6.status != 'ok') {
-          //         reject(body);
-          //         return;
-          //     }
-          //     resolve(heWeather6);
-          // }catch(err) {
-          //     reject(err)
-          // }
+        //    that.logger.info(body);
+          try{
+              let getWeather = JSON.parse(body);
+              let heWeather6 = getWeather.HeWeather6[0];
+              if (heWeather6.status != 'ok') {
+                  reject(body);
+                  return;
+              }
+              resolve(heWeather6);
+          }catch(err) {
+              reject(err)
+          }
 
         })
     })

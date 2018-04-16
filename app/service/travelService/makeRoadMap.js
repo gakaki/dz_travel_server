@@ -46,6 +46,8 @@ class MakeRoadMap {
             }
         }
 
+        console.log(formatRoadMap);
+
         for ( let line of formatRoadMap ){
             if ( line['isStart'] == 1) {
                 line['arriveStamp']         = line['startTime'];

@@ -9,18 +9,13 @@ class TravelService extends Service {
         info.gold = ui.items[travelConfig.Item.GOLD];
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
-        let outw = 1;
+        info.weather = 1;
         if (visit && visit.cid) {
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(visit.cid);
-            for (let we of travelConfig.weathers) {
-                if (we.weather == weather) {
-                    outw = we.id;
-                    break;
-                }
-            }
+            let outw = await this.ctx.service.publicService.thirdService.getWeather(visit.cid);
+            info.weather = outw;
             info.location = visit.cid;
         }
-        info.weather = outw;
+
         info.playerCnt = await this.app.redis.get("travel_userid");
         info.friends = await this.ctx.service.publicService.friendService.findMyFriends(ui.friendList, info.uid);
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);

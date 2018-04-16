@@ -9,7 +9,7 @@ module.exports = {
         cronOptions: { currentDate: new Date('2018-04-10 13:24:00') },
         type: 'worker', // all 指定所有的 worker 都需要执行
        // interval: '1m', //2个小时
-      //  disable: moment([ new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate(), 11, 37, 0 ]) <= moment(),
+        disable: true,
        // immediate: true, //配置了该参数为 true 时，这个定时任务会在应用启动并 ready 后立刻执行一次这个定时任务。
     },
     async task(ctx) {

@@ -992,14 +992,10 @@ class FinishGuide extends Base {
         super();
         this.action = 'tour.finishguide';
     
-        this._play = null;
-        this.requireFileds = ["play"];
-        this.reqFields = ["play"];
+        this.requireFileds = [];
+        this.reqFields = [];
         this.resFields = [];
     }
-    //client input, require, type: boolean
-    get play() {return this._play}
-    set play(v) {this._play = v}
     static Init(ctx, checkLogin = false) {
         let o = new FinishGuide();
         o.ctx = ctx;
@@ -1483,10 +1479,11 @@ class SetRouter extends Base {
         this._cid = null;
         this._line = null;
         this._spots = null;
+        this._startTime = null;
         this._goldNum = null;
         this.requireFileds = ["cid","line"];
         this.reqFields = ["cid","line"];
-        this.resFields = ["spots","goldNum"];
+        this.resFields = ["spots","startTime","goldNum"];
     }
     //client input, require, type: string
     get cid() {return this._cid}
@@ -1494,9 +1491,12 @@ class SetRouter extends Base {
     //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
     get line() {return this._line}
     set line(v) {this._line = v}
-    //server output, type: RouterSpot[]
+    //server output, type: RouterSpot[]//不包括起点
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
+    //server output, type: 
+    get startTime() {return this._startTime}
+    set startTime(v) {this._startTime = v}
     //server output, type: number
     get goldNum() {return this._goldNum}
     set goldNum(v) {this._goldNum = v}
