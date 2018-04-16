@@ -84,7 +84,8 @@ class TourController extends Controller {
 
     async modifyrouter(ctx) {
         let info = apis.ModifyRouter.Init(ctx);
-        await this.service.travelService.tourService.modifyRouter(info);
+        let user_info       = ctx.session.ui;
+        await this.service.travelService.tourService.modifyRouter(info, user_info);
         info.submit();
     }
 
