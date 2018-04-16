@@ -60,6 +60,7 @@ api TourIndexInfo{
     output startPos:object//{x:1,y:1}
     //其他玩家头像，为图片url数组
     output others:string[]
+    output startTime: number //开始时间
 }
 
 class Postcard {
@@ -186,7 +187,6 @@ api SetRouter {
 api ModifyRouter {
     //设置后景点数组
     output spots:RouterSpot[]//不包括起点
-    output startTime: number //开始时间
     //设置路线后剩余金币
     output goldNum:number
 }
