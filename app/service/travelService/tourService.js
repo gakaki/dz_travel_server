@@ -47,7 +47,7 @@ class TourService extends Service {
                     y         : xy.y,
                     isStart     : false,
                     tracked     : false, //是否经过了 等下从数据库比对
-                    index       : spotsConfig['index'],
+                 //   index       : spotsConfig['index'],
                     trackedNo   : 0, //用户自己走的顺序
                     name        : spotsConfig['scenicspot'],
                     desc        : spotsConfig['description'],
@@ -66,6 +66,7 @@ class TourService extends Service {
             for(let spot of currentCity.roadMap) {
                 spot_map[spot.id] = spot;
             }
+            info.startTime = currentCity.startTime.getTime();
         }
         //起点添加
         // info.spots.push({
@@ -77,7 +78,7 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-        info.startTime = currentCity.startTime.getTime();
+
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
         let task_tour_finished  = 0;
@@ -107,6 +108,7 @@ class TourService extends Service {
             tour :  [task_tour_finished,2],
             photo : [task_photo_finished,2]
         }
+
     }
 
     //查询该城市的拍照次数限制 注意购买单反相机之后的拍照次数 注意单反相机的逻辑
