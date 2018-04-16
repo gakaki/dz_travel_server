@@ -181,10 +181,15 @@ api SetRouter {
     //设置后景点数组
     output spots:RouterSpot[]//不包括起点
     output startTime: number //开始时间
+
+}
+api ModifyRouter {
+    //设置后景点数组
+    output spots:RouterSpot[]//不包括起点
+    output startTime: number //开始时间
     //设置路线后剩余金币
     output goldNum:number
 }
-
 //最新景点数组
 api FreshSpots {
     //最新景点数组
@@ -198,3 +203,4 @@ api PlayLoop {
     output spotsTracked:number//有几个到达了
     output spotsAllTraced:boolean//是否已经把地图上所有的景点都走过了
 }
+
