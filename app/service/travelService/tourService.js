@@ -521,15 +521,11 @@ class TourService extends Service {
 
     //轮询访问地址
 
-    async playloop(){
-        
-        
-        
+    async playloop(info){
         let uid              = info.uid;
         let cid              = info.cid;
-
         
-        let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
+        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid , cid : cid  });
         if (!currentCity ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -538,40 +534,25 @@ class TourService extends Service {
         
         let timeNow              = new Date().getTime();
         let timePrev             = timeNow - 60 * 1 * 1000;
-        
+        info.newEvent            = false;
         if ( timePrev ){
-            let events           = currentCity['events'];
-            let eventsLastTrigged= events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
+            let events           = currentCity['events'];                               //1分钟前的
+            events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
             if ( events.length > 0 ){       
                 info.newEvent    = true;    //是否有新事件
             }
         }
         
-        let spots                = currentCity['spots'];
+        let spots                = currentCity['roadMap'];
         let spotsHasArrived      = spots.filter(  r =>  r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
             info.freshSpots      = true;
+            //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
         }
-        4
-        // let spotsTracked         = 3; //计算currentcity的spots的数量
-        // let spotsAllTracked  = false;
-
-        // info.freshSpots      = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
-        // info.spotsTracked    = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
-
-        // //是否已经把地图上所有的【=p景点都走过了 对比cid和currentcity的是否全了
-        // info.spotsAllTraced  = await this.ctx.service.travelService.tourService.playloop(uid,cid);
-
-        //是否有新事件
-
-        //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-
-        //有几个到达了
-
-        //是否已经把地图上所有的景点都走过了
-
-
+        info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
+        info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
     }
+
 
     //第一次点击开始游玩按钮
     async setrouter(info){
@@ -619,7 +600,7 @@ class TourService extends Service {
         para['timeTotalHour']    = rm.timeTotalHour;
 
         let startTime = currentCity.startTime;
-        // isChangeRouter = false;
+        isChangeRouter = false;
         if ( isChangeRouter ){
             //修改路线
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -647,7 +628,7 @@ class TourService extends Service {
 
         }
         info.startTime = startTime.getTime();
-        info.spots               = outPMap;
+        info.spots               = newRoadMap;
     }
 
 

@@ -288,19 +288,19 @@ class TourController extends Controller {
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
     async playloop(ctx){
         
-        return ctx.body = {
-            'code': 0 ,
-            'data':{
-                'newEvent' : true,           //是否有新事件
-                'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-                'spotsTracked': 6,           // 有几个到达了
-                'spotsAllTraced' : true      // 
-            }
-        };
+        // return ctx.body = {
+        //     'code': 0 ,
+        //     'data':{
+        //         'newEvent' : true,           //是否有新事件
+        //         'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+        //         'spotsTracked': 6,           // 有几个到达了
+        //         'spotsAllTraced' : true      //
+        //     }
+        // };
 
         this.logger.info("play loop");
         let info                    = apis.PlayLoop.Init(ctx);
-        await this.service.travelService.tourService.playloop(info);
+        await this.ctx.service.travelService.tourService.playloop(info);
         info.submit();
     }
     //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口
