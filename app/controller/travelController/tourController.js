@@ -88,10 +88,8 @@ class TourController extends Controller {
 
 
     async modifyrouter(ctx) {
-        let info = await apis.ModifyRouter.Init(ctx, true);
-        if(!info.ui) {
-            return;
-        }
+        let info = apis.ModifyRouter.Init(ctx);
+
         let user_info       = ctx.session.ui;
       //  this.logger.info(user_info);
         if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value){

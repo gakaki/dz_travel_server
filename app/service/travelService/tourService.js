@@ -643,7 +643,6 @@ class TourService extends Service {
                         roadMap[i].index = -1;
                         roadMap[i].startime = "";
                         roadMap[i].endtime = "";
-                        roadMap[i].endTime = "";
                         roadMap[i].arriveStamp = "";
                         roadMap[i].arriveStampYMDHMS = "";
                     }

@@ -31,7 +31,7 @@ class MakeRoadMap {
 
             let spotStart       = line['spotStart'];
             let spotEnd         = line['spotEnd'];
-            spotEnd['endTime']  = line['timeEnd'];
+            spotEnd['endtime']  = line['timeEnd'];
 
 
             if ( this.lines.indexOf(line) == 0 ) {
@@ -46,11 +46,11 @@ class MakeRoadMap {
 
         for ( let line of formatRoadMap ){
             if ( line['isStart'] == 1) {
-                line['arriveStamp']         = line['startTime'];
-                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['startTime']);
+                line['arriveStamp']         = line['startime'];
+                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['startime']);
             }else{
-                line['arriveStamp']         = line['endTime'];
-                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['endTime']);
+                line['arriveStamp']         = line['endtime'];
+                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['endtime']);
             }
         }
 
