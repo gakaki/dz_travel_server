@@ -228,7 +228,7 @@ class TourService extends Service {
         // info typeof apis.IndexInfo
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
-
+        
         //查询城市的拍照次数
         if ( !this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId )  ) {
             let result      = { data: {} };
@@ -520,20 +520,15 @@ class TourService extends Service {
     }
 
     //轮询访问地址
-    async playloop(){
 
-        return ctx.body = {
-            'code': 0 ,
-            'data':{
-                'newEvent' : true,           //是否有新事件
-                'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-                'spotsTracked': 6,           // 有几个到达了
-                'spotsAllTraced' : true      // 
-            }
-        };
+    async playloop(){
+        
+        
         
         let uid              = info.uid;
         let cid              = info.cid;
+
+        
         let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
         if (!currentCity ) {
             info.code = apis.Code.NOT_FOUND;
@@ -546,18 +541,18 @@ class TourService extends Service {
         
         if ( timePrev ){
             let events           = currentCity['events'];
-            let eventsLastTrigged= events.filter(  r =>  r.createtime  > timePrev && r.createtime < timeNow  );
-            if ( events.length > 0 ){   //读取上次访问的时间 可能还要过滤掉已经触发的事件列表
+            let eventsLastTrigged= events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
+            if ( events.length > 0 ){       
                 info.newEvent    = true;    //是否有新事件
             }
         }
         
-        // let spots                = currentCity['spots'];
-        // let spotsHasArrived      = spots.filter(  r =>  r.createtime  <= timeNow );
-        // if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
-        //     needFreshSpots   = true;
-        // }
-
+        let spots                = currentCity['spots'];
+        let spotsHasArrived      = spots.filter(  r =>  r.arriveStamp  <= timeNow );
+        if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
+            info.freshSpots      = true;
+        }
+        4
         // let spotsTracked         = 3; //计算currentcity的spots的数量
         // let spotsAllTracked  = false;
 

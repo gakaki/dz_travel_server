@@ -287,17 +287,14 @@ class TourController extends Controller {
 
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
     async playloop(ctx){
-
-
+        
         return ctx.body = {
-            "code" : 0,
-            "data" : {
-                'newEvent' : true, //是否有新事件
-                'spotsTracked': {
-                    '100107': true,
-                    '100102': true,
-                    '100109': false
-                }
+            'code': 0 ,
+            'data':{
+                'newEvent' : true,           //是否有新事件
+                'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+                'spotsTracked': 6,           // 有几个到达了
+                'spotsAllTraced' : true      // 
             }
         };
 
