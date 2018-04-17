@@ -67,7 +67,10 @@ class TourController extends Controller {
 
     async setrouter(ctx) {
         // http://127.0.0.1:7001/tour/setrouter/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
-        let info        = apis.SetRouter.Init(ctx);
+        let info        = await apis.SetRouter.Init(ctx,true);
+        if(!info.ui) {
+            return
+        }
         // let cid         = info.cid;
         // let uid         = info.uid;
         // let weather     = info.weather;
