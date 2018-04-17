@@ -81,16 +81,6 @@ api Photography {
 }
 
 
-// 进入景点
-class EnterSpot {
-    prop id:string
-    prop scenicspot:string
-    prop weather:number
-    prop freePhoto:number[]
-    prop freeSight:number[]
-    prop picture:string
-    prop description:string
-}
 
 class Quest {
     prop time:number
@@ -102,6 +92,17 @@ class Quest {
     prop rewards:KV[]
     prop question:string
     prop answers:string[]
+}
+
+// 进入景点
+class EnterSpot {
+    prop id:string
+    prop scenicspot:string
+    prop weather:number
+    prop freePhoto:number[]
+    prop freeSight:number[]
+    prop picture:string
+    prop description:string
 }
 
 // 进入景点

@@ -225,6 +225,46 @@ class TourController extends Controller {
     // 进入景点
     async reqenterspot(ctx) {
         this.logger.info("进入景点观光");
+
+        return ctx.body = {
+            "data": {
+                "action": "tour.reqenterspot",
+                "spot": {
+                    id: '100101',
+                    scenicspot:"故宫",
+                    weather:"晴",
+                    freePhoto:[0,6],
+                    freeSight:[0,6],
+                    picture:'jingdian/beijing/beijing/jd/1.jpg',
+                    description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
+                },
+                "quests": [
+                    {
+                        "uid" : "1000001",
+                        "eid" : "130217",
+                        "cid" : "1",
+                        "spotId" : "",
+                        "isPhotography" : false,
+                        "isTour" : false,
+                        "received" : true,
+                        "createDate" : new Date().getTime(),
+                        "receivedDate" :  new Date().getTime()
+                    },
+                    {
+                        "uid" : "1000001",
+                        "eid" : "130217",
+                        "cid" : "1",
+                        "spotId" : "",
+                        "isPhotography" : false,
+                        "isTour" : false,
+                        "received" : true,
+                        "createDate" : new Date().getTime(),
+                        "receivedDate" :  new Date().getTime()
+                    }
+                ]
+            }
+        };
+        
         let info                    = apis.ReqEnterspot.Init(ctx);
         await this.service.questService.questService.reqenterspot(info);
         info.submit();
