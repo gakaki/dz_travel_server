@@ -83,7 +83,7 @@ class Quest extends TreeNode {
 
         this.picture        =  d.picture;       //0表示没有图片
         this.reward         =  d.reward;        //事件奖励
-        this.formatRewardNormal();
+
         this.errorreward        =  d.errorreward;   //答题错误奖励0表示无奖励
         this.condition1_parent  =  d.condition1;    //前置事件
         // 0表示无前置事件
@@ -118,68 +118,42 @@ class Quest extends TreeNode {
         return  _.shuffle( answers )
     }
 
-    // 格式化备注语句
-    formatRewardComment(datetime){
 
-        if( !this.reward ) return "";
-
-        let t             = [];
-        for( let r of this.reward){
-            t.push(r.k);
-        }
-
-        let rewardStr       = t.join(",");
-        let items           = rewardStr.split(";");
-        this.rewardKV       = {};
-        this.rewards        = {};
-
-
-        // 显示标准化：
-        // 金币 +500
-        // 明信片 +1，积分+5
-        // 游玩时间 +100秒
-        for(let item of items){
-            let [type_id,count] = item.split(",")
-            this.rewardKV[type_id]  = count;
-
-            let countText     = "0";
-            if ( count > 0 )  countText = `+${count}`;
-            if ( count < 0 )  countText = `-${count}`;
-
-            if ( type_id == this.RewardType.POSTCARD ) {
-                countText     = "+1";
-                count         = 1;
-            }
-
-            this.rewards[type_id] = {
-                'name'      :  this.RewardKey[type_id],
-                'type_id'   :  type_id,
-                'count'     :  count,
-                'countText' :  countText
-            }
-        }
-    }
-
+    // 景点奖励语句
     getSpotRewardComment(datetime){
-        let hourStr = moment(datetime).format("HH:mm")
-        let reward  = this.rewardKV;
+        let hourStr  = moment(datetime).format("HH:mm")
+        let reward   = this.reward;
+
+        let totalStr = `${hourStr} ${this.describe} `;
+        for (let rewardRow of this.reward) {
+
+            if ( `${rewardRow['v']}`.includes('-') ){
+                totalStr += `消耗 ${rewardRow['v']} ${this.RewardKey[rewardRow['k']]} `;
+            }else{
+                let typeId    = rewardRow['k'];
+                let itemName  = rewardRow['v'];
+
+                totalStr += `获得  `;
+            }
+        }
         //有待完善
-        return `${hourStr} ${this.describe} , 消耗 ${reward}金币 , 获得${reward}`;
+        return totalStr;
     }
 
-    formatRewardNormal(){
+    // 显示标准化语句
+    getRewardNormal(){
         //1,100;5,203
         let rewardComment  = "";        //事件奖励描述语句
 
         if( !this.reward ) return "";
 
-        let t             = [];
+        let t               = {};
         for( let r of this.reward){
-            t.push(r.k);
+            t[r.k]          = r.v;
         }
 
-        let rewardStr       = t.join(",");
-        let items           = rewardStr.split(";");
+        // let rewardStr       = t.join(",");
+        // let items           = rewardStr.split(";");
         this.rewardKV       = {};
         this.rewards        = {};
 
@@ -188,9 +162,7 @@ class Quest extends TreeNode {
         // 金币 +500
         // 明信片 +1，积分+5
         // 游玩时间 +100秒
-        for(let item of items){
-            let [type_id,count] = item.split(",")
-            this.rewardKV[type_id]  = count;
+        for(let k in this.rewardKV){
 
             let countText     = "0";
             if ( count > 0 )  countText = `+${count}`;

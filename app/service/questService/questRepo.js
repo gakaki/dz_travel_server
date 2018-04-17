@@ -33,9 +33,8 @@ class QuestRepo {
 }
 
 module.exports = new QuestRepo();
-//
-// let n         = new QuestRepo();
-// let quest     = n.find("200127");
-// let res       = quest.getSpotRewardComment(new Date().getTime());
-// console.log(res);
- //export let questRepo = new QuestRepo();
+
+let n         = new QuestRepo();
+let quest     = n.find("200127");
+let res       = quest.getSpotRewardComment(new Date().getTime());
+console.log(res);
