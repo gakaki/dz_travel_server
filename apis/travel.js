@@ -180,6 +180,15 @@ class Code{
     static get NO_CFG_ROW() { return 11002;}
     
 }
+class RentItem{
+    
+    static get CAR() { return 1;}
+    
+    static get CAMERA() { return 2;}
+    
+    static get MEDICALBOX() { return 3;}
+    
+}
 class TicketType{
     
     static get RANDOMBUY() { return '00';}
@@ -3337,6 +3346,7 @@ class TestSend extends WsSend {
 exports.Season = Season;
 exports.PresentTktType = PresentTktType;
 exports.Code = Code;
+exports.RentItem = RentItem;
 exports.TicketType = TicketType;
 exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;

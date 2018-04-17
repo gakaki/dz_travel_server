@@ -3,7 +3,7 @@ const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
 const ScenicPos             = require("../../../sheets/scenicpos");
 const timeUtil              = require("../../utils/time");
-
+const apis                  = require("../../../apis/travel");
 // 生成路线
 class MakeRoadMap {
 
@@ -16,6 +16,7 @@ class MakeRoadMap {
         this.lines          = []; //所有线路容器
         this.linesFormat    = []; //返回给前端用的
 
+        this.rentItems      =obj.rentItems || 0;
         this.clacSpeed();        // 时间配置
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
@@ -71,9 +72,24 @@ class MakeRoadMap {
         let timeHumanPreLineHour     = all_time / ( 6 - 1 );       //一段line 4.8小时
         // 正常走路时间
         this.timeHumanPreLineHour    = timeHumanPreLineHour;
-        this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
-        this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
-        this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
+        if(this.rentItems) {
+            let shortTime = [];
+            for(let rentItem in this.rentItems) {
+                if(this.rentItems[rentItem]) {
+                    let item = travelConfig.Shop.Get(rentItem);
+                    if(item && item.type == apis.RentItem.CAR) {
+                        shortTime.push(item.value);
+                    }
+                }
+            }
+            if(shortTime.length > 0 ) {
+                this.timeHumanPreLineHour = timeHumanPreLineHour * Math.max(...shortTime) / 100;
+            }
+          //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
+         //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
+         //   this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
+        }
+
     }
     calcTimeTotal(){
 
@@ -105,8 +121,7 @@ class MakeRoadMap {
 
            // let oldindex = this.oldLine.findIndex((n) => n.id == spotId);
             let old = this.oldLine.find((n) => n.id == spotId);
-            if( !old || !old.tracked || old.index == -1 ) {
-
+            if(!old || old.index == -1) {
                 o.id             = spotId;
                 o.cid            = this.cid;
                 o.name           = cfg.scenicspot;
@@ -114,7 +129,7 @@ class MakeRoadMap {
                 o.x              = xy.x;
                 o.y              = xy.y;
                 o.tracked        = false;
-                o.index          = index; //这个index 有必要吗
+                o.index          = index;
                 o.startime      ="";
                 o.endtime        = "";
                 let [lng,lat]    = cfg["coordinate"];
@@ -128,7 +143,7 @@ class MakeRoadMap {
         });
        if(hasRouter.length == 0) {
            //忘记加上起始点的了 加上起始点
-           let  cityConfig      = travelConfig.City.Get(this.cid);
+           let cityConfig      = travelConfig.City.Get(this.cid);
            let [lng,lat]        = cityConfig["coordinate"];
            let spotsCityStart   = {
                id             : -1, //-1 表示是起点

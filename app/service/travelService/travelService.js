@@ -115,6 +115,9 @@ class TravelService extends Service {
                 info.score = efficiency;
                 info.reward = reward;
             }
+            if(ui.isNewPlayer) {
+                await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
+            }
 
 
         }
@@ -195,7 +198,7 @@ class TravelService extends Service {
         if (fui) {
             flyRecord.friend = fui.uid;
             currentCity.friend = fui.uid;
-            currentCity.efficiency = 0;
+          //  currentCity.efficiency = 0;
             await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
             await this.ctx.model.TravelModel.Footprints.create(footprint);
             await this.ctx.model.TravelModel.CurrentCity.update({ uid: currentCity.uid }, currentCity, { upsert: true });
@@ -210,9 +213,10 @@ class TravelService extends Service {
             currentCity.friend = ui.uid;
             footprint.uid = fui.uid;
             await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
-        }else{
+
+        }/*else{
             currentCity.efficiency = 0;
-        }
+        }*/
 
         //添加飞行记录
         await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);

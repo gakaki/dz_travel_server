@@ -96,6 +96,10 @@ module.exports = app => {
     router.get('/tour/playloop',   routerUserInfo,  controller.travelController.tourController.playloop);
     //游玩界面 进入景点->展示报告例如最后的最短路径效率。
     router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
+
+    //游玩界面 进入景点->展示报告例如最后的最短路径效率。
+    router.get('/tour/freshspots', routerUserInfo, controller.travelController.tourController.freshspots);
+
     //游玩界面 进入景点->离开游玩界面。
     router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
     router.get('/tour/rentprop', routerUserInfo, controller.travelController.tourController.rentprop);
