@@ -132,7 +132,7 @@ class TourController extends Controller {
                 if(o.createDate <= date) {
                     o.tracked = true;
                 }else{
-                    let index = lines.findIndex((n) => n ==  o.id);
+                    let index = lines.findIndex((n) => n ==  o.id);';'
                     o.index = index;
                     if(index != -1){
                         o.createDate = new Date().getTime() + (index+1) * 30000;
@@ -310,17 +310,62 @@ class TourController extends Controller {
                     "id": "200049",
                     "type": 1,
                     "describe": "在刘氏梯号的花园美人靠上休憩，听着远处自鸣钟的声音，突然泛起了困意，不小心睡着了，钱包被偷。",
+                    "picture": "jingdian/hunan/zhuzhou/jd/6.jpg",
                     "gold_used": 0,
-                    "rewards": {
-                        "3": {
-                            "name": "明信片",
-                            "type_id": "3",
-                            "count": 1,
-                            "countText": "+1"
-                        }
+                    "rewardText": {
+                        "明信片": "+1",
+                        "金币": "+500",
+                        "积分": "+5",
+                        "游玩时间": "+100",
+                        "特产": "+1"
                     },
                     "question": "在刘氏梯号的花园美人靠上休憩，听着远处自鸣钟的声音，突然泛起了困意，不小心睡着了，钱包被偷。",
                     "answers": null
+                },
+                "userInfo": null
+            },
+            "code": 0
+        };
+
+
+        return ctx.body     = {
+            "data": {
+                "action": "tour.eventshow",
+                "total": null,
+                "current": null,
+                "quest": {
+                    "id": "120031。",
+                    "type": 2,
+                    "describe": "阿姨让你帮她去买一瓶水。",
+                    "picture": "jingdian/hunan/zhuzhou/jd/6.jpg",
+                    "gold_used": 0,
+                    "rewardText": null,
+                    "answers": ['东北平原','华北平原','长江中下游平原','关中平原']
+                },
+                "userInfo": null
+            },
+            "code": 0
+        };
+
+        return ctx.body     = {
+            "data": {
+                "action": "tour.eventshow",
+                "total": null,
+                "current": null,
+                "quest": {
+                    "id": "130212",
+                    "type": 3,
+                    "describe": "全国最大的平原是？",
+                    "picture": "jingdian/hunan/zhuzhou/jd/6.jpg",
+                    "gold_used": 5,
+                    "rewardText": {
+                        "明信片": "+1",
+                        "金币": "+500",
+                        "积分": "+5",
+                        "游玩时间": "+100",
+                        "特产": "+1"
+                    },
+                    "answers": ['东北平原','华北平原','长江中下游平原','关中平原']
                 },
                 "userInfo": null
             },
