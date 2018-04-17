@@ -83,7 +83,7 @@ api Photography {
 
 
 class Quest {
-    prop event:string[]//观光事件列表
+    prop event:string//观光事件
     prop time:number
     prop id:string
     prop type:string
