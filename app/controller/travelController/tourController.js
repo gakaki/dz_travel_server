@@ -178,6 +178,17 @@ class TourController extends Controller {
 
     // 拍照
     async photography(ctx) {
+
+        return ctx.body = {
+
+            "postcard" : {
+                 id:"100101" ,
+                 pattern:"",
+                 picture:"jingdian/beijing/beijing/jd/1.jpg",
+                 type:"1"
+            }
+
+        };
         /*
             用户到达景点后，可使用拍照功能，每个城市拍照有次数限制，购买单反相机可增加拍照次数，
             拍照时会获得一张该景点明信片，如果是双人旅行，则留下2人头像。
@@ -192,10 +203,11 @@ class TourController extends Controller {
     }
 
     // 观光
-    async tourspot(ctx) {
+    async spottour(ctx) {
+
         // 用户到达景点后，跳转至景点界面，可使用观光功能，
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
-        let info            = apis.TourTour.Init(ctx);
+        let info            = apis.spottour.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.spotTour(info,user_info);
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
@@ -232,7 +244,7 @@ class TourController extends Controller {
                 "spot": {
                     id: '100101',
                     scenicspot:"故宫",
-                    weather:"晴",
+                    weather:"1",
                     freePhoto:[0,6],
                     freeSight:[0,6],
                     picture:'jingdian/beijing/beijing/jd/1.jpg',
@@ -264,7 +276,7 @@ class TourController extends Controller {
                 ]
             }
         };
-        
+
         let info                    = apis.ReqEnterspot.Init(ctx);
         await this.service.questService.questService.reqenterspot(info);
         info.submit();

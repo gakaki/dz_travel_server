@@ -85,7 +85,7 @@ module.exports = app => {
     //游玩界面 进入景点->拍照按钮
     router.get('/tour/photography', routerUserInfo, controller.travelController.tourController.photography);
     //游玩界面 进入景点->观光按钮
-    router.get('/tour/tourspot', routerUserInfo, controller.travelController.tourController.tourspot);
+    router.get('/tour/spottour', routerUserInfo, controller.travelController.tourController.spottour);
     //游玩界面 进入景点->人物点击-》显示事件（获得奖励）
     router.get('/tour/eventshow', routerUserInfo, controller.travelController.tourController.eventshow);
     //游玩界面 进入景点->人物点击-》显示事件（回答问题）-》提交
