@@ -4,6 +4,7 @@ const assert        = require('assert');
 const { app }       = require('egg-mock/bootstrap');
 const constant      = require('../../../app/utils/constant');
 const travelConfig  = require("../../../sheets/travel")
+const QuestRepo     = require("../../../app/service/questService/questRepo")
 
 describe('test 事件系统',  () => {
 
@@ -23,6 +24,11 @@ describe('test 事件系统',  () => {
         assert( app.config.env == 'local');
     });
 
+    it('测试生成事件的导出', async () => {
+        let quest     = QuestRepo.find("200127");
+        let res       = quest.getSpotRewardComment(new Date().getTime());
+        console.log(res);
+    });
 
 
 });
