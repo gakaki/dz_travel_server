@@ -270,8 +270,9 @@ class TourService extends Service {
             createDate: dateNow                         //当前时间创建
         });
 
+        info.userinfo   = ui;
         //返回明信片 id 图片
-        info.postcard   =  cfgPostcard;
+        info.postcard   =  cfgPostcard.cfg;
     }
 
     // 游玩 回答问题 http://127.0.0.1:7001/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
