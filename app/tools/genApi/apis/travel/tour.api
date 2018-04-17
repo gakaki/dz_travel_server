@@ -83,16 +83,16 @@ api Photography {
 
 
 class Quest {
-    prop event:string//观光事件
-    prop time:number
-    prop id:string
-    prop type:string
-    prop picture:string
-    prop describe:string
-    prop gold_used:number
-    prop rewards:KV[]
-    prop question:string
-    prop answers:string[]
+    prop event:string[]//观光事件列表
+    // prop time:number
+    // prop id:string
+    // prop type:string
+    // prop picture:string
+    // prop describe:string
+    // prop gold_used:number
+    // prop rewards:KV[]
+    // prop question:string
+    // prop answers:string[]
 }
 
 // 进入景点
@@ -123,7 +123,7 @@ api SpotTour {
     require cid:number
     //景点id
     require spotId:number
-    output event:string//产生的新事件
+    output quest:string//产生的新事件
     //随机事件会获得的东西不同
     output userinfo:UserInfo
 
