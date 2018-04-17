@@ -178,6 +178,7 @@ class MakeRoadMap {
         let timeHour    = this.timeHumanPreLineHour;
         let diffTime    = timeHour * 60 * 60 * 1000;
 
+
         if (spotStart['isStart'] == true) {
             if(!spotStart['startime']) {
                 let start       = new Date().getTime();
