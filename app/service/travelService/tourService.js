@@ -60,14 +60,22 @@ class TourService extends Service {
 
                 spot_map[spot_id] = row;
             }
-            await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
         }else{
-            info.spots = currentCity.roadMap;
-            for(let spot of currentCity.roadMap) {
+            let roadMaps = currentCity.roadMap;
+            for(let spot of roadMaps) {
+                if(spot.index != -1) {
+                    this.logger.info(spot.endtime);
+                    this.logger.info(new Date().getTime());
+                    if(spot.endtime <= new Date().getTime()) {
+                        spot.tracked = true;
+                    }
+                }
                 spot_map[spot.id] = spot;
             }
+            info.spots = roadMaps;
             info.startTime = currentCity.startTime.getTime();
         }
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
         //起点添加
         // info.spots.push({
         //    'cid'        : cid,
@@ -581,7 +589,7 @@ class TourService extends Service {
         });
      //   this.logger.info(currentCity);
 
-        if ( currentCity['modifyEventDate'] == null ){
+        if ( currentCity['startTime'] == null ){
             isChangeRouter       = false;
         }
 
@@ -590,6 +598,7 @@ class TourService extends Service {
             line                 : lines,
             cid                  : cid,
             isNewPlayer          : info.ui.isNewPlayer,
+            rentItems            : currentCity.rentItems,
             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
@@ -638,7 +647,7 @@ class TourService extends Service {
             }});
 
         }
-        info.startTime = startTime.getTime();
+        info.startTime = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
     }
 
