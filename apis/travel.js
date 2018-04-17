@@ -619,35 +619,8 @@ class Quest {
     constructor() {
     
     
-        //prop type: string//观光事件
+        //prop type: string[]//观光事件列表
         this.event = null;
-    
-        //prop type: number
-        this.time = null;
-    
-        //prop type: string
-        this.id = null;
-    
-        //prop type: string
-        this.type = null;
-    
-        //prop type: string
-        this.picture = null;
-    
-        //prop type: string
-        this.describe = null;
-    
-        //prop type: number
-        this.gold_used = null;
-    
-        //prop type: KV[]
-        this.rewards = null;
-    
-        //prop type: string
-        this.question = null;
-    
-        //prop type: string[]
-        this.answers = null;
     
         
         
@@ -1249,11 +1222,11 @@ class SpotTour extends Base {
     
         this._cid = null;
         this._spotId = null;
-        this._event = null;
+        this._quest = null;
         this._userinfo = null;
         this.requireFileds = ["cid","spotId"];
         this.reqFields = ["cid","spotId"];
-        this.resFields = ["event","userinfo"];
+        this.resFields = ["quest","userinfo"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1262,8 +1235,8 @@ class SpotTour extends Base {
     get spotId() {return this._spotId}
     set spotId(v) {this._spotId = v}
     //server output, type: string//产生的新事件
-    get event() {return this._event}
-    set event(v) {this._event = v}
+    get quest() {return this._quest}
+    set quest(v) {this._quest = v}
     //server output, type: UserInfo
     get userinfo() {return this._userinfo}
     set userinfo(v) {this._userinfo = v}
