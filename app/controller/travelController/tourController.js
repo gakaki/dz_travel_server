@@ -2,8 +2,7 @@ const Controller        = require('egg').Controller;
 const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const ScenicPos         = require('../../../sheets/scenicpos');
-const utilTime          = require("../../utils/time");
-
+const QuestRepoInstance = require("../../service/questService/questRepo");
 
 let tour = new Map();
 let userLines = new Map();
@@ -240,6 +239,7 @@ class TourController extends Controller {
     async reqenterspot(ctx) {
         this.logger.info("进入景点观光");
 
+        let questRow = QuestRepoInstance.find("130217");
         return ctx.body = {
             "code": 0,
             "data": {
@@ -253,28 +253,21 @@ class TourController extends Controller {
                     picture:'jingdian/beijing/beijing/jd/1.jpg',
                     description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
                 },
+
                 "quests": [
                     {
-                        "uid" : "1000001",
-                        "eid" : "130217",
-                        "cid" : "1",
-                        "spotId" : "",
-                        "isPhotography" : false,
-                        "isTour" : false,
-                        "received" : true,
-                        "createDate" : new Date().getTime(),
-                        "receivedDate" :  new Date().getTime()
+                        "time": new Date().getTime(),
+                        "id" : "130217", //eid
+                        "describe" : questRow.describe,
+                        "gold_used" : 5,
+                        "rewards" : questRow.rewards
                     },
                     {
-                        "uid" : "1000001",
-                        "eid" : "130217",
-                        "cid" : "1",
-                        "spotId" : "",
-                        "isPhotography" : false,
-                        "isTour" : false,
-                        "received" : true,
-                        "createDate" : new Date().getTime(),
-                        "receivedDate" :  new Date().getTime()
+                        "time": new Date().getTime(),
+                        "id" : "130219", //eid
+                        "describe" : questRow.describe,
+                        "gold_used" : 5,
+                        "rewards" : questRow.rewards
                     }
                 ]
             }
