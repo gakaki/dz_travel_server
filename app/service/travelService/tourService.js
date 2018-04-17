@@ -60,14 +60,22 @@ class TourService extends Service {
 
                 spot_map[spot_id] = row;
             }
-            await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
         }else{
-            info.spots = currentCity.roadMap;
-            for(let spot of currentCity.roadMap) {
+            let roadMaps = currentCity.roadMap;
+            for(let spot of roadMaps) {
+                if(spot.index != -1) {
+                    this.logger.info(spot.endtime);
+                    this.logger.info(new Date().getTime());
+                    if(spot.endtime <= new Date().getTime()) {
+                        spot.tracked = true;
+                    }
+                }
                 spot_map[spot.id] = spot;
             }
+            info.spots = roadMaps;
             info.startTime = currentCity.startTime.getTime();
         }
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
         //起点添加
         // info.spots.push({
         //    'cid'        : cid,
@@ -275,7 +283,7 @@ class TourService extends Service {
         info.postcard   =  cfgPostcard.cfg;
     }
 
-    // 游玩 回答问题 http://127.0.0.1:7001/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
+    // 游玩 回答问题
     async tourspotanswer(info){
         // id   db_id
         // answer 答案
@@ -521,15 +529,21 @@ class TourService extends Service {
 
     //轮询访问地址
 
-    async playloop(){
-        
-        
-        
+    async playloop(info){
+        return ctx.body = {
+            "data": {
+                "action": "tour.playloop",
+                "newEvent": false,
+                "freshSpots": true,
+                "spotsTracked": 0,
+                "spotsAllTraced": false
+            },
+            "code": 0
+        }
         let uid              = info.uid;
         let cid              = info.cid;
-
         
-        let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
+        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid , cid : cid  });
         if (!currentCity ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -538,40 +552,25 @@ class TourService extends Service {
         
         let timeNow              = new Date().getTime();
         let timePrev             = timeNow - 60 * 1 * 1000;
-        
+        info.newEvent            = false;
         if ( timePrev ){
-            let events           = currentCity['events'];
-            let eventsLastTrigged= events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
+            let events           = currentCity['events'];                               //1分钟前的
+            events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
             if ( events.length > 0 ){       
                 info.newEvent    = true;    //是否有新事件
             }
         }
         
-        let spots                = currentCity['spots'];
+        let spots                = currentCity['roadMap'];
         let spotsHasArrived      = spots.filter(  r =>  r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
             info.freshSpots      = true;
+            //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
         }
-        4
-        // let spotsTracked         = 3; //计算currentcity的spots的数量
-        // let spotsAllTracked  = false;
-
-        // info.freshSpots      = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
-        // info.spotsTracked    = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
-
-        // //是否已经把地图上所有的【=p景点都走过了 对比cid和currentcity的是否全了
-        // info.spotsAllTraced  = await this.ctx.service.travelService.tourService.playloop(uid,cid);
-
-        //是否有新事件
-
-        //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-
-        //有几个到达了
-
-        //是否已经把地图上所有的景点都走过了
-
-
+        info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
+        info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
     }
+
 
     //第一次点击开始游玩按钮
     async setrouter(info){
@@ -590,7 +589,7 @@ class TourService extends Service {
         });
      //   this.logger.info(currentCity);
 
-        if ( currentCity['modifyEventDate'] == null ){
+        if ( currentCity['startTime'] == null ){
             isChangeRouter       = false;
         }
 
@@ -598,6 +597,8 @@ class TourService extends Service {
             oldLine              : currentCity.roadMap,
             line                 : lines,
             cid                  : cid,
+            isNewPlayer          : info.ui.isNewPlayer,
+            rentItems            : currentCity.rentItems,
             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
@@ -619,7 +620,7 @@ class TourService extends Service {
         para['timeTotalHour']    = rm.timeTotalHour;
 
         let startTime = currentCity.startTime;
-        // isChangeRouter = false;
+
         if ( isChangeRouter ){
             //修改路线
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -627,7 +628,7 @@ class TourService extends Service {
                 'cid'        : cid,
             },{ $set: {
                     roadMap  : outPMap,
-                    modifyEventDate : new Date()
+                    modifyEventDate : new Date(),
             }});
         }else{
              startTime = new Date();
@@ -642,11 +643,11 @@ class TourService extends Service {
                     roadMap  : outPMap,
                     events   : events,
                     startTime:startTime,
-                    modifyEventDate : new Date()
+                    modifyEventDate : new Date(),
             }});
 
         }
-        info.startTime = startTime.getTime();
+        info.startTime = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
     }
 
@@ -662,7 +663,6 @@ class TourService extends Service {
                         roadMap[i].index = -1;
                         roadMap[i].startime = "";
                         roadMap[i].endtime = "";
-                        roadMap[i].endTime = "";
                         roadMap[i].arriveStamp = "";
                         roadMap[i].arriveStampYMDHMS = "";
                     }
@@ -674,8 +674,9 @@ class TourService extends Service {
         //扣钱
         await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
        // info.startTime = currentCity.startTime.getTime();
+
         info.spots = roadMap;
-        info.goldNum = ui.items[travelConfig.Parameter.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
+        info.goldNum = ui.items[travelConfig.Item.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {

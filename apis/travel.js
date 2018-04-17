@@ -180,6 +180,15 @@ class Code{
     static get NO_CFG_ROW() { return 11002;}
     
 }
+class RentItem{
+    
+    static get CAR() { return 1;}
+    
+    static get CAMERA() { return 2;}
+    
+    static get MEDICALBOX() { return 3;}
+    
+}
 class TicketType{
     
     static get RANDOMBUY() { return '00';}
@@ -1210,10 +1219,9 @@ class ReqEnterspot extends Base {
     
         this._spotId = null;
         this._spot = null;
-        this._quests = null;
         this.requireFileds = ["spotId"];
         this.reqFields = ["spotId"];
-        this.resFields = ["spot","quests"];
+        this.resFields = ["spot"];
     }
     //client input, require, type: number
     get spotId() {return this._spotId}
@@ -1221,9 +1229,6 @@ class ReqEnterspot extends Base {
     //server output, type: EnterSpot
     get spot() {return this._spot}
     set spot(v) {this._spot = v}
-    //server output, type: Quest[]
-    get quests() {return this._quests}
-    set quests(v) {this._quests = v}
     static Init(ctx, checkLogin = false) {
         let o = new ReqEnterspot();
         o.ctx = ctx;
@@ -1246,10 +1251,11 @@ class SpotTour extends Base {
     
         this._cid = null;
         this._spotId = null;
+        this._event = null;
         this._userinfo = null;
         this.requireFileds = ["cid","spotId"];
         this.reqFields = ["cid","spotId"];
-        this.resFields = ["userinfo"];
+        this.resFields = ["event","userinfo"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1257,6 +1263,9 @@ class SpotTour extends Base {
     //client input, require, type: number
     get spotId() {return this._spotId}
     set spotId(v) {this._spotId = v}
+    //server output, type: string//产生的新事件
+    get event() {return this._event}
+    set event(v) {this._event = v}
     //server output, type: UserInfo
     get userinfo() {return this._userinfo}
     set userinfo(v) {this._userinfo = v}
@@ -3337,6 +3346,7 @@ class TestSend extends WsSend {
 exports.Season = Season;
 exports.PresentTktType = PresentTktType;
 exports.Code = Code;
+exports.RentItem = RentItem;
 exports.TicketType = TicketType;
 exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;

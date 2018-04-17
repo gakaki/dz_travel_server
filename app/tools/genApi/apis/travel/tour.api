@@ -111,8 +111,8 @@ api ReqEnterspot {
     require spotId:number
     //景点数据
     output spot:EnterSpot
-    //景点事件列表
-    output quests:Quest[]
+    //观光事件列表
+    out events:array
 }
 
 
@@ -122,7 +122,7 @@ api SpotTour {
     require cid:number
     //景点id
     require spotId:number
-
+    output event:string//产生的新事件
     //随机事件会获得的东西不同
     output userinfo:UserInfo
 
@@ -176,14 +176,14 @@ api RentedProp {
     output rentItems:KV[]//已租用的所有道具。
 }
 
-//设置/修改路线，后端判断是否第一次，非第一次且非续接路线则扣钱
+//设置/修改路线，后端判断是z否第一次，非第一次且非续接路线则扣钱
 api SetRouter {
     require cid:string
     require line:array//景点id数组,每次传的都市完整的路线（包含已走过的）
 
     //设置后景点数组
     output spots:RouterSpot[]//不包括起点
-    output startTime: number //开始时间
+    output startTime: number //起点开始时间
 
 }
 api ModifyRouter {

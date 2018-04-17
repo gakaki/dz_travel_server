@@ -17,9 +17,10 @@ module.exports = app => {
         registertime: {type: Date},//注册时间
         items: {type: JSON}, //道具
         friendList:{type:Array},
-        isFirst:{type:Boolean,default:true},
-        isSingleFirst:{type:Boolean,default:true},
-        isDoubleFirst:{type:Boolean,default:true},
+        isFirst:{type:Boolean,default:true}, //第一次进游戏
+        isSingleFirst:{type:Boolean,default:true},//第一次单人飞
+        isDoubleFirst:{type:Boolean,default:true},//第一次双人飞
+        isNewPlayer:{type:Boolean,default:true},//第一次游玩
         mileage:{type:Number,default:0},  //里程数
         cumulativeDays:{type:Number,default:0},//累计登陆天数
         name:{type:String},

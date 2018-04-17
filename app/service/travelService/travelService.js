@@ -2,7 +2,7 @@ const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const utils = require("../../utils/utils");
 const apis = require("../../../apis/travel");
-
+const ShortPath = require("../pathService/shortPath");
 class TravelService extends Service {
     async fillIndexInfo(info, ui) {
         info.isFirst = ui.isFirst;
@@ -91,14 +91,37 @@ class TravelService extends Service {
             ["items." + travelConfig.Item.GOLD]: (Number(info.cost)) * -1,
 
         };
+        //上个城市效率奖励
         if(lastCity) {
-            //上个城市走的实际景点数
-            let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: lastCity.fid });
-            let reward = lastCity.efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
-            //上个城市的评分奖励
-            cost[ "items." + travelConfig.Item.POINT] = reward || 0;
-            info.score = lastCity.efficiency;
-            info.reward = reward;
+            let short_path = new ShortPath(lastCity.cid);
+            let plan = lastCity.roadMap;
+            let real = [];
+            for(let planS of plan) {
+                if(planS.index != -1) {
+                    if(planS.tracked || planS.endtime <= new Date().getTime()) {
+                        real.push(planS.id);
+                    }
+                }
+            }
+            info.score = 0;
+            info.reward = 0;
+            if(real.length > 0) {
+                let path = short_path.travelShortDistance(real);
+                let shortDistance = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: lastCity.cid });
+                //上个城市走的实际景点数
+                let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: lastCity.fid });
+                let efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
+                let reward = efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
+                //上个城市的评分奖励
+                cost[ "items." + travelConfig.Item.POINT] = reward || 0;
+                info.score = efficiency;
+                info.reward = reward;
+            }
+            if(ui.isNewPlayer) {
+                await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
+            }
+
+
         }
 
 
@@ -177,7 +200,7 @@ class TravelService extends Service {
         if (fui) {
             flyRecord.friend = fui.uid;
             currentCity.friend = fui.uid;
-            currentCity.efficiency = 0;
+          //  currentCity.efficiency = 0;
             await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
             await this.ctx.model.TravelModel.Footprints.create(footprint);
             await this.ctx.model.TravelModel.CurrentCity.update({ uid: currentCity.uid }, currentCity, { upsert: true });
@@ -192,9 +215,10 @@ class TravelService extends Service {
             currentCity.friend = ui.uid;
             footprint.uid = fui.uid;
             await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
-        }else{
+
+        }/*else{
             currentCity.efficiency = 0;
-        }
+        }*/
 
         //添加飞行记录
         await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);

@@ -3,23 +3,20 @@ const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
 const ScenicPos             = require("../../../sheets/scenicpos");
 const timeUtil              = require("../../utils/time");
-
+const apis                  = require("../../../apis/travel");
 // 生成路线
 class MakeRoadMap {
 
     constructor( obj ){
         this.oldLine      = obj.oldLine;
         this.spotIds        = obj.line || [];
-        if (this.spotIds <= 0) {
-            throw "spod ids can not be null";
-            return;
-        }
         this.isNewPlayer    = obj.isNewPlayer || 0; //新手引导总时间会变成1
         this.cid            = obj.cid || 0;
 
         this.lines          = []; //所有线路容器
         this.linesFormat    = []; //返回给前端用的
 
+        this.rentItems      =obj.rentItems || 0;
         this.clacSpeed();        // 时间配置
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
@@ -35,7 +32,7 @@ class MakeRoadMap {
 
             let spotStart       = line['spotStart'];
             let spotEnd         = line['spotEnd'];
-            spotEnd['endTime']  = line['timeEnd'];
+            spotEnd['endtime']  = line['timeEnd'];
 
 
             if ( this.lines.indexOf(line) == 0 ) {
@@ -50,11 +47,11 @@ class MakeRoadMap {
 
         for ( let line of formatRoadMap ){
             if ( line['isStart'] == 1) {
-                line['arriveStamp']         = line['startTime'];
-                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['startTime']);
+                line['arriveStamp']         = line['startime'];
+                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['startime']);
             }else{
-                line['arriveStamp']         = line['endTime'];
-                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['endTime']);
+                line['arriveStamp']         = line['endtime'];
+                line['arriveStampYMDHMS']   = timeUtil.formatYMDHMS(line['endtime']);
             }
         }
 
@@ -75,9 +72,24 @@ class MakeRoadMap {
         let timeHumanPreLineHour     = all_time / ( 6 - 1 );       //一段line 4.8小时
         // 正常走路时间
         this.timeHumanPreLineHour    = timeHumanPreLineHour;
-        this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
-        this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
-        this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
+        if(this.rentItems) {
+            let shortTime = [];
+            for(let rentItem in this.rentItems) {
+                if(this.rentItems[rentItem]) {
+                    let item = travelConfig.Shop.Get(rentItem);
+                    if(item && item.type == apis.RentItem.CAR) {
+                        shortTime.push(item.value);
+                    }
+                }
+            }
+            if(shortTime.length > 0 ) {
+                this.timeHumanPreLineHour = parseFloat((timeHumanPreLineHour * Math.max(...shortTime) / 100).toFixed(2));
+            }
+          //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
+         //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
+         //   this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
+        }
+
     }
     calcTimeTotal(){
 
@@ -107,11 +119,9 @@ class MakeRoadMap {
             let xy           = ScenicPos.Get(spotId);
             let o            = {};
 
-
            // let oldindex = this.oldLine.findIndex((n) => n.id == spotId);
             let old = this.oldLine.find((n) => n.id == spotId);
-
-            if( !old || !old.tracked || old.index == -1 ) {
+            if(!old || old.index == -1) {
                 o.id             = spotId;
                 o.cid            = this.cid;
                 o.name           = cfg.scenicspot;
@@ -119,11 +129,9 @@ class MakeRoadMap {
                 o.x              = xy.x;
                 o.y              = xy.y;
                 o.tracked        = false;
-                o.index          = index; //这个index 有必要吗
-                o.startTime      = "";    //开始时间
-                o.startime      ="";    //不是很清楚 和以上的区别
-                o.endTime        = "";    //结束时间
-                o.endtime        = "";    //不是很清楚 和以上的区别
+                o.index          = index;
+                o.startime      ="";
+                o.endtime        = "";
                 let [lng,lat]    = cfg["coordinate"];
                 o.lng            = lng;
                 o.lat            = lat;
@@ -135,7 +143,7 @@ class MakeRoadMap {
         });
        if(hasRouter.length == 0) {
            //忘记加上起始点的了 加上起始点
-           let  cityConfig      = travelConfig.City.Get(this.cid);
+           let cityConfig      = travelConfig.City.Get(this.cid);
            let [lng,lat]        = cityConfig["coordinate"];
            let spotsCityStart   = {
                id             : -1, //-1 表示是起点
@@ -145,8 +153,8 @@ class MakeRoadMap {
                y              : 0,
                tracked        : true,  //起点肯定默认就到达了
                index          : 0,     //这个index 有必要吗
-               startTime      : "",    //开始时间
-               endTime        : "",    //结束时间
+               startime      : "",    //开始时间
+               endtime        : "",    //结束时间
                lng            : lng,
                lat            : lat,
                isStart        : true //是否起点
@@ -183,7 +191,8 @@ class MakeRoadMap {
         // 不用距离算法了
         // 中途换道具在写
         let timeHour    = this.timeHumanPreLineHour;
-        let diffTime    = timeHour * 60 * 60 * 1000;
+       // let diffTime    = timeHour * 60 * 60 * 1000;
+        let diffTime    =  1000;
 
         if (spotStart['isStart'] == true) {
             if(!spotStart['startime']) {
@@ -211,8 +220,8 @@ class MakeRoadMap {
             spotEnd     : spotEnd,
             spotIdStart : spotStart.id,
             spotIdEnd   : spotEnd.id,
-            timeStartFull : timeUtil.formatYMDHMS(spotStart['startime']),
-            timeStartEnd  : timeUtil.formatYMDHMS(spotEnd['endtime'])
+            timeStartFull : spotStart['startime'] ? timeUtil.formatYMDHMS(spotStart['startime']) : spotStart['startime'],
+            timeStartEnd  : spotEnd['endtime'] ? timeUtil.formatYMDHMS(spotEnd['endtime']) : spotEnd['endtime'],
         }
         return line;
     }
