@@ -610,7 +610,7 @@ class TourService extends Service {
         para['timeTotalHour']    = rm.timeTotalHour;
 
         let startTime = currentCity.startTime;
-        isChangeRouter = false;
+
         if ( isChangeRouter ){
             //修改路线
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -638,7 +638,7 @@ class TourService extends Service {
 
         }
         info.startTime = startTime.getTime();
-        info.spots               = newRoadMap;
+        info.spots               = outPMap;
     }
 
 
