@@ -10,10 +10,6 @@ class MakeRoadMap {
     constructor( obj ){
         this.oldLine      = obj.oldLine;
         this.spotIds        = obj.line || [];
-        if (this.spotIds <= 0) {
-            throw "spod ids can not be null";
-            return;
-        }
         this.isNewPlayer    = obj.isNewPlayer || 0; //新手引导总时间会变成1
         this.cid            = obj.cid || 0;
 
@@ -111,6 +107,7 @@ class MakeRoadMap {
            // let oldindex = this.oldLine.findIndex((n) => n.id == spotId);
             let old = this.oldLine.find((n) => n.id == spotId);
             if(!old.tracked || old.index == -1) {
+                console.log(index);
                 o.id             = spotId;
                 o.cid            = this.cid;
                 o.name           = cfg.scenicspot;

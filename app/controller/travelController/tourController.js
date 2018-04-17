@@ -66,7 +66,7 @@ class TourController extends Controller {
         info.submit();
     }
 
-    async setrouter(ctx){
+    async setrouter(ctx) {
         // http://127.0.0.1:7001/tour/setrouter/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
         let info        = apis.SetRouter.Init(ctx);
         // let cid         = info.cid;
@@ -74,6 +74,12 @@ class TourController extends Controller {
         // let weather     = info.weather;
         // let line        = JSON.parse(info.line);
 
+        let lines                = JSON.parse(info.line);
+        if(!lines || lines.length == 0) {
+            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            info.submit();
+            return;
+        }
         await this.service.travelService.tourService.setrouter(info);
      //   let user_info   = ctx.session.ui;
      //   await this.service.travelService.travelService.fillIndexInfo(info,user_info);
@@ -83,9 +89,13 @@ class TourController extends Controller {
 
 
     async modifyrouter(ctx) {
-        let info = apis.ModifyRouter.Init(ctx);
+        let info = await apis.ModifyRouter.Init(ctx, true);
+        if(!info.ui) {
+            return;
+        }
         let user_info       = ctx.session.ui;
-        if(user_info.items[travelConfig.Parameter.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value){
+      //  this.logger.info(user_info);
+        if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value){
             info.code = apis.Code.NEED_MONEY;
             info.submit();
             return
