@@ -2,8 +2,7 @@ const Controller        = require('egg').Controller;
 const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const ScenicPos         = require('../../../sheets/scenicpos');
-const utilTime          = require("../../utils/time");
-
+const QuestRepoInstance = require("../../service/questService/questRepo");
 
 let tour = new Map();
 let userLines = new Map();
@@ -188,6 +187,19 @@ class TourController extends Controller {
 
     // 拍照
     async photography(ctx) {
+
+        return ctx.body = {
+
+            "code" :0,
+            "data":{
+                "postcard" : {
+                    id:"100101" ,
+                    pattern:"1",
+                    picture:"jingdian/beijing/beijing/jd/1.jpg",
+                    type:"1"
+                }
+            }
+        };
         /*
             用户到达景点后，可使用拍照功能，每个城市拍照有次数限制，购买单反相机可增加拍照次数，
             拍照时会获得一张该景点明信片，如果是双人旅行，则留下2人头像。
@@ -202,12 +214,51 @@ class TourController extends Controller {
     }
 
     // 观光
-    async tourspot(ctx) {
+    async spottour(ctx) {
+
+        return ctx.body = {
+            "code": 0,
+            "data": {
+                "action": "tour.reqenterspot",
+                "userinfo": {
+                    "_id": "5ac48e69318e3403e4d69723",
+                    "uid": "1000001",
+                    "appName": "travel",
+                    "nickName": "gakaki",
+                    "avatarUrl": "",
+                    "gender": 0,
+                    "city": "",
+                    "province": "",
+                    "country": "",
+                    "registertime": "1970-01-18T15:00:30.953Z",
+                    "pid": "1000001",
+                    "items": {
+                        "1": 83520,
+                        "2": 0
+                    },
+                    "__v": 0,
+                    "firstPlay": true,
+                    "hasPlay": true,
+                    "cumulativeDays": 4,
+                    "mileage": 0,
+                    "isDoubleFirst": true,
+                    "isSingleFirst": false,
+                    "isFirst": false,
+                    "friendList": [
+                        "1000001"
+                    ],
+                    "third": true
+                },
+                "event": "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
+            }
+        };
+
         // 用户到达景点后，跳转至景点界面，可使用观光功能，
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
-        let info            = apis.TourTour.Init(ctx);
+        let info            = apis.SpotTour.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.spotTour(info,user_info);
+        // await this.service.travelService.tourService.spotTour(info,user_info);
+        info.userinfo       = user_info;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
@@ -235,27 +286,48 @@ class TourController extends Controller {
     // 进入景点
     async reqenterspot(ctx) {
         this.logger.info("进入景点观光");
+
+        let questRow = QuestRepoInstance.find("130217");
+        return ctx.body = {
+            "code": 0,
+            "data": {
+                "action": "tour.reqenterspot",
+                "spot": {
+                    id: '100101',
+                    scenicspot:"故宫",
+                    weather:"1",
+                    freePhoto:[2,2],
+                    freeSight:[2,2],
+                    picture:'jingdian/beijing/beijing/jd/1.jpg',
+                    description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
+                },
+                "events": [
+                    "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
+                ]
+            }
+        };
+
         let info                    = apis.ReqEnterspot.Init(ctx);
         await this.service.questService.questService.reqenterspot(info);
         info.submit();
     }
 
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
-    async questrandom(ctx) {
-        ctx.body = {
-            'newEvent' : true, //是否有新事件
-            'spotsTracked': {
-                '100107': true,
-                '100102': true,
-                '100109': false
-            }
-        };
-    }
-
     async playloop(ctx){
+        
+        // return ctx.body = {
+        //     'code': 0 ,
+        //     'data':{
+        //         'newEvent' : true,           //是否有新事件
+        //         'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+        //         'spotsTracked': 6,           // 有几个到达了
+        //         'spotsAllTraced' : true      //
+        //     }
+        // };
+
         this.logger.info("play loop");
         let info                    = apis.PlayLoop.Init(ctx);
-        await this.service.travelService.tourService.playloop(info);
+        await this.ctx.service.travelService.tourService.playloop(info);
         info.submit();
     }
     //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口

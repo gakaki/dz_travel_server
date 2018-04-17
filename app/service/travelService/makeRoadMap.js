@@ -106,8 +106,13 @@ class MakeRoadMap {
 
            // let oldindex = this.oldLine.findIndex((n) => n.id == spotId);
             let old = this.oldLine.find((n) => n.id == spotId);
+<<<<<<< HEAD
             if(!old.tracked || old.index == -1) {
                 console.log(index);
+=======
+
+            if( !old || !old.tracked || old.index == -1 ) {
+>>>>>>> 28683025d1814d19c83a126dff8cb3f579becabe
                 o.id             = spotId;
                 o.cid            = this.cid;
                 o.name           = cfg.scenicspot;

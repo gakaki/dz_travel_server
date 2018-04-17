@@ -57,7 +57,7 @@ api TourIndexInfo{
     //完成度信息
     output task:TourTask
     //起点
-    output startPos:object//{x:1,y:1}
+    output startPos:object
     //其他玩家头像，为图片url数组
     output others:string[]
     output startTime: number //开始时间
@@ -81,16 +81,6 @@ api Photography {
 }
 
 
-// 进入景点
-class EnterSpot {
-    prop id:string
-    prop scenicspot:string
-    prop weather:number
-    prop freePhoto:number[]
-    prop freeSight:number[]
-    prop picture:string
-    prop description:string
-}
 
 class Quest {
     prop time:number
@@ -105,13 +95,24 @@ class Quest {
 }
 
 // 进入景点
+class EnterSpot {
+    prop id:string
+    prop scenicspot:string
+    prop weather:number
+    prop freePhoto:number[]
+    prop freeSight:number[]
+    prop picture:string
+    prop description:string
+}
+
+// 进入景点
 api ReqEnterspot {
     //景点id
     require spotId:number
     //景点数据
     output spot:EnterSpot
-    //景点事件列表
-    output quests:Quest[]
+    //观光事件列表
+    out events:array
 }
 
 
@@ -121,9 +122,10 @@ api SpotTour {
     require cid:number
     //景点id
     require spotId:number
-
+    output event:string//产生的新事件
     //随机事件会获得的东西不同
     output userinfo:UserInfo
+
 }
 
 // 随机事件弹出框 回答答案

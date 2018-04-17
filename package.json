@@ -47,7 +47,7 @@
     "start": "egg-scripts start --daemon --ignore-stderr --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem",
     "stop": "egg-scripts stop --title=egg-server-server",
     "dev": "egg-bin dev  --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
-    "debug": "egg-bin debug",
+    "debug": "egg-bin debug   --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "egg-bin cov",

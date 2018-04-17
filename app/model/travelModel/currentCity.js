@@ -17,6 +17,7 @@ module.exports = app => {
         events: { type: Array, default: null },
         modifyEventDate: { type: Date, default: null },
         startTime: { type: Date }, //开始游玩的时间
+        visitCount: { type: Number, default: 0  }, //当前城市是第几次访问了 每次访问该城市的时候+1
     });
 
     return mongoose.model('CurrentCity', CurrentCitySchema);

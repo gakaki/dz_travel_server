@@ -615,6 +615,18 @@ class Postcard {
         
     }
 }
+class Quest {
+    constructor() {
+    
+    
+        //prop type: string[]//观光事件列表
+        this.event = null;
+    
+        
+        
+        
+    }
+}
 class EnterSpot {
     constructor() {
     
@@ -639,42 +651,6 @@ class EnterSpot {
     
         //prop type: string
         this.description = null;
-    
-        
-        
-        
-    }
-}
-class Quest {
-    constructor() {
-    
-    
-        //prop type: number
-        this.time = null;
-    
-        //prop type: string
-        this.id = null;
-    
-        //prop type: string
-        this.type = null;
-    
-        //prop type: string
-        this.picture = null;
-    
-        //prop type: string
-        this.describe = null;
-    
-        //prop type: number
-        this.gold_used = null;
-    
-        //prop type: KV[]
-        this.rewards = null;
-    
-        //prop type: string
-        this.question = null;
-    
-        //prop type: string[]
-        this.answers = null;
     
         
         
@@ -1039,7 +1015,7 @@ class TourIndexInfo extends Base {
     //server output, type: TourTask
     get task() {return this._task}
     set task(v) {this._task = v}
-    //server output, type: object//
+    //server output, type: object
     get startPos() {return this._startPos}
     set startPos(v) {this._startPos = v}
     //server output, type: string[]
@@ -1246,10 +1222,11 @@ class SpotTour extends Base {
     
         this._cid = null;
         this._spotId = null;
+        this._quest = null;
         this._userinfo = null;
         this.requireFileds = ["cid","spotId"];
         this.reqFields = ["cid","spotId"];
-        this.resFields = ["userinfo"];
+        this.resFields = ["quest","userinfo"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1257,6 +1234,9 @@ class SpotTour extends Base {
     //client input, require, type: number
     get spotId() {return this._spotId}
     set spotId(v) {this._spotId = v}
+    //server output, type: string//产生的新事件
+    get quest() {return this._quest}
+    set quest(v) {this._quest = v}
     //server output, type: UserInfo
     get userinfo() {return this._userinfo}
     set userinfo(v) {this._userinfo = v}
@@ -3361,8 +3341,8 @@ exports.QuestReport = QuestReport;
 exports.RouterSpot = RouterSpot;
 exports.oneSpot = oneSpot;
 exports.Postcard = Postcard;
-exports.EnterSpot = EnterSpot;
 exports.Quest = Quest;
+exports.EnterSpot = EnterSpot;
 exports.Speciality = Speciality;
 exports.Event = Event;
 exports.Sight = Sight;

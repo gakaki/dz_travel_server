@@ -187,17 +187,30 @@ class TourService extends Service {
             return;
         }
 
-        //随机事件
+        // //景点的随机事件
+        // let makeEvent = new MakeEvent({
+        //
+        //     spotId          :info.spotId ||
+        //     cid            = obj.cid || 0;
+        //     weather        = obj.weather || 0;
+        //     today          = obj.today || 0;
+        //     itemSpecial    = obj.itemSpecial || 0;
+        //     timeTotalHour  = obj.timeTotalHour || 0;
+        //
+        // })
+        // let quest   =
 
         //扣钱
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: - cost}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
         ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
-        //加特产
+        //加特产 这里回来补
+        let cfg = travelConfig.Speciality.Get("100106");
+        info.count = 1;
         let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
             {
                 uid: ui.uid,
                 spid: cfg.id,
-                $inc: {number: info.count},
+                $inc: {number: info.count }, //这里土特产只有一个吧
                 createDate: new Date()
             },
             {upsert: true});
@@ -211,11 +224,11 @@ class TourService extends Service {
         });
         this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
 
-        info.goldNum = ui.items[sheets.Item.GOLD];
+        info.goldNum = ui.items[travelConfig.Item.GOLD];
         // info typeof apis.IndexInfo
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
-
+        
         //查询城市的拍照次数
         if ( !this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId )  ) {
             let result      = { data: {} };
@@ -257,8 +270,9 @@ class TourService extends Service {
             createDate: dateNow                         //当前时间创建
         });
 
+        info.userinfo   = ui;
         //返回明信片 id 图片
-        info.postcard   =  cfgPostcard;
+        info.postcard   =  cfgPostcard.cfg;
     }
 
     // 游玩 回答问题 http://127.0.0.1:7001/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
@@ -506,16 +520,12 @@ class TourService extends Service {
     }
 
     //轮询访问地址
-    async playloop(){
 
-        // output newEvent:boolean  //是否有新事件
-        // output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-        // output spotsTracked:number//有几个到达了
-        // output spotsAllTraced:boolean
-
+    async playloop(info){
         let uid              = info.uid;
         let cid              = info.cid;
-        let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
+        
+        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid , cid : cid  });
         if (!currentCity ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -524,48 +534,25 @@ class TourService extends Service {
         
         let timeNow              = new Date().getTime();
         let timePrev             = timeNow - 60 * 1 * 1000;
-        
+        info.newEvent            = false;
         if ( timePrev ){
-            let events           = currentCity['events'];
-            let eventsLastTrigged= events.filter(  r =>  r.createtime  > timePrev && r.createtime < timeNow  );
-            if ( events.length > 0 ){   //读取上次访问的时间 可能还要过滤掉已经触发的事件列表
+            let events           = currentCity['events'];                               //1分钟前的
+            events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
+            if ( events.length > 0 ){       
                 info.newEvent    = true;    //是否有新事件
             }
         }
         
-        // let spots                = currentCity['spots'];
-        // let spotsHasArrived      = spots.filter(  r =>  r.createtime  <= timeNow );
-        // if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
-        //     needFreshSpots   = true;
-        // }
-
-        // let spotsTracked         = 3; //计算currentcity的spots的数量
-        // let spotsAllTracked  = false;
-
-        // info.freshSpots      = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
-        // info.spotsTracked    = await this.ctx.service.travelService.eventService.hasNewEvent(uid);
-
-        // //是否已经把地图上所有的【=p景点都走过了 对比cid和currentcity的是否全了
-        // info.spotsAllTraced  = await this.ctx.service.travelService.tourService.playloop(uid,cid);
-
-        //是否有新事件
-
-        //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-
-        //有几个到达了
-
-        //是否已经把地图上所有的景点都走过了
-
-        ctx.body = {
-            'newEvent' : true, //是否有新事件
-            'spotsTracked': {
-                '100107': true,
-                '100102': true,
-                '100109': false
-            }
-        };
-
+        let spots                = currentCity['roadMap'];
+        let spotsHasArrived      = spots.filter(  r =>  r.arriveStamp  <= timeNow );
+        if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
+            info.freshSpots      = true;
+            //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+        }
+        info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
+        info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
     }
+
 
     //第一次点击开始游玩按钮
     async setrouter(info){
@@ -613,7 +600,7 @@ class TourService extends Service {
         para['timeTotalHour']    = rm.timeTotalHour;
 
         let startTime = currentCity.startTime;
-        // isChangeRouter = false;
+        isChangeRouter = false;
         if ( isChangeRouter ){
             //修改路线
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -641,7 +628,7 @@ class TourService extends Service {
 
         }
         info.startTime = startTime.getTime();
-        info.spots               = outPMap;
+        info.spots               = newRoadMap;
     }
 
 
