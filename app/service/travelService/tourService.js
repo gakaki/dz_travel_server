@@ -522,11 +522,16 @@ class TourService extends Service {
     //轮询访问地址
     async playloop(){
 
-        // output newEvent:boolean  //是否有新事件
-        // output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-        // output spotsTracked:number//有几个到达了
-        // output spotsAllTraced:boolean
-
+        return ctx.body = {
+            'code': 0 ,
+            'data':{
+                'newEvent' : true,           //是否有新事件
+                'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+                'spotsTracked': 6,           // 有几个到达了
+                'spotsAllTraced' : true      // 
+            }
+        };
+        
         let uid              = info.uid;
         let cid              = info.cid;
         let currentCity      = await this.ctx.model.PublicModel.User.findOne({ uid: uid , cid : cid  });
@@ -570,14 +575,6 @@ class TourService extends Service {
 
         //是否已经把地图上所有的景点都走过了
 
-        ctx.body = {
-            'newEvent' : true, //是否有新事件
-            'spotsTracked': {
-                '100107': true,
-                '100102': true,
-                '100109': false
-            }
-        };
 
     }
 
