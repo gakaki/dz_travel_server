@@ -206,11 +206,49 @@ class TourController extends Controller {
     // 观光
     async spottour(ctx) {
 
+        return ctx.body = {
+            "code": 0,
+            "data": {
+                "action": "tour.reqenterspot",
+                "userinfo": {
+                    "_id": "5ac48e69318e3403e4d69723",
+                    "uid": "1000001",
+                    "appName": "travel",
+                    "nickName": "gakaki",
+                    "avatarUrl": "",
+                    "gender": 0,
+                    "city": "",
+                    "province": "",
+                    "country": "",
+                    "registertime": "1970-01-18T15:00:30.953Z",
+                    "pid": "1000001",
+                    "items": {
+                        "1": 83520,
+                        "2": 0
+                    },
+                    "__v": 0,
+                    "firstPlay": true,
+                    "hasPlay": true,
+                    "cumulativeDays": 4,
+                    "mileage": 0,
+                    "isDoubleFirst": true,
+                    "isSingleFirst": false,
+                    "isFirst": false,
+                    "friendList": [
+                        "1000001"
+                    ],
+                    "third": true
+                },
+                "event": "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
+            }
+        };
+
         // 用户到达景点后，跳转至景点界面，可使用观光功能，
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
         let info            = apis.SpotTour.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.spotTour(info,user_info);
+        // await this.service.travelService.tourService.spotTour(info,user_info);
+        info.userinfo       = user_info;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
@@ -253,9 +291,7 @@ class TourController extends Controller {
                     picture:'jingdian/beijing/beijing/jd/1.jpg',
                     description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
                 },
-
-                "quests": [
-                    "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍.",
+                "events": [
                     "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
                 ]
             }
