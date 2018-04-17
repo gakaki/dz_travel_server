@@ -162,7 +162,9 @@ class Quest extends TreeNode {
 
     getSpotRewardComment(datetime){
         let hourStr = moment(datetime).format("HH:mm")
-        return `${hourStr} 在`;
+        let reward  = this.rewardKV;
+        //有待完善
+        return `${hourStr} ${this.describe} , 消耗 ${reward}金币 , 获得${reward}`;
     }
 
     formatRewardNormal(){
