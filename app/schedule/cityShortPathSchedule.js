@@ -18,7 +18,7 @@ class UpdateRankSchedule extends Subscription {
             if(city.id != 10000) {
                 let short_path = new ShortPath(city.id);
                 let path = short_path.shortPath();
-                await this.ctx.model.TravelModel.CityShortPath.update({ cid: city.cid }, { $set: { cid: city.cid, shortestDistance: path.min, minRoad: path.minRoad } }, { upsert: true })
+                await this.ctx.model.TravelModel.CityShortPath.update({ cid: city.cid }, { $set: { cid: city.id, shortestDistance: path.min, minRoad: path.minRoad } }, { upsert: true })
             }
 
         }
