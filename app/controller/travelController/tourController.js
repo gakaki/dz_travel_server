@@ -183,7 +183,7 @@ class TourController extends Controller {
 
             "postcard" : {
                  id:"100101" ,
-                 pattern:"",
+                 pattern:"1",
                  picture:"jingdian/beijing/beijing/jd/1.jpg",
                  type:"1"
             }
