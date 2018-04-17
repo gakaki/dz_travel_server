@@ -255,21 +255,11 @@ class TourController extends Controller {
                 },
 
                 "quests": [
-                    {
-                        "time": new Date().getTime(),
-                        "id" : "130217", //eid
-                        "describe" : questRow.describe,
-                        "gold_used" : 5,
-                        "rewards" : questRow.rewards
-                    },
-                    {
-                        "time": new Date().getTime(),
-                        "id" : "130219", //eid
-                        "describe" : questRow.describe,
-                        "gold_used" : 5,
-                        "rewards" : questRow.rewards
-                    }
+                    "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍.",
+                    "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
                 ]
+
+                
             }
         };
 
