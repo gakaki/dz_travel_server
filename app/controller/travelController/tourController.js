@@ -248,8 +248,8 @@ class TourController extends Controller {
                     id: '100101',
                     scenicspot:"故宫",
                     weather:"1",
-                    freePhoto:[0,6],
-                    freeSight:[0,6],
+                    freePhoto:[2,2],
+                    freeSight:[2,2],
                     picture:'jingdian/beijing/beijing/jd/1.jpg',
                     description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
                 },
@@ -258,8 +258,6 @@ class TourController extends Controller {
                     "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍.",
                     "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
                 ]
-
-                
             }
         };
 
