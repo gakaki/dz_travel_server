@@ -1,13 +1,13 @@
 const Subscription = require('egg').Subscription;
 const ShortPath = require("../service/pathService/shortPath");
 const travelConfig = require("../../sheets/travel");
-class UpdateRankSchedule extends Subscription {
+class CityShortPathSchedule extends Subscription {
     // 通过 schedule 属性来设置定时任务的执行间隔等配置
     static get schedule() {
         return {
             type: 'worker', // 一个 worker 执行
-           // cron: '0 0 0 * * 1',
-            immediate: true,
+            cron: '0 0 0 * * 1',
+           // immediate: true,
         };
     }
 
@@ -26,4 +26,4 @@ class UpdateRankSchedule extends Subscription {
     }
 }
 
-module.exports = UpdateRankSchedule;
+module.exports = CityShortPathSchedule;

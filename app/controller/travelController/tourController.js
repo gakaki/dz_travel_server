@@ -88,10 +88,8 @@ class TourController extends Controller {
 
 
     async modifyrouter(ctx) {
-        let info = await apis.ModifyRouter.Init(ctx, true);
-        if(!info.ui) {
-            return;
-        }
+        let info = apis.ModifyRouter.Init(ctx);
+
         let user_info       = ctx.session.ui;
       //  this.logger.info(user_info);
         if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value){
@@ -365,15 +363,15 @@ class TourController extends Controller {
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
     async playloop(ctx){
         
-        // return ctx.body = {
-        //     'code': 0 ,
-        //     'data':{
-        //         'newEvent' : true,           //是否有新事件
-        //         'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
-        //         'spotsTracked': 6,           // 有几个到达了
-        //         'spotsAllTraced' : true      //
-        //     }
-        // };
+        return ctx.body = {
+            'code': 0 ,
+            'data':{
+                'newEvent' : true,           //是否有新事件
+                'freshSpots' : true,         // 是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+                'spotsTracked': 6,           // 有几个到达了
+                'spotsAllTraced' : true      //
+            }
+        };
 
         this.logger.info("play loop");
         let info                    = apis.PlayLoop.Init(ctx);
