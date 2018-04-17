@@ -589,6 +589,7 @@ class TourService extends Service {
             oldLine              : currentCity.roadMap,
             line                 : lines,
             cid                  : cid,
+            isNewPlayer          : info.ui.isNewPlayer,
             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑

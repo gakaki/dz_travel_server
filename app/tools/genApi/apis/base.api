@@ -160,6 +160,16 @@ enum Code {
     const  NO_CFG_ROW =   11002  //没有对应的配置表行
 }
 
+enum RentItem {
+    //车
+    const CAR = 1
+    //照相机
+    const CAMERA = 2
+    //医药箱
+    const MEDICALBOX = 3
+}
+
+
 //该Base类会在实际中作为所有api的基类
 class Base{
     prop client _timestamp:number

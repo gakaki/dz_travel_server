@@ -48,6 +48,7 @@ class DoubleService extends Service {
             outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
             info.location = cid;
             if(isFly && invitee) {
+                let self = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
                 let short_path = new ShortPath(visit.cid);
                 let plan = visit.roadMap;
                 let real = [];
@@ -69,12 +70,14 @@ class DoubleService extends Service {
                     let cost = {
                         [ "items." + travelConfig.Item.POINT]: reward,
                     };
-                    this.ctx.service.publicService.itemService.itemChange(ui.uid, cost);
-                    await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { efficiency: 0 });
+                    this.ctx.service.publicService.itemService.itemChange(self.uid, cost);
+                //    await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { efficiency: 0 });
                     info.score = efficiency;
                     info.reward = reward;
                 }
-
+                if(self.isNewPlayer) {
+                    await this.ctx.model.PublicModel.User.update({ uid: self.uid }, { $set: { isNewPlayer: false } });
+                }
             }
         }
 
