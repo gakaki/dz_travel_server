@@ -223,10 +223,10 @@ class TourController extends Controller {
     }
 
     // 进入景点
-    async enterspot(ctx) {
+    async reqenterspot(ctx) {
         this.logger.info("进入景点观光");
-        let info                    = apis.Enterspot.Init(ctx);
-        await this.service.questService.questService.enterspot(info);
+        let info                    = apis.ReqEnterspot.Init(ctx);
+        await this.service.questService.questService.reqenterspot(info);
         info.submit();
     }
 

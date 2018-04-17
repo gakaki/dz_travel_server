@@ -13,10 +13,8 @@ class QuestService extends Service{
         return row;
     }
 
-
-
-    async enterspot(info) {
-        //http://127.0.0.1:7001/tour/enterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
+    async reqenterspot(info) {
+        //https://local.ddz2018.com/tour/reqenterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
 
         //获得对当前城市拍照次数
         let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid ,sspid: info.spotId });

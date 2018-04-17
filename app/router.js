@@ -81,7 +81,7 @@ module.exports = app => {
     router.get('/tour/setrouter',routerUserInfo,controller.travelController.tourController.setrouter);
     router.get('/tour/modifyrouter',routerUserInfo,controller.travelController.tourController.modifyrouter);
     //游玩界面 进入景点
-    router.get('/tour/enterspot',routerUserInfo,  controller.travelController.tourController.enterspot);
+    router.get('/tour/reqenterspot',routerUserInfo,  controller.travelController.tourController.reqenterspot);
     //游玩界面 进入景点->拍照按钮
     router.get('/tour/photography', routerUserInfo, controller.travelController.tourController.photography);
     //游玩界面 进入景点->观光按钮

@@ -521,18 +521,17 @@ class TourService extends Service {
             info.submit();
             return;
         }
-
-
+        
         let timeNow              = new Date().getTime();
-        let redisKey             = `playloop:${uid}:time`;
-        let timePrev             = await this.app.redis.get(redisKey);
-        // if ( timePrev ){
-        //     let events           = currentCity['events'];
-        //     let eventsLastTrigged= events.filter(  r =>  r.createtime  > timePrev && r.createtime < timeNow  );
-        //     if ( events.length > 0 ){   //读取上次访问的时间 可能还要过滤掉已经触发的事件列表
-        //         info.newEvent    = true;    //是否有新事件
-        //     }
-        // }
+        let timePrev             = timeNow - 60 * 1 * 1000;
+        
+        if ( timePrev ){
+            let events           = currentCity['events'];
+            let eventsLastTrigged= events.filter(  r =>  r.createtime  > timePrev && r.createtime < timeNow  );
+            if ( events.length > 0 ){   //读取上次访问的时间 可能还要过滤掉已经触发的事件列表
+                info.newEvent    = true;    //是否有新事件
+            }
+        }
         
         // let spots                = currentCity['spots'];
         // let spotsHasArrived      = spots.filter(  r =>  r.createtime  <= timeNow );
@@ -656,7 +655,6 @@ class TourService extends Service {
                     if (!roadMap[i].tracked || roadMap[index].startime <= new Date().getTime()) {
                         roadMap[i].index = -1;
                         roadMap[i].startime = "";
-                        roadMap[i].starTime = "";
                         roadMap[i].endtime = "";
                         roadMap[i].endTime = "";
                         roadMap[i].arriveStamp = "";
