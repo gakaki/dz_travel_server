@@ -21,9 +21,6 @@ class TourService extends Service {
 
         let lng             = cityConfig['coordinate'][0];
         let lat             = cityConfig['coordinate'][1];
-        if (!lng || !lat){
-            
-        }
 
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
 
@@ -121,7 +118,12 @@ class TourService extends Service {
 
     //查询该城市的拍照次数限制 注意购买单反相机之后的拍照次数 注意单反相机的逻辑
     async limitByCityAndSpotPhotoGraphyCount(uid,spotId){
-        let r = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: uid });
+        // let userItems   = await this.service.travelService.PlayerService.getItems(uid);
+        // if ( travelConfig.RentItem.CAMERA ){
+        //     //拍照：每个城市可拍照2次，每个景点可拍照1次。购买单反相机可增加城市拍照次数，不能增加景点拍照次数。
+        // }
+
+        let r           = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: uid });
         if  ( !r ) {
             return true;
         }
@@ -133,6 +135,7 @@ class TourService extends Service {
         }
         return true;
     }
+
 
     // 拍照
     async photography(info, ui) {
@@ -354,6 +357,7 @@ class TourService extends Service {
             type:          questCfg.type,
             describe:      questCfg['describe'],
             gold_used:     0,
+            picture:       questCfg['picture'],
             rewards:       questCfg.rewards,
             question:      questCfg['describe'],
             answers:       questCfg.answers(),

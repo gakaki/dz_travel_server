@@ -56,7 +56,8 @@
     "autod": "autod",
     "xy": "node ./app/tools/sceneXy/genXY.js",
     "sheet": "node ./app/tools/genSheet/genSheet.js",
-    "api": "node ./app/tools/genApi/genApi.js"
+    "api": "node ./app/tools/genApi/genApi.js",
+    "apifront":"npm run api;cp ./apis/travel.js ../travel_front/api.js"
   },
   "ci": {
     "version": "8"

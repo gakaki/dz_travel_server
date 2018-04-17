@@ -655,6 +655,9 @@ class Quest {
         //prop type: string[]
         this.answers = null;
     
+        //prop type: string
+        this.rewardCommet = null;
+    
         
         
         
@@ -1218,17 +1221,25 @@ class ReqEnterspot extends Base {
         this.action = 'tour.reqenterspot';
     
         this._spotId = null;
+        this._cid = null;
         this._spot = null;
-        this.requireFileds = ["spotId"];
-        this.reqFields = ["spotId"];
-        this.resFields = ["spot"];
+        this._events = null;
+        this.requireFileds = ["spotId","cid"];
+        this.reqFields = ["spotId","cid"];
+        this.resFields = ["spot","events"];
     }
     //client input, require, type: number
     get spotId() {return this._spotId}
     set spotId(v) {this._spotId = v}
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
     //server output, type: EnterSpot
     get spot() {return this._spot}
     set spot(v) {this._spot = v}
+    //server output, type: Quest[]
+    get events() {return this._events}
+    set events(v) {this._events = v}
     static Init(ctx, checkLogin = false) {
         let o = new ReqEnterspot();
         o.ctx = ctx;
