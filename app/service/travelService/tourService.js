@@ -275,7 +275,7 @@ class TourService extends Service {
         info.postcard   =  cfgPostcard.cfg;
     }
 
-    // 游玩 回答问题 http://127.0.0.1:7001/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
+    // 游玩 回答问题
     async tourspotanswer(info){
         // id   db_id
         // answer 答案
@@ -522,6 +522,16 @@ class TourService extends Service {
     //轮询访问地址
 
     async playloop(info){
+        return ctx.body = {
+            "data": {
+                "action": "tour.playloop",
+                "newEvent": false,
+                "freshSpots": true,
+                "spotsTracked": 0,
+                "spotsAllTraced": false
+            },
+            "code": 0
+        }
         let uid              = info.uid;
         let cid              = info.cid;
         

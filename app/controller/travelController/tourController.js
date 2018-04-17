@@ -262,11 +262,35 @@ class TourController extends Controller {
     }
 
     // 随机事件问答题答案提交
+    // https://local.ddz2018.com/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
     async tourspotanswer(ctx){
+
+        return ctx.body = {
+            "data": {
+                "action": "tour.answerquest",
+                "correct": true,
+                "userInfo": null,
+                "rewards": {
+                    "1": {
+                        "name": "金币",
+                        "type_id": "1",
+                        "count": "100",
+                        "countText": "+100"
+                    },
+                    "5": {
+                        "name": "积分",
+                        "type_id": "5",
+                        "count": "229",
+                        "countText": "+229"
+                    }
+                }
+            },
+            "code": 0
+        };
         // id   db_id
         // eid  event id
         // answer 答案
-        let info            = apis.TourSpotAnswer.Init(ctx);
+        let info            = apis.AnswerQuest.Init(ctx);
         await this.ctx.service.travelService.tourService.tourspotanswer(info);
         let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
@@ -274,6 +298,32 @@ class TourController extends Controller {
     }
     //点开显示随机事件
     async eventshow(ctx){
+        return ctx.body     = {
+            "data": {
+                "action": "tour.eventshow",
+                "total": null,
+                "current": null,
+                "quest": {
+                    "id": "200049",
+                    "type": 1,
+                    "describe": "在刘氏梯号的花园美人靠上休憩，听着远处自鸣钟的声音，突然泛起了困意，不小心睡着了，钱包被偷。",
+                    "gold_used": 0,
+                    "rewards": {
+                        "3": {
+                            "name": "明信片",
+                            "type_id": "3",
+                            "count": 1,
+                            "countText": "+1"
+                        }
+                    },
+                    "question": "在刘氏梯号的花园美人靠上休憩，听着远处自鸣钟的声音，突然泛起了困意，不小心睡着了，钱包被偷。",
+                    "answers": null
+                },
+                "userInfo": null
+            },
+            "code": 0
+        };
+
         let info            = apis.EventShow.Init(ctx);
         await this.ctx.service.travelService.tourService.eventshow(info);
         let user_info       = ctx.session.ui;
