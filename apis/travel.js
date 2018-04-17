@@ -619,8 +619,32 @@ class Quest {
     constructor() {
     
     
-        //prop type: string[]//观光事件列表
-        this.event = null;
+        //prop type: number
+        this.time = null;
+    
+        //prop type: string
+        this.id = null;
+    
+        //prop type: string
+        this.type = null;
+    
+        //prop type: string
+        this.picture = null;
+    
+        //prop type: string
+        this.describe = null;
+    
+        //prop type: number
+        this.gold_used = null;
+    
+        //prop type: KV[]
+        this.rewards = null;
+    
+        //prop type: string
+        this.question = null;
+    
+        //prop type: string[]
+        this.answers = null;
     
         
         
@@ -1186,10 +1210,9 @@ class ReqEnterspot extends Base {
     
         this._spotId = null;
         this._spot = null;
-        this._quests = null;
         this.requireFileds = ["spotId"];
         this.reqFields = ["spotId"];
-        this.resFields = ["spot","quests"];
+        this.resFields = ["spot"];
     }
     //client input, require, type: number
     get spotId() {return this._spotId}
@@ -1197,9 +1220,6 @@ class ReqEnterspot extends Base {
     //server output, type: EnterSpot
     get spot() {return this._spot}
     set spot(v) {this._spot = v}
-    //server output, type: Quest[]
-    get quests() {return this._quests}
-    set quests(v) {this._quests = v}
     static Init(ctx, checkLogin = false) {
         let o = new ReqEnterspot();
         o.ctx = ctx;
@@ -1222,11 +1242,11 @@ class SpotTour extends Base {
     
         this._cid = null;
         this._spotId = null;
-        this._quest = null;
+        this._event = null;
         this._userinfo = null;
         this.requireFileds = ["cid","spotId"];
         this.reqFields = ["cid","spotId"];
-        this.resFields = ["quest","userinfo"];
+        this.resFields = ["event","userinfo"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1235,8 +1255,8 @@ class SpotTour extends Base {
     get spotId() {return this._spotId}
     set spotId(v) {this._spotId = v}
     //server output, type: string//产生的新事件
-    get quest() {return this._quest}
-    set quest(v) {this._quest = v}
+    get event() {return this._event}
+    set event(v) {this._event = v}
     //server output, type: UserInfo
     get userinfo() {return this._userinfo}
     set userinfo(v) {this._userinfo = v}
