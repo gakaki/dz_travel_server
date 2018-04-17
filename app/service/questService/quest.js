@@ -1,3 +1,4 @@
+const moment = require("moment");
 //一个简单的树结构
 class TreeNode {
     constructor(  data ) {
@@ -82,7 +83,7 @@ class Quest extends TreeNode {
 
         this.picture        =  d.picture;       //0表示没有图片
         this.reward         =  d.reward;        //事件奖励
-        this.formatRewardComment();
+        this.formatRewardNormal();
         this.errorreward        =  d.errorreward;   //答题错误奖励0表示无奖励
         this.condition1_parent  =  d.condition1;    //前置事件
         // 0表示无前置事件
@@ -117,7 +118,54 @@ class Quest extends TreeNode {
         return  _.shuffle( answers )
     }
 
-    formatRewardComment(){
+    // 格式化备注语句
+    formatRewardComment(datetime){
+
+        if( !this.reward ) return "";
+
+        let t             = [];
+        for( let r of this.reward){
+            t.push(r.k);
+        }
+
+        let rewardStr       = t.join(",");
+        let items           = rewardStr.split(";");
+        this.rewardKV       = {};
+        this.rewards        = {};
+
+
+        // 显示标准化：
+        // 金币 +500
+        // 明信片 +1，积分+5
+        // 游玩时间 +100秒
+        for(let item of items){
+            let [type_id,count] = item.split(",")
+            this.rewardKV[type_id]  = count;
+
+            let countText     = "0";
+            if ( count > 0 )  countText = `+${count}`;
+            if ( count < 0 )  countText = `-${count}`;
+
+            if ( type_id == this.RewardType.POSTCARD ) {
+                countText     = "+1";
+                count         = 1;
+            }
+
+            this.rewards[type_id] = {
+                'name'      :  this.RewardKey[type_id],
+                'type_id'   :  type_id,
+                'count'     :  count,
+                'countText' :  countText
+            }
+        }
+    }
+
+    getSpotRewardComment(datetime){
+        let hourStr = moment(datetime).format("HH:mm")
+        return `${hourStr} 在`;
+    }
+
+    formatRewardNormal(){
         //1,100;5,203
         let rewardComment  = "";        //事件奖励描述语句
 

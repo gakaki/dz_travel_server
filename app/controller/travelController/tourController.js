@@ -331,6 +331,85 @@ class TourController extends Controller {
         info.submit();
     }
 
+    // 最新景点
+    async freshspots(ctx) {
+
+        return ctx.body = {
+            code : 0 ,
+            data:{
+                spots : [
+                    {
+                        "arriveStampYMDHMS" : "2018-04-17 18:39:33",
+                        "arriveStamp" : 1523961573499.0,
+                        "lat" : "40.364233",
+                        "lng" : "116.016033",
+                        "endtime" : 1523961573499.0,
+                        "endTime" : 1523961573499.0,
+                        "startime" : 1523961573499.0,
+                        "startTime" : "",
+                        "index" : (0),
+                        "tracked" : false,
+                        "y" : (292),
+                        "x" : (196),
+                        "building" : [
+                            "22a",
+                            "22b"
+                        ],
+                        "name" : "八达岭长城",
+                        "cid" : "1",
+                        "id" : (100107)
+                    },
+                    {
+                        "arriveStampYMDHMS" : "2018-04-17 23:27:33",
+                        "arriveStamp" : 1523978853499.0,
+                        "lat" : "39.998547",
+                        "lng" : "116.274853",
+                        "endtime" : 1523978853499.0,
+                        "endTime" : 1523978853499.0,
+                        "startime" : 1523978853499.0,
+                        "startTime" : "",
+                        "index" : (1),
+                        "tracked" : false,
+                        "y" : (714),
+                        "x" : (224),
+                        "building" : [
+                            "2a",
+                            "2b"
+                        ],
+                        "name" : "颐和园",
+                        "cid" : "1",
+                        "id" : (100102)
+                    }
+                ]
+            }
+        };
+
+        this.logger.info("最新景点数组");
+        let questRow = QuestRepoInstance.find("130217");
+        return ctx.body = {
+            "code": 0,
+            "data": {
+                "action": "tour.reqenterspot",
+                "spot": {
+                    id: '100101',
+                    scenicspot:"故宫",
+                    weather:"1",
+                    freePhoto:[2,2],
+                    freeSight:[2,2],
+                    picture:'jingdian/beijing/beijing/jd/1.jpg',
+                    description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
+                },
+                "events": [
+                    "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
+                ]
+            }
+        };
+
+        let info                    = apis.ReqEnterspot.Init(ctx);
+        await this.service.questService.questService.reqenterspot(info);
+        info.submit();
+    }
+
     // 进入景点
     async reqenterspot(ctx) {
         this.logger.info("进入景点观光");
