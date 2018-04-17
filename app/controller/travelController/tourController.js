@@ -181,13 +181,15 @@ class TourController extends Controller {
 
         return ctx.body = {
 
-            "postcard" : {
-                 id:"100101" ,
-                 pattern:"1",
-                 picture:"jingdian/beijing/beijing/jd/1.jpg",
-                 type:"1"
+            "code" :0,
+            "data":{
+                "postcard" : {
+                    id:"100101" ,
+                    pattern:"1",
+                    picture:"jingdian/beijing/beijing/jd/1.jpg",
+                    type:"1"
+                }
             }
-
         };
         /*
             用户到达景点后，可使用拍照功能，每个城市拍照有次数限制，购买单反相机可增加拍照次数，
@@ -207,7 +209,7 @@ class TourController extends Controller {
 
         // 用户到达景点后，跳转至景点界面，可使用观光功能，
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
-        let info            = apis.spottour.Init(ctx);
+        let info            = apis.SpotTour.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.spotTour(info,user_info);
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
@@ -239,6 +241,7 @@ class TourController extends Controller {
         this.logger.info("进入景点观光");
 
         return ctx.body = {
+            "code": 0,
             "data": {
                 "action": "tour.reqenterspot",
                 "spot": {
@@ -283,18 +286,21 @@ class TourController extends Controller {
     }
 
     // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
-    async questrandom(ctx) {
-        ctx.body = {
-            'newEvent' : true, //是否有新事件
-            'spotsTracked': {
-                '100107': true,
-                '100102': true,
-                '100109': false
+    async playloop(ctx){
+
+
+        return ctx.body = {
+            "code" : 0,
+            "data" : {
+                'newEvent' : true, //是否有新事件
+                'spotsTracked': {
+                    '100107': true,
+                    '100102': true,
+                    '100109': false
+                }
             }
         };
-    }
 
-    async playloop(ctx){
         this.logger.info("play loop");
         let info                    = apis.PlayLoop.Init(ctx);
         await this.service.travelService.tourService.playloop(info);

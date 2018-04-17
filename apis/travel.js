@@ -615,36 +615,6 @@ class Postcard {
         
     }
 }
-class EnterSpot {
-    constructor() {
-    
-    
-        //prop type: string
-        this.id = null;
-    
-        //prop type: string
-        this.scenicspot = null;
-    
-        //prop type: number
-        this.weather = null;
-    
-        //prop type: number[]
-        this.freePhoto = null;
-    
-        //prop type: number[]
-        this.freeSight = null;
-    
-        //prop type: string
-        this.picture = null;
-    
-        //prop type: string
-        this.description = null;
-    
-        
-        
-        
-    }
-}
 class Quest {
     constructor() {
     
@@ -675,6 +645,36 @@ class Quest {
     
         //prop type: string[]
         this.answers = null;
+    
+        
+        
+        
+    }
+}
+class EnterSpot {
+    constructor() {
+    
+    
+        //prop type: string
+        this.id = null;
+    
+        //prop type: string
+        this.scenicspot = null;
+    
+        //prop type: number
+        this.weather = null;
+    
+        //prop type: number[]
+        this.freePhoto = null;
+    
+        //prop type: number[]
+        this.freeSight = null;
+    
+        //prop type: string
+        this.picture = null;
+    
+        //prop type: string
+        this.description = null;
     
         
         
@@ -1039,7 +1039,7 @@ class TourIndexInfo extends Base {
     //server output, type: TourTask
     get task() {return this._task}
     set task(v) {this._task = v}
-    //server output, type: object//
+    //server output, type: object
     get startPos() {return this._startPos}
     set startPos(v) {this._startPos = v}
     //server output, type: string[]
@@ -3361,8 +3361,8 @@ exports.QuestReport = QuestReport;
 exports.RouterSpot = RouterSpot;
 exports.oneSpot = oneSpot;
 exports.Postcard = Postcard;
-exports.EnterSpot = EnterSpot;
 exports.Quest = Quest;
+exports.EnterSpot = EnterSpot;
 exports.Speciality = Speciality;
 exports.Event = Event;
 exports.Sight = Sight;

@@ -57,7 +57,7 @@ api TourIndexInfo{
     //完成度信息
     output task:TourTask
     //起点
-    output startPos:object//{x:1,y:1}
+    output startPos:object
     //其他玩家头像，为图片url数组
     output others:string[]
     output startTime: number //开始时间

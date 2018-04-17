@@ -187,17 +187,30 @@ class TourService extends Service {
             return;
         }
 
-        //随机事件
+        // //景点的随机事件
+        // let makeEvent = new MakeEvent({
+        //
+        //     spotId          :info.spotId ||
+        //     cid            = obj.cid || 0;
+        //     weather        = obj.weather || 0;
+        //     today          = obj.today || 0;
+        //     itemSpecial    = obj.itemSpecial || 0;
+        //     timeTotalHour  = obj.timeTotalHour || 0;
+        //
+        // })
+        // let quest   =
 
         //扣钱
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: - cost}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
         ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
-        //加特产
+        //加特产 这里回来补
+        let cfg = travelConfig.Speciality.Get("100106");
+        info.count = 1;
         let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
             {
                 uid: ui.uid,
                 spid: cfg.id,
-                $inc: {number: info.count},
+                $inc: {number: info.count }, //这里土特产只有一个吧
                 createDate: new Date()
             },
             {upsert: true});
@@ -211,7 +224,7 @@ class TourService extends Service {
         });
         this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
 
-        info.goldNum = ui.items[sheets.Item.GOLD];
+        info.goldNum = ui.items[travelConfig.Item.GOLD];
         // info typeof apis.IndexInfo
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
