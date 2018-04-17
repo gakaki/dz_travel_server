@@ -83,7 +83,7 @@ class MakeRoadMap {
                 }
             }
             if(shortTime.length > 0 ) {
-                this.timeHumanPreLineHour = timeHumanPreLineHour * Math.max(...shortTime) / 100;
+                this.timeHumanPreLineHour = parseFloat((timeHumanPreLineHour * Math.max(...shortTime) / 100).toFixed(2));
             }
           //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
          //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
@@ -191,7 +191,8 @@ class MakeRoadMap {
         // 不用距离算法了
         // 中途换道具在写
         let timeHour    = this.timeHumanPreLineHour;
-        let diffTime    = timeHour * 60 * 60 * 1000;
+       // let diffTime    = timeHour * 60 * 60 * 1000;
+        let diffTime    =  1000;
 
         if (spotStart['isStart'] == true) {
             if(!spotStart['startime']) {
@@ -219,8 +220,8 @@ class MakeRoadMap {
             spotEnd     : spotEnd,
             spotIdStart : spotStart.id,
             spotIdEnd   : spotEnd.id,
-            timeStartFull : timeUtil.formatYMDHMS(spotStart['startime']),
-            timeStartEnd  : timeUtil.formatYMDHMS(spotEnd['endtime'])
+            timeStartFull : spotStart['startime'] ? timeUtil.formatYMDHMS(spotStart['startime']) : spotStart['startime'],
+            timeStartEnd  : spotEnd['endtime'] ? timeUtil.formatYMDHMS(spotEnd['endtime']) : spotEnd['endtime'],
         }
         return line;
     }

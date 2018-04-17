@@ -97,8 +97,10 @@ class TravelService extends Service {
             let plan = lastCity.roadMap;
             let real = [];
             for(let planS of plan) {
-                if(planS.index != -1 && planS.tracked) {
-                    real.push(planS.id)
+                if(planS.index != -1) {
+                    if(planS.tracked || planS.endtime <= new Date().getTime()) {
+                        real.push(planS.id);
+                    }
                 }
             }
             info.score = 0;
