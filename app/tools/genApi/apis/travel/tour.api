@@ -183,7 +183,7 @@ api SetRouter {
 
     //设置后景点数组
     output spots:RouterSpot[]//不包括起点
-    output startTime: number //开始时间
+    output startTime: number //起点开始时间
 
 }
 api ModifyRouter {

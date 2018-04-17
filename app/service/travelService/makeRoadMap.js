@@ -10,10 +10,6 @@ class MakeRoadMap {
     constructor( obj ){
         this.oldLine      = obj.oldLine;
         this.spotIds        = obj.line || [];
-        if (this.spotIds <= 0) {
-            throw "spod ids can not be null";
-            return;
-        }
         this.isNewPlayer    = obj.isNewPlayer || 0; //新手引导总时间会变成1
         this.cid            = obj.cid || 0;
 
@@ -107,11 +103,10 @@ class MakeRoadMap {
             let xy           = ScenicPos.Get(spotId);
             let o            = {};
 
-
            // let oldindex = this.oldLine.findIndex((n) => n.id == spotId);
             let old = this.oldLine.find((n) => n.id == spotId);
-
             if( !old || !old.tracked || old.index == -1 ) {
+
                 o.id             = spotId;
                 o.cid            = this.cid;
                 o.name           = cfg.scenicspot;
@@ -120,10 +115,8 @@ class MakeRoadMap {
                 o.y              = xy.y;
                 o.tracked        = false;
                 o.index          = index; //这个index 有必要吗
-                o.startTime      = "";    //开始时间
-                o.startime      ="";    //不是很清楚 和以上的区别
-                o.endTime        = "";    //结束时间
-                o.endtime        = "";    //不是很清楚 和以上的区别
+                o.startime      ="";
+                o.endtime        = "";
                 let [lng,lat]    = cfg["coordinate"];
                 o.lng            = lng;
                 o.lat            = lat;
@@ -145,8 +138,8 @@ class MakeRoadMap {
                y              : 0,
                tracked        : true,  //起点肯定默认就到达了
                index          : 0,     //这个index 有必要吗
-               startTime      : "",    //开始时间
-               endTime        : "",    //结束时间
+               startime      : "",    //开始时间
+               endtime        : "",    //结束时间
                lng            : lng,
                lat            : lat,
                isStart        : true //是否起点

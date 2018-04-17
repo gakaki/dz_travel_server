@@ -618,7 +618,7 @@ class TourService extends Service {
                 'cid'        : cid,
             },{ $set: {
                     roadMap  : outPMap,
-                    modifyEventDate : new Date()
+                    modifyEventDate : new Date(),
             }});
         }else{
              startTime = new Date();
@@ -633,7 +633,7 @@ class TourService extends Service {
                     roadMap  : outPMap,
                     events   : events,
                     startTime:startTime,
-                    modifyEventDate : new Date()
+                    modifyEventDate : new Date(),
             }});
 
         }
@@ -665,8 +665,9 @@ class TourService extends Service {
         //扣钱
         await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
        // info.startTime = currentCity.startTime.getTime();
+
         info.spots = roadMap;
-        info.goldNum = ui.items[travelConfig.Parameter.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
+        info.goldNum = ui.items[travelConfig.Item.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {

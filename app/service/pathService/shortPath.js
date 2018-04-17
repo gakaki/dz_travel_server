@@ -28,10 +28,12 @@ class Point {
 }
 const permutator = (inputArr) => {
     let result = [];
-
+    let length = inputArr.length;
+    length = length - 6 < 0 ? 0 : length - 6;
     const permute = (arr, m = []) => {
-        if (arr.length === 0) {
+        if (arr.length === length) {
             result.push(m)
+           // console.log(m);
         } else {
             for (let i = 0; i < arr.length; i++) {
                 let curr = arr.slice();
@@ -39,8 +41,8 @@ const permutator = (inputArr) => {
                 permute(curr.slice(), m.concat(next))
             }
         }
-    }
-    permute(inputArr)
+    };
+    permute(inputArr);
     return result;
 }
 
@@ -56,24 +58,41 @@ var timer = function(name) {
 };
 
 class ShortPath {
+    constructor(cid) {
+        let city = travelConfig.City.Get(cid);
 
-    constructor( cid , startPos = {} ){
-        let city            = travelConfig.City.Get( cid );
-
-        let spotPoints      = [];
-        for ( let spotId of city["scenicspot"] ){
-            spotPoints.push(scenicPos.Get(spotId)._cfg);
+        let spotPoints = [];
+        for(let spotId of city["scenicspot"]) {
+            if(scenicPos.Get(spotId)) {
+                spotPoints.push(scenicPos.Get(spotId).cfg);
+            }
         }
 
+        //console.log(spotPoints);
         this.city           = city;
         this.spotPoints     = spotPoints;
         this.cid            = cid;
-        this.startPos       = startPos;
+        this.startPos       = scenicPos.Get(cid).cfg;
     }
 
     //给定城市 来计算最短路径
     shortPath() {
-        this.fixStartFindPath();
+        return this.fixStartFindPath();
+    }
+
+    travelShortDistance(travelMap, extraRoute = 0) {
+        if(travelMap.length > 6) {
+            travelMap = travelMap.slice(0, 6);
+            extraRoute = 0;
+        }
+
+        let value = Point.distance(this.startPos, scenicPos.Get(travelMap[0]).cfg);
+
+        for (let j = 0; j < travelMap.length - 1; j++) {
+            value += Point.distance(scenicPos.Get(travelMap[j]).cfg, scenicPos.Get(travelMap[j + 1]).cfg);
+        }
+
+        return value + extraRoute;
     }
 
     // 第一个点是固定起点，寻找最短路径
@@ -81,14 +100,13 @@ class ShortPath {
         let points = this.spotPoints;
         let ids = [...points.keys()];
         //去掉 id0 的点
-        ids.splice(0,1);
+      //  ids.splice(0,1);
         let perms = permutator(ids);
         let roadValues = [];
-
         perms.forEach((pids, idx) => {
-            let value =  Point.distance(points[0], points[pids[0]]);
+            let value = Point.distance(this.startPos, points[pids[0]]);
 
-            for (let j = 0; j < pids.length-1; j++) {
+            for (let j = 0; j < pids.length - 1; j++) {
                 value += Point.distance(points[pids[j]], points[pids[j + 1]]);
             }
             roadValues.push(value);
@@ -108,11 +126,14 @@ class ShortPath {
             }
         }
         let minRoad = perms[minIdx];
-        minRoad.unshift(0)
-
+       // minRoad.unshift(0)
+        console.log(this.cid);
         console.log(min);
         console.log("road " + minRoad);
-        return min;
+        return {
+            min: min,
+            minRoad: minRoad,
+        };
     }
 }
 
@@ -120,6 +141,6 @@ module.exports = ShortPath;
 
 
 // var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( cid = 2 );
+// let short_path = new ShortPath( 335 );
 // short_path.shortPath();
 // t.stop();
