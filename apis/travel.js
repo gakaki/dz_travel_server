@@ -604,8 +604,14 @@ class TourTask {
         //prop type: number[]
         this.tour = null;
     
+        //prop type: number[]//0/2
+        this.parterTour = null;
+    
         //prop type: number[]
         this.photo = null;
+    
+        //prop type: number[]
+        this.parterPhoto = null;
     
         
         
@@ -1041,6 +1047,34 @@ class FinishGuide extends Base {
         }
     }
 }
+class TaskInfo extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.taskinfo';
+    
+        this._task = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["task"];
+    }
+    //server output, type: TourTask
+    get task() {return this._task}
+    set task(v) {this._task = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new TaskInfo();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class TourIndexInfo extends Base {
     constructor() {
         super();
@@ -1049,14 +1083,13 @@ class TourIndexInfo extends Base {
         this._cid = null;
         this._weather = null;
         this._spots = null;
-        this._task = null;
         this._startPos = null;
         this._others = null;
         this._startTime = null;
         this._partener = null;
         this.requireFileds = ["cid"];
         this.reqFields = ["cid"];
-        this.resFields = ["weather","spots","task","startPos","others","startTime","partener"];
+        this.resFields = ["weather","spots","startPos","others","startTime","partener"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1067,9 +1100,6 @@ class TourIndexInfo extends Base {
     //server output, type: Spot[]
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
-    //server output, type: TourTask
-    get task() {return this._task}
-    set task(v) {this._task = v}
     //server output, type: object
     get startPos() {return this._startPos}
     set startPos(v) {this._startPos = v}
@@ -1272,7 +1302,7 @@ class ReqEnterspot extends Base {
     //server output, type: EnterSpot
     get spot() {return this._spot}
     set spot(v) {this._spot = v}
-    //server output, type: Quest[]
+    //server output, type: string[]
     get events() {return this._events}
     set events(v) {this._events = v}
     //server output, type: number//剩余金币数
@@ -3462,6 +3492,7 @@ exports.MessageItem = MessageItem;
 exports.ExchangeShopDetail = ExchangeShopDetail;
 exports.Shop = Shop;
 exports.FinishGuide = FinishGuide;
+exports.TaskInfo = TaskInfo;
 exports.TourIndexInfo = TourIndexInfo;
 exports.CancelParten = CancelParten;
 exports.LookTicket = LookTicket;

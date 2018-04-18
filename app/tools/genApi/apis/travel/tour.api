@@ -134,7 +134,7 @@ api ReqEnterspot {
     //景点数据
     output spot:EnterSpot
     //观光事件列表
-    output events:Quest[]
+    output events:string[]
     output goldNum:number//剩余金币数
 }
 

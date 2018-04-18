@@ -49,18 +49,19 @@ class QuestService extends Service{
         for ( let row of events ) {
 
             let questRow = QuestRepoInstance.find(row["eid"]);
-            questList.push({
-                'time': row['createDate'],
-                'id': questRow.id,
-                "describe": questRow.describe,
-                "gold_used": 5,
-                "rewards": questRow.rewards,
-                "rewardCommet": questRow.getSpotRewardComment()
-            });
+            questList.push( questRow.getSpotRewardComment() );
+            // questList.push({
+            //     'time': row['createDate'],
+            //     'id': questRow.id,
+            //     "describe": questRow.describe,
+            //     "gold_used": 5,
+            //     "rewards": questRow.rewards,
+            //     "rewardCommet": questRow.getSpotRewardComment()
+            // });
         }
 
         info.spot      = spot;
-        info.events    = questList;
+        info.events    = questList.filter(x => x);
         info.submit();
     }
 
