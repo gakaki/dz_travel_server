@@ -36,6 +36,11 @@ class TourTask {
     prop photo:number[]     // 0/2 拍照完成度 一共2已完成2
 }
 
+class Partener {
+    prop nickName:string//队员名
+    prop gender:number//性别
+    prop isInviter:boolean//是否是邀请者
+}
 // 查询用户是否需要新手引导
 api CheckGuide {
     //是否玩过
@@ -61,6 +66,12 @@ api TourIndexInfo{
     //其他玩家头像，为图片url数组
     output others:string[]
     output startTime: number //开始时间
+    output partener:Partener//组队者信息,非组队模式下传空
+}
+
+//取消组队
+api CancelParten {
+
 }
 
 class Postcard {
@@ -191,8 +202,9 @@ api SetRouter {
     output startTime: number //起点开始时间
 
 }
+//装备修改路线，组队模式下，如果双方同时触发此api，则稍晚的一方收到错误码,提示‘好友正在修改路线’
 api ModifyRouter {
-    //设置后景点数组
+    //当前景点状态数组
     output spots:RouterSpot[]//不包括起点
     //设置路线后剩余金币
     output goldNum:number
@@ -206,8 +218,9 @@ api FreshSpots {
 //游玩界面轮询
 api PlayLoop {
     output newEvent:boolean  //是否有新事件
-    output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+    output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备，双人模式下一方修改了路线等，会影响景点的到达时间
     output spotsTracked:number//有几个到达了
     output spotsAllTraced:boolean//是否已经把地图上所有的景点都走过了
+    output spotsPlaned:boolean//路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
 }
 
