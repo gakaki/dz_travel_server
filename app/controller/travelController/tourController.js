@@ -331,8 +331,8 @@ class TourController extends Controller {
         return ctx.body     = {
             "data": {
                 "action": "tour.eventshow",
-                "total": null,
-                "current": null,
+                "total": 10,
+                "current": 2,
                 "quest": {
                     "id": "120031。",
                     "type": 2,
@@ -350,8 +350,8 @@ class TourController extends Controller {
         return ctx.body     = {
             "data": {
                 "action": "tour.eventshow",
-                "total": null,
-                "current": null,
+                "total": 10,
+                "current": 3,
                 "quest": {
                     "id": "130212",
                     "type": 3,
@@ -462,25 +462,25 @@ class TourController extends Controller {
     async reqenterspot(ctx) {
         this.logger.info("进入景点观光");
 
-        let questRow = QuestRepoInstance.find("130217");
-        return ctx.body = {
-            "code": 0,
-            "data": {
-                "action": "tour.reqenterspot",
-                "spot": {
-                    id: '100101',
-                    scenicspot:"故宫",
-                    weather:"1",
-                    freePhoto:[2,2],
-                    freeSight:[2,2],
-                    picture:'jingdian/beijing/beijing/jd/1.jpg',
-                    description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
-                },
-                "events": [
-                    "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
-                ]
-            }
-        };
+        // let questRow = QuestRepoInstance.find("130217");
+        // return ctx.body = {
+        //     "code": 0,
+        //     "data": {
+        //         "action": "tour.reqenterspot",
+        //         "spot": {
+        //             id: '100101',
+        //             scenicspot:"故宫",
+        //             weather:"1",
+        //             freePhoto:[2,2],
+        //             freeSight:[2,2],
+        //             picture:'jingdian/beijing/beijing/jd/1.jpg',
+        //             description:'故宫又名紫禁城，是中国乃至世界上保存最完整，规模最大的木质结构古建筑群，被誉为“世界五大宫之首”。故宫由永乐帝朱棣下令建造，依据其布局与功用分为“外朝”与“内廷”两大部分。'
+        //         },
+        //         "events": [
+        //             "16:00 在索菲亚教堂发现特产马尔第二宾坤二 消耗5金币 获得5根冰棍."
+        //         ]
+        //     }
+        // };
 
         let info                    = apis.ReqEnterspot.Init(ctx);
         await this.service.questService.questService.reqenterspot(info);

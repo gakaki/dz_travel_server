@@ -16,8 +16,9 @@ class QuestService extends Service{
     async reqenterspot(info) {
         //https://local.ddz2018.com/tour/reqenterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
 
+
         //获得对当前城市拍照次数
-        let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid ,sspid: info.spotId });
+        let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid  });
         if ( !r ) {
             info.code = appUtil.Code.NO_DB_ROW;
             info.submit();
@@ -28,6 +29,7 @@ class QuestService extends Service{
         let cfgSpot                 = travelConfig.Scenicspot.Get(info.spotId);
         if ( !cfgSpot ) {
             info.code = appUtil.Code.NO_CFG_ROW;
+            info.message = "没有找到对应的行";
             return;
         }
 
@@ -52,12 +54,13 @@ class QuestService extends Service{
                 'id': questRow.id,
                 "describe": questRow.describe,
                 "gold_used": 5,
-                "rewards": questRow.rewards
+                "rewards": questRow.rewards,
+                "rewardCommet": questRow.getSpotRewardComment(row['createDate'])
             });
         }
 
         info.spot      = spot;
-        info.questList = questList;
+        info.events    = questList;
         info.submit();
     }
 

@@ -92,6 +92,7 @@ class Quest {
     prop rewards:KV[]
     prop question:string
     prop answers:string[]
+    prop rewardCommet:string
 }
 
 // 进入景点
@@ -109,10 +110,12 @@ class EnterSpot {
 api ReqEnterspot {
     //景点id
     require spotId:number
+    //城市id
+    require cid:number
     //景点数据
     output spot:EnterSpot
     //观光事件列表
-    out events:array
+    output events:Quest[]
 }
 
 
