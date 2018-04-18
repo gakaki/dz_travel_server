@@ -34,7 +34,29 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
-let n         = new QuestRepo();
-let quest     = n.find("200127");
-let res       = quest.getSpotRewardComment(new Date().getTime());
-console.log(res);
+let n            = new QuestRepo();
+// type 1 金币
+// let quest     = n.find("110033");
+// let res       = quest.getSpotRewardComment();
+// console.log(res);
+
+// type 2 积分
+// let quest     = n.find("110020");
+// let res       = quest.getSpotRewardComment();
+// console.log(res)
+
+
+// type 3 时间
+// let quest     = n.find("200025");
+// let res       = quest.getSpotRewardComment();
+// console.log(res);
+// //type 4 特产
+// let n         = new QuestRepo();
+// let quest     = n.find("200127");
+// let res       = quest.getSpotRewardComment();
+// console.log(res);
+// type 5 明信片
+// let quest     = n.find("130060");
+// let res       = quest.getSpotRewardComment();
+// console.log(res);
+

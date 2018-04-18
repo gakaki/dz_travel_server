@@ -1,4 +1,6 @@
-const moment = require("moment");
+const moment        = require("moment");
+const travelsConfig = require("../../../sheets/travel");
+
 //一个简单的树结构
 class TreeNode {
     constructor(  data ) {
@@ -24,11 +26,15 @@ class Quest extends TreeNode {
         super(data);
         this.RewardKey =  {
             "1" :"金币",
-            "2" :"游玩时间",
-            "3" :"明信片",
+            "2" :"积分",
+            "3" :"时间",
             "4" :"特产",
-            "5" :"积分"
+            "5" :"明信片"
         };
+
+
+
+
         let d               = this.data;
 
         this.trigger_type   = d.subtype;    //
@@ -120,24 +126,64 @@ class Quest extends TreeNode {
 
 
     // 景点奖励语句
-    getSpotRewardComment(datetime){
-        let hourStr  = moment(datetime).format("HH:mm")
+    getSpotRewardComment(){
+        // let hourStr  = moment(datetime).format("HH:mm")
         let reward   = this.reward;
 
-        let totalStr = `${hourStr} ${this.describe} `;
+        let totalStr = `${this.describe} `;
+        let stmtArr  = [];
         for (let rewardRow of this.reward) {
 
             if ( `${rewardRow['v']}`.includes('-') ){
-                totalStr += `消耗 ${rewardRow['v']} ${this.RewardKey[rewardRow['k']]} `;
+                let s  = `消耗${rewardRow['v']}${this.RewardKey[rewardRow['k']]}`.replace("-","");
+                stmtArr.push(s);
             }else{
-                let typeId    = rewardRow['k'];
-                let itemName  = rewardRow['v'];
+                let typeId      = rewardRow['k'];
+                let itemIdOrVal = rewardRow['v'];
 
-                totalStr += `获得  `;
+                let typeName    = this.RewardKey[typeId];
+                let itemCount   = 1;
+                let itemName    = "";
+
+                console.log(typeId,itemIdOrVal,typeName,itemCount,itemName);
+
+                let str         = "";
+                switch(typeId) {
+                    case "1": //金币
+                        str             = `增加`;
+                        if( itemIdOrVal < 0)
+                            str         = `减少`;
+                        str             = str + `${itemIdOrVal}金币`;
+                        break;
+                    case "2": //积分
+                        str             = `增加`;
+                        if( itemIdOrVal < 0)
+                            str         = `减少`;
+                        str             = str + `${itemIdOrVal}积分`
+                        break;
+                    case "3": //时间
+                        itemCount       = itemIdOrVal;
+                        str             = `增加${typeName}${itemIdOrVal}分钟`
+                        break;
+                    case "4": //特产
+                        itemCount       = itemIdOrVal;
+                        let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
+                        itemName        = speciality.specialityname;
+                        str             = `获得${typeName}${itemName}`
+                        break;
+                    case "5": //明信片
+
+                        itemCount       = itemIdOrVal;
+                        let postcard    = travelsConfig.PostCard.Get(typeId);
+                        itemName        = postcard['name'];
+                        break;
+                }
+                stmtArr.unshift(str);
             }
         }
         //有待完善
-        return totalStr;
+        let finalStr =  totalStr + stmtArr.join(" ");
+        return finalStr;
     }
 
     // 显示标准化语句
