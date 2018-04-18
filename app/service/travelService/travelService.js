@@ -117,7 +117,7 @@ class TravelService extends Service {
                 info.score = efficiency;
                 info.reward = reward;
             }
-            if(ui.isNewPlayer) {
+            if(ui.isNewPlayer && !fui) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
 

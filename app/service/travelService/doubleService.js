@@ -77,9 +77,6 @@ class DoubleService extends Service {
                     info.score = efficiency;
                     info.reward = reward;
                 }
-                if(self.isNewPlayer) {
-                    await this.ctx.model.PublicModel.User.update({ uid: self.uid }, { $set: { isNewPlayer: false } });
-                }
             }
         }
 

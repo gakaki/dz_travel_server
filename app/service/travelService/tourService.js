@@ -26,7 +26,7 @@ class TourService extends Service {
 
         //this.logger.info(currentCity);
 
-        if(!currentCity.modifyEventDate) {
+        if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig = travelConfig.Scenicspot.Get(spot_id);
@@ -60,9 +60,9 @@ class TourService extends Service {
         }else{
             let roadMaps = currentCity.roadMap;
             for(let spot of roadMaps) {
-                if(spot.index != -1) {
-                    this.logger.info(spot.endtime);
-                    this.logger.info(new Date().getTime());
+                if(spot.index != -1 && !spot.tracked) {
+                 //   this.logger.info(spot.endtime);
+                //    this.logger.info(new Date().getTime());
                     if(spot.endtime <= new Date().getTime()) {
                         spot.tracked = true;
                     }

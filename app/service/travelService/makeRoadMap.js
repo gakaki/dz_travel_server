@@ -9,15 +9,17 @@ const apis = require("../../../apis/travel");
 class MakeRoadMap {
 
     constructor(obj) {
-        this.oldLine = obj.oldLine;
-        this.spotIds = obj.line || [];
-        this.isNewPlayer = obj.isNewPlayer || 0; //新手引导总时间会变成1
-        this.cid = obj.cid || 0;
+        this.oldLine      = obj.oldLine;
+        this.spotIds        = obj.line || [];
+        this.isNewPlayer    = obj.isNewPlayer || 0; //新手引导路途加速
+        this.isSingle       = obj.isSingle || 1; //默认单人旅行
+        this.cid            = obj.cid || 0;
+
 
         this.lines = []; //所有线路容器
         this.linesFormat = []; //返回给前端用的
 
-        this.rentItems = obj.rentItems || 0;
+        this.rentItems      = obj.rentItems || 0;
         this.clacSpeed();        // 时间配置
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
@@ -82,12 +84,15 @@ class MakeRoadMap {
                     }
                 }
             }
-            if (shortTime.length > 0) {
-                this.timeHumanPreLineHour = parseFloat((timeHumanPreLineHour * Math.max(...shortTime) / 100).toFixed(2));
+
+            if(shortTime.length > 0 ) {
+                this.timeHumanPreLineHour = timeHumanPreLineHour * ((100 - Math.max(...shortTime)) / 100);
             }
-            //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
-            //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
-            //   this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
+
+          //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
+         //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
+         //   this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
+
         }
 
     }
@@ -106,10 +111,10 @@ class MakeRoadMap {
         }
 
         // this.timeTotalHour           = this.lines.map( s => s.timeElapsed ).reduce( (pre,cur) => {return pre + cur} );
-        if (this.isNewPlayer) {    //新手引导总时间变为1
-            this.timeTotalHour = 1;
-        }
-        this.timeTotalHour = parseFloat((this.timeTotalHour).toPrecision(4))
+        // if ( this.isNewPlayer ){    //新手引导总时间变为1
+        //     this.timeTotalHour       = 1;
+        // }
+        this.timeTotalHour           = parseFloat((this.timeTotalHour).toPrecision(4))
     }
 
     setSpotsCfg() {
@@ -166,11 +171,16 @@ class MakeRoadMap {
 
     }
 
-    setLines() {
-        let linesTotal = [];
-        this.spotsCfg.reduce((prev, current, index, arr) => {
 
-            let line = this.makeLine(prev, current);
+    setLines(){
+        let linesTotal      = [];
+        this.spotsCfg.reduce((prev, current, index, arr) => {
+            console.log("前一个", prev);
+            console.log("=================");
+            console.log("当前", current);
+            console.log("===================");
+            console.log("索引", index);
+            let line        = this.makeLine(prev, current);
             linesTotal.push(line);
             if (index == arr.length - 1) {
 
@@ -188,11 +198,22 @@ class MakeRoadMap {
         // let timeElapsed = parseInt(dis / this.speed);
         // 不用距离算法了
         // 中途换道具在写
+
         let timeHour = this.timeHumanPreLineHour;
-        //let diffTime    = timeHour * 60 * 60 * 1000;
-        let diffTime = 10000;
+        let diffTime    = timeHour * 60 * 60 * 1000;
+       // let diffTime = 10000;
 
 
+        let timeHour    = this.timeHumanPreLineHour;
+        console.log(timeHour);
+
+        if(this.isSingle && this.isNewPlayer) {
+            timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
+        }
+        console.log(timeHour);
+         let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
+
+        console.log("需要的时间 " + diffTime);
         if (spotStart['isStart'] == true) {
             if (!spotStart['startime']) {
                 let start = new Date().getTime();
@@ -201,26 +222,24 @@ class MakeRoadMap {
                 spotStart['startime'] = start;
                 spotEnd['endtime'] = end;
             }
-        } else {
-            if (!spotStart['startime']) {
-                spotStart['startime'] = spotStart['endtime'];
-                spotEnd['endtime'] = spotStart['endtime'] + diffTime;
-            }
 
+        }else{
+            spotStart['startime']   = spotStart['endtime'];
+            spotEnd['endtime']      = spotStart['endtime'] + diffTime;
         }
-
+        console.log("达到时间 " + new Date(spotEnd['endtime']));
 
         let line = {
             // distance    : dis,
-            timeElapsed: timeHour,
-            timeStart: spotStart['startime'],
-            timeEnd: spotEnd['endtime'],
-            spotStart: spotStart,
-            spotEnd: spotEnd,
-            spotIdStart: spotStart.id,
-            spotIdEnd: spotEnd.id,
-            timeStartFull: spotStart['startime'] ? timeUtil.formatYMDHMS(spotStart['startime']) : spotStart['startime'],
-            timeStartEnd: spotEnd['endtime'] ? timeUtil.formatYMDHMS(spotEnd['endtime']) : spotEnd['endtime'],
+            timeElapsed : timeHour,
+            timeStart   : spotStart['startime'],
+            timeEnd     : spotEnd['endtime'],
+            spotStart   : spotStart,
+            spotEnd     : spotEnd,
+            spotIdStart : spotStart.id,
+            spotIdEnd   : spotEnd.id,
+         //   timeStartFull : spotStart['startime'] ? timeUtil.formatYMDHMS(spotStart['startime']) : spotStart['startime'],
+         //   timeStartEnd  : spotEnd['endtime'] ? timeUtil.formatYMDHMS(spotEnd['endtime']) : spotEnd['endtime'],
         }
         return line;
     }
