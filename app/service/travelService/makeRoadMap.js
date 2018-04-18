@@ -205,8 +205,8 @@ class MakeRoadMap {
             timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
         }
         console.log(timeHour);
-      //   let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
-        let diffTime    = 10000;
+         let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
+       // let diffTime    = 30000;
         console.log("需要的时间 " + diffTime);
         if (spotStart['isStart'] == true) {
             if (!spotStart['startime']) {
