@@ -61,6 +61,7 @@ api TourIndexInfo{
     //其他玩家头像，为图片url数组
     output others:string[]
     output startTime: number //开始时间
+
 }
 
 class Postcard {
