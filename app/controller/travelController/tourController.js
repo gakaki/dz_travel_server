@@ -430,9 +430,7 @@ class TourController extends Controller {
 
     }
 
-    async tourtask(ctx){
 
-    }
     //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
  /*   async leavetour(ctx) {
         //离开城市的时候最好有个统计表哦

@@ -55,7 +55,7 @@ class QuestService extends Service{
                 "describe": questRow.describe,
                 "gold_used": 5,
                 "rewards": questRow.rewards,
-                "rewardCommet": questRow.getSpotRewardComment(row['createDate'])
+                "rewardCommet": questRow.getSpotRewardComment()
             });
         }
 
