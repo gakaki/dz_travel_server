@@ -34,29 +34,38 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
-let n            = new QuestRepo();
-// type 1 金币
+// let n            = new QuestRepo();
+// // type 1 金币
 // let quest     = n.find("110033");
 // let res       = quest.getSpotRewardComment();
 // console.log(res);
-
-// type 2 积分
-// let quest     = n.find("110020");
-// let res       = quest.getSpotRewardComment();
+//
+// // type 2 积分
+//  quest     = n.find("110020");
+//  res       = quest.getSpotRewardComment();
 // console.log(res)
-
-
-// type 3 时间
-// let quest     = n.find("200025");
-// let res       = quest.getSpotRewardComment();
+//
+// // type 3 时间
+//  quest     = n.find("200025");
+//  res       = quest.getSpotRewardComment();
 // console.log(res);
-// //type 4 特产
-// let n         = new QuestRepo();
-// let quest     = n.find("200127");
-// let res       = quest.getSpotRewardComment();
+// // //type 4 特产
+//  quest     = n.find("200030");
+//  res       = quest.getSpotRewardComment();
 // console.log(res);
-// type 5 明信片
-// let quest     = n.find("130060");
-// let res       = quest.getSpotRewardComment();
+// // type 5 明信片
+//  quest     = n.find("200009");
+//  res       = quest.getSpotRewardComment();
 // console.log(res);
-
+//
+//
+//
+// // 混合型测试 200050
+// quest     = n.find("200050");
+// res       = quest.getSpotRewardComment();
+// console.log(res);
+//
+// // 混合型测试 200068
+// quest     = n.find("200068");
+// res       = quest.getSpotRewardComment();
+// console.log(res);

@@ -134,10 +134,6 @@ class Quest extends TreeNode {
         let stmtArr  = [];
         for (let rewardRow of this.reward) {
 
-            if ( `${rewardRow['v']}`.includes('-') ){
-                let s  = `消耗${rewardRow['v']}${this.RewardKey[rewardRow['k']]}`.replace("-","");
-                stmtArr.push(s);
-            }else{
                 let typeId      = rewardRow['k'];
                 let itemIdOrVal = rewardRow['v'];
 
@@ -145,25 +141,26 @@ class Quest extends TreeNode {
                 let itemCount   = 1;
                 let itemName    = "";
 
-                console.log(typeId,itemIdOrVal,typeName,itemCount,itemName);
+                // console.log(typeId,itemIdOrVal,typeName,itemCount,itemName);
 
                 let str         = "";
                 switch(typeId) {
                     case "1": //金币
                         str             = `增加`;
                         if( itemIdOrVal < 0)
-                            str         = `减少`;
-                        str             = str + `${itemIdOrVal}金币`;
+                            str         = `消耗`;
+                        str             = str + `${Math.abs(itemIdOrVal)}金币`;
                         break;
                     case "2": //积分
                         str             = `增加`;
                         if( itemIdOrVal < 0)
                             str         = `减少`;
-                        str             = str + `${itemIdOrVal}积分`
+                        str             = str + `${Math.abs(itemIdOrVal)}积分`
                         break;
-                    case "3": //时间
+                    case "3": //时间  据说观光的时间是没有的所以不管了
                         itemCount       = itemIdOrVal;
-                        str             = `增加${typeName}${itemIdOrVal}分钟`
+                        str             = `增加${typeName}${itemIdOrVal}分钟`;
+                        str             = "";
                         break;
                     case "4": //特产
                         itemCount       = itemIdOrVal;
@@ -171,15 +168,11 @@ class Quest extends TreeNode {
                         itemName        = speciality.specialityname;
                         str             = `获得${typeName}${itemName}`
                         break;
-                    case "5": //明信片
-
-                        itemCount       = itemIdOrVal;
-                        let postcard    = travelsConfig.PostCard.Get(typeId);
-                        itemName        = postcard['name'];
+                    case "5": //明信片  明信片随机所以无所谓了
+                        str             = `获得明信片`
                         break;
                 }
                 stmtArr.unshift(str);
-            }
         }
         //有待完善
         let finalStr =  totalStr + stmtArr.join(" ");
