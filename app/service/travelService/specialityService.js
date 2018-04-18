@@ -40,6 +40,7 @@ class SpecialityService extends Service {
         let updateInterval = sheets.Parameter.Get(sheets.Parameter.REFRESHSHOP).value * 3600 * 1000;//配表转毫秒
         // updateInterval = 6000//test set to 1 minute
 
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         info.specialtys = [];
 
         let spes = await speModel.find({ uid: ui.uid });
@@ -66,7 +67,7 @@ class SpecialityService extends Service {
 
                 if (needFreshPrice) {
 
-                    let curCityId = 2;//等待取真实的当前所在城市Id...., 如果在特产出产地卖出，则售价为买入价的九折（折扣读表）
+                    let curCityId = curCity ? curCity.cid : 1;//等待取真实的当前所在城市Id...., 如果在特产出产地卖出，则售价为买入价的九折（折扣读表）
                     let price = 0;
                     if (s.cid == curCityId) {
                         price = parseInt(s.price * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value/100);
