@@ -34,12 +34,19 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
-// let n            = new QuestRepo();
-// // type 1 金币
-// let quest     = n.find("110033");
-// let res       = quest.getSpotRewardComment();
-// console.log(res);
-//
+let n            = new QuestRepo();
+// type 1 金币
+let quest        = n.find("110033");
+let res          = quest.getSpotRewardComment();
+console.log(res);
+//答题型抹去
+// type 1 金币
+ quest        = n.find("130010");
+ res          = quest.getSpotRewardComment();
+console.log(res);
+
+
+
 // // type 2 积分
 //  quest     = n.find("110020");
 //  res       = quest.getSpotRewardComment();

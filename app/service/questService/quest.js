@@ -176,6 +176,9 @@ class Quest extends TreeNode {
         }
         //有待完善
         let finalStr =  totalStr + stmtArr.join(" ");
+        if(this.answer){ //如果是问答题的配置表就不显示了 意思是
+            finalStr = "";
+        }
         return finalStr;
     }
 
