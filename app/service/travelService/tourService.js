@@ -129,10 +129,8 @@ class TourService extends Service {
         // }
 
 
-        if (r.photographyCount >= travelConfig.Parameter.Get(travelConfig.Parameter.CITYPHOTO).value) {
-            return false;
-        }
         let count = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, spotId: spotId, fid: r.fid });
+        this.logger.info(count);
         if (count >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICPHOTO).value) {
             return false;
         }
@@ -154,11 +152,18 @@ class TourService extends Service {
             info.code = apis.Code.NO_DB_ROW;
             return;
         }
+        if (r.photographyCount == 0) {
+            info.code = apis.Code.NEED_ITEMS;
+            return;
+        }
         //查询城市的拍照次数
-        if (!this.limitByCityAndSpotPhotoGraphyCount(ui.ui, info.spotId, r)) {
+        if (!await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r)) {
             info.code = apis.Code.EXCEED_COUNT;
             return;
         }
+        this.logger.info(r);
+        this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
+
 
         // // 增加拍照次数
         // await this.ctx.model.TravelModel.CurrentCity.update({}, {
@@ -474,7 +479,10 @@ class TourService extends Service {
             if(cfg.value == -1) {
                 await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { photographyCount: cfg.value } });
             }else{
-                await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $inc: { photographyCount: cfg.value } });
+               if(curCity.photographyCount != -1) {
+                   await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $inc: { photographyCount: cfg.value } });
+
+               }
             }
         }
 

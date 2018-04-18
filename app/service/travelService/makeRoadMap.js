@@ -206,7 +206,7 @@ class MakeRoadMap {
         }
         console.log(timeHour);
       //   let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
-        let diffTime    = 120000;
+        let diffTime    = 10000;
         console.log("需要的时间 " + diffTime);
         if (spotStart['isStart'] == true) {
             if (!spotStart['startime']) {
