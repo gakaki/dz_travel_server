@@ -17,7 +17,7 @@ class UserService extends Service {
                 let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: appName });
                 if (loginUser != null) {
                     this.logger.info("通过openid查库 ：" + loginUser.uid + "昵称 ：" + loginUser.nickName);
-                    let _sid = this.GEN_SID();
+                    let _sid = this.GEN_SID(loginUser.pid);
                     this.recruitSid(_sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + _sid);
 
@@ -83,7 +83,7 @@ class UserService extends Service {
             if (!ui) {
                 // 自动注册
                 ui = await this.register(uid, info, true, appName);
-                let sid = this.GEN_SID();
+                let sid = this.GEN_SID(ui.pid);
                 this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
                 this.recruitSid(sid, ui.pid);
             } else {
@@ -111,7 +111,7 @@ class UserService extends Service {
         if (ses) {
             let now = new Date().getTime();
             if (ses.expire < now) {
-                ses.sid = this.GEN_SID(); // 过期重新生成
+                ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
                 this.recruitSid(ses.sid, ui.pid);
             }
         }
@@ -316,8 +316,8 @@ class UserService extends Service {
     }
 
 
-    GEN_SID() {
-        return crypto.createHash('md5').update(new Date().getTime().toString()).digest('hex');
+    GEN_SID(pid) {
+        return crypto.createHash('md5').update(pid + new Date().getTime().toString()).digest('hex');
     }
 
 
