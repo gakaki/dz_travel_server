@@ -32,9 +32,6 @@ class Quest extends TreeNode {
             "5" :"明信片"
         };
 
-
-
-
         let d               = this.data;
 
         this.trigger_type   = d.subtype;    //
@@ -58,10 +55,10 @@ class Quest extends TreeNode {
 
         this.RewardType     = {
             GOLD:       "1", //金币
-            TIME:       "2", // 时间追加 减少
-            POSTCARD:   "3", // 明信片
-            Speciality: "4", // 特产
-            POINT:      "5", // 积分
+            POINT:      "2", //积分
+            TIME:       "3", //时间追加 减少
+            Speciality: "4", //特产
+            POSTCARD:   "5", //明信片
         };
 
         this.id             = d.id;
@@ -184,48 +181,42 @@ class Quest extends TreeNode {
 
     // 显示标准化语句
     getRewardNormal(){
-        //1,100;5,203
-        let rewardComment  = "";        //事件奖励描述语句
 
         if( !this.reward ) return "";
-
-        let t               = {};
-        for( let r of this.reward){
-            t[r.k]          = r.v;
-        }
-
-        // let rewardStr       = t.join(",");
-        // let items           = rewardStr.split(";");
-        this.rewardKV       = {};
-        this.rewards        = {};
-
-
-        // 显示标准化：
         // 金币 +500
         // 明信片 +1，积分+5
         // 游玩时间 +100秒
-        for(let k in this.rewardKV){
+        let obj         = {};
+        for (let rewardRow of this.reward) {
 
-            let countText     = "0";
-            if ( count > 0 )  countText = `+${count}`;
-            if ( count < 0 )  countText = `-${count}`;
+            let typeId      = rewardRow['k'];
+            let itemIdOrVal = rewardRow['v'];
 
-            if ( type_id == this.RewardType.POSTCARD ) {
-                countText     = "+1";
-                count         = 1;
-            }
+            let typeName    = this.RewardKey[typeId];
+            let itemCount   = 1;
 
-            this.rewards[type_id] = {
-                'name'      :  this.RewardKey[type_id],
-                'type_id'   :  type_id,
-                'count'     :  count,
-                'countText' :  countText
-            }
+
+
+            let str         = "";
+            str             = `+`;
+            if( itemIdOrVal < 0)
+                str         = `-`;
+            str             = str + `${Math.abs(itemIdOrVal)}`;
+            obj[typeName]     = str;
+            if ( typeId == this.RewardType.POSTCARD )
+                obj[typeName] = "+1";
+            if ( typeId == this.RewardType.Speciality )
+                obj[typeName] = "+1";
         }
+        let s = "";
+        // 显示标准化：
+        for(var k in obj){
+            s += `${k}${obj[k]};`;
+        }
+        return s;
     }
-
-
 
 }
 
 module.exports =  Quest;
+

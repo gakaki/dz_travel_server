@@ -1,9 +1,9 @@
 /*
     1金币
-    2时间
-    3明信片：后面跟明信片id，明信片id填-1表示该城市随机特产明信片
+    2积分
+    3 时间
     4特产：后面跟特产id，
-    5积分
+    5明信片：后面跟明信片id，明信片id填-1表示该城市随机特产明信片
 */
 const travelConfig  = require("../../../sheets/travel");
 const Service       = require('egg').Service;
@@ -16,7 +16,7 @@ const postcardRepo  = require('../configService/postcardRepo');
 class RewardService extends Service{
 
     async reward( uid , cid , eid ) {
-
+        this.logger.info();
         let eventCfg        = questRepo.find(eid);
         if( !eventCfg ){
             this.logger.info();
