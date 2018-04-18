@@ -33,7 +33,9 @@ class Spot extends RouterSpot{
 class TourTask {
     prop spot:number[]      // 3/6 景点完成度 一共6已完成3
     prop tour:number[]      // 0/2 观光完成度 一共2已完成2
+    prop parterTour:number[]//0/2 队友观光完成度 一共2已完成2(双人模式下)
     prop photo:number[]     // 0/2 拍照完成度 一共2已完成2
+    prop parterPhoto:number[]     // 0/2 队友拍照完成度 一共2已完成2(双人模式下)
 }
 
 class Partener {
@@ -51,6 +53,12 @@ api CheckGuide {
 api FinishGuide {
 }
 
+//任务完成度信息
+api TaskInfo {
+    //任务完成度信息
+    output task:TourTask
+}
+
 //进入城市的经典页面  用户开始该城市的旅游
 api TourIndexInfo{
     //城市id
@@ -59,8 +67,6 @@ api TourIndexInfo{
     output weather:number
     //该城市的spot景点列表
     output spots:Spot[]
-    //完成度信息
-    output task:TourTask
     //起点
     output startPos:object
     //其他玩家头像，为图片url数组
