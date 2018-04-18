@@ -430,6 +430,9 @@ class TourController extends Controller {
 
     }
 
+    async tourtask(ctx){
+
+    }
     //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
  /*   async leavetour(ctx) {
         //离开城市的时候最好有个统计表哦
@@ -452,6 +455,20 @@ class TourController extends Controller {
         let info = await apis.RentedProp.Init(ctx, true);
         await this.ctx.service.travelService.tourService.rentedprop(info);
         info.submit();
+    }
+
+    // 景点完成任务
+    async tourtask(ctx) {
+        return ctx.body = {
+            code : 0,
+            data : {
+                spot:[3,6],             // 3/6 景点完成度 一共6已完成3
+                tour:[0,2],              // 0/2 观光完成度 一共2已完成2
+                parterTour:[1,2],       //0/2 队友观光完成度 一共2已完成2(双人模式下)
+                photo:[1,2],            // 0/2 拍照完成度 一共2已完成2
+                parterPhoto:[2,2],      // 0/2 队友拍照完成度 一共2已完成2(双人模式下)
+            }
+        }
     }
 
 }
