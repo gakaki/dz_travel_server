@@ -169,6 +169,17 @@ enum RentItem {
     const MEDICALBOX = 3
 }
 
+enum SystemGift {
+     //用户道具(金币，积分,飞机票)
+    const  USERITEM = 1
+    //特产
+    const  SPECIALITY = 2
+    //明信片
+    const  POSTCARD = 3
+    //体验卡(豪华自驾车,舒适自驾车,经济自驾车,单反相机,高级单反相机,医药箱)
+    const  RENTITEM = 4
+
+}
 
 //该Base类会在实际中作为所有api的基类
 class Base{

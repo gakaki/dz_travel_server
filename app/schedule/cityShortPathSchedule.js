@@ -15,11 +15,13 @@ module.exports = app => {
             let citys = travelConfig.citys;
             for (let city of citys) {
                 if (city.id != 10000) {
+                    ctx.logger.info(city.id);
                     let short_path = new ShortPath(city.id);
                     let path = short_path.shortPath();
                     await ctx.model.TravelModel.CityShortPath.update({ cid: city.cid }, {
                         $set: {
                             cid: city.id,
+                            city: city.city,
                             shortestDistance: path.min,
                             minRoad: path.minRoad,
                         },

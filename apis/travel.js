@@ -189,6 +189,17 @@ class RentItem{
     static get MEDICALBOX() { return 3;}
     
 }
+class SystemGift{
+    
+    static get USERITEM() { return 1;}
+    
+    static get SPECIALITY() { return 2;}
+    
+    static get POSTCARD() { return 3;}
+    
+    static get RENTITEM() { return 4;}
+    
+}
 class TicketType{
     
     static get RANDOMBUY() { return '00';}
@@ -3450,6 +3461,7 @@ exports.Season = Season;
 exports.PresentTktType = PresentTktType;
 exports.Code = Code;
 exports.RentItem = RentItem;
+exports.SystemGift = SystemGift;
 exports.TicketType = TicketType;
 exports.RankType = RankType;
 exports.RankSubtype = RankSubtype;

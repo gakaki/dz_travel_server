@@ -4,7 +4,7 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://travel:'+encodeURIComponent('travel#h5group')+'@'+encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com')+':3717/travel',
+        url: 'mongodb://travel:'+ encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
     };
 
     config.env = "prod";
@@ -14,35 +14,32 @@ module.exports = appInfo => {
         port: '6379',
         password: 'Douzihuyu2018',
         db: '0',
-    }
+    };
     config.redis = {
-        client: config_redis
+        client: config_redis,
     };
 
-    config.logger = {
-        dir: "/root/server/travel/logs/"
-    };
     config.io = {
         namespace: {
             '/travel': {
-                connectionMiddleware: ['connection'],
+                connectionMiddleware: [ 'connection' ],
                 packetMiddleware: [],
             },
         },
-        redis: config_redis
+        redis: config_redis,
     };
 
     //事件队列
-    config.kue =  {
-        app : true,
-        agent : false,
+    config.kue = {
+        app: true,
+        agent: false,
         client: {
             queuePrefix: 'q',
-            redis: Object.assign( {},config_redis,{
+            redis: Object.assign({}, config_redis, {
                 auth: 'Douzihuyu2018',
                 db: 1,
                 options: {},
-            })
+            }),
         },
     };
 
@@ -56,8 +53,8 @@ module.exports = appInfo => {
     config.paymchid = "1494209122";
     config.noticeurl = "https://h5t.ddz2018.com/weChat/shopdone";
 
-    config.weatherkey="e8c488c457f9402aa363b327009b9ac8";
-    config.weatherusername="HE1804081525551353";
+    config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
+    config.weatherusername = "HE1804101712021052";
 
     return config;
 };

@@ -108,18 +108,18 @@ class TourController extends Controller {
     // 拍照
     async photography(ctx) {
 
-        return ctx.body = {
-
-            "code" :0,
-            "data":{
-                "postcard" : {
-                    id:"100101" ,
-                    pattern:"1",
-                    picture:"jingdian/beijing/beijing/jd/1.jpg",
-                    type:"1"
-                }
-            }
-        };
+        // return ctx.body = {
+        //
+        //     "code" :0,
+        //     "data":{
+        //         "postcard" : {
+        //             id:"100101" ,
+        //             pattern:"1",
+        //             picture:"jingdian/beijing/beijing/jd/1.jpg",
+        //             type:"1"
+        //         }
+        //     }
+        // };
         /*
             用户到达景点后，可使用拍照功能，每个城市拍照有次数限制，购买单反相机可增加拍照次数，
             拍照时会获得一张该景点明信片，如果是双人旅行，则留下2人头像。
@@ -129,7 +129,7 @@ class TourController extends Controller {
         */
         let info            = apis.Photography.Init(ctx);
         let user_info       = ctx.session.ui;
-        await this.service.travelService.tourService.photography(info,user_info);
+        await this.service.travelService.tourService.photography(info, user_info);
         info.submit();
     }
 
@@ -400,7 +400,10 @@ class TourController extends Controller {
         //     }
         // };
 
-        let info                    = apis.ReqEnterspot.Init(ctx);
+        let info = await apis.ReqEnterspot.Init(ctx, true);
+        if(!info.ui) {
+            return
+        }
         await this.service.questService.questService.reqenterspot(info);
         info.submit();
     }

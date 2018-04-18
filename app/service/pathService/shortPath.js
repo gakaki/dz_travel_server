@@ -3,6 +3,7 @@ const travelConfig      = require("../../../sheets/travel");
 const apis              = require("../../../apis/travel");
 const scenicPos         = require("../../../sheets/scenicpos");
 
+let EARTH_RADIUS = 6371.0;
 
 class Point {
     constructor(id, x, y) {
@@ -12,9 +13,25 @@ class Point {
     }
 
     static distance(a, b) {
-        const dx = a.x - b.x;
-        const dy = a.y - b.y;
-        return Math.hypot(dx, dy);
+        let lat1 = this.ConvertDegreesToRadians(a[0]);
+        let lon1 = this.ConvertDegreesToRadians(a[1]);
+        let lat2 = this.ConvertDegreesToRadians(b[0]);
+        let lon2 = this.ConvertDegreesToRadians(b[1]);
+
+        let vLon = Math.abs(lon1 - lon2);
+        let vLat = Math.abs(lat1 - lat2);
+        let h = this.HaverSin(vLat) + Math.cos(lat1) * Math.cos(lat2) * this.HaverSin(vLon);
+
+        return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
+    }
+
+    static ConvertDegreesToRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    static HaverSin(theta) {
+        let v = Math.sin(theta / 2);
+        return v * v;
     }
 
     static ranPoints(len) {
@@ -28,6 +45,7 @@ class Point {
 }
 const permutator = (inputArr) => {
     let result = [];
+    //let length = 0;
     let length = inputArr.length;
     length = length - 6 < 0 ? 0 : length - 6;
     const permute = (arr, m = []) => {
@@ -44,7 +62,7 @@ const permutator = (inputArr) => {
     };
     permute(inputArr);
     return result;
-}
+};
 
 var timer = function(name) {
     var start = new Date();
@@ -63,16 +81,16 @@ class ShortPath {
 
         let spotPoints = [];
         for(let spotId of city["scenicspot"]) {
-            if(scenicPos.Get(spotId)) {
-                spotPoints.push(scenicPos.Get(spotId).cfg);
-            }
+          //  if(scenicPos.Get(spotId)) {
+            spotPoints.push(travelConfig.Scenicspot.Get(spotId).coordinate);
+         //   }
         }
 
         //console.log(spotPoints);
         this.city           = city;
         this.spotPoints     = spotPoints;
         this.cid            = cid;
-        this.startPos       = scenicPos.Get(cid).cfg;
+        this.startPos       = travelConfig.City.Get(cid).coordinate;
     }
 
     //给定城市 来计算最短路径
@@ -87,10 +105,10 @@ class ShortPath {
         }
 
         console.log(travelMap);
-        let value = Point.distance(this.startPos, scenicPos.Get(travelMap[0]).cfg);
+        let value = Point.distance(this.startPos, travelConfig.Scenicspot.Get(travelMap[0]).coordinate);
 
         for (let j = 0; j < travelMap.length - 1; j++) {
-            value += Point.distance(scenicPos.Get(travelMap[j]).cfg, scenicPos.Get(travelMap[j + 1]).cfg);
+            value += Point.distance(travelConfig.Scenicspot.Get(travelMap[j]).coordinate, travelConfig.Scenicspot.Get(travelMap[j + 1]).coordinate);
         }
 
         return value + extraRoute;
@@ -103,13 +121,16 @@ class ShortPath {
         //去掉 id0 的点
       //  ids.splice(0,1);
         let perms = permutator(ids);
+        console.log(perms.length);
         let roadValues = [];
         perms.forEach((pids, idx) => {
             let value = Point.distance(this.startPos, points[pids[0]]);
-
             for (let j = 0; j < pids.length - 1; j++) {
                 value += Point.distance(points[pids[j]], points[pids[j + 1]]);
             }
+
+     //       console.log(value);
+
             roadValues.push(value);
 
         });
@@ -140,8 +161,8 @@ class ShortPath {
 
 module.exports = ShortPath;
 
-
+//
 // var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( 335 );
+// let short_path = new ShortPath( 2 );
 // short_path.shortPath();
 // t.stop();

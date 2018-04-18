@@ -16,7 +16,11 @@ class TourService extends Service {
 
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
-
+        if(!cityConfig) {
+            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            info.submit();
+            return;
+        }
         info.spots          = [];
         let spot_map        = {};
 
@@ -121,20 +125,16 @@ class TourService extends Service {
     }
 
     //查询该城市的拍照次数限制 注意购买单反相机之后的拍照次数 注意单反相机的逻辑
-    async limitByCityAndSpotPhotoGraphyCount(uid,spotId){
+    async limitByCityAndSpotPhotoGraphyCount(uid, spotId, r) {
         // let userItems   = await this.service.travelService.PlayerService.getItems(uid);
         // if ( travelConfig.RentItem.CAMERA ){
         //     //拍照：每个城市可拍照2次，每个景点可拍照1次。购买单反相机可增加城市拍照次数，不能增加景点拍照次数。
         // }
 
-        let r           = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: uid });
-        if  ( !r ) {
-            return true;
-        }
-        if ( parseInt(r['photographyCount']) >= 2 ){
-            return false;
-        }
-        if ( spotId in r['photographySpots'] ){
+
+        let count = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, spotId: spotId, fid: r.fid });
+        this.logger.info(count);
+        if (count >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICPHOTO).value) {
             return false;
         }
         return true;
@@ -143,53 +143,79 @@ class TourService extends Service {
 
     // 拍照
     async photography(info, ui) {
-
-        let cid             = parseInt(info.cid);
-        let cityConfig      = travelConfig.City.Get( cid );
-
-        //查询城市的拍照次数
-        if ( !this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId )  ) {
-            let result      = { data: {} };
-            result.code     = constant.Code.EXCEED_COUNT;
-            this.ctx.body   = result;
-            return result;
+        let cid = info.cid;
+        let city = travelConfig.City.Get(cid);
+       // this.logger.info(city);
+        if(!city) {
+            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            return;
         }
+        let r = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        if(!r) {
+            info.code = apis.Code.NO_DB_ROW;
+            return;
+        }
+        if (r.photographyCount == 0) {
+            info.code = apis.Code.NEED_ITEMS;
+            return;
+        }
+        //查询城市的拍照次数
+        if (!await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r)) {
+            info.code = apis.Code.EXCEED_COUNT;
+            return;
+        }
+        this.logger.info(r);
+        this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
 
-        // 增加拍照次数
-        await this.ctx.model.TravelModel.CurrentCity.update({}, {
-            $inc: { 'photographyCount':  1 },
-            $push: { 'photographySpots': info.spotId}
-        })
+
+        // // 增加拍照次数
+        // await this.ctx.model.TravelModel.CurrentCity.update({}, {
+        //     $inc: { 'photographyCount':  1 },
+        //     $push: { 'photographySpots': info.spotId}
+        // })
 
         //TODO post card 查询是否有存在的 明信片id
 
         // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
         let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
         let dateNow         = new Date();
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
+
+        let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
         await this.ctx.model.TravelModel.Postcard.create({
             uid: ui.uid,
-            cid: info.cid,
-            country: "",
-            province: "",
-            city:"",
-            ptid:"",
-            pscid:info.spotId,
+            cid: cid,
+            country: city.country,
+            province: city.province,
+            city: city.city,
+            ptid: info.spotId,
+            pscid: postcardId,
             type: cfgPostcard.type,                   //明信片类型
-            createDate:dateNow      //创建时间
+            createDate: dateNow,      //创建时间
         });
         // sysGiveLog表记录
         await this.ctx.model.TravelModel.SysGiveLog.create({
-            uid:    ui.uid,
-            sgid:   "",                                 //唯一id
-            type:   3,                                  // 3.明信片
-            iid:   info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
+            uid: ui.uid,
+            sgid: "sys" + ui.pid + info.spotId + new Date().getTime(),                                 //唯一id
+            type: apis.SystemGift.POSTCARD,                                  // 3.明信片
+            iid: info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
             number: 1,                                  //数量
-            isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
-            createDate: dateNow                         //当前时间创建
+            isAdmin: "0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+            createDate: dateNow,                         //当前时间创建
+        });
+        //拍照日志
+        await this.ctx.model.TravelModel.PhotoLog.create({
+            uid: ui.uid,
+            fid: r.fid, //飞行日志
+            cid: cid, //城市id
+            spotId: info.spotId, //景点id
+            postcardId: postcardId, //获得的明信片id
+            createDate: dateNow,
         });
 
         //返回明信片 id 图片
-        info.postcard   =  cfgPostcard;
+        info.postcard = cfgPostcard;
+        info.freePhoto =r.photographyCount - 1;
     }
 
 
@@ -445,10 +471,20 @@ class TourService extends Service {
         rentItems[cfg.id] = 1;
         //扣钱
         let money = cfg.price;
-        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, {["items." + travelConfig.Item.GOLD]: -money}, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: -money }, 'travel');
         //加道具
-        await this.ctx.model.TravelModel.CurrentCity.update({uid: info.ui.uid}, { rentItems });
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.ui.uid }, { rentItems });
         this.logger.info(`租用道具${cfg.id}成功`);
+        if(cfg.type == apis.RentItem.CAMERA) {
+            if(cfg.value == -1) {
+                await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { photographyCount: cfg.value } });
+            }else{
+               if(curCity.photographyCount != -1) {
+                   await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $inc: { photographyCount: cfg.value } });
+
+               }
+            }
+        }
 
         //此处需要通知事件逻辑层，来检测一下是否需要根据新道具来更新事件。。。。
     }
