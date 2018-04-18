@@ -190,7 +190,7 @@ class MakeRoadMap {
         // 中途换道具在写
         let timeHour = this.timeHumanPreLineHour;
         //let diffTime    = timeHour * 60 * 60 * 1000;
-        let diffTime = 5000;
+        let diffTime = 10000;
 
 
         if (spotStart['isStart'] == true) {
