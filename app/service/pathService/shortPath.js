@@ -86,6 +86,7 @@ class ShortPath {
             extraRoute = 0;
         }
 
+        console.log(travelMap);
         let value = Point.distance(this.startPos, scenicPos.Get(travelMap[0]).cfg);
 
         for (let j = 0; j < travelMap.length - 1; j++) {

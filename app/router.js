@@ -76,7 +76,7 @@ module.exports = app => {
 
     //游玩界面 首页
     router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);
-    router.get('/tour/tourstart',routerUserInfo,controller.travelController.tourController.tourstart);
+  //  router.get('/tour/tourstart',routerUserInfo,controller.travelController.tourController.tourstart);
     //游玩界面 设置/修改路线
     router.get('/tour/setrouter',routerUserInfo,controller.travelController.tourController.setrouter);
     router.get('/tour/modifyrouter',routerUserInfo,controller.travelController.tourController.modifyrouter);
@@ -91,7 +91,7 @@ module.exports = app => {
     //游玩界面 进入景点->人物点击-》显示事件（回答问题）-》提交
     router.get('/tour/tourspotanswer', routerUserInfo, controller.travelController.tourController.tourspotanswer);
     //游玩界面 进入景点->重选路线
-    router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
+   // router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     //游玩界面 进入景点->定时获取是否有新的随机事件。
     router.get('/tour/playloop',   routerUserInfo,  controller.travelController.tourController.playloop);
     //游玩界面 进入景点->展示报告例如最后的最短路径效率。
@@ -101,7 +101,7 @@ module.exports = app => {
     router.get('/tour/freshspots', routerUserInfo, controller.travelController.tourController.freshspots);
 
     //游玩界面 进入景点->离开游玩界面。
-    router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
+   // router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
     router.get('/tour/rentprop', routerUserInfo, controller.travelController.tourController.rentprop);
     router.get('/tour/rentedprop', routerUserInfo, controller.travelController.tourController.rentedprop);
 
