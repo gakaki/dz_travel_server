@@ -15,11 +15,9 @@ class TravelController extends Controller {
         }
 
         await this.service.travelService.travelService.fillIndexInfo(info, ui);
-
         //send data
         info.submit();
     }
-
 
     //选择城市
     async selectcity(ctx) {

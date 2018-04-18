@@ -46,18 +46,7 @@ class ThirdService extends Service {
 
 
     }
-    //
-    // async getWeatherId(cid = 1) {
-    //     let weathertxt  = this.getWeather(cid);
-    //     let weatherId   = 1;
-    //     for (let we of travelConfig.weathers) {
-    //         if (we.weather == weathertxt) {
-    //             weatherId = we.id;
-    //             break;
-    //         }
-    //     }
-    //     return weatherId;
-    // }
+
 
     getHoliday(date = new Date()) {
          let holidays = holiday(date);
