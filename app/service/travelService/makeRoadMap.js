@@ -14,7 +14,7 @@ class MakeRoadMap {
         this.isNewPlayer    = obj.isNewPlayer || 0; //新手引导路途加速
         this.isSingle       = obj.isSingle || 1; //默认单人旅行
         this.cid            = obj.cid || 0;
-
+        this.startTime      =obj.startTime || 0;
 
         this.lines = []; //所有线路容器
         this.linesFormat = []; //返回给前端用的
@@ -85,10 +85,12 @@ class MakeRoadMap {
                 }
             }
 
-            if(shortTime.length > 0 ) {
-                this.timeHumanPreLineHour = timeHumanPreLineHour * ((100 - Math.max(...shortTime)) / 100);
+            let max = 0;
+            if(shortTime.length > 0) {
+                max = Math.max(...shortTime)
+                this.timeHumanPreLineHour = timeHumanPreLineHour * ((100 - max) / 100);
             }
-
+            this.acceleration = max;
           //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
          //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
          //   this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
@@ -147,26 +149,26 @@ class MakeRoadMap {
             }
             return o;
         });
-        if (hasRouter.length == 0) {
-            //忘记加上起始点的了 加上起始点
-            let cityConfig = travelConfig.City.Get(this.cid);
-            let [lng, lat] = cityConfig["coordinate"];
-            let spotsCityStart = {
-                id: -1, //-1 表示是起点
-                cid: this.cid,
-                name: "城市的起点",
-                x: 0,   //这里的不算数
-                y: 0,
-                tracked: true,  //起点肯定默认就到达了
-                index: 0,     //这个index 有必要吗
-                startime: "",    //开始时间
-                endtime: "",    //结束时间
-                lng: lng,
-                lat: lat,
-                isStart: true, //是否起点
-            };
-            this.spotsCfg.unshift(spotsCityStart);
-        }
+
+        //忘记加上起始点的了 加上起始点
+        let cityConfig = travelConfig.City.Get(this.cid);
+        let [lng, lat] = cityConfig["coordinate"];
+        let spotsCityStart = {
+            id: -1, //-1 表示是起点
+            cid: this.cid,
+            name: "城市的起点",
+            x: 0,   //这里的不算数
+            y: 0,
+            tracked: true,  //起点肯定默认就到达了
+            index: 0,     //这个index 有必要吗
+            startime: this.startTime ? this.startTime.getTime() : 0,    //开始时间
+            endtime: "",    //结束时间
+            lng: lng,
+            lat: lat,
+            isStart: true, //是否起点
+        };
+        this.spotsCfg.unshift(spotsCityStart);
+
 
 
     }
@@ -205,17 +207,20 @@ class MakeRoadMap {
             timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
         }
         console.log(timeHour);
+
          let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
        // let diffTime    = 30000;
+
+
         console.log("需要的时间 " + diffTime);
         if (spotStart['isStart'] == true) {
             if (!spotStart['startime']) {
                 let start = new Date().getTime();
-                let end = start + diffTime;
-
                 spotStart['startime'] = start;
-                spotEnd['endtime'] = end;
+
             }
+            let end = spotStart['startime'] + diffTime;
+            spotEnd['endtime'] = end;
 
         }else{
             spotStart['startime'] = spotStart['endtime'];

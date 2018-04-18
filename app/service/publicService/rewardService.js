@@ -17,12 +17,13 @@ class RewardService extends Service{
 
     async reward( uid , cid , eid ) {
 
-        let eventCfg        = questRepo.find(eid)
+        let eventCfg        = questRepo.find(eid);
         if( !eventCfg ){
-            this.logger.info("事件不存在" + eid );
-            info.code       = apis.Code.PARAMETER_NOT_MATCH;
-            info.submit();
-            return;
+            this.logger.info();
+            throw new Error({
+                code: apis.Code.PARAMETER_NOT_MATCH,
+                message: "事件不存在" + eid
+            });
         }
 
         for ( let k in eventCfg.rewardKV) {
@@ -114,9 +115,9 @@ class RewardService extends Service{
 
         if(!travelConfig.Speciality.Get(cfgId)){
             this.logger.info("特产不存在" + cfgId);
-            info.code = apis.Code.PARAMETER_NOT_MATCH;
-            info.submit();
-            return
+            this.ctx.session.code       = apis.Code.PARAMETER_NOT_MATCH;
+            this.ctx.session.message    = "特产不存在" + cfgId;
+            return false;
         }
 
         //加特产
@@ -128,6 +129,17 @@ class RewardService extends Service{
             createDate: new Date()
         },
         {upsert: true});
+
+        //购买记录
+        await this.ctx.model.TravelModel.SpecialityBuy.create({
+            uid: uid,
+            spid: cfgId,
+            number: info.count,
+            numberLeft: sp.number,
+            createDate: new Date()
+        });
+        this.logger.info(`购买特产成功,获得${cfgId} x ${info.count}`);
+
         //syslog 记录
         await this.ctx.model.TravelModel.SysGiveLog.create({
             uid:    uid,
