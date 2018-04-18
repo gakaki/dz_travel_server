@@ -168,14 +168,6 @@ class TourService extends Service {
         this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
 
 
-        // // 增加拍照次数
-        // await this.ctx.model.TravelModel.CurrentCity.update({}, {
-        //     $inc: { 'photographyCount':  1 },
-        //     $push: { 'photographySpots': info.spotId}
-        // })
-
-        //TODO post card 查询是否有存在的 明信片id
-
         // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
         let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
         let dateNow         = new Date();
@@ -193,6 +185,13 @@ class TourService extends Service {
             type: cfgPostcard.type,                   //明信片类型
             createDate: dateNow,      //创建时间
         });
+
+        //第一次获得这种明信片，获得积分
+        let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
+        if(count == 1) {
+            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+        }
+
         // sysGiveLog表记录
         await this.ctx.model.TravelModel.SysGiveLog.create({
             uid: ui.uid,
@@ -486,6 +485,54 @@ class TourService extends Service {
             }
         }
 
+        //TODO 购买车的时候 ，直接加速还是需要通知客户端？？？
+        let myRouteMap = [];
+        if(cfg.type == apis.RentItem.CAR) {
+            if(curCity.acceleration < cfg.value) {
+                if(curCity.roadMap) {
+                    for(let planS of curCity.roadMap) {
+                        if(planS.index != -1) {
+                            myRouteMap[planS.index] = planS.id;
+                        }
+                    }
+                    if(myRouteMap.length > 0) {
+                        let para = {
+                            oldLine: curCity.roadMap,
+                            line: myRouteMap,
+                            cid: curCity.cid,
+                            isNewPlayer: info.ui.isNewPlayer,
+                            rentItems: curCity.rentItems,
+                            startTime: curCity.startTime,
+                            weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+                            today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+                            itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+                        };
+
+                        let rm = new MakeRoadMap(para);
+                        let newRoadMap = rm.linesFormat;
+                        let outPMap = [];
+                        for(let roadMap of curCity.roadMap) {
+                            let index = newRoadMap.findIndex((n) => n.id == roadMap.id);
+                            if(index != -1) {
+                                outPMap.push(newRoadMap[index]);
+                            }else{
+                                outPMap.push(roadMap);
+                            }
+                        }
+                        //修改路线
+                        await this.ctx.model.TravelModel.CurrentCity.update({
+                            uid: info.uid,
+                        }, { $set: {
+                                roadMap: outPMap,
+                                acceleration: rm.acceleration,
+                                modifyEventDate: new Date(),
+                            } });
+                    }
+
+                }
+            }
+        }
+
         //此处需要通知事件逻辑层，来检测一下是否需要根据新道具来更新事件。。。。
     }
 
@@ -514,7 +561,7 @@ class TourService extends Service {
             let path = short_path.travelShortDistance(real);
             let shortDistance = 0;
             let cityShortPath = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: curCity.cid });
-            if(!cityShortPath){
+            if(!cityShortPath) {
                 shortDistance = short_path.shortPath().min;
             }else{
                 shortDistance = cityShortPath.shortestDistance;
@@ -657,6 +704,7 @@ class TourService extends Service {
             cid                  : cid,
             isNewPlayer          : info.ui.isNewPlayer,
             rentItems            : currentCity.rentItems,
+            startTime            : currentCity.startTime,
             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
             itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
@@ -677,6 +725,7 @@ class TourService extends Service {
 
         para['timeTotalHour']    = rm.timeTotalHour;
 
+        let acceleration = rm.acceleration;
         let startTime = currentCity.startTime;
 
         if ( isChangeRouter ){
@@ -685,8 +734,9 @@ class TourService extends Service {
                 'uid'        : uid,
                 'cid'        : cid,
             },{ $set: {
-                    roadMap  : outPMap,
-                    modifyEventDate : new Date(),
+                    roadMap: outPMap,
+                    acceleration: acceleration,
+                    modifyEventDate: new Date(),
             }});
         }else{
              startTime = new Date();
@@ -699,6 +749,7 @@ class TourService extends Service {
                 'cid'        : cid,
             },{ $set: {
                     roadMap  : outPMap,
+                    acceleration: acceleration,
                     events   : events,
                     startTime:startTime,
                     modifyEventDate : new Date(),
