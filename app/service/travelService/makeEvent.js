@@ -94,10 +94,10 @@ class MakeEvent {
         return randomEl;
     }
 
-
 }
 
 module.exports = MakeEvent;
+
 
 // // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
 // let objParametes   = {
@@ -107,6 +107,6 @@ module.exports = MakeEvent;
 //     today          : 0,
 //     itemSpecial    : 0
 // };
-// let er      = new MakeEvent(objParametes);
+// let er              = new MakeEvent(objParametes);
 // console.log(er.eventsFormat);
-//
+

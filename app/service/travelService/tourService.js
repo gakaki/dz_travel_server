@@ -110,9 +110,12 @@ class TourService extends Service {
         let isPair          = false;          //是否双人默认否
         let task_spot_full  = isPair ? 3 : 6;
         info.task           = {
-            spot :  [task_spot_finished,task_spot_full],
-            tour :  [task_tour_finished,2],
-            photo : [task_photo_finished,2]
+            // spot :  [task_spot_finished,task_spot_full],
+            // tour :  [task_tour_finished,2],
+            // photo : [task_photo_finished,2]
+            spot :  task_spot_full - task_spot_finished,
+            tour :  2 - task_tour_finished,
+            photo : 2 - task_photo_finished
         }
 
     }
@@ -189,9 +192,43 @@ class TourService extends Service {
         info.postcard   =  cfgPostcard;
     }
 
-    // 景点观光
+
+
+
+    async spotMakeEvent(para){ //需要事件触发类型为 3 4（特定城市） 观光才会
+
+        let p                    = {
+            uid                  : para.uid,
+            cid                  : para.cid || 0,       //城市id
+            spotId               : para.spotId,
+            rentItems            : para.rentItems,      //特定道具 服务器端读取啊
+            weather              : para.weather || 0,   //特定天气 注意是id
+            today                : para.today || 0,     //特定日期 服务器端取呀
+        };
+        let e                    = new MakeEvent(p);
+        let events               = e.eventsFormat;
+
+        let row                  = {
+            uid:o.uid,
+            eid:e.eid,      //事件id 这个是随机出来的
+            cid:o.cid,      //cityId
+            spotId:o.spotId,   //景点id 有景点就是景点的随机事件了
+            isPhotography:false, //是否拍照
+            isTour:true, //是否为观光
+            trackedNo:null,  //访问顺序
+            createDate:new Date().getTime(),  //创建时间
+            receivedDate:null,  //领取奖励时间
+            received:true ,  //是否已经接收 直接给予奖品
+        }
+        row                      = await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
+        return row;
+    }
+
+
+    // 景点观光功能
     async spotTour(info, ui) {
 
+        // 用户到达景点后，跳转至景点界面，可使用观光功能，观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
         let cost = travelConfig.Parameter.TOURCONSUME;
         if (ui.items[travelConfig.Item.GOLD] < cost) {
             info.code = apis.Code.NEED_MONEY;
@@ -199,18 +236,12 @@ class TourService extends Service {
             return;
         }
 
-        // //景点的随机事件
-        // let makeEvent = new MakeEvent({
-        //
-        //     spotId          :info.spotId ||
-        //     cid            = obj.cid || 0;
-        //     weather        = obj.weather || 0;
-        //     today          = obj.today || 0;
-        //     itemSpecial    = obj.itemSpecial || 0;
-        //     timeTotalHour  = obj.timeTotalHour || 0;
-        //
-        // })
-        // let quest   =
+        // 景点随机事件 写表
+        this.spotMakeEvent({
+            uid : info.uid,
+            cid : info.cid,
+            spotId : info.spotId
+        });
 
         //扣钱
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
@@ -219,13 +250,13 @@ class TourService extends Service {
         let cfg = travelConfig.Speciality.Get("100106");
         info.count = 1;
         let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
-            {
-                uid: ui.uid,
-                spid: cfg.id,
-                $inc: {number: info.count }, //这里土特产只有一个吧
-                createDate: new Date()
-            },
-            {upsert: true});
+        {
+            uid: ui.uid,
+            spid: cfg.id,
+            $inc: {number: info.count }, //这里土特产只有一个吧
+            createDate: new Date()
+        },
+        {upsert: true});
         //购买记录
         await this.ctx.model.TravelModel.SpecialityBuy.create({
             uid: ui.uid,
@@ -240,38 +271,8 @@ class TourService extends Service {
         // info typeof apis.IndexInfo
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
-        
-        //查询城市的拍照次数
-        if ( !this.limitByCityAndSpotPhotoGraphyCount( ui.ui , info.spotId )  ) {
-            let result      = { data: {} };
-            result.code     = constant.Code.EXCEED_COUNT;
-            this.ctx.body   = result;
-            return result;
-        }
 
-        // 增加拍照次数
-        await this.ctx.model.TravelModel.CurrentCity.update({}, {
-            $inc: { 'photographyCount':  1 },
-            $push: { 'photographySpots': info.spotId}
-        })
-
-        //TODO post card 查询是否有存在的 明信片id
-
-        // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
-        let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
-        let dateNow         = new Date();
-        await this.ctx.model.TravelModel.Postcard.create({
-            uid: ui.uid,
-            cid: info.cid,
-            country: "",
-            province: "",
-            city:"",
-            ptid:"",
-            pscid:info.spotId,
-            type: cfgPostcard.type,                   //明信片类型
-            createDate:dateNow      //创建时间
-        });
-        // sysGiveLog表记录
+        // sysGiveLog表记录 根据上面event看获得的type
         await this.ctx.model.TravelModel.SysGiveLog.create({
             uid:    ui.uid,
             sgid:   "",                                 //唯一id
@@ -283,8 +284,7 @@ class TourService extends Service {
         });
 
         info.userinfo   = ui;
-        //返回明信片 id 图片
-        info.postcard   =  cfgPostcard.cfg;
+        info.event      = e.eventsFormat;
     }
 
     // 游玩 回答问题
