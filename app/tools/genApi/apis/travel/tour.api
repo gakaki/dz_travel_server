@@ -78,6 +78,7 @@ api Photography {
     require spotId:number
     //返回明信片
     output postcard:Postcard
+    output freePhoto:number
 }
 
 
@@ -100,8 +101,8 @@ class EnterSpot {
     prop id:string
     prop scenicspot:string
     prop weather:number
-    prop freePhoto:number[]
-    prop freeSight:number[]
+    prop freePhoto:number//初始为2，买了增加3次拍照的就加3，买了可以无限拍照的变为-1  （均本城本次游玩有效）
+    prop freeSight:number
     prop picture:string
     prop description:string
 }
