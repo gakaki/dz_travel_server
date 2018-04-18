@@ -200,12 +200,7 @@ class MakeRoadMap {
         // 中途换道具在写
 
         let timeHour = this.timeHumanPreLineHour;
-        let diffTime    = timeHour * 60 * 60 * 1000;
-        //let diffTime = 10000;
-
-        
         console.log(timeHour);
-
         if(this.isSingle && this.isNewPlayer) {
             timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
         }
