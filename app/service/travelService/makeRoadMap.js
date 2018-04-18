@@ -201,10 +201,9 @@ class MakeRoadMap {
 
         let timeHour = this.timeHumanPreLineHour;
         let diffTime    = timeHour * 60 * 60 * 1000;
-       // let diffTime = 10000;
+        //let diffTime = 10000;
 
-
-        let timeHour    = this.timeHumanPreLineHour;
+        
         console.log(timeHour);
 
         if(this.isSingle && this.isNewPlayer) {
