@@ -7,6 +7,7 @@ const constant      = require('../../utils/constant');
 const questRepo     = require('../questService/questRepo');
 const MakeRoadMap   = require("./makeRoadMap");
 const MakeEvent     = require("./makeEvent");
+const MakeSpotEvent = require("./makeSpotEvent");
 const ShortPath     = require("../pathService/shortPath");
 
 class TourService extends Service {
@@ -217,39 +218,6 @@ class TourService extends Service {
         info.freePhoto =r.photographyCount - 1;
     }
 
-
-
-
-    async spotMakeEvent(para){ //需要事件触发类型为 3 4（特定城市） 观光才会
-
-        let p                    = {
-            uid                  : para.uid,
-            cid                  : para.cid || 0,       //城市id
-            spotId               : para.spotId,
-            rentItems            : para.rentItems,      //特定道具 服务器端读取啊
-            weather              : para.weather || 0,   //特定天气 注意是id
-            today                : para.today || 0,     //特定日期 服务器端取呀
-        };
-        let e                    = new MakeEvent(p);
-        let events               = e.eventsFormat;
-
-        let row                  = {
-            uid:o.uid,
-            eid:e.eid,      //事件id 这个是随机出来的
-            cid:o.cid,      //cityId
-            spotId:o.spotId,   //景点id 有景点就是景点的随机事件了
-            isPhotography:false, //是否拍照
-            isTour:true, //是否为观光
-            trackedNo:null,  //访问顺序
-            createDate:new Date().getTime(),  //创建时间
-            receivedDate:null,  //领取奖励时间
-            received:true ,  //是否已经接收 直接给予奖品
-        }
-        row                      = await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
-        return row;
-    }
-
-
     // 景点观光功能
     async spotTour(info, ui) {
 
@@ -257,59 +225,52 @@ class TourService extends Service {
         let cost = travelConfig.Parameter.TOURCONSUME;
         if (ui.items[travelConfig.Item.GOLD] < cost) {
             info.code = apis.Code.NEED_MONEY;
-            this.logger.info('小样你的钱不够啊。。快去充值才能观光');
+            this.logger.info('您的现金不足速度充值');
             return;
         }
 
         // 景点随机事件 写表
-        this.spotMakeEvent({
-            uid : info.uid,
-            cid : info.cid,
-            spotId : info.spotId
-        });
+        let cid                  = info.cid;
+        let uid                  = info.uid;
+        let weatherId            = await this.ctx.service.publicService.thirdService.getWeather();
+        let spotId               = info.spotId;
+        let para                 = {
+            uid                  : uid,
+            cid                  : cid || 1,       //城市id
+            weatherId            : weatherId || 1  //特定天气 注意是id        //特定日期 服务器端取呀
+        };
 
-        //扣钱
+        let e                    = new MakeSpotEvent(para);
+        let eid                  = e.event.id;
+
+        this.logger.info(e.event);
+
+        let row                  = {
+            uid:uid,
+            eid:eid,        //事件id 这个是随机出来的
+            cid:cid,           //cityId
+            spotId:spotId,     //现在用不上
+            isPhotography:false,    //是否拍照
+            isTour:true, //是否为观光
+            trackedNo:null,  //访问顺序
+            createDate:new Date().getTime(),  //创建时间
+            receivedDate:null,  //领取奖励时间
+            received:true ,  //是否已经接收 直接给予奖品
+        }
+        await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
+
+        //消耗金币
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
-        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
-        //加特产 这里回来补
-        let cfg = travelConfig.Speciality.Get("100106");
-        info.count = 1;
-        let sp = await this.ctx.model.TravelModel.Speciality.update({uid: ui.uid, spid: cfg.id},
-        {
-            uid: ui.uid,
-            spid: cfg.id,
-            $inc: {number: info.count }, //这里土特产只有一个吧
-            createDate: new Date()
-        },
-        {upsert: true});
-        //购买记录
-        await this.ctx.model.TravelModel.SpecialityBuy.create({
-            uid: ui.uid,
-            spid: cfg.id,
-            number: info.count,
-            numberLeft: sp.number,
-            createDate: new Date()
-        });
-        this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
 
-        info.goldNum = ui.items[travelConfig.Item.GOLD];
-        // info typeof apis.IndexInfo
-        let cid             = parseInt(info.cid);
-        let cityConfig      = travelConfig.City.Get( cid );
+        //奖励 的数值不对
+        await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
 
-        // sysGiveLog表记录 根据上面event看获得的type
-        await this.ctx.model.TravelModel.SysGiveLog.create({
-            uid:    ui.uid,
-            sgid:   "",                                 //唯一id
-            type:   3,                                  // 3.明信片
-            iid:   info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
-            number: 1,                                  //数量
-            isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
-            createDate: dateNow                         //当前时间创建
-        });
+        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
 
-        info.userinfo   = ui;
-        info.event      = e.eventsFormat;
+        info.goldNum        = ui.items[travelConfig.Item.GOLD];
+        info.userinfo       = ui;
+        info.event          = questRepo.find(eid).getSpotRewardComment()
+
     }
 
     // 游玩 回答问题
