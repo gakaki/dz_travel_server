@@ -185,9 +185,9 @@ class TravelService extends Service {
             modifyEventDate: null,
             startTime: null,
             events: null,
-            photographyCount: 0,
-            photographySpots: [],
-            tourCount: 0,
+            photographyCount: travelConfig.Parameter.Get(travelConfig.Parameter.CITYPHOTO).value,
+          //  photographySpots: [],
+            tourCount: travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value,
         };
         let footprint = {
             uid: ui.uid,

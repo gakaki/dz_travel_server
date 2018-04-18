@@ -36,10 +36,10 @@ class QuestService extends Service{
         let spot                    = {
             season:     await this.ctx.service.publicService.thirdService.getSeason(),
             weather:    await this.ctx.service.publicService.thirdService.getWeather(),
-            freePhoto: [photographyCount, 2],       //免费拍照次数
-            freeSight: [tourCount, 2],  //免费观光次数
+            freePhoto: photographyCount,       //免费拍照次数
+            freeSight: tourCount,  //免费观光次数
             picture:     cfgSpot.picture,
-            description: cfgSpot.description
+            description: cfgSpot.description,
         };
         this.logger.info("进入景点");
 
@@ -62,6 +62,7 @@ class QuestService extends Service{
 
         info.spot      = spot;
         info.events    = questList.filter(x => x);
+        info.goldNum = info.ui.items[travelConfig.Item.GOLD];
         info.submit();
     }
 
