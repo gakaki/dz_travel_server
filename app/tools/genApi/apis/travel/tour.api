@@ -41,6 +41,7 @@ class TourTask {
 class Partener {
     prop nickName:string//队员名
     prop gender:number//性别
+    prop img:string//头像地址
     prop isInviter:boolean//是否是邀请者
 }
 // 查询用户是否需要新手引导
