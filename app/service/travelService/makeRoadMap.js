@@ -163,7 +163,7 @@ class MakeRoadMap {
                 endtime: "",    //结束时间
                 lng: lng,
                 lat: lat,
-                isStart: true //是否起点
+                isStart: true, //是否起点
             };
             this.spotsCfg.unshift(spotsCityStart);
         }
@@ -172,8 +172,8 @@ class MakeRoadMap {
     }
 
 
-    setLines(){
-        let linesTotal      = [];
+    setLines() {
+        let linesTotal = [];
         this.spotsCfg.reduce((prev, current, index, arr) => {
             console.log("前一个", prev);
             console.log("=================");
@@ -205,7 +205,8 @@ class MakeRoadMap {
             timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
         }
         console.log(timeHour);
-         let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
+         let diffTime = Math.floor(timeHour * 60 * 60 * 1000);
+         //let diffTime    = 1000;
 
         console.log("需要的时间 " + diffTime);
         if (spotStart['isStart'] == true) {
@@ -218,8 +219,8 @@ class MakeRoadMap {
             }
 
         }else{
-            spotStart['startime']   = spotStart['endtime'];
-            spotEnd['endtime']      = spotStart['endtime'] + diffTime;
+            spotStart['startime'] = spotStart['endtime'];
+            spotEnd['endtime'] = spotStart['endtime'] + diffTime;
         }
         console.log("达到时间 " + new Date(spotEnd['endtime']));
 

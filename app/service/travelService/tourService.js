@@ -7,6 +7,7 @@ const constant      = require('../../utils/constant');
 const questRepo     = require('../questService/questRepo');
 const MakeRoadMap   = require("./makeRoadMap");
 const MakeEvent     = require("./makeEvent");
+const ShortPath     = require("../pathService/shortPath");
 
 class TourService extends Service {
 
@@ -401,28 +402,28 @@ class TourService extends Service {
         // info.quest['time']      = row['receivedDate'];
     }
 
-    //观光
+    //观光??
     async tour(info, ui) {
         // info typeof apis.IndexInfo
-        info.isFirst = ui.isFirst;
-        info.gold = ui.items[travelConfig.Item.GOLD];
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
-        info.season = await this.ctx.service.publicService.thirdService.getSeason();
-        let outw = 1;
-        if (visit && visit.cid) {
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(visit.cid).city);
-            for (let we of travelConfig.weathers) {
-                if (we.weather == weather) {
-                    outw = we.id;
-                    break;
-                }
-            }
-            info.location = visit.cid;
-        }
-        info.weather = outw;
-        info.playerCnt = await this.app.redis.get("travel_userid");
-        info.friends = ui.friendList;
-        info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+     //   info.isFirst = ui.isFirst;
+   //     info.gold = ui.items[travelConfig.Item.GOLD];
+   //     let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
+   //     info.season = await this.ctx.service.publicService.thirdService.getSeason();
+   //     let outw = 1;
+    //    if (visit && visit.cid) {
+    //        let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(visit.cid));
+     //       for (let we of travelConfig.weathers) {
+     //           if (we.weather == weather) {
+     //               outw = we.id;
+     //               break;
+     //           }
+      //      }
+      //      info.location = visit.cid;
+      //  }
+      //  info.weather = outw;
+      //  info.playerCnt = await this.app.redis.get("travel_userid");
+     //   info.friends = ui.friendList;
+     //   info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
     }
 
     async rentprop(info) {
@@ -435,7 +436,7 @@ class TourService extends Service {
 
         let cfg = travelConfig.Shop.Get(info.rentId);
         if (!cfg) {
-            this.logger.info(`道具商店表shop中未找到id为${info.rentId}的道具`)
+            this.logger.info(`道具商店表shop中未找到id为${info.rentId}的道具`);
             info.code = apis.Code.NOT_FOUND;
             return;
         }
@@ -458,31 +459,48 @@ class TourService extends Service {
         info.rentItems = Object.values(curCity.rentItems);
     }
 
-    async leavetour(info) {
-        let ui = info.ui;
-        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid});
-        let tourLog = await this.ctx.model.TravelModel.CityTourLog.findOne({ uid: ui.uid, cid: curCity.cid, fid: curCity.fid });
-        let cfg = travelConfig.City.Get(curCity.cid);
-        //到达过的景点，在游玩轮询里，当每次后端确认到达了这某个景点时，记录到cityTourLog中，所以此处不再处理，只更新一下到达过的景点数
-        tourLog.scenicNum = Object.keys(tourLog.scenicspots).length;
-        tourLog.postcardNum = curCity.photographyCount;
-        //事件数量，在每次后端确认到达了某个景点时，记录路径中的事件到cityTourLog中；每次观光触发事件时，记录事件到cityTourLog中
-        tourLog.efficiency = 5;//等待使用路径/最短路径比值，取值0-10
-        tourLog.progress =
-            (tourLog.eventNum / cfg.eventnum * travelConfig.Paremeter.Get(travelConfig.Paremeter.EVENTCOMPLETION).value ) +
-            (tourLog.scenicNum / cfg.scenicspot.length * travelConfig.Paremeter.Get(travelConfig.Paremeter.SCENICSPOTCOMPLETION).value) +
-            (tourLog.postcardNum / cfg.postcardnum * travelConfig.Paremeter.Get(travelConfig.Paremeter.POSTCARDCOMPLETION).value);
-        tourLog.lighten =
-            tourLog.scenicNum >= travelConfig.Paremeter.Get(travelConfig.Paremeter.SCENICSPOTNUMBER).value &&
-            curCity.tourCount >= travelConfig.Paremeter.Get(travelConfig.Paremeter.TOURNUMBER).value &&
-            curCity.photographyCount >= travelConfig.Paremeter.Get(travelConfig.Paremeter.PHOTOGRAPH).value;
+    async leavetour(selfInfo) {
+        let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: selfInfo.uid });
+        let short_path = new ShortPath(curCity.cid);
+        let plan = curCity.roadMap;
+        let real = [];
+        for(let planS of plan) {
+            if(planS.index != -1) {
+                if(planS.tracked || planS.endtime <= new Date().getTime()) {
+                    real[planS.index] = planS.id;
+                }
+            }
+        }
+        let efficiency = 0;
+        let reward = 0;
+        this.logger.info(real);
+        if(real.length > 0) {
+            let path = short_path.travelShortDistance(real);
+            let shortDistance = 0;
+            let cityShortPath = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: curCity.cid });
+            if(!cityShortPath){
+                shortDistance = short_path.shortPath().min;
+            }else{
+                shortDistance = cityShortPath.shortestDistance;
+            }
+            //上个城市走的实际景点数
+            let lastSN = real.length;
+            this.logger.info("走过的景点数 " +lastSN );
+            this.logger.info("最短路径 " +shortDistance );
+            this.logger.info("我规划的路径 " +path );
+             efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
+             reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
+            //上个城市的评分奖励
+            let cost = {
+                [ "items." + travelConfig.Item.POINT]: reward,
+            };
+            this.ctx.service.publicService.itemService.itemChange(selfInfo.uid, cost);
 
-        let allLogs = await this.ctx.model.TravelModel.CityTourLog.find({ uid: ui.uid, _id: { $ne: tourLog._id } });
-
-        await this.ctx.model.TravelModel.CityTourLog.update({ _id: tourLog._id }, tourLog);
-
-        //根据评论给予奖励
-
+        }
+        return {
+            score: efficiency,
+            reward: reward,
+        }
 
     }
 

@@ -49,37 +49,11 @@ class DoubleService extends Service {
             info.location = cid;
             if(isFly && invitee) {
                 let self = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
-                let short_path = new ShortPath(visit.cid);
-                let plan = visit.roadMap;
-                let real = [];
-                for(let planS of plan) {
-                    if(planS.index != -1) {
-                        if(planS.tracked || planS.endtime <= new Date().getTime()) {
-                            real.push(planS.id);
-                        }
-                    }
-                }
-                info.score = 0;
-                info.reward = 0;
-                if(real.length > 0) {
-                    let path = short_path.travelShortDistance(real);
-                    let shortDistance = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: visit.cid });
-                    let efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
-                    //上个城市走的实际景点数
-                    let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: visit.fid });
-                    let reward = efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
-                    //上个城市的评分奖励
-                    let cost = {
-                        [ "items." + travelConfig.Item.POINT]: reward,
-                    };
-                    this.ctx.service.publicService.itemService.itemChange(self.uid, cost);
-                //    await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { efficiency: 0 });
-                    info.score = efficiency;
-                    info.reward = reward;
-                }
+                let efficiencyReward = await this.service.travelService.tourService.leavetour(self);
+                info.score = efficiencyReward.score;
+                info.reward = efficiencyReward.reward;
             }
         }
-
         info.gold = info.ui.items[travelConfig.Item.GOLD];
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
         info.weather = outw;

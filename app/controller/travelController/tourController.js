@@ -67,7 +67,7 @@ class TourController extends Controller {
 
     async setrouter(ctx) {
         // http://127.0.0.1:7001/tour/setrouter/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
-        let info        = await apis.SetRouter.Init(ctx,true);
+        let info = await apis.SetRouter.Init(ctx, true);
         if(!info.ui) {
             return
         }
@@ -76,7 +76,7 @@ class TourController extends Controller {
         // let weather     = info.weather;
         // let line        = JSON.parse(info.line);
 
-        let lines                = JSON.parse(info.line);
+        let lines = JSON.parse(info.line);
         if(!lines || lines.length == 0) {
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
@@ -93,9 +93,9 @@ class TourController extends Controller {
     async modifyrouter(ctx) {
         let info = apis.ModifyRouter.Init(ctx);
 
-        let user_info       = ctx.session.ui;
+        let user_info = ctx.session.ui;
       //  this.logger.info(user_info);
-        if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value){
+        if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value) {
             info.code = apis.Code.NEED_MONEY;
             info.submit();
             return
@@ -104,86 +104,6 @@ class TourController extends Controller {
         info.submit();
     }
 
-
-    async tourstart(ctx){
-        // http://127.0.0.1:7001/tour/tourstart/?sid=1000001&cid=1&line=[100107,100102,100109]&appName=travel
-        // let info = apis.TourStart.Init(ctx);
-      //  let cid         = info.cid;
-     //   let uid         = info.uid;
-        let cid =1;
-     //   let cid         = info.cid;
-       // let uid         = info.uid;
-
-        let city        = travelConfig.City.Get(cid);
-        let result      = tour.get(ctx.query.uid);
-        let lines       = JSON.parse(ctx.query.line);
-        
-        this.logger.info(lines);
-        
-        userLines.set(ctx.query.uid,lines);
-        let sps = result.data.spots;
-
-        result.data.spots= sps.map((s, idx) =>{
-            let o = s;
-            if(o.index != -1){
-                this.logger.info(o.createDate);
-                let date = new Date().getTime();
-                this.logger.info(date);
-                if(o.createDate <= date) {
-                    o.tracked = true;
-                }else{
-                    let index = lines.findIndex((n) => n ==  o.id);';'
-                    o.index = index;
-                    if(index != -1){
-                        o.createDate = new Date().getTime() + (index+1) * 30000;
-                    }
-                }
-            }else{
-                let index = lines.findIndex((n) => n == o.id);
-                o.index = index;
-                o.createDate = new Date().getTime() + (index+1) * 30000;
-            }
-            this.logger.info(o);
-            return o;
-        });
-
-        tour.set(ctx.query.uid,result);
-        ctx.body =result;
-
-    }
-    
-    async changerouter(ctx) {
-        let lines = JSON.parse(ctx.query.line);
-       //   let oldLines = userLines.get(ctx.query.uid);
-        //  userLines.set(ctx.query.uid,lines);
-        let result = tour.get(ctx.query.uid);
-        let sps = result.data.spots;
-
-        //   this.logger.info(sps);
-        result.data.spots=sps.map((s, idx) =>{
-            let o = s;
-            if(o.index != -1){
-                this.logger.info(o.createDate);
-                let date = new Date().getTime();
-                this.logger.info(date);
-                if(o.createDate <= date) {
-                    o.tracked = true;
-                //    lines.push(o.id);
-                }else{
-                    let index = lines.findIndex((n) => n == o.id);
-                    o.index = index;
-                }
-            }else{
-                o.index = -1;
-            }
-          //  this.logger.info(o);
-            return o;
-        });
-        //  this.logger.info( result.data.spots);
-        userLines.set(ctx.query.uid,lines);
-        tour.set(ctx.query.uid,result);
-        ctx.body =result
-    }
 
 
     // 拍照
@@ -511,7 +431,7 @@ class TourController extends Controller {
     }
 
     //用户结束该城市旅游时，会给出用户的效率评分，并根据评分给予金币奖励。
-    async leavetour(ctx) {
+ /*   async leavetour(ctx) {
         //离开城市的时候最好有个统计表哦
         //他还要保存他的进度 效率报告
         // 查询任务之前注意是否有点亮过
@@ -520,7 +440,7 @@ class TourController extends Controller {
         let info = await apis.LeaveTour.Init(ctx, true);
         await this.ctx.service.travelService.tourService.leavetour(info);
         info.submit();
-    }
+    }*/
 
     async rentprop(ctx) {
         let info = await apis.RentProp.Init(ctx, true);
