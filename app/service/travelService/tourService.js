@@ -22,7 +22,10 @@ class TourService extends Service {
             // partener 就是另一个玩家
             let partenerId      = [doubleInfo.inviter,doubleInfo.invitee].find(x => x != uid);
             let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: partenerId })
+            if ( !partnetObj )  return null;
 
+            this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
+            
             let partener        = {
                 uid:   partenerId,
                 nickName: partnetObj.nickName,
@@ -30,7 +33,6 @@ class TourService extends Service {
                 img:partnetObj.avatarUrl,//头像地址
                 isInviter:doubleInfo.inviter == uid ? true : false //是否是邀请者
             }
-            this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
             return partener;
         }else{
             return null;
@@ -961,7 +963,8 @@ class TourService extends Service {
             }});
     }
 
-    async CancelParten(info){
+    // 取消组队
+    async cancelparten(info){
         //双人变单人 
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
         let inviteCode  = info.inviteCode;
@@ -981,17 +984,18 @@ class TourService extends Service {
             inviteCode : null
         }});
     }
-       
-    async CancelTeamLoop(info){
+     
+    async cancelpartenloop(info){
         //双人变单人 
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
-        let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
-        let cid         = info.cid;
-        let r           = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
-        // if (r && r["inviteCode"]){
-        //     //有记录
-            
-        // }
+        let partner     = await this.findAnotherUid(info.inviteCode,info.uid);
+        if ( !partner ){
+                info.code = apis.Code.USER_CANCEL_TEAM;
+                info.message = "伙伴已经退出了！";
+                return;
+        }else{
+
+        }
     }
 }
 

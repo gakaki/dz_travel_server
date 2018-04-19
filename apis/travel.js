@@ -1136,12 +1136,44 @@ class CancelParten extends Base {
         super();
         this.action = 'tour.cancelparten';
     
-        this.requireFileds = [];
-        this.reqFields = [];
+        this._inviteCode = null;
+        this.requireFileds = ["inviteCode"];
+        this.reqFields = ["inviteCode"];
         this.resFields = [];
     }
+    //client input, require, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
     static Init(ctx, checkLogin = false) {
         let o = new CancelParten();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class CancelPartenLoop extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.cancelpartenloop';
+    
+        this._inviteCode = null;
+        this.requireFileds = ["inviteCode"];
+        this.reqFields = ["inviteCode"];
+        this.resFields = [];
+    }
+    //client input, require, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new CancelPartenLoop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3578,6 +3610,7 @@ exports.Shop = Shop;
 exports.FinishGuide = FinishGuide;
 exports.TourIndexInfo = TourIndexInfo;
 exports.CancelParten = CancelParten;
+exports.CancelPartenLoop = CancelPartenLoop;
 exports.LookTicket = LookTicket;
 exports.Photography = Photography;
 exports.SignInfo = SignInfo;

@@ -80,8 +80,11 @@ api TourIndexInfo{
 
 //取消组队
 api CancelParten {
-
-
+    require inviteCode:string 
+}
+//取消组队 循环统治
+api CancelPartenLoop {
+    require inviteCode:string 
 }
 
 class Postcard {
