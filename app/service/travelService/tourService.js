@@ -520,6 +520,62 @@ class TourService extends Service {
         info.rentItems = Object.values(curCity.rentItems);
     }
 
+    async buypostcard(info) {
+        let cfg = await travelConfig.Postcard.Get(info.buyId);
+        let ui = info.ui
+        if (!cfg) {
+            this.logger.info(`明信片列表中未找到id为${info.buyId}的道具`);
+            info.code = apis.Code.NOT_FOUND;
+            return;
+        }
+
+        let city = await travelConfig.City.Get(cfg.cityid)
+        if(!city) {
+            this.logger.info(`找不到id为${cfg.cityid}的城市`)
+            info.code = apis.Code.NOT_FOUND
+        }
+        console.log('city',city)
+
+        let cost = cfg.price;
+        if(cost == -1) {
+            this.logger.info('该明信片没有设置价格')
+            info.code = apis.Code.CANT_BUG;
+            return
+        }
+        if (ui.items[travelConfig.Item.GOLD] < cost) {
+            this.logger.info('您的现金不足速度充值');
+            info.code = apis.Code.NEED_MONEY;
+            return;
+        }
+
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'travel');
+        console.log(cfg)
+        ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        //加明信片
+        await this.ctx.model.TravelModel.SpecialityBuy.create({
+            uid:ui.uid,
+            cid:cfg.cityid,
+            country:city.country,
+            province:city.province,
+            city:city.city,
+            ptid:city.id,  //明信片配表ID 不唯一
+            pscid:Date.now().toString(),//明信片专有ID  唯一
+            type:city.type,//明信片类型
+            createDate: new Date()
+        });
+
+        this.logger.info(`购买明信片成功`);
+
+        info.goldNum = ui.items[sheets.Item.GOLD];
+
+
+        // let postcard = await this.ctx.model.TravelModel.Postcard.findOne({ uid: info.ui.uid});
+        // let spotsConfig = travelConfig.postcard.Get(info);
+
+        // let curCity = await this.ctx.model.TravelModel.Postcard.findOne({ uid: info.ui.uid});
+        // info.rentItems = Object.values(curCity.rentItems);
+    }
+
     async leavetour(selfInfo) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: selfInfo.uid });
         let short_path = new ShortPath(curCity.cid);

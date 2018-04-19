@@ -79,6 +79,8 @@ enum Code {
     const NEED_ADDRESS = -173
     //尚未设置地址
     const NONE_ADDRESS = -174
+    //不可购买
+    const CANT_BUG = -175
     //未达到排名要求
     const RANK_NOT_MEET = 150
     //未达到积分要求

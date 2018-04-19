@@ -201,6 +201,11 @@ api RentedProp {
     output rentItems:KV[]//已租用的所有道具。
 }
 
+//购买明信片
+api BuyPostcatd {
+    require buyId:number //明信片id
+}
+
 //设置/修改路线，后端判断是z否第一次，非第一次且非续接路线则扣钱
 api SetRouter {
     require cid:string

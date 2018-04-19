@@ -99,6 +99,8 @@ class Code{
     
     static get NONE_ADDRESS() { return -174;}
     
+    static get CANT_BUG() { return -175;}
+    
     static get RANK_NOT_MEET() { return 150;}
     
     static get INTEGRAL_NOT_MEET() { return 151;}
@@ -1612,6 +1614,46 @@ class Minapppay extends Base {
     set payload(v) {this._payload = v}
     static Init(ctx, checkLogin = false) {
         let o = new Minapppay();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class SetRouter extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.setrouter';
+    
+        this._cid = null;
+        this._line = null;
+        this._spots = null;
+        this._startTime = null;
+        this.requireFileds = ["cid","line"];
+        this.reqFields = ["cid","line"];
+        this.resFields = ["spots","startTime"];
+    }
+    //client input, require, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
+    get line() {return this._line}
+    set line(v) {this._line = v}
+    //server output, type: RouterSpot[]//不包括起点
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    //server output, type: 
+    get startTime() {return this._startTime}
+    set startTime(v) {this._startTime = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new SetRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3303,33 +3345,21 @@ class ExchangeShop extends Base {
         }
     }
 }
-class SetRouter extends Base {
+class BuyPostcatd extends Base {
     constructor() {
         super();
-        this.action = 'tour.setrouter';
+        this.action = 'tour.buypostcatd';
     
-        this._cid = null;
-        this._line = null;
-        this._spots = null;
-        this._startTime = null;
-        this.requireFileds = ["cid","line"];
-        this.reqFields = ["cid","line"];
-        this.resFields = ["spots","startTime"];
+        this._buyId = null;
+        this.requireFileds = ["buyId"];
+        this.reqFields = ["buyId"];
+        this.resFields = [];
     }
-    //client input, require, type: string
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
-    get line() {return this._line}
-    set line(v) {this._line = v}
-    //server output, type: RouterSpot[]//不包括起点
-    get spots() {return this._spots}
-    set spots(v) {this._spots = v}
-    //server output, type: 
-    get startTime() {return this._startTime}
-    set startTime(v) {this._startTime = v}
+    //client input, require, type: number
+    get buyId() {return this._buyId}
+    set buyId(v) {this._buyId = v}
     static Init(ctx, checkLogin = false) {
-        let o = new SetRouter();
+        let o = new BuyPostcatd();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3531,6 +3561,7 @@ exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
 exports.Minapppay = Minapppay;
+exports.SetRouter = SetRouter;
 exports.ModifyRouter = ModifyRouter;
 exports.FreshSpots = FreshSpots;
 exports.PlayLoop = PlayLoop;
@@ -3577,7 +3608,7 @@ exports.CheckGuide = CheckGuide;
 exports.IntegralShop = IntegralShop;
 exports.ExchangeDetail = ExchangeDetail;
 exports.ExchangeShop = ExchangeShop;
-exports.SetRouter = SetRouter;
+exports.BuyPostcatd = BuyPostcatd;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
 exports.SysMessage = SysMessage;

@@ -457,6 +457,12 @@ class TourController extends Controller {
         info.submit();
     }
 
+    async buypostcard(ctx) {
+        let info = await apis.BuyPostcatd.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.buypostcard(info);
+        info.submit();
+    }
+
     // 景点完成任务
     async tourtask(ctx) {
         return ctx.body = {
