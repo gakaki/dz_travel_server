@@ -790,18 +790,8 @@ class TourService extends Service {
     }
 
     //轮询访问地址
-
     async playloop(info){
-        return ctx.body = {
-            "data": {
-                "action": "tour.playloop",
-                "newEvent": false,
-                "freshSpots": true,
-                "spotsTracked": 0,
-                "spotsAllTraced": false
-            },
-            "code": 0
-        }
+        
         let uid              = info.uid;
         let cid              = info.cid;
         
@@ -911,7 +901,6 @@ class TourService extends Service {
         'uid'        : uid,
         'cid'        : cid,
         },{ $set: {
-            inviteCode : inviteCode, //有邀请码代表是双人
             roadMap  : outPMap,
             acceleration: acceleration,
             events   : {
@@ -967,6 +956,8 @@ class TourService extends Service {
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
         let inviteCode  = info.inviteCode;
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
+        let partner     = await this.findAnotherUid(inviteCode,uid);
+        
         //删除inviteCode 
         await this.ctx.service.travelService.doubleService.deleteCode(info);
         //记录action
@@ -978,9 +969,7 @@ class TourService extends Service {
         });
         
         //删除current city里的 invite code中的用户id 的event 偷懒不删除了
-        await this.ctx.model.TravelModel.CurrentCity.update({ uid: uid },{ $set: {
-            inviteCode : null
-        }});
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ uid, partner.uid ] }, { $set: { friend: "0" } }, { multi: true });
     }
      
     async cancelpartenloop(info){
