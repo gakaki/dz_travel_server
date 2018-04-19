@@ -258,6 +258,9 @@ class Partener {
         //prop type: number//性别
         this.gender = null;
     
+        //prop type: string//头像地址
+        this.img = null;
+    
         //prop type: boolean//是否是邀请者
         this.isInviter = null;
     
@@ -1096,11 +1099,12 @@ class TourIndexInfo extends Base {
         this._spots = null;
         this._startPos = null;
         this._others = null;
+        this._display = null;
         this._startTime = null;
         this._partener = null;
         this.requireFileds = ["cid"];
         this.reqFields = ["cid"];
-        this.resFields = ["weather","spots","startPos","others","startTime","partener"];
+        this.resFields = ["weather","spots","startPos","others","display","startTime","partener"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1117,6 +1121,9 @@ class TourIndexInfo extends Base {
     //server output, type: string[]
     get others() {return this._others}
     set others(v) {this._others = v}
+    //server output, type: 
+    get display() {return this._display}
+    set display(v) {this._display = v}
     //server output, type: 
     get startTime() {return this._startTime}
     set startTime(v) {this._startTime = v}
@@ -1656,13 +1663,17 @@ class FreshSpots extends Base {
         this.action = 'tour.freshspots';
     
         this._spots = null;
+        this._display = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["spots"];
+        this.resFields = ["spots","display"];
     }
     //server output, type: RouterSpot[]
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
+    //server output, type: 
+    get display() {return this._display}
+    set display(v) {this._display = v}
     static Init(ctx, checkLogin = false) {
         let o = new FreshSpots();
         o.ctx = ctx;

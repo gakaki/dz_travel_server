@@ -72,6 +72,7 @@ api TourIndexInfo{
     output startPos:object
     //其他玩家头像，为图片url数组
     output others:string[]
+    output display: number //人物的表现形式
     output startTime: number //开始时间
     output partener:Partener//组队者信息,非组队模式下传空
 }
@@ -221,6 +222,7 @@ api ModifyRouter {
 api FreshSpots {
     //最新景点数组
     output spots:RouterSpot[]
+    output display: number //人物的表现形式
 }
 
 //游玩界面轮询
