@@ -34,7 +34,7 @@ class RewardService extends Service{
                 await this.gold( uid , v);
             }
             if ( k == eventCfg.RewardType.TIME){// 城市总时间
-                await this.time( uid , cid , eid , timeAppend = v );
+                await this.time( uid , cid , eid ,  v );
             }
             if ( k == eventCfg.RewardType.POSTCARD){// 明信片
                 await this.postcard( uid , cid , v );
@@ -56,7 +56,7 @@ class RewardService extends Service{
 
     // 该用户在该城市的总游玩时间 追加时间
     async time( uid , cid , eid , timeAppend = 0 ) {
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
+        // await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
         await this.ctx.model.travelModel.currentCity.update(
             {
                 'uid': uid,
@@ -66,7 +66,7 @@ class RewardService extends Service{
                 $push: {
                     rewardAppendTime : {
                         createDate: new Date(),
-                        timeNum: timeAppend,
+                        timeNum: parseInt(timeAppend),
                         eid: eid
                     }
                 }
@@ -134,7 +134,7 @@ class RewardService extends Service{
         await this.ctx.model.TravelModel.SpecialityBuy.create({
             uid: uid,
             spid: cfgId,
-            number: info.count,
+            number: parseInt(info.count),
             numberLeft: sp.number,
             createDate: new Date()
         });

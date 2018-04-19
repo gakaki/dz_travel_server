@@ -111,6 +111,13 @@ class Quest extends TreeNode {
         this.wrong1         =  d.wrong1;        //错误答案1
         this.wrong2         =  d.wrong2;        //错误答案2
         this.wrong3         =  d.wrong3;        //错误答案3
+
+        this.rewardKV        = {};
+        for (let rewardRow of this.reward) {
+            let typeId      = rewardRow['k'];
+            let itemIdOrVal = rewardRow['v'];
+            this.rewardKV[typeId] = itemIdOrVal;
+        }
     }
 
     answers(){
@@ -120,6 +127,7 @@ class Quest extends TreeNode {
         if (!answers || answers.length <= 0) return null;
         return  _.shuffle( answers )
     }
+
 
 
     // 景点奖励语句
