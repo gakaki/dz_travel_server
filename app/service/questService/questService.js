@@ -42,7 +42,7 @@ class QuestService extends Service{
         this.logger.info("进入景点");
 
         //获得触发的事件列表 当然是指景点的那些随机触发事件
-        let events = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: info.uid ,cid: info.cid });
+        let events = await this.ctx.model.TravelModel.SpotTravelEvent.find({ uid: info.uid, cid: info.cid, spotId: info.spotId });
         let questList = [];
         for ( let row of events ) {
 
