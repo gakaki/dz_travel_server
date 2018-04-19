@@ -33,27 +33,28 @@ class RewardService extends Service{
             let  v = eventCfg.rewardKV[k];
 
             if ( k == eventCfg.RewardType.GOLD){ // 金币
-                await this.gold( uid , Number(v));
+                return await this.gold( uid , Number(v));
             }
             if ( k == eventCfg.RewardType.TIME){// 城市总时间
-                await this.time( uid , cid , eid ,  v );
+                return await this.time( uid , cid , eid ,  v );
             }
             if ( k == eventCfg.RewardType.POSTCARD){// 明信片
-                await this.postcard( uid , cid , v );
+                return await this.postcard( uid , cid , v );
             }
             if ( k == eventCfg.RewardType.Speciality){ //特产
-                await this.speciality( uid , cid ,v );
+                return await this.speciality( uid , cid ,v );
             }
             if ( k == eventCfg.RewardType.POINT){ // 点数
-                await this.integral( uid, Number(v) );
+                return await this.integral( uid, Number(v) );
             }
         }
 
-        return eventCfg;
+      //  return eventCfg;
     }
     // 奖励金钱
     async gold( uid , num = 0 ) {
         await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
+        return true;
     }
 
     //TODO 该用户在该城市的总游玩时间 追加时间
@@ -74,6 +75,7 @@ class RewardService extends Service{
                 }
             }
         )
+        return true;
     }
 
     // 奖励明信片的服务
@@ -103,6 +105,9 @@ class RewardService extends Service{
         });
         this.logger.info(`获得明信片成功,获得${cfgId} x ${1}`);
 
+
+
+
         // sysGiveLog表记录
         await this.ctx.model.TravelModel.SysGiveLog.create({
             uid:    uid,
@@ -113,6 +118,7 @@ class RewardService extends Service{
             isAdmin:"0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
             createDate: dateNow                         //当前时间创建
         });
+        return true;
     }
 
     // 奖励特产的服务
@@ -125,43 +131,52 @@ class RewardService extends Service{
             return false;
         }
 
-        //加特产
-        let sp = await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
-        {
-            uid: uid,
-            spid: cfgId,
-            $inc: {number: count },
-            createDate: new Date()
-        },
-        {upsert: true});
+        let spcount = await this.ctx.model.TravelModel.Speciality.count({ uid: uid });
+        if(spcount < travelConfig.Parameter.Get(travelConfig.Parameter.BAGLIMIT).value) {
+            //加特产
+            let sp = await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
+                {
+                    uid: uid,
+                    spid: cfgId,
+                    $inc: {number: count },
+                    createDate: new Date()
+                },
+                {upsert: true});
 
-        //购买记录
-        await this.ctx.model.TravelModel.SpecialityBuy.create({
-            uid: uid,
-            spid: cfgId,
-            number: count,
-            numberLeft: sp.number,
-            createDate: new Date()
-        });
-        this.logger.info(`购买特产成功,获得${cfgId} x ${count}`);
+            //购买记录
+            await this.ctx.model.TravelModel.SpecialityBuy.create({
+                uid: uid,
+                spid: cfgId,
+                number: count,
+                numberLeft: sp.number,
+                createDate: new Date()
+            });
+            this.logger.info(`购买特产成功,获得${cfgId} x ${count}`);
 
-        //syslog 记录
-        await this.ctx.model.TravelModel.SysGiveLog.create({
-            uid:    uid,
-            sgid:   "",                                 //唯一id
-            type:   apis.SystemGift.SPECIALITY,                                  // 3.明信片
-            iid:   cfgId,                              //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
-            number: count,                                  //数量
-            isAdmin:"0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
-            createDate: new Date()                      //当前时间创建
-        });
-        this.logger.info(`系统赠送特产成功,获得 ${cfgId}  x ${count}`);
+            //syslog 记录
+            await this.ctx.model.TravelModel.SysGiveLog.create({
+                uid:    uid,
+                sgid:   "",                                 //唯一id
+                type:   apis.SystemGift.SPECIALITY,                                  // 3.明信片
+                iid:   cfgId,                              //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
+                number: count,                                  //数量
+                isAdmin:"0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+                createDate: new Date()                      //当前时间创建
+            });
+            this.logger.info(`系统赠送特产成功,获得 ${cfgId}  x ${count}`);
+            return true;
+        }else{
+            this.logger.info(`系统赠送特产失败,玩家背包当前特产数量 ${spcount} 已达上限 `);
+            return false;
+        }
+
+
     }
 
     // 奖励积分的服务
     async integral( uid , integral  ) {
         await this.ctx.service.travelService.integralService.add(uid, integral);
-       // await this.ctx.service.publicService.itemService.itemChange( uid, {["items." + travelConfig.Item.POINT]: integral }, 'travel');
+        return true;
     }
 }
 

@@ -117,6 +117,7 @@ class MakeRoadMap {
                 o.x = xy.x;
                 o.y = xy.y;
                 o.mileage = 0;
+                o.countdown = 0;
                 o.tracked = false;
                 o.index = index;
                 o.startime = "";
@@ -196,15 +197,12 @@ class MakeRoadMap {
         let timeHour = 0;
         for(let speed of travelConfig.speeds) {
             if(distance <= speed.distance2) {
-                timeHour = ((speed.speed2 - speed.speed1) / 1000) / (speed.distance2 - speed.distance1) * distance + speed.speed2 / 1000
+                timeHour = (((distance - speed.distance1) / (speed.distance2 - speed.distance1)) * (speed.speed2 - speed.speed1) + speed.speed1) / 1000;
                 break;
             }
         }
         console.log("初始时间", timeHour);
-        if(this.isSingle && this.isNewPlayer) {
-            timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
-        }
-        console.log("新手加速", timeHour);
+
 
         if (this.rentItems) {
             let shortTime = [];
@@ -225,21 +223,31 @@ class MakeRoadMap {
             this.acceleration = max;
         }
         console.log("道具加速", timeHour);
-
-         let diffTime = Math.floor(timeHour * 60 * 60 * 1000);
-        //let diffTime    = 30000;
-
+        let diffTime = Math.floor(timeHour * 60 * 60 * 1000);
+        if(this.isSingle && this.isNewPlayer) {
+            timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
+            diffTime = Math.floor(timeHour * 60 * 60 * 1000);
+            console.log("新手加速", timeHour);
+        }else{
+            if(timeHour * 60 * 60 * 1000 < travelConfig.Parameter.Get(travelConfig.Parameter.SHORTESTTIME).value) {
+                diffTime = travelConfig.Parameter.Get(travelConfig.Parameter.SHORTESTTIME).value
+            }
+            if(timeHour * 60 * 60 * 1000 > travelConfig.Parameter.Get(travelConfig.Parameter.LONGESTTIME).value) {
+                diffTime = travelConfig.Parameter.Get(travelConfig.Parameter.LONGESTTIME).value
+            }
+        }
 
         console.log("需要的时间 " + diffTime);
         let now = new Date().getTime();
         if (spotStart['isStart'] == true) {
             if (!spotStart['startime']) {
-                let start = now;
-                spotStart['startime'] = start;
+                spotStart['startime'] = now;
 
             }
             let end = spotStart['startime'] + diffTime;
             spotEnd['endtime'] = end;
+            spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
+            spotEnd['mileage'] = distance;
 
         }else{
             let nextStart = spotStart['endtime'];
@@ -248,6 +256,8 @@ class MakeRoadMap {
             }
             spotStart['startime'] = nextStart;
             spotEnd['endtime'] = nextStart + diffTime;
+            spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
+            spotEnd['mileage'] = distance;
         }
         console.log("达到时间 " + new Date(spotEnd['endtime']));
 

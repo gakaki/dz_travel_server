@@ -176,7 +176,7 @@ class RankService extends Service {
         ]);
 
         let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            { $match: { uid: uid, cid: cid } },
+            { $match: { uid: uid, cid: cid, received: true } },
             { $group: { _id: "$eid" } },
         ]);
         let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([

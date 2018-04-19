@@ -169,6 +169,7 @@ class TourService extends Service {
                             scenicspot: spot.name,
                             createDate: new Date(spot.endtime),
                         });
+                        this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
                         //更新里程数
                         await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage ? spot.mileage : 0 } });
 
@@ -187,7 +188,7 @@ class TourService extends Service {
         this.updatePlayerProgress(currentCity, uid);
 
         //查找走过的景点数
-        let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, fid: currentCity.fid, cid: cid });
+        let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, fid: currentCity.fid, cid: cid, scenicspot: { $ne: null } });
 
         //查找拍照
         let photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, fid: currentCity.fid, cid: cid });
@@ -209,9 +210,9 @@ class TourService extends Service {
         }
 
         return {
-            spot: sCount,
-            tour: tourCount,
-            photo: photoCount,
+            spot: [ sCount, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value ],
+            tour: [ tourCount, travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value ],
+            photo: [ photoCount, travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value],
         }
 
 
@@ -286,7 +287,7 @@ class TourService extends Service {
             if(count == 1) {
                 this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
             }
-
+            this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
             // sysGiveLog表记录
             await this.ctx.model.TravelModel.SysGiveLog.create({
                 uid: ui.uid,
@@ -366,11 +367,16 @@ class TourService extends Service {
         let e                    = new MakeSpotEvent(para);
       //  this.logger.info("事件",e);
         let eid                  = e.event.id;
+        //奖励 的数值
+        this.logger.info(uid,cid,eid);
 
-
+        this.logger.info(sp);
+        let isGetReward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
+        let desc = questRepo.find(eid).getSpotRewardComment(sp.scenicspot, isGetReward);
         let row                  = {
             uid:uid,
             eid:eid,        //事件id 这个是随机出来的
+            desc: desc.finalStr,//时间描述
             cid:cid,           //cityId
             spotId:spotId,     //现在用不上
             fid:currentCity.fid,
@@ -383,15 +389,10 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
 
-
-        //奖励 的数值
-        this.logger.info(uid,cid,eid);
-
-        this.logger.info(sp);
-        await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
+        this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
 
 
-        info.event          = questRepo.find(eid).getSpotRewardComment(sp.scenicspot);
+        info.event          = desc;
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
         info.goldNum        = ui.items[travelConfig.Item.GOLD];
 
@@ -692,7 +693,7 @@ class TourService extends Service {
             type:city.type,//明信片类型
             createDate: new Date()
         });
-
+        this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(ui.uid, cfg.cityid);
         this.logger.info(`购买明信片成功`);
 
         info.goldNum = ui.items[travelConfig.Item.GOLD];
@@ -937,6 +938,7 @@ class TourService extends Service {
                         roadMap[i].startime = "";
                         roadMap[i].endtime = "";
                         roadMap[i].mileage = 0;
+                        roadMap[i].countdown = 0;
                         roadMap[i].arriveStamp = "";
                         roadMap[i].arriveStampYMDHMS = "";
                     }
