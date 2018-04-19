@@ -89,6 +89,9 @@ enum Code {
     const ALREADY_GOT = 152
     //已经签到了
     const HAS_SIGNIN = -144
+    //还未起飞,用户没有当前城市
+    const NO_CURRENTCITY = -145
+
     const UNKNOWN = -1000
     // 遇到了未处理的异常
     const EXCEPTION = -999

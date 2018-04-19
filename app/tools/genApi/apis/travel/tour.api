@@ -54,11 +54,7 @@ api CheckGuide {
 api FinishGuide {
 }
 
-//任务完成度信息
-api TaskInfo {
-    //任务完成度信息
-    output task:TourTask
-}
+
 
 //进入城市的经典页面  用户开始该城市的旅游
 api TourIndexInfo{
@@ -68,6 +64,8 @@ api TourIndexInfo{
     output weather:number
     //该城市的spot景点列表
     output spots:Spot[]
+    //任务完成度信息
+    output task:TourTask
     //起点
     output startPos:object
     //其他玩家头像，为图片url数组
@@ -149,7 +147,7 @@ api SpotTour {
     require spotId:number
     output event:string//产生的新事件
     //随机事件会获得的东西不同
-    output userinfo:UserInfo
+    output  freeSight:number
     output goldNum:number//剩余金币数
 }
 
@@ -241,6 +239,8 @@ api FreshSpots {
     //最新景点数组
     output spots:RouterSpot[]
     output display: number //人物的表现形式
+    //任务完成度信息
+    output task:TourTask
 }
 
 //游玩界面轮询
