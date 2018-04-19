@@ -163,6 +163,7 @@ enum Code {
     // rest访问需要重新启动监听
     const  NO_DB_ROW  =   11001  //没有对应的数据库行
     const  NO_CFG_ROW =   11002  //没有对应的配置表行
+    const USER_CANCEL_TEAM = 11003 //玩家取消组队
 }
 
 enum RentItem {

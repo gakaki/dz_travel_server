@@ -53,8 +53,8 @@ class TourService extends Service {
         // }
         info.partener       = await this.findAnotherUid(inviteCode,uid);
         // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
-        info.others         = [info.partener.img];
-
+        info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
         if(!cityConfig) {
@@ -893,7 +893,7 @@ class TourService extends Service {
         let e                    = new MakeEvent(para);
         let events               = e.eventsFormat;
         let eventspartner        = [];
-        
+
         if ( inviteCode ){        //双人模式
             let partner         = await this.findAnotherUid(inviteCode,uid);
             if ( partner ){
@@ -908,6 +908,7 @@ class TourService extends Service {
         'uid'        : uid,
         'cid'        : cid,
         },{ $set: {
+            inviteCode : inviteCode, //有邀请码代表是双人
             roadMap  : outPMap,
             acceleration: acceleration,
             events   : {
@@ -957,7 +958,38 @@ class TourService extends Service {
             }});
     }
 
-
+    async CancelParten(info){
+        //双人变单人 
+        //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
+        let inviteCode  = info.inviteCode;
+        let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
+        //删除inviteCode 
+        await this.ctx.service.travelService.doubleService.deleteCode(info);
+        //记录action
+        this.ctx.model.PublicModel.UserActionRecord.create({
+            uid: uid,
+            inviteCode: inviteCode,
+            type: apis.Code.USER_CANCEL_TEAM,
+            createDate: new Date(),
+        });
+        
+        //删除current city里的 invite code中的用户id 的event 偷懒不删除了
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: uid },{ $set: {
+            inviteCode : null
+        }});
+    }
+       
+    async CancelTeamLoop(info){
+        //双人变单人 
+        //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
+        let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
+        let cid         = info.cid;
+        let r           = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        // if (r && r["inviteCode"]){
+        //     //有记录
+            
+        // }
+    }
 }
 
 

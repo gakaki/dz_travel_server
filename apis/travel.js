@@ -183,6 +183,8 @@ class Code{
     
     static get NO_CFG_ROW() { return 11002;}
     
+    static get USER_CANCEL_TEAM() { return 11003;}
+    
 }
 class RentItem{
     
