@@ -9,14 +9,16 @@ let userLines = new Map();
 
 //观光相关
 class TourController extends Controller {
-    // 查询用户是否需要新手引导   1
+
+    // 查询用户是否需要新手引导 双人引导是否需要新手引导 加一个双人引导的标记字段 user['doubleHasPlay'] = true
     async checkguide(ctx){
         let info            = apis.CheckGuide.Init(ctx);
         let user            = await this.ctx.model.PublicModel.User.findOne({uid: ctx.query.uid });
         info.hasPlay        = user['hasPlay'] ? true : false;
         info.submit();
     }
-    //前端新手引导 标记一下已经完成新手引导了  1
+
+    //前端新手引导 标记一下已经完成新手引导了
     async finishguide(ctx){
         let info            = apis.FinishGuide.Init(ctx);
         await this.ctx.model.PublicModel.User.update({uid: ctx.query.uid }, {$set: {hasPlay: true}});
@@ -60,7 +62,6 @@ class TourController extends Controller {
         let info            = apis.TourIndexInfo.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.tourindexinfo(info,user_info);
-        //info.firstPlay      = user_info.firstPlay;
         info.submit();
     }
 
@@ -347,7 +348,15 @@ class TourController extends Controller {
                         "cid" : "1",
                         "id" : (100102)
                     }
-                ]
+                ],
+                display: 1 ,
+                task : {
+                    spot:[3,6],             // 3/6 景点完成度 一共6已完成3
+                    tour:[0,2],              // 0/2 观光完成度 一共2已完成2
+                    parterTour:[1,2],       //0/2 队友观光完成度 一共2已完成2(双人模式下)
+                    photo:[1,2],            // 0/2 拍照完成度 一共2已完成2
+                    parterPhoto:[2,2],      // 0/2 队友拍照完成度 一共2已完成2(双人模式下)
+                }
             }
         };
 
@@ -458,13 +467,13 @@ class TourController extends Controller {
     }
 
     async buypostcardlist(ctx) {
-        let info = await apis.BuyPostcatdList.Init(ctx, true);
+        let info = await apis.BuyPostcardList.Init(ctx, true);
         await this.ctx.service.travelService.tourService.buypostcardlist(info);
         info.submit();
     }
 
     async buypostcard(ctx) {
-        let info = await apis.BuyPostcatd.Init(ctx, true);
+        let info = await apis.BuyPostcard.Init(ctx, true);
         await this.ctx.service.travelService.tourService.buypostcard(info);
         info.submit();
     }

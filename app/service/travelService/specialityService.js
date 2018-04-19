@@ -12,6 +12,14 @@ class SpecialityService extends Service {
             return;
         }
 
+        let specs = await this.ctx.model.TravelModel.Speciality.find({ uid: info.ui.uid })
+        let nowNum = 0;
+        specs.forEach(v=>{
+            nowNum += v.number
+        })
+        let baglimit = sheets.Parameter.Get(sheets.Parameter.BAGLIMIT).value;
+        let restNum = baglimit - nowNum;
+        info.restNum = restNum
         //read specialitys
         let spes = cityCfg.speciality.map(id => {
             let o = sheets.Speciality.Get(id);
@@ -134,7 +142,7 @@ class SpecialityService extends Service {
                 return total + record.number;
             }, 0);
         }
-        if (hasCnt + parseInt(info.count) >= baglimit) {
+        if (hasCnt + parseInt(info.count) > baglimit) {
             info.code = apis.Code.BAG_FULLED;
             this.logger.info(`购买特产失败，背包已满`);
             return;

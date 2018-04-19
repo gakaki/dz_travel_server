@@ -15,8 +15,6 @@ class QuestService extends Service{
 
     async reqenterspot(info) {
         //https://local.ddz2018.com/tour/reqenterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
-
-
         //获得对当前城市拍照次数
         let r                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid  });
         if ( !r ) {

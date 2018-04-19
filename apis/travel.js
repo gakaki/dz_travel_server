@@ -1569,10 +1569,10 @@ class RentedProp extends Base {
         }
     }
 }
-class BuyPostcatdList extends Base {
+class BuyPostcardList extends Base {
     constructor() {
         super();
-        this.action = 'tour.buypostcatdlist';
+        this.action = 'tour.buypostcardlist';
     
         this._cid = null;
         this._ptList = null;
@@ -1587,7 +1587,7 @@ class BuyPostcatdList extends Base {
     get ptList() {return this._ptList}
     set ptList(v) {this._ptList = v}
     static Init(ctx, checkLogin = false) {
-        let o = new BuyPostcatdList();
+        let o = new BuyPostcardList();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -1716,9 +1716,10 @@ class FreshSpots extends Base {
     
         this._spots = null;
         this._display = null;
+        this._task = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["spots","display"];
+        this.resFields = ["spots","display","task"];
     }
     //server output, type: RouterSpot[]
     get spots() {return this._spots}
@@ -1726,6 +1727,9 @@ class FreshSpots extends Base {
     //server output, type: 
     get display() {return this._display}
     set display(v) {this._display = v}
+    //server output, type: TourTask
+    get task() {return this._task}
+    set task(v) {this._task = v}
     static Init(ctx, checkLogin = false) {
         let o = new FreshSpots();
         o.ctx = ctx;
@@ -2139,9 +2143,10 @@ class CitySpes extends Base {
     
         this._cityId = null;
         this._specialtys = null;
+        this._restNum = null;
         this.requireFileds = ["cityId"];
         this.reqFields = ["cityId"];
-        this.resFields = ["specialtys"];
+        this.resFields = ["specialtys","restNum"];
     }
     //client input, require, type: number//城市id
     get cityId() {return this._cityId}
@@ -2149,6 +2154,9 @@ class CitySpes extends Base {
     //server output, type: Speciality[]
     get specialtys() {return this._specialtys}
     set specialtys(v) {this._specialtys = v}
+    //server output, type: number
+    get restNum() {return this._restNum}
+    set restNum(v) {this._restNum = v}
     static Init(ctx, checkLogin = false) {
         let o = new CitySpes();
         o.ctx = ctx;
@@ -3355,10 +3363,10 @@ class ExchangeShop extends Base {
         }
     }
 }
-class BuyPostcatd extends Base {
+class BuyPostcard extends Base {
     constructor() {
         super();
-        this.action = 'tour.buypostcatd';
+        this.action = 'tour.buypostcard';
     
         this._ptid = null;
         this._goldNum = null;
@@ -3373,7 +3381,7 @@ class BuyPostcatd extends Base {
     get goldNum() {return this._goldNum}
     set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
-        let o = new BuyPostcatd();
+        let o = new BuyPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3573,7 +3581,7 @@ exports.ShowQuestReport = ShowQuestReport;
 exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
-exports.BuyPostcatdList = BuyPostcatdList;
+exports.BuyPostcardList = BuyPostcardList;
 exports.Minapppay = Minapppay;
 exports.SetRouter = SetRouter;
 exports.ModifyRouter = ModifyRouter;
@@ -3622,7 +3630,7 @@ exports.CheckGuide = CheckGuide;
 exports.IntegralShop = IntegralShop;
 exports.ExchangeDetail = ExchangeDetail;
 exports.ExchangeShop = ExchangeShop;
-exports.BuyPostcatd = BuyPostcatd;
+exports.BuyPostcard = BuyPostcard;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
 exports.SysMessage = SysMessage;

@@ -209,8 +209,8 @@ class MakeRoadMap {
         }
         console.log(timeHour);
 
-         let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
-       // let diffTime    = 30000;
+        // let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
+        let diffTime    = 30000;
 
 
         console.log("需要的时间 " + diffTime);
