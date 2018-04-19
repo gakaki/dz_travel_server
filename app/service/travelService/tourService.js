@@ -12,8 +12,48 @@ const ShortPath     = require("../pathService/shortPath");
 
 class TourService extends Service {
 
+    // 邀请码 查询当前队友
+    async findAnotherUid(inviteCode,uid){
+        if( inviteCode ){
+            //通过redis获取到当前的队友
+            let doubleInfo      = await this.app.redis.hgetall(inviteCode);
+            this.logger.info("查询双人信息" + uid, doubleInfo.inviter, doubleInfo.invitee != uid, doubleInfo.invitee);
+
+            // partener 就是另一个玩家
+            let partenerId      = [doubleInfo.inviter,doubleInfo.invitee].find(x => x != uid);
+            let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: partenerId })
+
+            let partener        = {
+                uid:   partenerId,
+                nickName: partnetObj.nickName,
+                gender:1,//性别
+                img:partnetObj.avatarUrl,//头像地址
+                isInviter:doubleInfo.inviter == uid ? true : false //是否是邀请者
+            }
+            this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
+            return partener;
+        }else{
+            return null;
+        }
+    }
     async tourindexinfo(info, ui) {
       //  await this.service.travelService.travelService.fillIndexInfo(info,ui);
+
+        let uid             = info.uid;
+        let inviteCode      = info.inviteCode;                      //是否双人模式  通过cid其实能够查到是否是双人模式
+        // let fakeDouble      = {
+        //         code        : 1231234,
+        //         uid         : uid,
+        //         inviter     : "ov5W35XwjECAWGq0UK3omMfu9nak",       //邀请者
+        //         invitee     : "absdadew234resfdsfsd"                //被邀请者
+        //         // ov5W35XwjECAWGq0UK3omMfu9nak (inviter) ====(invite邀请)====>invitee（被邀请者）
+        // };
+        // if ( fakeDouble ){
+        //     await this.app.redis.hmset(inviteCode,fakeDouble);
+        // }
+        info.partener       = await this.findAnotherUid(inviteCode,uid);
+        // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
+        info.others         = [info.partener.img];
 
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
@@ -31,7 +71,6 @@ class TourService extends Service {
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
 
         //this.logger.info(currentCity);
-
 
         if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
@@ -81,6 +120,8 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
 
+
+        
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
@@ -792,24 +833,19 @@ class TourService extends Service {
 
     //第一次点击开始游玩按钮
     async setrouter(info){
-
+        let inviteCode           = info.inviteCode;
         let uid                  = info.uid;
         let cid                  = info.cid;
         let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
         let today                = 0; //new Date().getDate();
         //设置的路线
         let lines                = JSON.parse(info.line);
-        let isChangeRouter       = true;
         //判断是否是第一次设置路线
         let currentCity          = await this.ctx.model.TravelModel.CurrentCity.findOne({
             'uid'        : uid,
             'cid'        : cid
         });
      //   this.logger.info(currentCity);
-
-        if ( currentCity['startTime'] == null ){
-            isChangeRouter       = false;
-        }
 
         let para                 = {
             oldLine              : currentCity.roadMap,
@@ -825,7 +861,7 @@ class TourService extends Service {
 
         let rm                   = new MakeRoadMap(para);
 
-        let newRoadMap              = rm.linesFormat;
+        let newRoadMap           = rm.linesFormat;
         let outPMap = [];
         for(let roadMap of currentCity.roadMap){
             let index = newRoadMap.findIndex((n) => n.id == roadMap.id);
@@ -851,34 +887,37 @@ class TourService extends Service {
                 }
             }
         }
-        if ( isChangeRouter ){
-            //修改路线
-            await this.ctx.model.TravelModel.CurrentCity.update({
-                'uid'        : uid,
-                'cid'        : cid,
-            },{ $set: {
-                    roadMap: outPMap,
-                    acceleration: acceleration,
-                    modifyEventDate: new Date(),
-            }});
-        }else{
-             startTime = new Date();
-            // 第一次生成的时候修改事件 后面修改的时候不改了
-            let e                    = new MakeEvent(para);
-            let events               = e.eventsFormat;
-
-            await this.ctx.model.TravelModel.CurrentCity.update({
-                'uid'        : uid,
-                'cid'        : cid,
-            },{ $set: {
-                    roadMap  : outPMap,
-                    acceleration: acceleration,
-                    events   : events,
-                    startTime:startTime,
-                    modifyEventDate : new Date(),
-            }});
-
+        
+        startTime = new Date();
+        // 第一次生成的时候修改事件 后面修改的时候不改了
+        let e                    = new MakeEvent(para);
+        let events               = e.eventsFormat;
+        let eventspartner        = [];
+        
+        if ( inviteCode ){        //双人模式
+            let partner         = await this.findAnotherUid(inviteCode,uid);
+            if ( partner ){
+                let f            = new MakeEvent(para);
+                eventspartner    = f.eventsFormat;
+            }else{
+                this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
+            } 
         }
+
+        await this.ctx.model.TravelModel.CurrentCity.update({
+        'uid'        : uid,
+        'cid'        : cid,
+        },{ $set: {
+            roadMap  : outPMap,
+            acceleration: acceleration,
+            events   : {
+                uid  : events ,
+                partenerId : eventspartner
+            },
+            startTime:startTime,
+            modifyEventDate : new Date(),
+        }});
+   
         info.startTime = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
     }

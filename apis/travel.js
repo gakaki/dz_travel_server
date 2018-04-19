@@ -1071,7 +1071,11 @@ class TourIndexInfo extends Base {
         this.action = 'tour.tourindexinfo';
     
         this._cid = null;
+<<<<<<< HEAD
         this._isDouble = null;
+=======
+        this._inviteCode = null;
+>>>>>>> d036c755dfa0c069ed737d0d41ce623e4157130a
         this._weather = null;
         this._spots = null;
         this._task = null;
@@ -1080,16 +1084,27 @@ class TourIndexInfo extends Base {
         this._display = null;
         this._startTime = null;
         this._partener = null;
+<<<<<<< HEAD
         this.requireFileds = ["cid","isDouble"];
         this.reqFields = ["cid","isDouble"];
+=======
+        this.requireFileds = ["cid","inviteCode"];
+        this.reqFields = ["cid","inviteCode"];
+>>>>>>> d036c755dfa0c069ed737d0d41ce623e4157130a
         this.resFields = ["weather","spots","task","startPos","others","display","startTime","partener"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
     set cid(v) {this._cid = v}
+<<<<<<< HEAD
     //client input, require, type: boolean
     get isDouble() {return this._isDouble}
     set isDouble(v) {this._isDouble = v}
+=======
+    //client input, require, type: string
+    get inviteCode() {return this._inviteCode}
+    set inviteCode(v) {this._inviteCode = v}
+>>>>>>> d036c755dfa0c069ed737d0d41ce623e4157130a
     //server output, type: number
     get weather() {return this._weather}
     set weather(v) {this._weather = v}
