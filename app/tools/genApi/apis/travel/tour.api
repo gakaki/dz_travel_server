@@ -60,8 +60,8 @@ api FinishGuide {
 api TourIndexInfo{
     //城市id
     require cid:number
-    //是否双人模式
-    require isDouble:boolean
+    //双人模式 邀请码
+    require inviteCode:string 
 
     output weather:number
     //该城市的spot景点列表
