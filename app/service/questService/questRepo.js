@@ -39,12 +39,14 @@ module.exports = new QuestRepo();
 // let quest        = n.find("110033");
 // let res          = quest.getSpotRewardComment();
 // console.log(res);
+//
+//  res             = quest.getRewardNormal();
+// console.log(res);
 // //答题型抹去
 // // type 1 金币
 //  quest        = n.find("130010");
 //  res          = quest.getSpotRewardComment();
 // console.log(res);
-
 
 
 // // type 2 积分
@@ -75,4 +77,9 @@ module.exports = new QuestRepo();
 // // 混合型测试 200068
 // quest     = n.find("200068");
 // res       = quest.getSpotRewardComment();
+// console.log(res);
+
+
+// quest        = n.find("200004");
+// res          = quest.getRewardNormal();
 // console.log(res);

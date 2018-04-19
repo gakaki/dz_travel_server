@@ -243,7 +243,6 @@ class TourService extends Service {
         let e                    = new MakeSpotEvent(para);
         let eid                  = e.event.id;
 
-        this.logger.info(e.event);
 
         let row                  = {
             uid:uid,
@@ -254,7 +253,7 @@ class TourService extends Service {
             isTour:true, //是否为观光
             trackedNo:null,  //访问顺序
             createDate:new Date().getTime(),  //创建时间
-            receivedDate:null,  //领取奖励时间
+            receivedDate:new Date().getTime(),  //领取奖励时间
             received:true ,  //是否已经接收 直接给予奖品
         }
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
@@ -262,14 +261,18 @@ class TourService extends Service {
         //消耗金币
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
 
-        //奖励 的数值不对
+        //奖励 的数值
+        this.logger.info(uid,cid,eid);
+
         await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
 
-        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
 
         info.goldNum        = ui.items[travelConfig.Item.GOLD];
-        info.userinfo       = ui;
         info.event          = questRepo.find(eid).getSpotRewardComment()
+
+        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
+        info.userinfo       = ui;
+
 
     }
 
