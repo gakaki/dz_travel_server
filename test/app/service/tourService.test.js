@@ -17,7 +17,7 @@ describe('test tour services', () => {
         await ctx.service.travelService.tourService.userSpots(info,user_info);
 
         console.log( info ,user_info ,1 );
-
+        hmset
     });
 
 

@@ -11,14 +11,26 @@ const MakeSpotEvent = require("./makeSpotEvent");
 const ShortPath     = require("../pathService/shortPath");
 
 class TourService extends Service {
-
     
-    async tourindexinfo(info, ui) {
+    async tourindexinfo(info, ui) {                 
+
+        let uid             = info.uid;                              //离开城市才能算解除组队啊 取消redis咯
+        let inviteCode      = info.inviteCode;                      //是否双人模式  通过cid其实能够查到是否是双人模式
         
-        let isDouble        = info.isDobule;            //判断是双人组队模式
+        let fakeDouble      = {
+                code        : 1231234,
+                uid         : uid,
+                inviter     : "ov5W35XwjECAWGq0UK3omMfu9nak",       //邀请者
+                invitee     : "absdadew234resfdsfsd"                //被邀请者
+                // ov5W35XwjECAWGq0UK3omMfu9nak (inviter) ====(invite邀请)====>invitee（被邀请者）
+        };
+
+        if ( fakeDouble ){
+            await this.app.redis.hmset(inviteCode,fakeDouble);
+        }
+
         let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
-
         if(!cityConfig) {
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
@@ -30,10 +42,32 @@ class TourService extends Service {
         let lng             = cityConfig['coordinate'][0];
         let lat             = cityConfig['coordinate'][1];
 
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        let currentCity     = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
 
-        //this.logger.info(currentCity);
-
+        if( inviteCode ){
+            //通过redis获取到当前的队友
+            let doubleInfo      = await this.app.redis.hgetall(inviteCode);
+            this.logger.info("查询双人信息" + uid, doubleInfo.inviter, doubleInfo.invitee != uid, doubleInfo.invitee);
+            
+            // partener 就是另一个玩家
+            let partenerId = [doubleInfo.inviter,doubleInfo.invitee].find(x => x != uid);
+            let partnetObj = await this.ctx.model.PublicModel.User.findOne({ uid: partenerId })
+            // this.logger.info(`查询伴侣信息 ${partenerId}` + partnetObj['nickName']);
+            
+            let partener   = {
+                nickName: partnetObj.nickName,
+                gender:1,//性别
+                img:partnetObj.avatarUrl,//头像地址
+                isInviter:doubleInfo.inviter == uid ? true : false //是否是邀请者
+            }
+            // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
+            info.partener  = partener;
+            info.others    = [
+                info.avatarUrl 
+            ];
+        }
+        
+        //若已经开始游玩了
         if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
@@ -91,7 +125,7 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-
+        
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
         let task_tour_finished  = 0;
@@ -113,17 +147,18 @@ class TourService extends Service {
                 task_tour_finished++;
             }
         }
+
        // info.spots = spot_map;
         //任务完成汇报
         let isPair          = false;          //是否双人默认否
         let task_spot_full  = isPair ? 3 : 6;
         info.task           = {
-            spot :  [task_spot_finished,task_spot_full],
-            tour :  [task_tour_finished,2],
-            photo : [task_photo_finished,2]
-            // spot :  task_spot_full - task_spot_finished,
-            // tour :  2 - task_tour_finished,
-            // photo : 2 - task_photo_finished
+            // spot :  [task_spot_finished,task_spot_full],
+            // tour :  [task_tour_finished,2],
+            // photo : [task_photo_finished,2]
+            spot :  task_spot_full - task_spot_finished,
+            tour :  2 - task_tour_finished,
+            photo : 2 - task_photo_finished
         }
 
     }
