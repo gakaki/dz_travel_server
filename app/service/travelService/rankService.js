@@ -242,6 +242,7 @@ class RankService extends Service {
         let cityCompletionDegrees = await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: uid });
         let totalCitys = travelConfig.citys.length;
         let userCompletionDegree = {
+            uid: uid,
             completionDegree: 0,
             weekCompletionDegree: 0,
         };
@@ -273,7 +274,12 @@ class RankService extends Service {
      * @param limit 查询条数
      * */
     async getUserFriendCompletionDegreeRankList(friendList, page, limit) {
-        return await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: friendList }).sort({ completionDegree: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
+        let out = [];
+        let outFriendList = friendList.slice((page - 1) * limit, page * limit);
+        for(let friend of friendList) {
+            out.push(await this.getUserCompletionDegree(friend));
+        }
+        return out;
     }
     /**
      * 获取榜单奖励
