@@ -60,10 +60,12 @@ class TourService extends Service {
                 }
                 info.spots.push(row);
                 //info.startCoordinate = spotsConfig.coordinate;
-
+              //  this.logger.info(row);
                 spot_map[spot_id] = row;
+            //    this.logger.info(spot_map);
             }
         }else{
+            this.logger.info("不是第一次进来");
             let roadMaps = currentCity.roadMap;
             for(let spot of roadMaps) {
                 if(spot.index != -1 && !spot.tracked) {
@@ -86,6 +88,7 @@ class TourService extends Service {
         //    'lat'        : lat,
         //    'isStart'    : true
         // });
+
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
@@ -102,38 +105,39 @@ class TourService extends Service {
             }
         }
 
-        let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
-        let task_spot_finished  = 0;
-        let task_tour_finished  = 0;
-        let task_photo_finished = 0;
-
-        for ( let row of spotsRowInDB ){
-            let spotId                      = row['spotId'];
-
-            spot_map[spotId]['tracked']     = true;              //数据库有记录的赋值，
-            spot_map[spotId]['trackedNo']   = row['trackedNo'];  //数据库有记录的赋值，
-            spot_map[spotId]['createDate']  = row['createDate']; //createDate
-
-            task_spot_finished++;                               //有记录就算你到达了景点
-            if ( row['isPhotography'] == true ){
-                task_photo_finished++;
-            }
-            if ( row['isTour'] == true ){
-                task_tour_finished++;
-            }
-        }
+        // let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid,cid:info.cid});
+        // let task_spot_finished  = 0;
+        // let task_tour_finished  = 0;
+        // let task_photo_finished = 0;
+        //
+        // for ( let row of spotsRowInDB ){
+        //     let spotId                      = row['spotId'];
+        //
+        //     spot_map[spotId]['tracked']     = true;              //数据库有记录的赋值，
+        //     spot_map[spotId]['trackedNo']   = row['trackedNo'];  //数据库有记录的赋值，
+        //     spot_map[spotId]['createDate']  = row['createDate']; //createDate
+        //
+        //     task_spot_finished++;                               //有记录就算你到达了景点
+        //     if ( row['isPhotography'] == true ){
+        //         task_photo_finished++;
+        //     }
+        //     if ( row['isTour'] == true ){
+        //         task_tour_finished++;
+        //     }
+        // }
+        //
        // info.spots = spot_map;
         //任务完成汇报
-        let isPair          = false;          //是否双人默认否
-        let task_spot_full  = isPair ? 3 : 6;
-        info.task           = {
-            // spot :  [task_spot_finished,task_spot_full],
-            // tour :  [task_tour_finished,2],
-            // photo : [task_photo_finished,2]
-            spot :  task_spot_full - task_spot_finished,
-            tour :  2 - task_tour_finished,
-            photo : 2 - task_photo_finished
-        }
+        // let isPair          = false;          //是否双人默认否
+        // let task_spot_full  = isPair ? 3 : 6;
+        // info.task           = {
+        //     // spot :  [task_spot_finished,task_spot_full],
+        //     // tour :  [task_tour_finished,2],
+        //     // photo : [task_photo_finished,2]
+        //     spot :  task_spot_full - task_spot_finished,
+        //     tour :  2 - task_tour_finished,
+        //     photo : 2 - task_photo_finished
+        // }
 
     }
 
