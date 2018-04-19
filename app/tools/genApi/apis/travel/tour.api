@@ -28,6 +28,7 @@ class Spot extends RouterSpot{
     prop name:string
     //建筑图标
     prop building:string[]
+    prop countdown:string//还有多久到下一个景点
 }
 
 class TourTask {
@@ -60,8 +61,8 @@ api FinishGuide {
 api TourIndexInfo{
     //城市id
     require cid:number
-    //是否双人模式
-    require isDouble:boolean
+    //双人模式 邀请码
+    require inviteCode:string 
 
     output weather:number
     //该城市的spot景点列表

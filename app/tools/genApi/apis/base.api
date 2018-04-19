@@ -216,6 +216,14 @@ class Base{
                   this.code = res.data.code;
                   if (this.code != Code.OK) {
                       console.log('fetch got an error code',this.code);
+                      let sheets = require('./sheets.js')
+                      let error = sheets.Error.Get(this.code)
+                      if (error && error.message) {
+                        wx.showToast({
+                          title: error.message,
+                          icon: 'none'
+                        })
+                      }
                       reject(this.code);
                   }
                   else {
