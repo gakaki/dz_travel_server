@@ -1591,6 +1591,38 @@ class RentedProp extends Base {
         }
     }
 }
+class BuyPostcatdList extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.buypostcatdlist';
+    
+        this._cid = null;
+        this._ptList = null;
+        this.requireFileds = ["cid"];
+        this.reqFields = ["cid"];
+        this.resFields = ["ptList"];
+    }
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //server output, type: Postcard[]
+    get ptList() {return this._ptList}
+    set ptList(v) {this._ptList = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new BuyPostcatdList();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class Minapppay extends Base {
     constructor() {
         super();
@@ -3351,13 +3383,17 @@ class BuyPostcatd extends Base {
         this.action = 'tour.buypostcatd';
     
         this._ptid = null;
+        this._goldNum = null;
         this.requireFileds = ["ptid"];
         this.reqFields = ["ptid"];
-        this.resFields = [];
+        this.resFields = ["goldNum"];
     }
     //client input, require, type: number
     get ptid() {return this._ptid}
     set ptid(v) {this._ptid = v}
+    //server output, type: number
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
         let o = new BuyPostcatd();
         o.ctx = ctx;
@@ -3560,6 +3596,7 @@ exports.ShowQuestReport = ShowQuestReport;
 exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
+exports.BuyPostcatdList = BuyPostcatdList;
 exports.Minapppay = Minapppay;
 exports.SetRouter = SetRouter;
 exports.ModifyRouter = ModifyRouter;

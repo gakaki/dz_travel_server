@@ -108,6 +108,7 @@ module.exports = app => {
    // router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
     router.get('/tour/rentprop', routerUserInfo, controller.travelController.tourController.rentprop);
     router.get('/tour/rentedprop', routerUserInfo, controller.travelController.tourController.rentedprop);
+    router.get('/tour/buypostcardlist', routerUserInfo, controller.travelController.tourController.buypostcardlist);
     router.get('/tour/buypostcard', routerUserInfo, controller.travelController.tourController.buypostcard);
 
     router.get('/speciality/cityspes', controller.travelController.specialityController.cityspes);

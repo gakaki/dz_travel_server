@@ -201,9 +201,22 @@ api RentedProp {
     output rentItems:KV[]//已租用的所有道具。
 }
 
+class Postcard {
+    prop ptid:number //明信片id
+    prop picture:string //明信片图片
+    prop price:string //明信片价格
+}
+
+//当前可购买的明信片
+api BuyPostcatdList {
+    require cid:number //城市id
+    output ptList:Postcard[] //可购买明信片列表
+}
+
 //购买明信片
 api BuyPostcatd {
     require ptid:number //明信片id
+    output goldNum:number //剩余金钱
 }
 
 //设置/修改路线，后端判断是z否第一次，非第一次且非续接路线则扣钱

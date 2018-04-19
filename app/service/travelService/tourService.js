@@ -520,6 +520,26 @@ class TourService extends Service {
         info.rentItems = Object.values(curCity.rentItems);
     }
 
+    async buypostcardlist(info) {
+        let cfg = await travelConfig.City.Get(info.cid);
+        let pdids = cfg.postcard;
+        let pts=[]
+        pdids.forEach(ptid=>{
+            let pt = travelConfig.Postcard.Get(ptid)
+            if(pt.price == -1) {
+                this.logger.info(`ptid为${ptid}的明信片尚未设置价格`)
+            } else {
+                pts.push({
+                    ptid:pt.id,
+                    picture:pt.picture,
+                    price:pt.price
+                })
+            }
+        })
+
+        info.ptList = pts
+    }
+
     async buypostcard(info) {
         let cfg = await travelConfig.Postcard.Get(info.ptid);
         let ui = info.ui
