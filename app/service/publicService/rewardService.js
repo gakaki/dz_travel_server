@@ -56,7 +56,7 @@ class RewardService extends Service{
         await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
     }
 
-    // 该用户在该城市的总游玩时间 追加时间
+    //TODO 该用户在该城市的总游玩时间 追加时间
     async time( uid , cid , eid , timeAppend = 0 ) {
         // await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
         await this.ctx.model.travelModel.currentCity.update(
@@ -88,26 +88,29 @@ class RewardService extends Service{
             postCard            = travelConfig.Postcard.Get( cfgId );
         }
 
+        let city = travelConfig.City.Get(cid);
         let dateNow         = new Date();
         await this.ctx.model.TravelModel.Postcard.create({
             uid: uid,
             cid: cid,
-            country: "",
-            province: "",
-            city:"",
-            ptid:"",
-            pscid:cfgId,
+            country: city.country,
+            province: city.province,
+            city:city.city,
+            ptid:cfgId,
+            pscid:"postcard" + uid +new Date().getTime(),
             type: postCard.type,                   //明信片类型
             createDate:dateNow      //创建时间
         });
+        this.logger.info(`获得明信片成功,获得${cfgId} x ${1}`);
+
         // sysGiveLog表记录
         await this.ctx.model.TravelModel.SysGiveLog.create({
             uid:    uid,
-            sgid:   "",                                 //唯一id
-            type:   3,                                  // 3.明信片
+            sgid:   "sys" + apis.SystemGift.POSTCARD + uid + new Date().getTime(),                                 //唯一id
+            type:   apis.SystemGift.POSTCARD,                                  // 3.明信片
             iid:   cfgId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
             number: 1,                                  //数量
-            isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+            isAdmin:"0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
             createDate: dateNow                         //当前时间创建
         });
     }
@@ -136,20 +139,20 @@ class RewardService extends Service{
         await this.ctx.model.TravelModel.SpecialityBuy.create({
             uid: uid,
             spid: cfgId,
-            number: parseInt(info.count),
+            number: count,
             numberLeft: sp.number,
             createDate: new Date()
         });
-        this.logger.info(`购买特产成功,获得${cfgId} x ${info.count}`);
+        this.logger.info(`购买特产成功,获得${cfgId} x ${count}`);
 
         //syslog 记录
         await this.ctx.model.TravelModel.SysGiveLog.create({
             uid:    uid,
             sgid:   "",                                 //唯一id
-            type:   2,                                  // 3.明信片
+            type:   apis.SystemGift.SPECIALITY,                                  // 3.明信片
             iid:   cfgId,                              //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
-            number: 1,                                  //数量
-            isAdmin:0,                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+            number: count,                                  //数量
+            isAdmin:"0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
             createDate: new Date()                      //当前时间创建
         });
         this.logger.info(`系统赠送特产成功,获得 ${cfgId}  x ${count}`);

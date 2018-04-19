@@ -91,6 +91,7 @@ class ShortPath {
         this.spotPoints     = spotPoints;
         this.cid            = cid;
         this.startPos       = travelConfig.City.Get(cid).coordinate;
+        //console.log( this.startPos )
     }
 
     //给定城市 来计算最短路径
@@ -104,9 +105,8 @@ class ShortPath {
             extraRoute = 0;
         }
 
-        console.log(travelMap);
+       // console.log(travelMap);
         let value = Point.distance(this.startPos, travelConfig.Scenicspot.Get(travelMap[0]).coordinate);
-
         for (let j = 0; j < travelMap.length - 1; j++) {
             value += Point.distance(travelConfig.Scenicspot.Get(travelMap[j]).coordinate, travelConfig.Scenicspot.Get(travelMap[j + 1]).coordinate);
         }
@@ -125,6 +125,9 @@ class ShortPath {
         let roadValues = [];
         perms.forEach((pids, idx) => {
             let value = Point.distance(this.startPos, points[pids[0]]);
+          //  console.log(this.startPos)
+          //  console.log(points[pids[0]])
+          //  console.log(value)
             for (let j = 0; j < pids.length - 1; j++) {
                 value += Point.distance(points[pids[j]], points[pids[j + 1]]);
             }
@@ -161,8 +164,8 @@ class ShortPath {
 
 module.exports = ShortPath;
 
-//
-// var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( 2 );
-// short_path.shortPath();
-// t.stop();
+
+var t = timer('用暴力法计算运行时间');
+let short_path = new ShortPath( 1 );
+short_path.shortPath();
+t.stop();
