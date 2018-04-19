@@ -21,7 +21,10 @@ class QuestRepo {
 
 
     filter(option){
-        return this.quests.filter( e  => ( e.trigger_type  == e.TriggerTypeKeys.RANDOM_CITY ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_COMMON ));
+        return this.quests.filter( e  => (
+            (e.belong == option.cid || !e.belong) &&
+            (e.trigger_type  == e.TriggerTypeKeys.TOUR_COMMON ||  e.trigger_type == e.TriggerTypeKeys.TOUR_CITY)
+        ));
             // e.cid                == option.cid &&
             // e.condition3_weather == option.weather &&
             // e.condition3_date    == option.today &&

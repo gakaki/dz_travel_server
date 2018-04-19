@@ -178,8 +178,8 @@ class TourController extends Controller {
         let info            = apis.SpotTour.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.spotTour(info,user_info);
-        info.userinfo       = user_info;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+       // info.userinfo       = user_info;
+        //await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 

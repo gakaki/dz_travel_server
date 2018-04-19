@@ -234,19 +234,33 @@ class TourService extends Service {
 
     // 景点观光功能
     async spotTour(info, ui) {
-
-        // 用户到达景点后，跳转至景点界面，可使用观光功能，观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
-        let cost = travelConfig.Parameter.TOURCONSUME;
-        if (ui.items[travelConfig.Item.GOLD] < cost) {
-            info.code = apis.Code.NEED_MONEY;
-            this.logger.info('您的现金不足速度充值');
-            return;
+        let sp = travelConfig.Scenicspot.Get(info.spotId);
+        if(!sp) {
+            info.code = apis.Code.NOT_FOUND;
+            return
         }
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        if(!currentCity) {
+            info.code = apis.Code.UNKNOWN;
+            return
+        }
+        if(!currentCity.tourCount) {
+            // 用户到达景点后，跳转至景点界面，可使用观光功能，观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
+            let cost = travelConfig.Parameter.Get(travelConfig.Parameter.TOURCONSUME).value;
+            if (ui.items[travelConfig.Item.GOLD] < cost) {
+                info.code = apis.Code.NEED_MONEY;
+                this.logger.info('您的现金不足速度充值');
+                return;
+            }
+            //消耗金币
+             this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'travel');
+        }
+
 
         // 景点随机事件 写表
         let cid                  = info.cid;
         let uid                  = info.uid;
-        let weatherId            = await this.ctx.service.publicService.thirdService.getWeather();
+        let weatherId            = await this.ctx.service.publicService.thirdService.getWeather(info.cid);
         let spotId               = info.spotId;
         let para                 = {
             uid                  : uid,
@@ -255,6 +269,7 @@ class TourService extends Service {
         };
 
         let e                    = new MakeSpotEvent(para);
+        this.logger.info("事件",e);
         let eid                  = e.event.id;
 
 
@@ -272,8 +287,7 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
 
-        //消耗金币
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
+
 
         //奖励 的数值
         this.logger.info(uid,cid,eid);
@@ -281,11 +295,11 @@ class TourService extends Service {
         await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
 
 
-        info.goldNum        = ui.items[travelConfig.Item.GOLD];
-        info.event          = questRepo.find(eid).getSpotRewardComment()
 
-        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
-        info.userinfo       = ui;
+        info.event          = questRepo.find(eid).getSpotRewardComment(sp.scenicspot);
+        ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
+        info.goldNum        = ui.items[travelConfig.Item.GOLD];
+       // info.userinfo       = ui;
 
 
     }

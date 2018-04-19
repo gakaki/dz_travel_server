@@ -26,12 +26,14 @@ class RewardService extends Service{
             });
         }
 
+        //this.logger.info(eventCfg);
+
         for ( let k in eventCfg.rewardKV) {
 
             let  v = eventCfg.rewardKV[k];
 
             if ( k == eventCfg.RewardType.GOLD){ // 金币
-                await this.gold( uid , v);
+                await this.gold( uid , Number(v));
             }
             if ( k == eventCfg.RewardType.TIME){// 城市总时间
                 await this.time( uid , cid , eid ,  v );
@@ -43,7 +45,7 @@ class RewardService extends Service{
                 await this.speciality( uid , cid ,v );
             }
             if ( k == eventCfg.RewardType.POINT){ // 点数
-                await this.integral( uid, v );
+                await this.integral( uid, Number(v) );
             }
         }
 
@@ -155,7 +157,8 @@ class RewardService extends Service{
 
     // 奖励积分的服务
     async integral( uid , integral  ) {
-        await this.ctx.service.publicService.itemService.itemChange( uid, {["items." + travelConfig.Item.POINT]: integral }, 'travel');
+        await this.ctx.service.travelService.integralService.add(uid, integral);
+       // await this.ctx.service.publicService.itemService.itemChange( uid, {["items." + travelConfig.Item.POINT]: integral }, 'travel');
     }
 }
 
