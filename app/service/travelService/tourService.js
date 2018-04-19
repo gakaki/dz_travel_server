@@ -245,10 +245,20 @@ class TourService extends Service {
         }
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
         if(!currentCity) {
-            info.code = apis.Code.UNKNOWN;
+            info.code = apis.Code.NO_CURRENTCITY;
             return
         }
+        let free = true;
         if(!currentCity.tourCount) {
+            free = false;
+        }else{
+            let update = await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, tourCount: { $gt: 0 } }, { $inc: { tourCount: -1 } });
+            if(!update.nModified) {
+                free = false;
+            }
+        }
+
+        if(!free) {
             // 用户到达景点后，跳转至景点界面，可使用观光功能，观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
             let cost = travelConfig.Parameter.Get(travelConfig.Parameter.TOURCONSUME).value;
             if (ui.items[travelConfig.Item.GOLD] < cost) {
@@ -257,9 +267,8 @@ class TourService extends Service {
                 return;
             }
             //消耗金币
-             this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'travel');
+            this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'travel');
         }
-
 
         // 景点随机事件 写表
         let cid                  = info.cid;
@@ -273,7 +282,7 @@ class TourService extends Service {
         };
 
         let e                    = new MakeSpotEvent(para);
-        this.logger.info("事件",e);
+      //  this.logger.info("事件",e);
         let eid                  = e.event.id;
 
 
@@ -282,9 +291,9 @@ class TourService extends Service {
             eid:eid,        //事件id 这个是随机出来的
             cid:cid,           //cityId
             spotId:spotId,     //现在用不上
-            isPhotography:false,    //是否拍照
-            isTour:true, //是否为观光
-            trackedNo:null,  //访问顺序
+         //   isPhotography:false,    //是否拍照
+            isTour: true, //是否为观光
+           // trackedNo:null,  //访问顺序
             createDate:new Date().getTime(),  //创建时间
             receivedDate:new Date().getTime(),  //领取奖励时间
             received:true ,  //是否已经接收 直接给予奖品
@@ -292,12 +301,11 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
 
 
-
         //奖励 的数值
         this.logger.info(uid,cid,eid);
 
+        this.logger.info(sp);
         await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
-
 
 
         info.event          = questRepo.find(eid).getSpotRewardComment(sp.scenicspot);
@@ -639,6 +647,8 @@ class TourService extends Service {
              reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
+            //更新足迹表
+
         }
         return {
             score: efficiency,

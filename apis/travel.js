@@ -109,6 +109,8 @@ class Code{
     
     static get HAS_SIGNIN() { return -144;}
     
+    static get NO_CURRENTCITY() { return -145;}
+    
     static get UNKNOWN() { return -1000;}
     
     static get EXCEPTION() { return -999;}
