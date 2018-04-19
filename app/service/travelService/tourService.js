@@ -521,10 +521,10 @@ class TourService extends Service {
     }
 
     async buypostcard(info) {
-        let cfg = await travelConfig.Postcard.Get(info.buyId);
+        let cfg = await travelConfig.Postcard.Get(info.ptid);
         let ui = info.ui
         if (!cfg) {
-            this.logger.info(`明信片列表中未找到id为${info.buyId}的道具`);
+            this.logger.info(`明信片列表中未找到id为${info.ptid}的道具`);
             info.code = apis.Code.NOT_FOUND;
             return;
         }
@@ -534,7 +534,6 @@ class TourService extends Service {
             this.logger.info(`找不到id为${cfg.cityid}的城市`)
             info.code = apis.Code.NOT_FOUND
         }
-        console.log('city',city)
 
         let cost = cfg.price;
         if(cost == -1) {
@@ -549,16 +548,16 @@ class TourService extends Service {
         }
 
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'travel');
-        console.log(cfg)
+
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
         //加明信片
-        await this.ctx.model.TravelModel.SpecialityBuy.create({
+        await this.ctx.model.TravelModel.Postcard.create({
             uid:ui.uid,
-            cid:cfg.cityid,
+            cid:city.id,
             country:city.country,
             province:city.province,
             city:city.city,
-            ptid:city.id,  //明信片配表ID 不唯一
+            ptid:info.ptid,  //明信片配表ID 不唯一
             pscid:Date.now().toString(),//明信片专有ID  唯一
             type:city.type,//明信片类型
             createDate: new Date()
@@ -566,14 +565,7 @@ class TourService extends Service {
 
         this.logger.info(`购买明信片成功`);
 
-        info.goldNum = ui.items[sheets.Item.GOLD];
-
-
-        // let postcard = await this.ctx.model.TravelModel.Postcard.findOne({ uid: info.ui.uid});
-        // let spotsConfig = travelConfig.postcard.Get(info);
-
-        // let curCity = await this.ctx.model.TravelModel.Postcard.findOne({ uid: info.ui.uid});
-        // info.rentItems = Object.values(curCity.rentItems);
+        info.goldNum = ui.items[travelConfig.Item.GOLD];
     }
 
     async leavetour(selfInfo) {

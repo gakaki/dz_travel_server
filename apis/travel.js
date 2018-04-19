@@ -3350,14 +3350,14 @@ class BuyPostcatd extends Base {
         super();
         this.action = 'tour.buypostcatd';
     
-        this._buyId = null;
-        this.requireFileds = ["buyId"];
-        this.reqFields = ["buyId"];
+        this._ptid = null;
+        this.requireFileds = ["ptid"];
+        this.reqFields = ["ptid"];
         this.resFields = [];
     }
     //client input, require, type: number
-    get buyId() {return this._buyId}
-    set buyId(v) {this._buyId = v}
+    get ptid() {return this._ptid}
+    set ptid(v) {this._ptid = v}
     static Init(ctx, checkLogin = false) {
         let o = new BuyPostcatd();
         o.ctx = ctx;
