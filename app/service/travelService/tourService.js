@@ -534,6 +534,74 @@ class TourService extends Service {
         info.rentItems = Object.values(curCity.rentItems);
     }
 
+    async buypostcardlist(info) {
+        let cfg = await travelConfig.City.Get(info.cid);
+        let pdids = cfg.postcard;
+        let pts=[]
+        pdids.forEach(ptid=>{
+            let pt = travelConfig.Postcard.Get(ptid)
+            if(pt.price == -1) {
+                this.logger.info(`ptid为${ptid}的明信片尚未设置价格`)
+            } else {
+                pts.push({
+                    ptid:pt.id,
+                    picture:pt.picture,
+                    price:pt.price
+                })
+            }
+        })
+
+        info.ptList = pts
+    }
+
+    async buypostcard(info) {
+        let cfg = await travelConfig.Postcard.Get(info.ptid);
+        let ui = info.ui
+        if (!cfg) {
+            this.logger.info(`明信片列表中未找到id为${info.ptid}的道具`);
+            info.code = apis.Code.NOT_FOUND;
+            return;
+        }
+
+        let city = await travelConfig.City.Get(cfg.cityid)
+        if(!city) {
+            this.logger.info(`找不到id为${cfg.cityid}的城市`)
+            info.code = apis.Code.NOT_FOUND
+        }
+
+        let cost = cfg.price;
+        if(cost == -1) {
+            this.logger.info('该明信片没有设置价格')
+            info.code = apis.Code.CANT_BUG;
+            return
+        }
+        if (ui.items[travelConfig.Item.GOLD] < cost) {
+            this.logger.info('您的现金不足速度充值');
+            info.code = apis.Code.NEED_MONEY;
+            return;
+        }
+
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'travel');
+
+        ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        //加明信片
+        await this.ctx.model.TravelModel.Postcard.create({
+            uid:ui.uid,
+            cid:city.id,
+            country:city.country,
+            province:city.province,
+            city:city.city,
+            ptid:info.ptid,  //明信片配表ID 不唯一
+            pscid:Date.now().toString(),//明信片专有ID  唯一
+            type:city.type,//明信片类型
+            createDate: new Date()
+        });
+
+        this.logger.info(`购买明信片成功`);
+
+        info.goldNum = ui.items[travelConfig.Item.GOLD];
+    }
+
     async leavetour(selfInfo) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: selfInfo.uid });
         let short_path = new ShortPath(curCity.cid);
