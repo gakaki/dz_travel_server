@@ -89,6 +89,18 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        let acceleration = currentCity.acceleration;
+        info.display = 0;
+        if(acceleration) {
+            for(let car of travelConfig.shops) {
+                if(car.type == apis.RentItem.CAR) {
+                    if(car.value == acceleration) {
+                        info.display = car.id;
+                        break;
+                    }
+                }
+            }
+        }
 
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
@@ -165,74 +177,90 @@ class TourService extends Service {
             info.code = apis.Code.EXCEED_COUNT;
             return;
         }
-        this.logger.info(r);
-        this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
+    //    this.logger.info(r);
+      //  this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
 
 
         // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
         let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
         let dateNow         = new Date();
-        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
+        let update = await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
+        if(update.nModified) {
+            let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
+            await this.ctx.model.TravelModel.Postcard.create({
+                uid: ui.uid,
+                cid: cid,
+                country: city.country,
+                province: city.province,
+                city: city.city,
+                ptid: info.spotId,
+                pscid: postcardId,
+                type: cfgPostcard.type,                   //明信片类型
+                createDate: dateNow,      //创建时间
+            });
 
-        let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
-        await this.ctx.model.TravelModel.Postcard.create({
-            uid: ui.uid,
-            cid: cid,
-            country: city.country,
-            province: city.province,
-            city: city.city,
-            ptid: info.spotId,
-            pscid: postcardId,
-            type: cfgPostcard.type,                   //明信片类型
-            createDate: dateNow,      //创建时间
-        });
+            //第一次获得这种明信片，获得积分
+            let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
+            if(count == 1) {
+                this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            }
 
-        //第一次获得这种明信片，获得积分
-        let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
-        if(count == 1) {
-            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            // sysGiveLog表记录
+            await this.ctx.model.TravelModel.SysGiveLog.create({
+                uid: ui.uid,
+                sgid: "sys" + ui.pid + info.spotId + new Date().getTime(),                                 //唯一id
+                type: apis.SystemGift.POSTCARD,                                  // 3.明信片
+                iid: info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
+                number: 1,                                  //数量
+                isAdmin: "0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+                createDate: dateNow,                         //当前时间创建
+            });
+            //拍照日志
+            await this.ctx.model.TravelModel.PhotoLog.create({
+                uid: ui.uid,
+                fid: r.fid, //飞行日志
+                cid: cid, //城市id
+                spotId: info.spotId, //景点id
+                postcardId: postcardId, //获得的明信片id
+                createDate: dateNow,
+            });
+            //返回明信片 id 图片
+            info.postcard = cfgPostcard;
+            info.freePhoto = r.photographyCount - 1;
+        }else{
+            info.code = apis.Code.NEED_ITEMS;
         }
-
-        // sysGiveLog表记录
-        await this.ctx.model.TravelModel.SysGiveLog.create({
-            uid: ui.uid,
-            sgid: "sys" + ui.pid + info.spotId + new Date().getTime(),                                 //唯一id
-            type: apis.SystemGift.POSTCARD,                                  // 3.明信片
-            iid: info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
-            number: 1,                                  //数量
-            isAdmin: "0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
-            createDate: dateNow,                         //当前时间创建
-        });
-        //拍照日志
-        await this.ctx.model.TravelModel.PhotoLog.create({
-            uid: ui.uid,
-            fid: r.fid, //飞行日志
-            cid: cid, //城市id
-            spotId: info.spotId, //景点id
-            postcardId: postcardId, //获得的明信片id
-            createDate: dateNow,
-        });
-
-        //返回明信片 id 图片
-        info.postcard = cfgPostcard;
-        info.freePhoto =r.photographyCount - 1;
     }
 
     // 景点观光功能
     async spotTour(info, ui) {
-
-        // 用户到达景点后，跳转至景点界面，可使用观光功能，观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
-        let cost = travelConfig.Parameter.TOURCONSUME;
-        if (ui.items[travelConfig.Item.GOLD] < cost) {
-            info.code = apis.Code.NEED_MONEY;
-            this.logger.info('您的现金不足速度充值');
-            return;
+        let sp = travelConfig.Scenicspot.Get(info.spotId);
+        if(!sp) {
+            info.code = apis.Code.NOT_FOUND;
+            return
         }
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        if(!currentCity) {
+            info.code = apis.Code.UNKNOWN;
+            return
+        }
+        if(!currentCity.tourCount) {
+            // 用户到达景点后，跳转至景点界面，可使用观光功能，观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
+            let cost = travelConfig.Parameter.Get(travelConfig.Parameter.TOURCONSUME).value;
+            if (ui.items[travelConfig.Item.GOLD] < cost) {
+                info.code = apis.Code.NEED_MONEY;
+                this.logger.info('您的现金不足速度充值');
+                return;
+            }
+            //消耗金币
+             this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'travel');
+        }
+
 
         // 景点随机事件 写表
         let cid                  = info.cid;
         let uid                  = info.uid;
-        let weatherId            = await this.ctx.service.publicService.thirdService.getWeather();
+        let weatherId            = await this.ctx.service.publicService.thirdService.getWeather(info.cid);
         let spotId               = info.spotId;
         let para                 = {
             uid                  : uid,
@@ -241,6 +269,7 @@ class TourService extends Service {
         };
 
         let e                    = new MakeSpotEvent(para);
+        this.logger.info("事件",e);
         let eid                  = e.event.id;
 
 
@@ -258,8 +287,7 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
 
-        //消耗金币
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost}, 'travel');
+
 
         //奖励 的数值
         this.logger.info(uid,cid,eid);
@@ -267,11 +295,11 @@ class TourService extends Service {
         await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
 
 
-        info.goldNum        = ui.items[travelConfig.Item.GOLD];
-        info.event          = questRepo.find(eid).getSpotRewardComment()
 
-        ui   = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
-        info.userinfo       = ui;
+        info.event          = questRepo.find(eid).getSpotRewardComment(sp.scenicspot);
+        ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
+        info.goldNum        = ui.items[travelConfig.Item.GOLD];
+       // info.userinfo       = ui;
 
 
     }
@@ -506,6 +534,74 @@ class TourService extends Service {
         info.rentItems = Object.values(curCity.rentItems);
     }
 
+    async buypostcardlist(info) {
+        let cfg = await travelConfig.City.Get(info.cid);
+        let pdids = cfg.postcard;
+        let pts=[]
+        pdids.forEach(ptid=>{
+            let pt = travelConfig.Postcard.Get(ptid)
+            if(pt.price == -1) {
+                this.logger.info(`ptid为${ptid}的明信片尚未设置价格`)
+            } else {
+                pts.push({
+                    ptid:pt.id,
+                    picture:pt.picture,
+                    price:pt.price
+                })
+            }
+        })
+
+        info.ptList = pts
+    }
+
+    async buypostcard(info) {
+        let cfg = await travelConfig.Postcard.Get(info.ptid);
+        let ui = info.ui
+        if (!cfg) {
+            this.logger.info(`明信片列表中未找到id为${info.ptid}的道具`);
+            info.code = apis.Code.NOT_FOUND;
+            return;
+        }
+
+        let city = await travelConfig.City.Get(cfg.cityid)
+        if(!city) {
+            this.logger.info(`找不到id为${cfg.cityid}的城市`)
+            info.code = apis.Code.NOT_FOUND
+        }
+
+        let cost = cfg.price;
+        if(cost == -1) {
+            this.logger.info('该明信片没有设置价格')
+            info.code = apis.Code.CANT_BUG;
+            return
+        }
+        if (ui.items[travelConfig.Item.GOLD] < cost) {
+            this.logger.info('您的现金不足速度充值');
+            info.code = apis.Code.NEED_MONEY;
+            return;
+        }
+
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'travel');
+
+        ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
+        //加明信片
+        await this.ctx.model.TravelModel.Postcard.create({
+            uid:ui.uid,
+            cid:city.id,
+            country:city.country,
+            province:city.province,
+            city:city.city,
+            ptid:info.ptid,  //明信片配表ID 不唯一
+            pscid:Date.now().toString(),//明信片专有ID  唯一
+            type:city.type,//明信片类型
+            createDate: new Date()
+        });
+
+        this.logger.info(`购买明信片成功`);
+
+        info.goldNum = ui.items[travelConfig.Item.GOLD];
+    }
+
     async leavetour(selfInfo) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: selfInfo.uid });
         let short_path = new ShortPath(curCity.cid);
@@ -538,11 +634,7 @@ class TourService extends Service {
              efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
              reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
             //上个城市的评分奖励
-            let cost = {
-                [ "items." + travelConfig.Item.POINT]: reward,
-            };
-            this.ctx.service.publicService.itemService.itemChange(selfInfo.uid, cost);
-
+            this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
         }
         return {
             score: efficiency,
@@ -691,7 +783,17 @@ class TourService extends Service {
 
         let acceleration = rm.acceleration;
         let startTime = currentCity.startTime;
-
+        info.display = 0;
+        if(acceleration) {
+            for(let car of travelConfig.shops) {
+                if(car.type == apis.RentItem.CAR) {
+                    if(car.value == acceleration) {
+                        info.display = car.id;
+                        break;
+                    }
+                }
+            }
+        }
         if ( isChangeRouter ){
             //修改路线
             await this.ctx.model.TravelModel.CurrentCity.update({

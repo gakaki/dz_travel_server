@@ -213,9 +213,10 @@ class MakeRoadMap {
 
 
         console.log("需要的时间 " + diffTime);
+        let now = new Date().getTime();
         if (spotStart['isStart'] == true) {
             if (!spotStart['startime']) {
-                let start = new Date().getTime();
+                let start = now;
                 spotStart['startime'] = start;
 
             }
@@ -223,8 +224,12 @@ class MakeRoadMap {
             spotEnd['endtime'] = end;
 
         }else{
-            spotStart['startime'] = spotStart['endtime'];
-            spotEnd['endtime'] = spotStart['endtime'] + diffTime;
+            let nextStart = spotStart['endtime'];
+            if(spotStart['endtime'] <= now) {
+                nextStart = now;
+            }
+            spotStart['startime'] = nextStart;
+            spotEnd['endtime'] = nextStart + diffTime;
         }
         console.log("达到时间 " + new Date(spotEnd['endtime']));
 

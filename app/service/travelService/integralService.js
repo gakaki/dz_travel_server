@@ -74,7 +74,7 @@ class IntegralService extends Service {
      * */
     async add(uid, num) {
         let userModel = this.ctx.model.PublicModel.User;
-        let ui = await userModel.findOne({uid: uid});
+        let ui = await userModel.findOne({ uid: uid });
         if (ui) {
             let all = ui.items[sheets.Item.POINT];
             all += num;
@@ -83,10 +83,10 @@ class IntegralService extends Service {
 
             //update user data
             //await userModel.update({uid: uid}, {$set: {items: ui.items}});
-            this.ctx.service.publicService.itemChange(uid,{["items."+sheets.Item.POINT]:num});
+            this.ctx.service.publicService.itemService.itemChange(uid, { ["items." + sheets.Item.POINT]: num });
             //update integral data
             let integralRM = this.ctx.model.TravelModel.IntegralRecord;
-            await integralRM.update({uid: uid}, {$set : {integral: all, updateDate: new Date()}}, {upsert: true});
+            await integralRM.update({uid: uid}, { $set: { integral: all, updateDate: new Date() } }, { upsert: true });
         }
     }
 

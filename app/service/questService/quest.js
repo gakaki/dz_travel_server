@@ -70,8 +70,8 @@ class Quest extends TreeNode {
                                             // 4、特定观光事件：在特定城市观光才能触发的事件；
         // this.loc_name       = d['loc_name']; //地点中文
 
-        this.belong         =  d.belong;     //事件归属
-        this.type           =  d.type;       //事件触发的景点或城市，通用事件填0
+     //   this.belong         =  d.belong;     //事件归属
+      //  this.type           =  d.type;       //事件触发的景点或城市，通用事件填0
 // 1、普通事件
 // 2、剧情类答题事件（无需显示是否答对）
 // 3、知识类答题事件（需要显示是否答对）
@@ -111,6 +111,13 @@ class Quest extends TreeNode {
         this.wrong1         =  d.wrong1;        //错误答案1
         this.wrong2         =  d.wrong2;        //错误答案2
         this.wrong3         =  d.wrong3;        //错误答案3
+
+        this.rewardKV        = {};
+        for (let rewardRow of this.reward) {
+            let typeId      = rewardRow['k'];
+            let itemIdOrVal = rewardRow['v'];
+            this.rewardKV[typeId] = itemIdOrVal;
+        }
     }
 
     answers(){
@@ -122,8 +129,9 @@ class Quest extends TreeNode {
     }
 
 
+
     // 景点奖励语句
-    getSpotRewardComment(){
+    getSpotRewardComment(spotName){
         // let hourStr  = moment(datetime).format("HH:mm")
         let reward   = this.reward;
 
@@ -170,6 +178,10 @@ class Quest extends TreeNode {
                         break;
                 }
                 stmtArr.unshift(str);
+        }
+        let index = totalStr.indexOf("s%");
+        if(index != -1) {
+            totalStr =totalStr.replace("s%", spotName);
         }
         //有待完善
         let finalStr =  totalStr + stmtArr.join(" ");

@@ -178,8 +178,8 @@ class TourController extends Controller {
         let info            = apis.SpotTour.Init(ctx);
         let user_info       = ctx.session.ui;
         await this.service.travelService.tourService.spotTour(info,user_info);
-        info.userinfo       = user_info;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+       // info.userinfo       = user_info;
+        //await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 
@@ -454,6 +454,18 @@ class TourController extends Controller {
     async rentedprop(ctx) {
         let info = await apis.RentedProp.Init(ctx, true);
         await this.ctx.service.travelService.tourService.rentedprop(info);
+        info.submit();
+    }
+
+    async buypostcardlist(ctx) {
+        let info = await apis.BuyPostcatdList.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.buypostcardlist(info);
+        info.submit();
+    }
+
+    async buypostcard(ctx) {
+        let info = await apis.BuyPostcatd.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.buypostcard(info);
         info.submit();
     }
 
