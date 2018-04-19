@@ -89,6 +89,18 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        let acceleration = currentCity.acceleration;
+        info.display = 0;
+        if(acceleration) {
+            for(let car of travelConfig.shops) {
+                if(car.type == apis.RentItem.CAR) {
+                    if(car.value == acceleration) {
+                        info.display = car.id;
+                        break;
+                    }
+                }
+            }
+        }
 
         let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({uid: ui.uid});
         let task_spot_finished  = 0;
@@ -689,7 +701,17 @@ class TourService extends Service {
 
         let acceleration = rm.acceleration;
         let startTime = currentCity.startTime;
-
+        info.display = 0;
+        if(acceleration) {
+            for(let car of travelConfig.shops) {
+                if(car.type == apis.RentItem.CAR) {
+                    if(car.value == acceleration) {
+                        info.display = car.id;
+                        break;
+                    }
+                }
+            }
+        }
         if ( isChangeRouter ){
             //修改路线
             await this.ctx.model.TravelModel.CurrentCity.update({
