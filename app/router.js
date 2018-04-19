@@ -103,6 +103,12 @@ module.exports = app => {
     //游玩界面 进入景点->景点完成任务
     router.get('/tour/tourtask', controller.travelController.tourController.tourtask);
 
+    //游玩界面 进入景点->取消组队
+    router.get('/tour/cancelparten', controller.travelController.tourController.cancelparten);
+    //游玩界面 进入景点->取消组队循环
+    router.get('/tour/cancelpartenloop', controller.travelController.tourController.cancelpartenloop);
+
+
 
     //游玩界面 进入景点->离开游玩界面。
    // router.get('/tour/leavetour', routerUserInfo, controller.travelController.tourController.leavetour);
@@ -115,6 +121,9 @@ module.exports = app => {
     router.get('/speciality/myspes', controller.travelController.specialityController.myspes);
     router.get('/speciality/buyspe', controller.travelController.specialityController.buy);
     router.get('/speciality/sellspe', controller.travelController.specialityController.sell);
+
+  
+    
 
     io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

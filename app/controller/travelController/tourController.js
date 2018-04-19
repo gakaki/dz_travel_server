@@ -492,6 +492,19 @@ class TourController extends Controller {
         }
     }
 
+     // 取消组队
+     async cancelparten(ctx) {
+        let info = await apis.CancelParten.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.cancelparten(info);
+        info.submit();
+    }
+
+     // 取消组队循环
+     async cancelpartenloop(ctx) {
+        let info = await apis.CancelPartenLoop.Init(ctx, true);
+        await this.ctx.service.travelService.tourService.cancelpartenloop(info);
+        info.submit();
+    }
 }
 
 module.exports = TourController;
