@@ -147,7 +147,6 @@ api SpotTour {
     require spotId:number
     output event:string//产生的新事件
     //随机事件会获得的东西不同
-    output userinfo:UserInfo
     output  freeSight:number
     output goldNum:number//剩余金币数
 }
