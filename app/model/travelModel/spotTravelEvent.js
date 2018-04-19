@@ -3,6 +3,7 @@ module.exports = app => {
     const SpotTravelEventSchema = new mongoose.Schema({
         uid:{type:String},
         eid:{type:String},      //事件id
+        desc:{type:String},    //事件描述
         cid:{type:String},      //cityId
         fid:{type:String},      //飞行记录id
         spotId:{type:String},   //景点id

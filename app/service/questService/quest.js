@@ -131,7 +131,7 @@ class Quest extends TreeNode {
 
 
     // 景点奖励语句
-    getSpotRewardComment(spotName){
+    getSpotRewardComment(spotName,isGet){
         // let hourStr  = moment(datetime).format("HH:mm")
         let reward   = this.reward;
 
@@ -171,7 +171,9 @@ class Quest extends TreeNode {
                         itemCount       = itemIdOrVal;
                         let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
                         itemName        = speciality.specialityname;
-                        str             = `获得${typeName}${itemName}`
+                        if(isGet) {
+                            str             = `获得${typeName}${itemName}`
+                        }
                         break;
                     case "5": //明信片  明信片随机所以无所谓了
                         str             = `获得明信片`
@@ -188,7 +190,11 @@ class Quest extends TreeNode {
         if(this.answer){ //如果是问答题的配置表就不显示了 意思是
             finalStr = "";
         }
-        return finalStr;
+        return {
+            desc: totalStr,
+            reward: stmtArr,
+            finalStr: finalStr,
+        };
     }
 
     // 显示标准化语句
