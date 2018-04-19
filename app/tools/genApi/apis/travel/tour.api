@@ -28,6 +28,7 @@ class Spot extends RouterSpot{
     prop name:string
     //建筑图标
     prop building:string[]
+    prop countdown:string//还有多久到下一个景点
 }
 
 class TourTask {

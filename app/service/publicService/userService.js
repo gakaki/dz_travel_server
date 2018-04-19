@@ -167,7 +167,7 @@ class UserService extends Service {
                 uid: uid,
                 appName: 'travel',
                 createDate: new Date(),
-                num: 1,
+                num: itemCnt,
                 getItem: true,
                 itemId: itemId,
             });

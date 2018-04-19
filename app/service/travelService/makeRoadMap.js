@@ -4,6 +4,7 @@ const QuestRepo = require("../questService/questRepo");
 const ScenicPos = require("../../../sheets/scenicpos");
 const timeUtil = require("../../utils/time");
 const apis = require("../../../apis/travel");
+const ShortPath = require("../pathService/shortPath");
 
 // 生成路线
 class MakeRoadMap {
@@ -74,28 +75,7 @@ class MakeRoadMap {
         let timeHumanPreLineHour = all_time / (6 - 1);       //一段line 4.8小时
         // 正常走路时间
         this.timeHumanPreLineHour = timeHumanPreLineHour;
-        if (this.rentItems) {
-            let shortTime = [];
-            for (let rentItem in this.rentItems) {
-                if (this.rentItems[rentItem]) {
-                    let item = travelConfig.Shop.Get(rentItem);
-                    if (item && item.type == apis.RentItem.CAR) {
-                        shortTime.push(item.value);
-                    }
-                }
-            }
 
-            let max = 0;
-            if(shortTime.length > 0) {
-                max = Math.max(...shortTime)
-                this.timeHumanPreLineHour = timeHumanPreLineHour * ((100 - max) / 100);
-            }
-            this.acceleration = max;
-          //  this.timeCarGreat            = timeHumanPreLineHour * 0.6;            // 2.88  	豪华自驾车	租赁豪华自驾车，可缩短60%本城市旅行时间。	1001
-         //   this.timeCarMedium           = timeHumanPreLineHour * 0.5;            // 2.4    舒适自驾车	租赁舒适自驾车，可缩短50%本城市旅行时间。	1002
-         //   this.timeCarCheap            = timeHumanPreLineHour * 0.4;            // 1.92   经济自驾车	租赁经济自驾车，可缩短40%本城市旅行时间。	1003
-
-        }
 
     }
 
@@ -202,15 +182,52 @@ class MakeRoadMap {
         // 不用距离算法了
         // 中途换道具在写
 
-        let timeHour = this.timeHumanPreLineHour;
-        console.log(timeHour);
+
+        let travelMap = [];
+        if (spotStart.id != -1) {
+            travelMap.push(spotStart.id)
+        }
+        travelMap.push(spotEnd.id);
+        console.log(travelMap);
+        let short_path = new ShortPath(this.cid);
+        let distance = Math.round(short_path.travelShortDistance(travelMap));
+        console.log(distance);
+
+        let timeHour = 0;
+        for(let speed of travelConfig.speeds) {
+            if(distance <= speed.distance2) {
+                timeHour = ((speed.speed2 - speed.speed1) / 1000) / (speed.distance2 - speed.distance1) * distance + speed.speed2 / 1000
+                break;
+            }
+        }
+        console.log("初始时间", timeHour);
         if(this.isSingle && this.isNewPlayer) {
             timeHour = parseFloat((timeHour * ((100 - travelConfig.Newuser.Get(spotEnd.index + 1).shorten) / 100)).toFixed(2));
         }
-        console.log(timeHour);
+        console.log("新手加速", timeHour);
 
-        // let diffTime    = Math.floor(timeHour * 60 * 60 * 1000);
-        let diffTime    = 30000;
+        if (this.rentItems) {
+            let shortTime = [];
+            for (let rentItem in this.rentItems) {
+                if (this.rentItems[rentItem]) {
+                    let item = travelConfig.Shop.Get(rentItem);
+                    if (item && item.type == apis.RentItem.CAR) {
+                        shortTime.push(item.value);
+                    }
+                }
+            }
+
+            let max = 0;
+            if(shortTime.length > 0) {
+                max = Math.max(...shortTime);
+                timeHour = timeHour * ((100 - max) / 100);
+            }
+            this.acceleration = max;
+        }
+        console.log("道具加速", timeHour);
+
+         let diffTime = Math.floor(timeHour * 60 * 60 * 1000);
+        //let diffTime    = 30000;
 
 
         console.log("需要的时间 " + diffTime);

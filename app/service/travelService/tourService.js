@@ -572,7 +572,6 @@ class TourService extends Service {
             }
         }
 
-        //TODO 购买车的时候 ，直接加速还是需要通知客户端？？？
         let myRouteMap = [];
         if(cfg.type == apis.RentItem.CAR) {
             if(curCity.acceleration < cfg.value) {
