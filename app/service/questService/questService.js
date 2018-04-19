@@ -1,4 +1,4 @@
-const QuestRepoInstance = require("./QuestRepo");
+const QuestRepoInstance = require("./questRepo");
 const Service = require('egg').Service;
 const utils = require("../../utils/utils");
 const travelConfig  = require("../../../sheets/travel");
@@ -47,7 +47,7 @@ class QuestService extends Service{
         for ( let row of events ) {
 
             let questRow = QuestRepoInstance.find(row["eid"]);
-            questList.push( questRow.getSpotRewardComment() );
+            questList.push( questRow.getSpotRewardComment(cfgSpot.scenicspot) );
             // questList.push({
             //     'time': row['createDate'],
             //     'id': questRow.id,

@@ -8,7 +8,7 @@
 const travelConfig  = require("../../../sheets/travel");
 const Service       = require('egg').Service;
 const apis          = require('../../../apis/travel');
-const questRepo     = require('../questService/QuestRepo');
+const questRepo     = require('../questService/questRepo');
 const postcardRepo  = require('../configService/postcardRepo');
 
 

@@ -136,6 +136,7 @@ class MakeRoadMap {
                 o.building = cfg.building;
                 o.x = xy.x;
                 o.y = xy.y;
+                o.mileage = 0;
                 o.tracked = false;
                 o.index = index;
                 o.startime = "";
