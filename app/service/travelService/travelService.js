@@ -244,6 +244,7 @@ class TravelService extends Service {
             { $sort: { "_id.fid": 1 } },
             { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
         ]).sort({ year: 1 }).skip((page - 1) * limit).limit(limit);
+      //  this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
         for(let i = 0; i < allLogs.length; i++) {

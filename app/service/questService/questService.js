@@ -1,4 +1,4 @@
-const QuestRepoInstance = require("./QuestRepo");
+const QuestRepoInstance = require("./questRepo");
 const Service = require('egg').Service;
 const utils = require("../../utils/utils");
 const travelConfig  = require("../../../sheets/travel");
