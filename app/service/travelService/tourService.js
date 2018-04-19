@@ -41,6 +41,8 @@ class TourService extends Service {
 
         let uid             = info.uid;
         let inviteCode      = info.inviteCode;                      //是否双人模式  通过cid其实能够查到是否是双人模式
+        let cid             = parseInt(info.cid);
+        
         // let fakeDouble      = {
         //         code        : 1231234,
         //         uid         : uid,
@@ -55,7 +57,6 @@ class TourService extends Service {
         // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
         info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
         
-        let cid             = parseInt(info.cid);
         let cityConfig      = travelConfig.City.Get( cid );
         if(!cityConfig) {
             info.code = apis.Code.PARAMETER_NOT_MATCH;
@@ -572,6 +573,7 @@ class TourService extends Service {
             }
         }
 
+        //TODO 购买车的时候 ，直接加速还是需要通知客户端？？？
         let myRouteMap = [];
         if(cfg.type == apis.RentItem.CAR) {
             if(curCity.acceleration < cfg.value) {
