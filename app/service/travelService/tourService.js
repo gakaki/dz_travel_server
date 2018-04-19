@@ -165,57 +165,59 @@ class TourService extends Service {
             info.code = apis.Code.EXCEED_COUNT;
             return;
         }
-        this.logger.info(r);
-        this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
+    //    this.logger.info(r);
+      //  this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
 
 
         // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
         let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
         let dateNow         = new Date();
-        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
+        let update = await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
+        if(update.nModified) {
+            let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
+            await this.ctx.model.TravelModel.Postcard.create({
+                uid: ui.uid,
+                cid: cid,
+                country: city.country,
+                province: city.province,
+                city: city.city,
+                ptid: info.spotId,
+                pscid: postcardId,
+                type: cfgPostcard.type,                   //明信片类型
+                createDate: dateNow,      //创建时间
+            });
 
-        let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
-        await this.ctx.model.TravelModel.Postcard.create({
-            uid: ui.uid,
-            cid: cid,
-            country: city.country,
-            province: city.province,
-            city: city.city,
-            ptid: info.spotId,
-            pscid: postcardId,
-            type: cfgPostcard.type,                   //明信片类型
-            createDate: dateNow,      //创建时间
-        });
+            //第一次获得这种明信片，获得积分
+            let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
+            if(count == 1) {
+                this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            }
 
-        //第一次获得这种明信片，获得积分
-        let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
-        if(count == 1) {
-            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            // sysGiveLog表记录
+            await this.ctx.model.TravelModel.SysGiveLog.create({
+                uid: ui.uid,
+                sgid: "sys" + ui.pid + info.spotId + new Date().getTime(),                                 //唯一id
+                type: apis.SystemGift.POSTCARD,                                  // 3.明信片
+                iid: info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
+                number: 1,                                  //数量
+                isAdmin: "0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
+                createDate: dateNow,                         //当前时间创建
+            });
+            //拍照日志
+            await this.ctx.model.TravelModel.PhotoLog.create({
+                uid: ui.uid,
+                fid: r.fid, //飞行日志
+                cid: cid, //城市id
+                spotId: info.spotId, //景点id
+                postcardId: postcardId, //获得的明信片id
+                createDate: dateNow,
+            });
+            //返回明信片 id 图片
+            info.postcard = cfgPostcard;
+            info.freePhoto = r.photographyCount - 1;
+        }else{
+            info.code = apis.Code.NEED_ITEMS;
         }
-
-        // sysGiveLog表记录
-        await this.ctx.model.TravelModel.SysGiveLog.create({
-            uid: ui.uid,
-            sgid: "sys" + ui.pid + info.spotId + new Date().getTime(),                                 //唯一id
-            type: apis.SystemGift.POSTCARD,                                  // 3.明信片
-            iid: info.spotId,                         //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
-            number: 1,                                  //数量
-            isAdmin: "0",                                  //管理员赠送  系统送的为0 (这一栏是为了后台手动送道具)
-            createDate: dateNow,                         //当前时间创建
-        });
-        //拍照日志
-        await this.ctx.model.TravelModel.PhotoLog.create({
-            uid: ui.uid,
-            fid: r.fid, //飞行日志
-            cid: cid, //城市id
-            spotId: info.spotId, //景点id
-            postcardId: postcardId, //获得的明信片id
-            createDate: dateNow,
-        });
-
-        //返回明信片 id 图片
-        info.postcard = cfgPostcard;
-        info.freePhoto =r.photographyCount - 1;
     }
 
     // 景点观光功能
@@ -538,11 +540,7 @@ class TourService extends Service {
              efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
              reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
             //上个城市的评分奖励
-            let cost = {
-                [ "items." + travelConfig.Item.POINT]: reward,
-            };
-            this.ctx.service.publicService.itemService.itemChange(selfInfo.uid, cost);
-
+            this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
         }
         return {
             score: efficiency,
