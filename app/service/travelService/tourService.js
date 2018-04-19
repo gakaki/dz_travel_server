@@ -80,13 +80,7 @@ class TourService extends Service {
             info.startTime = currentCity.startTime.getTime();
         }
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
-        //起点添加
-        // info.spots.push({
-        //    'cid'        : cid,
-        //    'lng'        : lng,
-        //    'lat'        : lat,
-        //    'isStart'    : true
-        // });
+
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
@@ -102,32 +96,6 @@ class TourService extends Service {
                 }
             }
         }
-
-       //  let spotsRowInDB        = await this.ctx.model.TravelModel.SpotTravelEvent.find({ uid: ui.uid, cid: info.cid });
-       //  let task_spot_finished  = 0;
-       //  let task_tour_finished  = 0;
-       //  let task_photo_finished = 0;
-       //
-       //  for ( let row of spotsRowInDB ){
-       //      let spotId                      = row['spotId'];
-       //
-       //      spot_map[spotId]['tracked']     = true;              //数据库有记录的赋值，
-       //      spot_map[spotId]['trackedNo']   = row['trackedNo'];  //数据库有记录的赋值，
-       //      spot_map[spotId]['createDate']  = row['createDate']; //createDate
-       //
-       //      task_spot_finished++;                               //有记录就算你到达了景点
-       //      if ( row['isPhotography'] == true ){
-       //          task_photo_finished++;
-       //      }
-       //      if ( row['isTour'] == true ){
-       //          task_tour_finished++;
-       //      }
-       //  }
-       // // info.spots = spot_map;
-       //  //任务完成汇报
-       //  let isPair          = false;          //是否双人默认否
-       //  let task_spot_full  = isPair ? 3 : 6;
-
 
         info.task = await this.queryTaskProgress(ui.uid, cid);
 
@@ -160,7 +128,7 @@ class TourService extends Service {
                             createDate: new Date(spot.endtime),
                         });
                         //更新里程数
-                        await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage } });
+                        await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage ? spot.mileage : 0 } });
 
                     }
                 }

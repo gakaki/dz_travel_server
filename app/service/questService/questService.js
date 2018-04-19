@@ -47,7 +47,7 @@ class QuestService extends Service{
         for ( let row of events ) {
 
             let questRow = QuestRepoInstance.find(row["eid"]);
-            questList.push( questRow.getSpotRewardComment() );
+            questList.push( questRow.getSpotRewardComment(cfgSpot.scenicspot) );
             // questList.push({
             //     'time': row['createDate'],
             //     'id': questRow.id,
