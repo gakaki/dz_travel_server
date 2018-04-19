@@ -60,6 +60,8 @@ api FinishGuide {
 api TourIndexInfo{
     //城市id
     require cid:number
+    //是否双人模式
+    require isDouble:boolean
 
     output weather:number
     //该城市的spot景点列表
@@ -98,7 +100,6 @@ api Photography {
     output postcard:Postcard
     output freePhoto:number
 }
-
 
 
 class Quest {

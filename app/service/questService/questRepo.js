@@ -46,7 +46,7 @@ module.exports = new QuestRepo();
 //  res             = quest.getRewardNormal();
 // console.log(res);
 // //答题型抹去
-// // type 1 金币
+// // type 1 金币CAMERA
 //  quest        = n.find("130010");
 //  res          = quest.getSpotRewardComment();
 // console.log(res);
