@@ -54,11 +54,7 @@ api CheckGuide {
 api FinishGuide {
 }
 
-//任务完成度信息
-api TaskInfo {
-    //任务完成度信息
-    output task:TourTask
-}
+
 
 //进入城市的经典页面  用户开始该城市的旅游
 api TourIndexInfo{
@@ -68,6 +64,8 @@ api TourIndexInfo{
     output weather:number
     //该城市的spot景点列表
     output spots:Spot[]
+    //任务完成度信息
+    output task:TourTask
     //起点
     output startPos:object
     //其他玩家头像，为图片url数组
