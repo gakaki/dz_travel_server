@@ -458,13 +458,13 @@ class TourController extends Controller {
     }
 
     async buypostcardlist(ctx) {
-        let info = await apis.BuyPostcatdList.Init(ctx, true);
+        let info = await apis.BuyPostcardList.Init(ctx, true);
         await this.ctx.service.travelService.tourService.buypostcardlist(info);
         info.submit();
     }
 
     async buypostcard(ctx) {
-        let info = await apis.BuyPostcatd.Init(ctx, true);
+        let info = await apis.BuyPostcard.Init(ctx, true);
         await this.ctx.service.travelService.tourService.buypostcard(info);
         info.submit();
     }

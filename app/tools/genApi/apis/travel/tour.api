@@ -208,13 +208,13 @@ class Postcard {
 }
 
 //当前可购买的明信片
-api BuyPostcatdList {
+api BuyPostcardList {
     require cid:number //城市id
     output ptList:Postcard[] //可购买明信片列表
 }
 
 //购买明信片
-api BuyPostcatd {
+api BuyPostcard {
     require ptid:number //明信片id
     output goldNum:number //剩余金钱
 }
