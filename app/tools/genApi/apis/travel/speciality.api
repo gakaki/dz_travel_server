@@ -18,6 +18,7 @@ class MySpe extends Speciality{
 api CitySpes {
     require cityId:number//城市id
     output specialtys:Speciality[]
+    output restNum:number //剩余可购买的特产数量
 }
 
 //我的特产列表
