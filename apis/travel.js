@@ -702,6 +702,9 @@ class Quest {
         //prop type: string
         this.rewardCommet = null;
     
+        //prop type: string
+        this.rewards = null;
+    
         
         
         
