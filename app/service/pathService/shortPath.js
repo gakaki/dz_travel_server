@@ -120,7 +120,7 @@ class ShortPath {
        if(realRoute && realRoute.length < 6) {
            let pArr = [];
            for(let r of realRoute) {
-               pArr.push(travelConfig.Scenicspot.Get(r[0]).coordinate);
+               pArr.push(travelConfig.Scenicspot.Get(r).coordinate);
            }
            if(pArr.length) {
                points = pArr;
