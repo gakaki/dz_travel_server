@@ -247,10 +247,10 @@ class TravelService extends Service {
             { $sort: { "_id.fid": -1 } },
             { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
         ]).sort({ year: -1 }).skip((page - 1) * limit).limit(limit);
-      //  this.logger.info(JSON.stringify(allLogs));
+        //this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
-        for(let i = allLogs.length - 1; i >= 0; i--) {
+        for(let i = 0; i < allLogs.length; i++) {
             let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
             let onelog = {
                 city: travelConfig.City.Get(fly.destination).city,
@@ -261,11 +261,15 @@ class TravelService extends Service {
 
           //  this.logger.info(onelog);
 
-            if(i == allLogs.length - 1) {
+            if(i == 0) {
                 onelog.year = allLogs[i].year;
                 year = allLogs[i].year
             }else{
                 if(year != allLogs[i].year) {
+                    onelog.year = allLogs[i].year;
+                    year = allLogs[i].year
+                }else{
+                    delete outLog[i - 1].year;
                     onelog.year = allLogs[i].year;
                     year = allLogs[i].year
                 }
