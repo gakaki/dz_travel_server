@@ -16,7 +16,7 @@ class MakeSpotEvent {
 
     async genEvent(){
         // 事件类型为3 ，4 并且根据三个条件和最后的概率进行生成
-        let quests          = QuestRepo.filter({ cid: this.cid });
+        let quests          = QuestRepo.filterTourQuests({ cid: this.cid });
         console.log(quests.length);
         //根据权重进行 随机 这里暂时偷懒为了快点出来先
          /* 需要补逻辑

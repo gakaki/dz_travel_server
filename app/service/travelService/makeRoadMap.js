@@ -128,6 +128,7 @@ class MakeRoadMap {
             } else {
                 if(new Date().getTime() >= old.endtime) {
                     old.tracked = true;
+                    o.countdown = 0;
                 }
                 hasRouter.push(old.index);
                 o = old;
@@ -239,6 +240,9 @@ class MakeRoadMap {
                 diffTime = travelConfig.Parameter.Get(travelConfig.Parameter.LONGESTTIME).value
             }
         }
+
+
+        diffTime = 1000;
 
         console.log("需要的时间 " + diffTime);
         let now = new Date().getTime();

@@ -131,13 +131,14 @@ class Quest extends TreeNode {
 
 
     // 景点奖励语句
-    getSpotRewardComment(spotName,isGet){
+    getSpotRewardComment(spotName,getReward){
         // let hourStr  = moment(datetime).format("HH:mm")
-        let reward   = this.reward;
+        //let reward   = this.reward;
+        let reward   = getReward;
 
         let totalStr = `${this.describe} `;
         let stmtArr  = [];
-        for (let rewardRow of this.reward) {
+        for (let rewardRow of reward) {
 
                 let typeId      = rewardRow['k'];
                 let itemIdOrVal = rewardRow['v'];
@@ -171,9 +172,9 @@ class Quest extends TreeNode {
                         itemCount       = itemIdOrVal;
                         let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
                         itemName        = speciality.specialityname;
-                        if(isGet) {
+                       // if(isGet) {
                             str             = `获得${typeName}${itemName}`
-                        }
+                       // }
                         break;
                     case "5": //明信片  明信片随机所以无所谓了
                         str             = `获得明信片`

@@ -21,7 +21,7 @@ class QuestRepo {
 
 
     filterQuests(option){
-        return this.quests.filter( e  => (
+         return this.quests.filter( e  => (
             (e.belong == option.cid || !e.belong) &&
             (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY)
         ));
@@ -31,6 +31,13 @@ class QuestRepo {
             // e.condition4_        == option.itemSpecial &&
             //表示为游玩事件
     }
+    filterTourQuests(option) {
+        return this.quests.filter( e  => (
+            (e.belong == option.cid || !e.belong) &&
+            (e.trigger_type  == e.TriggerTypeKeys.TOUR_COMMON ||  e.trigger_type == e.TriggerTypeKeys.TOUR_CITY)
+        ));
+    }
+
 }
 
 module.exports = new QuestRepo();
