@@ -17,12 +17,18 @@ class PlayerService extends Service {
         }
         let overMatch = parseFloat(((readyMatch / total) * 100).toFixed(1));
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({ uid: ui.uid, index: travelConfig.Item.POINT });
-        let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", number: { $sum: "$number" } });
+        let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([
+            { $match: { uid: ui.uid } },
+            { $group: { _id: "$ptid" } },
+        ]);
         let comment = await this.ctx.model.TravelModel.Comment.count({ uid: ui.uid });
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", likes: { $sum: "$likes" } });
-        let specialty = await this.ctx.model.TravelModel.Speciality.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", number: { $sum: "$number" } });
+        let specialty = await this.ctx.model.TravelModel.SpecialityBuy.aggregate([
+            { $match: { uid: ui.uid } },
+            { $group: { _id: "$uid", number: { $sum: "$number" } } },
+            ]);
 
-
+        //this.logger.info(specialty);
 
         if(visit) {
            await this.ctx.service.travelService.tourService.updatePlayerProgress(visit, ui.uid);
@@ -47,10 +53,10 @@ class PlayerService extends Service {
             otherUserInfo: {
                 totalIntegral: addScore ? addScore.addup : 0,
                 mileage: ui.mileage,
-                postcard: postCards.length > 1 ? postCards[0].number : 0,
+                postcard: postCards.length,
                 comment: comment,
-                likeNum: likes.length > 1 ? likes[0].likes : 0,
-                specialty: specialty.length > 1 ? specialty[0].number : 0,
+                likeNum: likes.length ? likes[0].likes : 0,
+                specialty: specialty.length ? specialty[0].number : 0,
             },
         }
 
