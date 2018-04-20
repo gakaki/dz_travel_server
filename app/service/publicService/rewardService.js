@@ -134,7 +134,7 @@ class RewardService extends Service{
         let spcount = await this.ctx.model.TravelModel.Speciality.count({ uid: uid });
         if(spcount < travelConfig.Parameter.Get(travelConfig.Parameter.BAGLIMIT).value) {
             //加特产
-            let sp = await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
+            await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
                 {
                     uid: uid,
                     spid: cfgId,
@@ -143,15 +143,15 @@ class RewardService extends Service{
                 },
                 {upsert: true});
 
-            //购买记录
-            await this.ctx.model.TravelModel.SpecialityBuy.create({
-                uid: uid,
-                spid: cfgId,
-                number: count,
-                numberLeft: sp.number,
-                createDate: new Date()
-            });
-            this.logger.info(`购买特产成功,获得${cfgId} x ${count}`);
+            // //购买记录
+            // await this.ctx.model.TravelModel.SpecialityBuy.create({
+            //     uid: uid,
+            //     spid: cfgId,
+            //     number: count,
+            //     numberLeft: sp.number,
+            //     createDate: new Date()
+            // });
+            // this.logger.info(`购买特产成功,获得${cfgId} x ${count}`);
 
             //syslog 记录
             await this.ctx.model.TravelModel.SysGiveLog.create({

@@ -232,61 +232,93 @@ class PlayerService extends Service {
         info.postcardInfo = postcardInfos;
     }
     async showCityPostcards(info, ui) {
-        let postcards = await this.ctx.model.TravelModel.Postcard.aggregate([
-            { $match: { uid: ui.uid, province: info.province } },
-            { $sort: { createDate: -1 } },
-            { $group: { _id: "$cid", collectPostcardNum: { $sum: 1 }, postcard: { $push: { pscid: "$pscid", ptid: "$ptid", createDate: "$createDate" } } } },
-            { $project: { _id: 0, cid: "$_id", collectPostcardNum: 1, postcard: 1 } },
-        ]);
-
         let postcardInfos = [];
-        for(let postcard of postcards) {
-            let postcardInfo = {
-                city: travelConfig.City.Get(postcard.cid).city,
-                collectPostcardNum: postcard.collectPostcardNum,
-                allPostcardNum: travelConfig.City.Get(postcard.cid).postcardnum,
-            };
+        if(!Number(info.LM)) {
+            let postcards = await this.ctx.model.TravelModel.Postcard.aggregate([
+                { $match: { uid: ui.uid, province: info.province } },
+                { $sort: { createDate: -1 } },
+                {
+                    $group: {
+                        _id: "$cid",
+                        collectPostcardNum: { $sum: 1 },
+                        postcard: { $push: { pscid: "$pscid", ptid: "$ptid", createDate: "$createDate" } },
+                    },
+                },
+                { $project: { _id: 0, cid: "$_id", collectPostcardNum: 1, postcard: 1 } },
+            ]);
+            for (let postcard of postcards) {
+                let postcardInfo = {
+                    city: travelConfig.City.Get(postcard.cid).city,
+                   // collectPostcardNum: postcard.collectPostcardNum,
+                    allPostcardNum: travelConfig.City.Get(postcard.cid).postcardnum,
+                };
 
-            let postcardBriefDetails = [];
-            for(let pt of postcard.postcard) {
-                let postcardBriefDetail = {};
-                if(Number(info.LM)) {
-                    let chats = await this.ctx.model.TravelModel.PostcardChat.find({ pscid: pt.pscid }).sort({ createDate: -1 });
-                    if(chats.length > 0) {
-                        postcardBriefDetail = {
-                            id: pt.pscid,
-                            url: travelConfig.Postcard.Get(pt.ptid).picture,
-                        };
-                        let chat = chats[0];
-                        let sender = await this.ctx.model.PublicModel.User.findOne({ uid: chat.sender });
-                        postcardBriefDetail.lastestLiveMessage = {
-                            id: chat.chatid,
-                            time: (chat.createDate).format("yyyy-MM-dd"),
-                            userInfo: {
-                                uid: sender.uid,
-                                nickName: sender.nickName,
-                                avatarUrl: sender.avatarUrl,
-                            },
-                            message: chat.context,
-                        };
-                        this.logger.info("时间 ：", (chat.createDate).format("yyyy-MM-dd"));
-                    }
-                }else{
-                    postcardBriefDetail = {
+                let postcardBriefDetails = [];
+               // let collectPostcardNum = 0;
+                let collectPostcard = new Set();
+                for (let pt of postcard.postcard) {
+                    collectPostcard.add(pt.ptid);
+                    let postcardBriefDetail = {
                         id: pt.pscid,
                         url: travelConfig.Postcard.Get(pt.ptid).picture,
                     };
-                }
-                if(postcardBriefDetail && postcardBriefDetail.id) {
-                    postcardBriefDetails.push(postcardBriefDetail)
-                }
+                    if (postcardBriefDetail && postcardBriefDetail.id) {
+                        postcardBriefDetails.push(postcardBriefDetail)
+                    }
 
+                }
+               // this.logger.info(collectPostcard);
+                postcardInfo.postcardsDetail = postcardBriefDetails;
+                postcardInfo.collectPostcardNum = collectPostcard.size;
+
+                postcardInfos.push(postcardInfo);
             }
-            postcardInfo.postcardsDetail = postcardBriefDetails;
 
-
-            postcardInfos.push(postcardInfo);
+        }else{
+            //let chats = await this.ctx.model.TravelModel.PostcardChat.find({ sender: info.uid }).sort({ createDate: -1 });
+            let postcardChats = await this.ctx.model.TravelModel.PostcardChat.aggregate([
+                { $match: { sender: info.uid } },
+                { $sort: { createDate: -1 } },
+                { $group: { _id: "$pscid", firstMsg: { $first: { chatid: "$chatid", context: "$context", createDate: "$createDate", sender: "$sender" } } } },
+                { $project: { _id: 0, pscid: "$_id", firstMsg: 1 } },
+            ]);
+           // this.logger.info(postcardChats);
+            for(let postcardChat of postcardChats) {
+                let pt = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: postcardChat.pscid });
+                if(pt.province == info.province) {
+                    let postcardInfo = {
+                        cid: Number(pt.cid),
+                        city: travelConfig.City.Get(pt.cid).city,
+                        // collectPostcardNum: postcard.collectPostcardNum,
+                    };
+                    let postcardBriefDetail = {
+                        id: pt.pscid,
+                        url: travelConfig.Postcard.Get(pt.ptid).picture,
+                    };
+                    let firstChat = postcardChat.firstMsg;
+                    let sender = await this.ctx.model.PublicModel.User.findOne({ uid: firstChat.sender });
+                    postcardBriefDetail.lastestLiveMessage = {
+                        id: firstChat.chatid,
+                        time: (firstChat.createDate).format("yyyy-MM-dd"),
+                        userInfo: {
+                            uid: sender.uid,
+                            nickName: sender.nickName,
+                            avatarUrl: sender.avatarUrl,
+                        },
+                        message: firstChat.context,
+                    };
+                    // this.logger.info("时间 ：", (firstChat.createDate).format("yyyy-MM-dd"));
+                    postcardInfo.postcardsDetail = postcardBriefDetail;
+                    postcardInfos.push(postcardInfo);
+                }
+            }
+            postcardInfos = utils.multisort(postcardInfos,
+                (a, b) => (a.cid - b.cid)
+                )
         }
+
+
+
         info.postcardInfo = postcardInfos;
 
     }
@@ -334,7 +366,7 @@ class PlayerService extends Service {
     }
 
     async sendPostcardMsg(info, ui, postcard) {
-        let chatid = "chat" + new Date().getTime();
+        let chatid = "chat" + ui.pid + new Date().getTime();
         await this.ctx.model.TravelModel.PostcardChat.create({
             uid: postcard.uid,       //拥有者
             pscid: postcard.pscid,   //明信片
@@ -360,7 +392,7 @@ class PlayerService extends Service {
             if(senderid != postcard.uid) {
                 await this.ctx.model.TravelModel.UserMsg.create({
                     uid: senderid,
-                    mid: "msg" + travelConfig.Message.POSTCARDMESSAGE + new Date().getTime(),
+                    mid: "msg" + travelConfig.Message.POSTCARDMESSAGE + sender.pid + new Date().getTime(),
                     type: travelConfig.Message.POSTCARDMESSAGE,
                     title: travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).topic,
                     content: content,
@@ -501,13 +533,6 @@ class PlayerService extends Service {
                 nickName: user.nickName,
                 avatarUrl: user.avatarUrl,
             };
-
-            // if(info.rankSubtype == apis.RankSubtype.FRIEND) {
-            //     rankItem.reward = 0;
-            // }
-            // if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
-            //     rankItem.reward = this.ctx.service.travelService.rankService.getReward(info.rankType, rankItem.rank);
-            // }
 
           //  this.logger.info(rankItem)
             out.push(rankItem);
