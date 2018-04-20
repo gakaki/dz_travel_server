@@ -14,7 +14,7 @@ const moment        = require("moment");
 class TourService extends Service {
 
     // 邀请码 查询当前队友
-    async findAnotherUid(inviteCode,uid){
+    async findAnotherPlayer(inviteCode, uid){
         if( inviteCode ){
             //通过redis获取到当前的队友
             let doubleInfo      = await this.app.redis.hgetall(inviteCode);
@@ -26,7 +26,7 @@ class TourService extends Service {
             if ( !partnetObj )  return null;
 
             this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
-            
+
             let partener        = {
                 uid:   partenerId,
                 nickName: partnetObj.nickName,
@@ -43,9 +43,12 @@ class TourService extends Service {
       //  await this.service.travelService.travelService.fillIndexInfo(info,ui);
 
         let uid             = info.uid;
-        let inviteCode      = info.inviteCode;                      //是否双人模式  通过cid其实能够查到是否是双人模式
+
+        let isMulti         = false;
+
+        // let inviteCode      = info.inviteCode;  //是否双人模式  通过cid其实能够查到是否是双人模式
         let cid             = parseInt(info.cid);
-        
+        // 根据被邀请人的uid
         // let fakeDouble      = {
         //         code        : 1231234,
         //         uid         : uid,
@@ -56,7 +59,7 @@ class TourService extends Service {
         // if ( fakeDouble ){
         //     await this.app.redis.hmset(inviteCode,fakeDouble);
         // }
-        info.partener       = await this.findAnotherUid(inviteCode,uid);
+        info.partener       = await this.findAnotherPlayer(inviteCode,uid);
         // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
         info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
 
@@ -826,15 +829,13 @@ class TourService extends Service {
         let uid                 = info.uid;
         let currentCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
         if (!currentCity ) {
-            info.code = apis.Code.NOT_FOUND;
-            info.message        = "没有城市数据呢";
+            info.code           = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
         let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid  });
         if (!currentEvents ) {
             info.code           = apis.Code.NOT_FOUND;
-            info.message        = "没有事件数据哦";
             info.submit();
             return;
         }
@@ -943,7 +944,7 @@ class TourService extends Service {
         let eventsNeedInsert    = [eventMe];
 
         if ( inviteCode ){        //双人模式
-            let partner         = await this.findAnotherUid(inviteCode,uid);
+            let partner         = await this.findAnotherPlayer(inviteCode,uid);
             if ( partner ){
                 let f            = new MakeEvent(para);
                 eventspartner    = f.eventsFormat;
@@ -1020,7 +1021,7 @@ class TourService extends Service {
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
         let inviteCode  = info.inviteCode;
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
-        let partner     = await this.findAnotherUid(inviteCode,uid);
+        let partner     = await this.findAnotherPlayer(inviteCode,uid);
         
         //删除inviteCode 
         await this.ctx.service.travelService.doubleService.deleteCode(info);
@@ -1039,10 +1040,9 @@ class TourService extends Service {
     async cancelpartenloop(info){
         //双人变单人 
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
-        let partner     = await this.findAnotherUid(info.inviteCode,info.uid);
+        let partner     = await this.findAnotherPlayer(info.inviteCode,info.uid);
         if ( !partner ){
                 info.code = apis.Code.USER_CANCEL_TEAM;
-                info.message = "伙伴已经退出了！";
                 return;
         }else{
 
