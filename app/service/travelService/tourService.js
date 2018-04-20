@@ -290,7 +290,7 @@ class TourService extends Service {
             if(count == 1) {
                 this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
             }
-            this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
+            this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(info.uid, cid);
             // sysGiveLog表记录
             await this.ctx.model.TravelModel.SysGiveLog.create({
                 uid: ui.uid,
