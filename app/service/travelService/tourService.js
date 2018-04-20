@@ -794,17 +794,16 @@ class TourService extends Service {
     async playloop(info){
         
         let uid              = info.uid;
-        let cid              = info.cid;
-        
-        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid , cid : cid  });
+        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
         if (!currentCity ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
-        
+        let cid                  = currentCity.cid;
+        // this.logger.info(uid,cid);
         let timeNow              = new Date().getTime();
-        let timePrev             = timeNow - 60 * 1 * 1000;
+        let timePrev             = timeNow - 60 * 10 * 1000; //10分钟之前到现在 放松限制
         info.newEvent            = false;
         if ( timePrev ){
             let events           = currentCity['events'];                               //1分钟前的
@@ -882,37 +881,49 @@ class TourService extends Service {
             }
         }
         
-        startTime = new Date();
+        startTime                = new Date();
         // 第一次生成的时候修改事件 后面修改的时候不改了
         let e                    = new MakeEvent(para);
-        let events               = e.eventsFormat;
-        let eventspartner        = [];
+
+        let eventMe              = {
+            uid: uid,
+            cid: cid,
+            events: e.eventsFormat
+        };
+        let eventsNeedInsert    = [eventMe];
 
         if ( inviteCode ){        //双人模式
             let partner         = await this.findAnotherUid(inviteCode,uid);
             if ( partner ){
                 let f            = new MakeEvent(para);
                 eventspartner    = f.eventsFormat;
+                let eventOther   = {
+                    uid: partner.uid,
+                    cid: cid,
+                    events: eventspartner
+                };
+                eventsNeedInsert.push(eventOther);
             }else{
                 this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
             } 
         }
 
+        //更新 currentcity的 roadmap
         await this.ctx.model.TravelModel.CurrentCity.update({
         'uid'        : uid,
         'cid'        : cid,
         },{ $set: {
             roadMap  : outPMap,
             acceleration: acceleration,
-            events   : {
-                uid  : events ,
-                partenerId : eventspartner
-            },
             startTime:startTime,
             modifyEventDate : new Date(),
         }});
-   
-        info.startTime = startTime ? startTime.getTime() : new Date().getTime();
+
+
+        //更新events表
+        await this.ctx.model.TravelModel.CityEvents.insertMany(eventsNeedInsert);
+
+        info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
     }
 

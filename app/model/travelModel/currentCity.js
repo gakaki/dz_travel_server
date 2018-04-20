@@ -14,7 +14,6 @@ module.exports = app => {
         tourCount: { type: Number, default: 0 }, //城市观光次数 前2次免费
         rewardAppendTime: Array, //被奖励？惩罚的 该城市游玩追加时间可以为负数
         roadMap: { type: Array, default: [] }, //玩家当前地图
-        events: { type: Array, default: null },
         modifyEventDate: { type: Date, default: null },
         startTime: { type: Date }, //开始游玩的时间
         acceleration: { type: Number, default: 0 }, //当前加速百分比
