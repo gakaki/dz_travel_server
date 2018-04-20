@@ -126,6 +126,9 @@ class MakeRoadMap {
                 o.lng = lng;
                 o.lat = lat;
             } else {
+                if(new Date().getTime() >= old.endtime) {
+                    old.tracked = true;
+                }
                 hasRouter.push(old.index);
                 o = old;
             }

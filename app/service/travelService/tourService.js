@@ -131,6 +131,7 @@ class TourService extends Service {
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
         let acceleration = currentCity.acceleration;
         info.display = 0;
+        info.mileage = ui.mileage;
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
@@ -188,7 +189,7 @@ class TourService extends Service {
     async queryTaskProgress(uid, cid) {
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let cityConfig = travelConfig.City.Get(cid);
-        this.updatePlayerProgress(currentCity, uid);
+        await this.updatePlayerProgress(currentCity, uid);
 
         //查找走过的景点数
         let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, fid: currentCity.fid, cid: cid, scenicspot: { $ne: null } });
@@ -386,7 +387,8 @@ class TourService extends Service {
         let row                  = {
             uid:uid,
             eid:eid,        //事件id 这个是随机出来的
-            desc: desc.finalStr,//时间描述
+            desc: desc.desc,//时间描述
+            reward: desc.reward,
             cid:cid,           //cityId
             spotId:spotId,     //现在用不上
             fid:currentCity.fid,
