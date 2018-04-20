@@ -14,7 +14,7 @@ const moment        = require("moment");
 class TourService extends Service {
 
     // 邀请码 查询当前队友
-    async findAnotherPlayer(inviteCode, uid){
+    async findAnotherPlayer2( uid){
         if( inviteCode ){
             //通过redis获取到当前的队友
             let doubleInfo      = await this.app.redis.hgetall(inviteCode);
@@ -39,28 +39,54 @@ class TourService extends Service {
             return null;
         }
     }
+
+
+    async findAnotherPlayer(inviteCode, myUid){
+        if( inviteCode ){
+            //通过redis获取到当前的队友
+            let doubleInfo      = await this.app.redis.hgetall(inviteCode);
+            this.logger.info("查询双人信息" + myUid, doubleInfo.inviter, doubleInfo.invitee != myUid, doubleInfo.invitee);
+
+            // partener 就是另一个玩家
+            let partenerId      = [doubleInfo.inviter,doubleInfo.invitee].find(x => x != myUid);
+            let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: partenerId })
+            if ( !partnetObj )  return null;
+
+            this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
+
+            let partener        = {
+                uid:   partenerId,
+                nickName: partnetObj.nickName,
+                gender:1,//性别
+                img:partnetObj.avatarUrl,//头像地址
+                isInviter:doubleInfo.inviter == myUid ? false : true //是否是邀请者
+            }
+            return partener;
+        }else{
+            return null;
+        }
+    }
     async tourindexinfo(info, ui) {
-      //  await this.service.travelService.travelService.fillIndexInfo(info,ui);
 
         let uid             = info.uid;
-
         let isMulti         = false;
+        let inviteCode      = 1231234;
 
-        // let inviteCode      = info.inviteCode;  //是否双人模式  通过cid其实能够查到是否是双人模式
+         //是否双人模式  通过cid其实能够查到是否是双人模式
         let cid             = parseInt(info.cid);
         // 根据被邀请人的uid
-        // let fakeDouble      = {
-        //         code        : 1231234,
-        //         uid         : uid,
-        //         inviter     : "ov5W35XwjECAWGq0UK3omMfu9nak",       //邀请者
-        //         invitee     : "absdadew234resfdsfsd"                //被邀请者
-        //         // ov5W35XwjECAWGq0UK3omMfu9nak (inviter) ====(invite邀请)====>invitee（被邀请者）
-        // };
-        // if ( fakeDouble ){
-        //     await this.app.redis.hmset(inviteCode,fakeDouble);
-        // }
-        // info.partener       = await this.findAnotherPlayer(inviteCode,uid);
-        // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
+        let fakeDouble      = {
+                code        : 1231234,
+                uid         : uid,
+                inviter     : "ov5W35XwjECAWGq0UK3omMfu9nak",       //邀请者
+                invitee     : "absdadew234resfdsfsd"                //被邀请者
+                // ov5W35XwjECAWGq0UK3omMfu9nak (inviter) ====(invite邀请)====>invitee（被邀请者）
+        };
+        if ( fakeDouble ){
+            await this.app.redis.hmset(inviteCode,fakeDouble);
+        }
+        info.partener       = await this.findAnotherPlayer(inviteCode,uid);
+        // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
         info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
 
         let cityConfig      = travelConfig.City.Get( cid );
