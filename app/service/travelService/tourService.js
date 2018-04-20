@@ -504,19 +504,22 @@ class TourService extends Service {
         //所以查cid的cityevent表
 
         let uid             = info.uid;
-        let cid             = info.cid;    //算了暂时不用aggregation 实在是啰嗦死了
+        let cid             = info.cid;
         let cityEvents      = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid:            uid
         });
         //过滤掉时间和received true的        没有领取并且小于当前时间的
         // let events          = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime() ); //为了测试
         let events          = cityEvents.events.filter( x => x.received == false );
+        info.total          = 10;
+        info.current        = cityEvents.events.length - events.length
+        info.current        = info.current <= 0 ? 1 : info.current;
+
         let event           = null;
         if (events.length >= 0)
             event           = events[0];
         if ( !event ) {
             info.code       = apis.Code.NOT_FOUND;
-            info.message    = "暂时没有事件"
             info.submit();
             return;
         }
@@ -553,13 +556,13 @@ class TourService extends Service {
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){
             //若是 普通的随机事件 那么直接触发获得奖励了
             let row                 = await this.rewardThanMark(info.uid,info.cid,eid);
-            info.quest['time']      = row['receivedDate'];
 
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             info.quest['rewards']   = {};
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
             info.quest['rewards']   = {};
         }
+
 
         info.submit();
     }
