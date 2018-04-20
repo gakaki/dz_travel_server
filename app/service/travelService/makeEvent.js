@@ -2,8 +2,8 @@ const _                     = require("lodash");
 const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
 const timeUtil              = require("../../utils/time");
-
-class MakeEvent {
+const mongoose              = require('mongoose');
+class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
     constructor( obj ){
 
@@ -24,15 +24,16 @@ class MakeEvent {
     async formatEvents(){
         this.eventsFormat =  this.events.map( e => {
             return {
-                id              : e.eid,
-                // minuteLength    : e.minuteLength,     //似乎没有必要
+                id              : e.id,
+                eid             : e.eid,
                 received        : false,                 //似乎没有必要 是记录在另一张表内
                 triggerDate     : e.triggerDate,
                 triggerDateYHM  : e.triggerDateYHM,
                 // quest           : e.quest
+                // minuteLength    : e.minuteLength,     //似乎没有必要
             }
-        })
 
+        })
     }
 
     async genEventNonSpot(){
@@ -65,6 +66,7 @@ class MakeEvent {
         let quest        = this.randomQuest();
 
         let questDbRow   = {
+            id              : mongoose.Types.ObjectId(),
             triggerDate     : triggerDateTimeStamp,
             eid             : quest.id,
             received        : false,
@@ -81,7 +83,7 @@ class MakeEvent {
     }
 
     randomQuest(){
-        let quests = QuestRepo.filter(
+        let quests = QuestRepo.filterQuests(
             {
                 // cid :       this.cid,
                 // weather:    this.weather,           //天气
@@ -99,7 +101,7 @@ class MakeEvent {
 module.exports = MakeEvent;
 
 
-// // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
+// // // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
 // let objParametes   = {
 //     timeTotalHour  : 14,
 //     cid            : 101,
