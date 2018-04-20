@@ -186,14 +186,14 @@ class Quest extends TreeNode {
             totalStr =totalStr.replace("s%", spotName);
         }
         //有待完善
-        let finalStr =  totalStr + stmtArr.join(" ");
+        // let finalStr =  totalStr + stmtArr.join(" ");
         if(this.answer){ //如果是问答题的配置表就不显示了 意思是
-            finalStr = "";
+            // finalStr = "";
         }
         return {
             desc: totalStr,
-            reward: stmtArr,
-            finalStr: finalStr,
+            reward: stmtArr.join(" ").trim(),
+            // finalStr: finalStr,
         };
     }
 

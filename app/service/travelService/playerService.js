@@ -17,12 +17,18 @@ class PlayerService extends Service {
         }
         let overMatch = parseFloat(((readyMatch / total) * 100).toFixed(1));
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({ uid: ui.uid, index: travelConfig.Item.POINT });
-        let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", number: { $sum: "$number" } });
+        let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([
+            { $match: { uid: ui.uid } },
+            { $group: { _id: "$ptid" } },
+        ]);
         let comment = await this.ctx.model.TravelModel.Comment.count({ uid: ui.uid });
         let likes = await this.ctx.model.TravelModel.Comment.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", likes: { $sum: "$likes" } });
-        let specialty = await this.ctx.model.TravelModel.Speciality.aggregate([{ $match: { uid: ui.uid } }]).group({ _id: "$uid", number: { $sum: "$number" } });
+        let specialty = await this.ctx.model.TravelModel.SpecialityBuy.aggregate([
+            { $match: { uid: ui.uid } },
+            { $group: { _id: "$uid", number: { $sum: "$number" } } },
+            ]);
 
-
+        //this.logger.info(specialty);
 
         if(visit) {
            await this.ctx.service.travelService.tourService.updatePlayerProgress(visit, ui.uid);
@@ -47,10 +53,10 @@ class PlayerService extends Service {
             otherUserInfo: {
                 totalIntegral: addScore ? addScore.addup : 0,
                 mileage: ui.mileage,
-                postcard: postCards.length > 1 ? postCards[0].number : 0,
+                postcard: postCards.length,
                 comment: comment,
-                likeNum: likes.length > 1 ? likes[0].likes : 0,
-                specialty: specialty.length > 1 ? specialty[0].number : 0,
+                likeNum: likes.length ? likes[0].likes : 0,
+                specialty: specialty.length ? specialty[0].number : 0,
             },
         }
 
@@ -283,14 +289,13 @@ class PlayerService extends Service {
                 { $project: { _id: 0, pscid: "$_id", firstMsg: 1 } },
             ]);
            // this.logger.info(postcardChats);
+            let proPostcards = {};
+            let citys = new Set();
             for(let postcardChat of postcardChats) {
                 let pt = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: postcardChat.pscid });
                 if(pt.province == info.province) {
-                    let postcardInfo = {
-                        cid: Number(pt.cid),
-                        city: travelConfig.City.Get(pt.cid).city,
-                        // collectPostcardNum: postcard.collectPostcardNum,
-                    };
+                    citys.add(pt.cid);
+
                     let postcardBriefDetail = {
                         id: pt.pscid,
                         url: travelConfig.Postcard.Get(pt.ptid).picture,
@@ -307,11 +312,27 @@ class PlayerService extends Service {
                         },
                         message: firstChat.context,
                     };
+                    if(proPostcards[pt.cid]) {
+                        proPostcards[pt.cid].push(postcardBriefDetail);
+                    }else{
+                        proPostcards[pt.cid] = [ postcardBriefDetail ];
+                    }
+
                     // this.logger.info("时间 ：", (firstChat.createDate).format("yyyy-MM-dd"));
-                    postcardInfo.postcardsDetail = postcardBriefDetail;
-                    postcardInfos.push(postcardInfo);
+
                 }
             }
+            for(let city of citys) {
+                let postcardInfo = {
+                    cid: Number(city),
+                    city: travelConfig.City.Get(city).city,
+                    // collectPostcardNum: postcard.collectPostcardNum,
+                };
+                postcardInfo.postcardsDetail = proPostcards[city];
+                postcardInfos.push(postcardInfo);
+            }
+
+
             postcardInfos = utils.multisort(postcardInfos,
                 (a, b) => (a.cid - b.cid)
                 )
