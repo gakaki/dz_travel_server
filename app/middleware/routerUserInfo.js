@@ -18,7 +18,7 @@ module.exports = options => {
         if (!ui) {
             ctx.logger.info("用户不存在");
             ctx.body = { data: {}, code: apis.Code.USER_NOT_FOUND };
-            return ctx.zbody;
+            return ctx.body;
         }
         else {
             ctx.session.ui  = ui;
