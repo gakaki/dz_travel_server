@@ -233,6 +233,7 @@ api SetRouter {
     //设置后景点数组
     output spots:RouterSpot[]//不包括起点
     output startTime: number //起点开始时间
+    output display: number //交通工具
 
 }
 //装备修改路线，组队模式下，如果双方同时触发此api，则稍晚的一方收到错误码,提示‘好友正在修改路线’

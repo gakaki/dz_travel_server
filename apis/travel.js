@@ -1166,34 +1166,6 @@ class CancelParten extends Base {
         }
     }
 }
-class CancelPartenLoop extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.cancelpartenloop';
-    
-        this._inviteCode = null;
-        this.requireFileds = ["inviteCode"];
-        this.reqFields = ["inviteCode"];
-        this.resFields = [];
-    }
-    //client input, require, type: string
-    get inviteCode() {return this._inviteCode}
-    set inviteCode(v) {this._inviteCode = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new CancelPartenLoop();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
 class LookTicket extends Base {
     constructor() {
         super();
@@ -1743,9 +1715,10 @@ class SetRouter extends Base {
         this._line = null;
         this._spots = null;
         this._startTime = null;
+        this._display = null;
         this.requireFileds = ["cid","line"];
         this.reqFields = ["cid","line"];
-        this.resFields = ["spots","startTime"];
+        this.resFields = ["spots","startTime","display"];
     }
     //client input, require, type: string
     get cid() {return this._cid}
@@ -1759,6 +1732,9 @@ class SetRouter extends Base {
     //server output, type: 
     get startTime() {return this._startTime}
     set startTime(v) {this._startTime = v}
+    //server output, type: 
+    get display() {return this._display}
+    set display(v) {this._display = v}
     static Init(ctx, checkLogin = false) {
         let o = new SetRouter();
         o.ctx = ctx;
@@ -1852,9 +1828,10 @@ class PlayLoop extends Base {
         this._spotsTracked = null;
         this._spotsAllTraced = null;
         this._spotsPlaned = null;
+        this._doubleState = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTraced","spotsPlaned"];
+        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTraced","spotsPlaned","doubleState"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
@@ -1871,6 +1848,9 @@ class PlayLoop extends Base {
     //server output, type: boolean//路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
     get spotsPlaned() {return this._spotsPlaned}
     set spotsPlaned(v) {this._spotsPlaned = v}
+    //server output, type: boolean//双人模式下对方是否取消了双人旅行
+    get doubleState() {return this._doubleState}
+    set doubleState(v) {this._doubleState = v}
     static Init(ctx, checkLogin = false) {
         let o = new PlayLoop();
         o.ctx = ctx;
@@ -2951,7 +2931,7 @@ class Spot extends RouterSpot {
         //prop type: string[]
         this.building = null;
     
-        //prop type: string//还有多久到下一个景点
+        //prop type: number//还有多久到下一个景点
         this.countdown = null;
     
         
@@ -3617,7 +3597,6 @@ exports.Shop = Shop;
 exports.FinishGuide = FinishGuide;
 exports.TourIndexInfo = TourIndexInfo;
 exports.CancelParten = CancelParten;
-exports.CancelPartenLoop = CancelPartenLoop;
 exports.LookTicket = LookTicket;
 exports.Photography = Photography;
 exports.SignInfo = SignInfo;
