@@ -42,13 +42,13 @@ class TravelService extends Service {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
         if (visit) {
             cid = visit.cid;
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-            for (let we of travelConfig.weathers) {
-                if (we.weather == weather) {
-                    outw = we.id;
-                    break;
-                }
-            }
+            outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
+            // for (let we of travelConfig.weathers) {
+            //     if (we.weather == weather) {
+            //         outw = we.id;
+            //         break;
+            //     }
+            // }
             info.location = cid;
         }
         if (ui.isSingleFirst) {
@@ -120,7 +120,7 @@ class TravelService extends Service {
             //     info.score = efficiency;
             //     info.reward = reward;
             // }
-            if(ui.isNewPlayer && !fui) {
+            if(ui.isNewPlayer && !fui && lastCity.startTime) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
 
@@ -279,6 +279,7 @@ class TravelService extends Service {
             outLog.push(onelog);
         }
 
+        outLog.reverse();
         info.allLogs = outLog;
     }
 
