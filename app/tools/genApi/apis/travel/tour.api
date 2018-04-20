@@ -84,10 +84,7 @@ api TourIndexInfo{
 api CancelParten {
     require inviteCode:string 
 }
-//取消组队 循环统治
-api CancelPartenLoop {
-    require inviteCode:string 
-}
+
 
 class Postcard {
     prop id:string
@@ -261,5 +258,6 @@ api PlayLoop {
     output spotsTracked:number//有几个到达了
     output spotsAllTraced:boolean//是否已经把地图上所有的景点都走过了
     output spotsPlaned:boolean//路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
+    output doubleState:boolean//双人模式下对方是否取消了双人旅行
 }
 
