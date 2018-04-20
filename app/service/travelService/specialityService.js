@@ -109,14 +109,14 @@ class SpecialityService extends Service {
     //每次进入一个新城市游玩时，调用此接口,将自己背包里的特产出售价格清零
     async clearMySpePrice(uid) {
         let speModel = this.ctx.model.TravelModel.Speciality;
-        await speModel.update({ uid }, { $set: { sellPrice: 0 }});
+        await speModel.update({ uid }, { $set: { sellPrice: 0 } }, { multi: true });
     }
 
     async buy(info) {
         let ui = info.ui;
         let cfg = sheets.Speciality.Get(info.propId);
         if (!cfg) {
-            this.logger.info(`未找到id为${info.propId}的speciality`)
+            this.logger.info(`未找到id为${info.propId}的speciality`);
             info.code = apis.Code.PARAMETER_NOT_MATCH;
             return;
         }
@@ -157,26 +157,25 @@ class SpecialityService extends Service {
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
         //加特产
-        let sp = await this.ctx.model.TravelModel.Speciality.update(
-            {uid: ui.uid, spid: cfg.id},
+         await this.ctx.model.TravelModel.Speciality.update(
+            { uid: ui.uid, spid: cfg.id },
             {
                 $set: {
                     cid: cfg.cityid,
                     uid: ui.uid,
                     spid: cfg.id,
                     price: cfg.localprice,
-                    createDate: new Date()
+                    createDate: new Date(),
                 },
-                $inc: { number: info.count },
+                $inc: { number: parseInt(info.count) },
             },
             { upsert: true });
         //购买记录
         await this.ctx.model.TravelModel.SpecialityBuy.create({
             uid: ui.uid,
             spid: cfg.id,
-            number: info.count,
-            numberLeft: sp.number,
-            createDate: new Date()
+            number: parseInt(info.count),
+            createDate: new Date(),
         });
         this.logger.info(`购买特产成功,获得${cfg.specialityname} x ${info.count}`);
 
@@ -205,7 +204,7 @@ class SpecialityService extends Service {
             return;
         }
 
-        let money = sp.sellPrice*info.count
+        let money = sp.sellPrice * info.count;
 
         //加钱
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: money}, 'travel');
@@ -217,7 +216,8 @@ class SpecialityService extends Service {
         else {
             await this.ctx.model.TravelModel.Speciality.update({
                 uid: ui.uid,
-                spid: cfg.id
+                spid: cfg.id,
+
             }, {$inc: {number: -info.count}});
         }
         //卖出记录
@@ -225,7 +225,7 @@ class SpecialityService extends Service {
             uid: ui.uid,
             spid: cfg.id,
             number: info.count,
-            numberLeft: sp.number - info.count,
+           // numberLeft: sp.number - info.count,
             createDate: new Date()
         });
         this.logger.info(`卖出特产成功,获得金币 x ${money}`);

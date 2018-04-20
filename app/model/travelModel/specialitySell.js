@@ -5,7 +5,7 @@ module.exports = app => {
         uid:{type:String},
         spid:{type:String},     //特产ID
         number:{type:Number},   //卖出数量
-        numberLeft:{type:Number},   //当时卖出剩下的
+        //numberLeft:{type:Number},   //当时卖出剩下的
         createDate:{type:Date}  //时间
     });
 

@@ -7,8 +7,8 @@ module.exports = app => {
         price: {type: Number}, //买入价格
         sellPrice: {type: Number, default: 0}, //异地出售价格
         number:{type:Number, default: 0},
-        createDate:{type:Date, default: new Date() }, //获取时间
-        sellPriceDate: {type: Date, default: new Date()} //价格刷新时间
+        createDate:{type:Date}, //获取时间
+        sellPriceDate: {type: Date} //价格刷新时间
     });
 
     return mongoose.model('Speciality',SpecialitySchema);

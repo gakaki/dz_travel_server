@@ -199,6 +199,8 @@ class TravelService extends Service {
           //  scenicspot:"0",
             createDate: new Date(),
         };
+        //刷新特产
+        this.ctx.service.travelService.specialityService.clearMySpePrice(info.uid);
         //双人旅行
         if (fui) {
             flyRecord.friend = fui.uid;
@@ -219,6 +221,7 @@ class TravelService extends Service {
             footprint.uid = fui.uid;
             await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
 
+            this.ctx.service.travelService.specialityService.clearMySpePrice(fui.uid);
         }/*else{
             currentCity.efficiency = 0;
         }*/
