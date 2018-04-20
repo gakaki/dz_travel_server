@@ -55,7 +55,7 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "xy": "node ./app/tools/sceneXy/genXY.js",
+    "pic": "node ./app/tools/scenicPic/checkPic.js",
     "sheet": "node ./app/tools/genSheet/genSheet.js",
     "coord": "node ./app/tools/cityCoord/fixCityCoord.js",
     "api": "node ./app/tools/genApi/genApi.js"
