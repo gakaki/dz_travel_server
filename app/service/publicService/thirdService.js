@@ -24,14 +24,14 @@ class ThirdService extends Service {
                   //   this.logger.info(meteorological);
                  }catch (err) {
                      this.logger.error("获取天气失败", err);
-                     return "晴"
+                     return 1
                  }
                  this.logger.info('weather', cityweather);
                  let map = {
                      [cid]: cityweather,
                  };
                  await this.app.redis.hmset(key, map);
-                 return cityweather
+                 //return cityweather
              }
              this.logger.info('weather', cityweather);
              let outw = 1;
