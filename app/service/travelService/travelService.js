@@ -159,7 +159,7 @@ class TravelService extends Service {
             }
 
         }
-        let flyid = "fly" + new Date().getTime();
+        let flyid = "fly" + ui.pid + new Date().getTime();
         let flyRecord = {
             uid: ui.uid, //用户ID
             fid: flyid,
@@ -242,11 +242,11 @@ class TravelService extends Service {
         let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             { $match: { uid: ui.uid } },
             { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } }, scenicSpots: { $push: { spots: "$scenicspot" } } } },
-            { $sort: { "_id.date": 1 } },
+            { $sort: { "_id.date": -1 } },
             { $group: { _id: { year: "$_id.year", fid: "$_id.fid" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
-            { $sort: { "_id.fid": 1 } },
+            { $sort: { "_id.fid": -1 } },
             { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
-        ]).sort({ year: 1 }).skip((page - 1) * limit).limit(limit);
+        ]).sort({ year: -1 }).skip((page - 1) * limit).limit(limit);
       //  this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
@@ -259,15 +259,19 @@ class TravelService extends Service {
                // year : allLogs[i].year,
             };
 
+          //  this.logger.info(onelog);
+
             if(i == 0) {
                 onelog.year = allLogs[i].year;
                 year = allLogs[i].year
             }else{
-                if(year != allLogs[i].year){
+                if(year != allLogs[i].year) {
                     onelog.year = allLogs[i].year;
                     year = allLogs[i].year
                 }
             }
+            //this.logger.info(year);
+          //  this.logger.info(allLogs[i].year);
             outLog.push(onelog);
         }
 
