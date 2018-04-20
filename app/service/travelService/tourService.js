@@ -59,7 +59,7 @@ class TourService extends Service {
         // if ( fakeDouble ){
         //     await this.app.redis.hmset(inviteCode,fakeDouble);
         // }
-        info.partener       = await this.findAnotherPlayer(inviteCode,uid);
+        // info.partener       = await this.findAnotherPlayer(inviteCode,uid);
         // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
         info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
 
