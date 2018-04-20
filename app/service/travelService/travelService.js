@@ -241,7 +241,7 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
         let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             { $match: { uid: ui.uid } },
-            { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } }, scenicSpots: { $push: { spots: "$scenicspot" } } } },
+            { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } }, scenicSpots: { $push: "$scenicspot" } } },
             { $sort: { "_id.date": -1 } },
             { $group: { _id: { year: "$_id.year", fid: "$_id.fid" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
             { $sort: { "_id.fid": -1 } },
@@ -250,7 +250,7 @@ class TravelService extends Service {
       //  this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
-        for(let i = 0; i < allLogs.length; i++) {
+        for(let i = allLogs.length - 1; i >= 0; i--) {
             let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
             let onelog = {
                 city: travelConfig.City.Get(fly.destination).city,
@@ -261,7 +261,7 @@ class TravelService extends Service {
 
           //  this.logger.info(onelog);
 
-            if(i == 0) {
+            if(i == allLogs.length - 1) {
                 onelog.year = allLogs[i].year;
                 year = allLogs[i].year
             }else{
