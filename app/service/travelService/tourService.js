@@ -9,6 +9,7 @@ const MakeRoadMap   = require("./makeRoadMap");
 const MakeEvent     = require("./makeEvent");
 const MakeSpotEvent = require("./makeSpotEvent");
 const ShortPath     = require("../pathService/shortPath");
+const moment        = require("moment");
 
 class TourService extends Service {
 
@@ -58,7 +59,7 @@ class TourService extends Service {
         info.partener       = await this.findAnotherUid(inviteCode,uid);
         // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
         info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-        info.mileage = ui.mileage;
+
         let cityConfig      = travelConfig.City.Get( cid );
         if(!cityConfig) {
             info.code = apis.Code.PARAMETER_NOT_MATCH;
@@ -793,21 +794,35 @@ class TourService extends Service {
     //轮询访问地址
     async playloop(info){
         
-        let uid              = info.uid;
-        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
+        let uid                 = info.uid;
+        let currentCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
         if (!currentCity ) {
             info.code = apis.Code.NOT_FOUND;
+            info.message        = "没有城市数据呢";
             info.submit();
             return;
         }
+        let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid  });
+        if (!currentEvents ) {
+            info.code           = apis.Code.NOT_FOUND;
+            info.message        = "没有事件数据哦";
+            info.submit();
+            return;
+        }
+
         let cid                  = currentCity.cid;
-        // this.logger.info(uid,cid);
         let timeNow              = new Date().getTime();
-        let timePrev             = timeNow - 60 * 10 * 1000; //10分钟之前到现在 放松限制
+        let timePrev             = timeNow - 60 * 10 * 10000; //10分钟之前到现在 放松限制
+
+        this.logger.info("UID CID 是 ",uid,cid );
+        this.logger.info("当前时间 ",timeNow, moment(timeNow).format('YYYY-MM-DD HH:mm:ss') , "间隔时间之前", moment(timePrev).format('YYYY-MM-DD HH:mm:ss'));
+
         info.newEvent            = false;
         if ( timePrev ){
-            let events           = currentCity['events'];                               //1分钟前的
+            let events           = currentEvents['events'];
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
+            this.logger.info("事件数量 ",events.length);
+
             if ( events.length > 0 ){       
                 info.newEvent    = true;    //是否有新事件
             }
@@ -819,8 +834,14 @@ class TourService extends Service {
             info.freshSpots      = true;
             //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
         }
+
+        this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
         info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
+
+        //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
+        this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
+        info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
     }
 
 
@@ -922,6 +943,7 @@ class TourService extends Service {
 
         //更新events表
         await this.ctx.model.TravelModel.CityEvents.insertMany(eventsNeedInsert);
+
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
