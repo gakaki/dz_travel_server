@@ -65,6 +65,8 @@ api TourIndexInfo{
     require inviteCode:string 
 
     output weather:number
+    //里程数
+    output mileage:number
     //该城市的spot景点列表
     output spots:Spot[]
     //任务完成度信息

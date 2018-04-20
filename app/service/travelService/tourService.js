@@ -58,7 +58,7 @@ class TourService extends Service {
         info.partener       = await this.findAnotherUid(inviteCode,uid);
         // info.display    = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
         info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-        
+        info.mileage = ui.mileage;
         let cityConfig      = travelConfig.City.Get( cid );
         if(!cityConfig) {
             info.code = apis.Code.PARAMETER_NOT_MATCH;
