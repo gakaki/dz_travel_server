@@ -1075,6 +1075,7 @@ class TourIndexInfo extends Base {
         this._cid = null;
         this._inviteCode = null;
         this._weather = null;
+        this._mileage = null;
         this._spots = null;
         this._task = null;
         this._startPos = null;
@@ -1084,7 +1085,7 @@ class TourIndexInfo extends Base {
         this._partener = null;
         this.requireFileds = ["cid","inviteCode"];
         this.reqFields = ["cid","inviteCode"];
-        this.resFields = ["weather","spots","task","startPos","others","display","startTime","partener"];
+        this.resFields = ["weather","mileage","spots","task","startPos","others","display","startTime","partener"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1095,6 +1096,9 @@ class TourIndexInfo extends Base {
     //server output, type: number
     get weather() {return this._weather}
     set weather(v) {this._weather = v}
+    //server output, type: number
+    get mileage() {return this._mileage}
+    set mileage(v) {this._mileage = v}
     //server output, type: Spot[]
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
