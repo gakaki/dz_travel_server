@@ -283,14 +283,13 @@ class PlayerService extends Service {
                 { $project: { _id: 0, pscid: "$_id", firstMsg: 1 } },
             ]);
            // this.logger.info(postcardChats);
+            let proPostcards = {};
+            let citys = new Set();
             for(let postcardChat of postcardChats) {
                 let pt = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: postcardChat.pscid });
                 if(pt.province == info.province) {
-                    let postcardInfo = {
-                        cid: Number(pt.cid),
-                        city: travelConfig.City.Get(pt.cid).city,
-                        // collectPostcardNum: postcard.collectPostcardNum,
-                    };
+                    citys.add(pt.cid);
+
                     let postcardBriefDetail = {
                         id: pt.pscid,
                         url: travelConfig.Postcard.Get(pt.ptid).picture,
@@ -307,11 +306,27 @@ class PlayerService extends Service {
                         },
                         message: firstChat.context,
                     };
+                    if(proPostcards[pt.cid]) {
+                        proPostcards[pt.cid].push(postcardBriefDetail);
+                    }else{
+                        proPostcards[pt.cid] = [ postcardBriefDetail ];
+                    }
+
                     // this.logger.info("时间 ：", (firstChat.createDate).format("yyyy-MM-dd"));
-                    postcardInfo.postcardsDetail = postcardBriefDetail;
-                    postcardInfos.push(postcardInfo);
+
                 }
             }
+            for(let city of citys) {
+                let postcardInfo = {
+                    cid: Number(city),
+                    city: travelConfig.City.Get(city).city,
+                    // collectPostcardNum: postcard.collectPostcardNum,
+                };
+                postcardInfo.postcardsDetail = proPostcards[city];
+                postcardInfos.push(postcardInfo);
+            }
+
+
             postcardInfos = utils.multisort(postcardInfos,
                 (a, b) => (a.cid - b.cid)
                 )

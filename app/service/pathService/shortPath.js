@@ -95,8 +95,8 @@ class ShortPath {
     }
 
     //给定城市 来计算最短路径
-    shortPath() {
-        return this.fixStartFindPath();
+    shortPath(realRoute) {
+        return this.fixStartFindPath(realRoute);
     }
 
     travelShortDistance(travelMap, extraRoute = 0) {
@@ -115,8 +115,17 @@ class ShortPath {
     }
 
     // 第一个点是固定起点，寻找最短路径
-    fixStartFindPath() {
+    fixStartFindPath(realRoute) {
         let points = this.spotPoints;
+       if(realRoute && realRoute.length < 6) {
+           let pArr = [];
+           for(let r of realRoute) {
+               pArr.push(travelConfig.Scenicspot.Get(r[0]).coordinate);
+           }
+           if(pArr.length) {
+               points = pArr;
+           }
+       }
         let ids = [...points.keys()];
         //去掉 id0 的点
       //  ids.splice(0,1);
@@ -165,7 +174,7 @@ class ShortPath {
 module.exports = ShortPath;
 
 
-// var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( 1 );
-// short_path.shortPath();
-// t.stop();
+var t = timer('用暴力法计算运行时间');
+let short_path = new ShortPath( 1 );
+short_path.shortPath();
+t.stop();
