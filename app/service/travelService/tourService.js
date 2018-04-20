@@ -971,33 +971,38 @@ class TourService extends Service {
                 }
             }
         }
-        
-        startTime                = new Date();
-        // 第一次生成的时候修改事件 后面修改的时候不改了
-        let e                    = new MakeEvent(para);
+        if(!startTime) {
+            startTime                = new Date();
+            // 第一次生成的时候修改事件 后面修改的时候不改了
+            let e                    = new MakeEvent(para);
 
-        let eventMe              = {
-            uid: uid,
-            cid: cid,
-            events: e.eventsFormat
-        };
-        let eventsNeedInsert    = [eventMe];
+            let eventMe              = {
+                uid: uid,
+                cid: cid,
+                events: e.eventsFormat
+            };
+            let eventsNeedInsert    = [eventMe];
 
-        if ( inviteCode ){        //双人模式
-            let partner         = await this.findAnotherPlayer(inviteCode,uid);
-            if ( partner ){
-                let f            = new MakeEvent(para);
-                eventspartner    = f.eventsFormat;
-                let eventOther   = {
-                    uid: partner.uid,
-                    cid: cid,
-                    events: eventspartner
-                };
-                eventsNeedInsert.push(eventOther);
-            }else{
-                this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
-            } 
+            if ( inviteCode ){        //双人模式
+                let partner         = await this.findAnotherPlayer(inviteCode,uid);
+                if ( partner ){
+                    let f            = new MakeEvent(para);
+                    eventspartner    = f.eventsFormat;
+                    let eventOther   = {
+                        uid: partner.uid,
+                        cid: cid,
+                        events: eventspartner
+                    };
+                    eventsNeedInsert.push(eventOther);
+                }else{
+                    this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
+                }
+            }
+            //更新events表
+            await this.ctx.model.TravelModel.CityEvents.insertMany(eventsNeedInsert);
         }
+
+
 
         //更新 currentcity的 roadmap
         await this.ctx.model.TravelModel.CurrentCity.update({
@@ -1011,8 +1016,7 @@ class TourService extends Service {
         }});
 
 
-        //更新events表
-        await this.ctx.model.TravelModel.CityEvents.insertMany(eventsNeedInsert);
+
 
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
@@ -1027,7 +1031,9 @@ class TourService extends Service {
             if(roadMap[i].index != -1) {
                 if(roadMap[i].index != 0) {
                     let index = roadMap.findIndex((n) => n.index == (roadMap[i].index - 1));
-                    if (!roadMap[i].tracked || roadMap[index].startime <= new Date().getTime()) {
+                    this.logger.info(roadMap[i].name);
+                    this.logger.info(roadMap[index].name);
+                    if (!roadMap[i].tracked && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime >= new Date().getTime()) {
                         roadMap[i].index = -1;
                         roadMap[i].startime = "";
                         roadMap[i].endtime = "";

@@ -1715,9 +1715,10 @@ class SetRouter extends Base {
         this._line = null;
         this._spots = null;
         this._startTime = null;
+        this._display = null;
         this.requireFileds = ["cid","line"];
         this.reqFields = ["cid","line"];
-        this.resFields = ["spots","startTime"];
+        this.resFields = ["spots","startTime","display"];
     }
     //client input, require, type: string
     get cid() {return this._cid}
@@ -1731,6 +1732,9 @@ class SetRouter extends Base {
     //server output, type: 
     get startTime() {return this._startTime}
     set startTime(v) {this._startTime = v}
+    //server output, type: 
+    get display() {return this._display}
+    set display(v) {this._display = v}
     static Init(ctx, checkLogin = false) {
         let o = new SetRouter();
         o.ctx = ctx;
