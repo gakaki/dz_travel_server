@@ -44,13 +44,15 @@ class QuestService extends Service{
         //获得触发的事件列表 当然是指景点的那些随机触发事件
         let events = await this.ctx.model.TravelModel.SpotTravelEvent.find({ uid: info.uid, cid: info.cid, spotId: info.spotId });
         let questList = [];
-        for ( let row of events ) {
+        for (let row of events) {
 
            // let questRow = QuestRepoInstance.find(row["eid"]);
            // questList.push( questRow.getSpotRewardComment(cfgSpot.scenicspot) );
-
-
-            questList.push( row.desc );
+            let tourEvent = {
+                desc: row.desc,
+                reward: row.reward,
+            };
+            questList.push(tourEvent);
 
 
 

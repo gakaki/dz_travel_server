@@ -4,6 +4,7 @@ module.exports = app => {
         uid:{type:String},
         eid:{type:String},      //事件id
         desc:{type:String},    //事件描述
+        reward:{type:Array},   //事件奖励
         cid:{type:String},      //cityId
         fid:{type:String},      //飞行记录id
         spotId:{type:String},   //景点id
