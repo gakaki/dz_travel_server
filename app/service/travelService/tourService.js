@@ -998,7 +998,7 @@ class TourService extends Service {
             if(roadMap[i].index != -1) {
                 if(roadMap[i].index != 0) {
                     let index = roadMap.findIndex((n) => n.index == (roadMap[i].index - 1));
-                    if (!roadMap[i].tracked || roadMap[index].endtime <= new Date().getTime()) {
+                    if (!roadMap[i].tracked || roadMap[index].startime <= new Date().getTime()) {
                         roadMap[i].index = -1;
                         roadMap[i].startime = "";
                         roadMap[i].endtime = "";

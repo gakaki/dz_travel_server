@@ -2,6 +2,7 @@ const Service = require('egg').Service;
 const travelConfig = require("../../../sheets/travel");
 const apis = require("../../../apis/travel");
 const moment = require("moment");
+const utils = require("../../utils/utils");
 
 class RankService extends Service {
     /**
@@ -88,10 +89,10 @@ class RankService extends Service {
         //if(cityLight) {
             await this.ctx.model.TravelModel.FootRecord.update(
                 { uid: uid },
-                { $set: { uid: uid, updateDate: new Date() } },
-                { $inc: { lightCityNum: 1, weekLightCityNum: 1 } },
+                { $set: { uid: uid, updateDate: new Date() }, $inc: { lightCityNum: 1, weekLightCityNum: 1 } },
                 { upsert: true }
             );
+
             // let userFoot = await this.getUserFoot(uid);
             // let key = "lightCity" + userFoot.lightCityNum;
             // this.app.redis.setnx(key, 0);
@@ -144,7 +145,7 @@ class RankService extends Service {
      *
      * */
     async updateCompletionDegreeRankList() {
-        let list = await this.ctx.model.TravelModel.CompletionDegreeRecord.find().sort({ weekCompletionDegree: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
+        let list = await this.ctx.model.TravelModel.CompletionDegreeCountryRecord.find().sort({ weekCompletionDegree: -1, updateDate: 1 }).limit(travelConfig.Parameter.Get(travelConfig.Parameter.RANKNUMBER).value);
         let idx = 1;
         let date = new Date();
         list = list.map(l => {
@@ -174,7 +175,7 @@ class RankService extends Service {
         let totalCityEvents = travelConfig.City.Get(cid).eventnum;
 
         let userScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
-            { $match: { uid: uid, cid: cid } },
+            { $match: { uid: uid, cid: cid, scenicspot: { $ne: null } } },
             { $group: { _id: "$scenicspot" } },
         ]);
 
@@ -186,39 +187,53 @@ class RankService extends Service {
             { $match: { uid: uid, cid: cid } },
             { $group: { _id: "$ptid" } },
         ]);
-        let day = new Date().getDay() ? new Date().getDay() : 7;
-        let thisMonday = moment().subtract(day, 'days');
+       // let day = new Date().getDay() ? new Date().getDay() : 7;
+       // this.logger.info(day);
+      //  let thisMonday = moment().subtract(day, 'days');
+        let thisMonday = utils.getMonday();
+        this.logger.info("这周一", thisMonday);
         let weekUserScenicspots = await this.ctx.model.TravelModel.Footprints.aggregate([
-            { $match: { uid: uid, cid: cid, createDate: { $gt: thisMonday } } },
+            { $match: { uid: uid, cid: cid, scenicspot: { $ne: null }, createDate: { $gte: thisMonday } } },
             { $group: { _id: "$scenicspot" } },
         ]);
 
         let weekUserEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            { $match: { uid: uid, cid: cid, createDate: { $gt: thisMonday } } },
+            { $match: { uid: uid, cid: cid, received: true, createDate: { $gte: thisMonday } } },
             { $group: { _id: "$eid" } },
         ]);
         let weekUserPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
-            { $match: { uid: uid, cid: cid, createDate: { $gt: thisMonday } } },
+            { $match: { uid: uid, cid: cid, createDate: { $gte: thisMonday } } },
             { $group: { _id: "$ptid" } },
         ]);
+
 
         let userCityScenicspotsPro = userScenicspots.length / totalCityScenicspots * (travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value / 100);
         let weekUserCityScenicspotsPro = weekUserScenicspots.length / totalCityScenicspots * (travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTCOMPLETION).value / 100);
 
         let userCityPostcardPro = userPostcards.length / totalCityPostcards * (travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value / 100);
-        let weekUserCityPostcardPro = weekUserEvents.length / totalCityPostcards * (travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value / 100);
+        let weekUserCityPostcardPro = weekUserPostcards.length / totalCityPostcards * (travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDCOMPLETION).value / 100);
 
         let userCityEventPro = userEvents.length / totalCityEvents * (travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value / 100);
-        let weekUserCityEventPro = weekUserPostcards.length / totalCityEvents * (travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value / 100);
+        let weekUserCityEventPro = weekUserEvents.length / totalCityEvents * (travelConfig.Parameter.Get(travelConfig.Parameter.EVENTCOMPLETION).value / 100);
 
-        let progress = parseFloat((userCityScenicspotsPro + userCityPostcardPro + userCityEventPro).toFixed(1));
-        let weekProgress = parseFloat((weekUserCityScenicspotsPro + weekUserCityPostcardPro + weekUserCityEventPro).toFixed(1));
+        let progress = parseFloat(((userCityScenicspotsPro + userCityPostcardPro + userCityEventPro) * 100).toFixed(1));
+        let weekProgress = parseFloat(((weekUserCityScenicspotsPro + weekUserCityPostcardPro + weekUserCityEventPro) * 100).toFixed(1));
+        this.logger.info("周观光", userScenicspots.length, totalCityScenicspots);
+        this.logger.info("周事件", userEvents.length, totalCityEvents);
+        this.logger.info("周明信片", userPostcards.length, totalCityPostcards);
+        this.logger.info("===============================");
+        this.logger.info("周观光", weekUserScenicspots.length, totalCityPostcards);
+        this.logger.info("周事件", weekUserPostcards.length, totalCityPostcards);
+        this.logger.info("周明信片", weekUserPostcards.length, totalCityPostcards);
 
+        this.logger.info("进度", progress);
+        this.logger.info("周进度", weekProgress);
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update(
             { uid: uid, cid: cid },
             { $set: { uid: uid, cid: cid, completionDegree: progress, weekCompletionDegree: weekProgress, updateDate: new Date() } },
             { upsert: true }
             );
+        this.updateCompletionDegreeCountry(uid);
     }
 
     /**
@@ -239,16 +254,13 @@ class RankService extends Service {
     }
 
     /**
-     * 获取玩家全国完成度
+     * 更新玩家全国完成度
      * */
-    async getUserCompletionDegree(uid) {
+    async updateCompletionDegreeCountry(uid) {
         let cityCompletionDegrees = await this.ctx.model.TravelModel.CompletionDegreeRecord.find({ uid: uid });
+       // this.logger.info(cityCompletionDegrees);
         let totalCitys = travelConfig.citys.length;
-        let userCompletionDegree = {
-            uid: uid,
-            completionDegree: 0,
-            weekCompletionDegree: 0,
-        };
+
         let totalCompletionDegree = 0;
         let weekCompletionDegree = 0;
         for(let completionDegree of cityCompletionDegrees) {
@@ -256,9 +268,23 @@ class RankService extends Service {
             weekCompletionDegree += completionDegree.weekCompletionDegree;
 
         }
-        userCompletionDegree.completionDegree = parseFloat((totalCompletionDegree / totalCitys).toFixed(1));
-        userCompletionDegree.weekCompletionDegree = parseFloat((weekCompletionDegree / totalCitys).toFixed(1));
-        return userCompletionDegree
+
+        let progress = parseFloat(((totalCompletionDegree / totalCitys) * 100).toFixed(1));
+        let weekProgress = parseFloat(((weekCompletionDegree / totalCitys) * 100).toFixed(1));
+     //   this.logger.info(weekCompletionDegree);
+     //   this.logger.info((weekCompletionDegree / totalCitys));
+        await this.ctx.model.TravelModel.CompletionDegreeCountryRecord.update(
+            { uid: uid},
+            { $set: { uid: uid, completionDegree: progress, weekCompletionDegree: weekProgress, updateDate: new Date() } },
+            { upsert: true }
+        );
+    }
+
+    /**
+     * 获取玩家全国完成度
+     * */
+    async getUserCompletionDegree(uid) {
+        return await this.ctx.model.TravelModel.CompletionDegreeCountryRecord.findOne({ uid: uid })
     }
 
     /**
