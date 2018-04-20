@@ -266,15 +266,15 @@ class UserService extends Service {
             updateDate: new Date(),
         });
 
-        let key = "lightCity" + 0;
-        this.app.redis.setnx(key, 0);
+      //  let key = "lightCity" + 0;
+     //   this.app.redis.setnx(key, 0);
         //进入足迹榜
         await this.ctx.model.TravelModel.FootRecord.create({
             uid: uid, //玩家uid
             updateDate: new Date(), //更新时间
         });
         //设置点亮城市段集
-        await this.app.redis.incr(key);
+     //   await this.app.redis.incr(key);
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
             pid: pid,

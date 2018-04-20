@@ -63,7 +63,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
-        let quest        = this.randomQuest();
+        let quest        = this.randomQuest(this.cid);
 
         let questDbRow   = {
             id              : mongoose.Types.ObjectId(),
@@ -82,10 +82,10 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         return trigger_date;
     }
 
-    randomQuest(){
+    randomQuest(option){
         let quests = QuestRepo.filterQuests(
             {
-                // cid :       this.cid,
+                 cid :       option.cid,
                 // weather:    this.weather,           //天气
                 // today:      this.today,             //特定日期
                 // itemSpecial:this.itemSpecial,       //特定道具

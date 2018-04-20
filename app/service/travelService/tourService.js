@@ -110,12 +110,16 @@ class TourService extends Service {
         }else{
             let roadMaps = currentCity.roadMap;
             for(let spot of roadMaps) {
-                if(spot.index != -1 && !spot.tracked) {
-                 //   this.logger.info(spot.endtime);
-                //    this.logger.info(new Date().getTime());
-                    if(spot.endtime <= new Date().getTime()) {
-                        spot.tracked = true;
+                if(spot.index != -1) {
+                    if(!spot.tracked) {
+                        if(spot.endtime <= new Date().getTime()) {
+                            spot.tracked = true;
+                            spot.countdown = 0
+                        }
+                    }else{
+                        spot.countdown = 0
                     }
+
                 }
                 spot_map[spot.id] = spot;
             }
@@ -162,6 +166,7 @@ class TourService extends Service {
                 if(spot.tracked) {
                     let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
                     if(!footPrints) {
+                        this.logger.info("更新足迹表")
                         //更新足迹表
                         await this.ctx.model.TravelModel.Footprints.create({
                             uid: uid,
@@ -173,9 +178,9 @@ class TourService extends Service {
                             scenicspot: spot.name,
                             createDate: new Date(spot.endtime),
                         });
-                        this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
+                        await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
                         //更新里程数
-                        await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage ? spot.mileage : 0 } });
+                        await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage } });
 
                     }
                 }
@@ -193,11 +198,13 @@ class TourService extends Service {
 
         //查找走过的景点数
         let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, fid: currentCity.fid, cid: cid, scenicspot: { $ne: null } });
-
+        this.logger.info("查找走过的景点数" , sCount);
         //查找拍照
         let photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, fid: currentCity.fid, cid: cid });
+        this.logger.info("查找拍照" , photoCount);
         //观光
         let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, fid: currentCity.fid, cid: cid, isTour: true });
+        this.logger.info("观光" , tourCount);
 
         if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
             sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
@@ -213,10 +220,12 @@ class TourService extends Service {
         if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value && photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value && tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
             //查找是否已经点亮
             let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid });
+            this.logger.info("是否已经点亮");
             if(!cityLight) {
+                this.logger.info("创建点亮表");
                 await this.ctx.model.TravelModel.CityLightLog.create({ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
                 //更新足迹榜记录
-                this.ctx.service.travelService.rankService.updateFootRecord(uid, cid);
+                await this.ctx.service.travelService.rankService.updateFootRecord(uid, cid);
             }
         }
 
@@ -381,9 +390,10 @@ class TourService extends Service {
         //奖励 的数值
         this.logger.info(uid,cid,eid);
 
-        this.logger.info(sp);
-        let isGetReward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
-        let desc = questRepo.find(eid).getSpotRewardComment(sp.scenicspot, isGetReward);
+      //  this.logger.info(sp);
+        let getReward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
+        this.logger.info(getReward);
+        let desc = questRepo.find(eid).getSpotRewardComment(sp.scenicspot, getReward);
         let row                  = {
             uid:uid,
             eid:eid,        //事件id 这个是随机出来的
@@ -765,7 +775,8 @@ class TourService extends Service {
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
             //更新足迹表
-            this.updatePlayerProgress(curCity, selfInfo.uid);
+            this.queryTaskProgress(selfInfo.uid, curCity.cid);
+          //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
         return {

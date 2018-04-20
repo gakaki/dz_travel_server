@@ -16,40 +16,75 @@ const postcardRepo  = require('../configService/postcardRepo');
 class RewardService extends Service{
 
     async reward( uid , cid , eid ) {
-        this.logger.info();
         let eventCfg        = questRepo.find(eid);
         if( !eventCfg ){
-            this.logger.info();
             throw new Error({
                 code: apis.Code.PARAMETER_NOT_MATCH,
                 message: "事件不存在" + eid
             });
         }
 
-        //this.logger.info(eventCfg);
+        this.logger.info(eventCfg);
 
+        let reward = [];
         for ( let k in eventCfg.rewardKV) {
 
             let  v = eventCfg.rewardKV[k];
 
             if ( k == eventCfg.RewardType.GOLD){ // 金币
-                return await this.gold( uid , Number(v));
+                if(await this.gold( uid , Number(v))){
+                    reward.push(
+                        {
+                            k:k,
+                            v:v
+                        }
+                    )
+                }
             }
             if ( k == eventCfg.RewardType.TIME){// 城市总时间
-                return await this.time( uid , cid , eid ,  v );
+                if(await this.time( uid , cid , eid ,  v )){
+                    reward.push(
+                        {
+                            k:k,
+                            v:v
+                        }
+                    )
+                }
+
             }
             if ( k == eventCfg.RewardType.POSTCARD){// 明信片
-                return await this.postcard( uid , cid , v );
+                 if(await this.postcard( uid , cid , v )) {
+                     reward.push(
+                         {
+                             k:k,
+                             v:v
+                         }
+                     )
+                }
             }
             if ( k == eventCfg.RewardType.Speciality){ //特产
-                return await this.speciality( uid , cid ,v );
+                 if(await this.speciality( uid , cid ,v )) {
+                     reward.push(
+                         {
+                             k:k,
+                             v:v
+                         }
+                     )
+                 }
             }
             if ( k == eventCfg.RewardType.POINT){ // 点数
-                return await this.integral( uid, Number(v) );
+                if(await this.integral( uid, Number(v) )){
+                    reward.push(
+                        {
+                            k:k,
+                            v:v
+                        }
+                    )
+                }
             }
         }
 
-      //  return eventCfg;
+        return reward;
     }
     // 奖励金钱
     async gold( uid , num = 0 ) {
@@ -156,7 +191,7 @@ class RewardService extends Service{
             //syslog 记录
             await this.ctx.model.TravelModel.SysGiveLog.create({
                 uid:    uid,
-                sgid:   "",                                 //唯一id
+                sgid:   "sys" + uid + apis.SystemGift.SPECIALITY + new Date().getTime(),                                 //唯一id
                 type:   apis.SystemGift.SPECIALITY,                                  // 3.明信片
                 iid:   cfgId,                              //赠送物品id    金币 1 积分 2 飞机票 11(单人票) ，12(双人票)  其余配表id
                 number: count,                                  //数量

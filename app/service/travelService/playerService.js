@@ -7,15 +7,10 @@ class PlayerService extends Service {
 
     async showPlayerInfo(info, ui) {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
-        let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
-        let totalArrive = playerFootprints ? playerFootprints.lightCityNum : 0;
-        let total = await this.app.redis.get("travel_userid");
-        let readyMatch = 0;
-        for(let i = 0; i < totalArrive; i++) {
-            let key = "lightCity" + i;
-            readyMatch += Number(await this.app.redis.get(key));
-        }
-        let overMatch = parseFloat(((readyMatch / total) * 100).toFixed(1));
+
+     //   let total = await this.app.redis.get("travel_userid");
+     //   let readyMatch = 0;
+
         let addScore = await this.ctx.model.PublicModel.UserItemCounter.findOne({ uid: ui.uid, index: travelConfig.Item.POINT });
         let postCards = await this.ctx.model.TravelModel.Postcard.aggregate([
             { $match: { uid: ui.uid } },
@@ -31,18 +26,23 @@ class PlayerService extends Service {
         //this.logger.info(specialty);
 
         if(visit) {
-           await this.ctx.service.travelService.tourService.updatePlayerProgress(visit, ui.uid);
+           await this.ctx.service.travelService.tourService.queryTaskProgress(ui.uid, visit.cid);
            ui = await this.ctx.model.PublicModel.User.findOne({ uid: ui.uid })
         }
-
-
+     //   let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
+     //   let totalArrive = playerFootprints ? playerFootprints.lightCityNum : 0;
+     //    for(let i = 0; i < totalArrive; i++) {
+     //        let key = "lightCity" + i;
+     //        readyMatch += Number(await this.app.redis.get(key));
+     //    }
+      //  let overMatch = parseFloat(((readyMatch / total) * 100).toFixed(1));
         info.info = {
             uid: ui.uid,
             nickName: ui.nickName,
             avatarUrl: ui.avatarUrl,
             gender: ui.gender,
-            totalArrive: totalArrive,
-            overmatch: overMatch,
+          //  totalArrive: totalArrive,
+         //   overmatch: overMatch,
             city: visit ? travelConfig.City.Get(visit.cid).city : "初次旅行",
             province: visit ? travelConfig.City.Get(visit.cid).province : "初次旅行",
             country: visit ? travelConfig.City.Get(visit.cid).country : "初次旅行",

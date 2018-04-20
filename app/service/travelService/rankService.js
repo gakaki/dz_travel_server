@@ -82,22 +82,24 @@ class RankService extends Service {
      *
      * */
     async updateFootRecord(uid, cid) {
-        let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid, lighten: true });
-        if(cityLight) {
+        this.logger.info("更新点亮表");
+       // let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid, lighten: true });
+        //this.logger.info(cityLight);
+        //if(cityLight) {
             await this.ctx.model.TravelModel.FootRecord.update(
                 { uid: uid },
                 { $set: { uid: uid, updateDate: new Date() } },
                 { $inc: { lightCityNum: 1, weekLightCityNum: 1 } },
                 { upsert: true }
             );
-            let userFoot = await this.getUserFoot(uid);
-            let key = "lightCity" + userFoot.lightCityNum;
-            this.app.redis.setnx(key, 0);
-            if(userFoot.lightCityNum) {
-                await this.app.redis.decr(key);
-            }
-            await this.app.redis.incr(key);
-        }
+            // let userFoot = await this.getUserFoot(uid);
+            // let key = "lightCity" + userFoot.lightCityNum;
+            // this.app.redis.setnx(key, 0);
+            // if(userFoot.lightCityNum) {
+            //     await this.app.redis.decr(key);
+            // }
+            // await this.app.redis.incr(key);
+       // }
 
     }
 
@@ -166,6 +168,7 @@ class RankService extends Service {
      *
      * */
     async updateCompletionDegreeRecord(uid, cid) {
+        this.logger.info("更新完成度");
         let totalCityScenicspots = travelConfig.City.Get(cid).scenicspot.length;
         let totalCityPostcards = travelConfig.City.Get(cid).postcardnum;
         let totalCityEvents = travelConfig.City.Get(cid).eventnum;
