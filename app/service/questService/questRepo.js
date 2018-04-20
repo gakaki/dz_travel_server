@@ -20,23 +20,21 @@ class QuestRepo {
     query(specification){}
 
 
-    filter(option){
+    filterQuests(option){
         return this.quests.filter( e  => (
             (e.belong == option.cid || !e.belong) &&
-            (e.trigger_type  == e.TriggerTypeKeys.TOUR_COMMON ||  e.trigger_type == e.TriggerTypeKeys.TOUR_CITY)
+            (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY)
         ));
             // e.cid                == option.cid &&
             // e.condition3_weather == option.weather &&
             // e.condition3_date    == option.today &&
             // e.condition4_        == option.itemSpecial &&
-
-            //表示为游玩事件     
-
+            //表示为游玩事件
     }
 }
 
 module.exports = new QuestRepo();
-
+//
 // let n            = new QuestRepo();
 // // type 1 金币
 // let quest        = n.find("110033");
@@ -50,8 +48,8 @@ module.exports = new QuestRepo();
 //  quest        = n.find("130010");
 //  res          = quest.getSpotRewardComment();
 // console.log(res);
-
-
+//
+//
 // // type 2 积分
 //  quest     = n.find("110020");
 //  res       = quest.getSpotRewardComment();
@@ -81,8 +79,8 @@ module.exports = new QuestRepo();
 // quest     = n.find("200068");
 // res       = quest.getSpotRewardComment();
 // console.log(res);
-
-
+//
+//
 // quest        = n.find("200004");
 // res          = quest.getRewardNormal();
 // console.log(res);

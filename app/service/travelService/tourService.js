@@ -461,31 +461,52 @@ class TourService extends Service {
 
         //这里要分离奖励 部分和 寻找答题部分
         //设置领取状态
+        //spotTravelEvent 作为日志received 作为 存档表吧
+        //所以查cid的cityevent表
 
-        let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOne({
-            uid: info.uid,
-            cid: info.cid,
-            received:false
+        let uid             = info.uid;
+        let cid             = info.cid;    //算了暂时不用aggregation 实在是啰嗦死了
+        let cityEvents      = await this.ctx.model.TravelModel.CityEvents.findOne({
+            uid:            uid
         });
-
-        if ( !row ) {
-            info.code = apis.Code.NOT_FOUND;
+        //过滤掉时间和received true的        没有领取并且小于当前时间的
+        // let events          = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime() ); //为了测试
+        let events          = cityEvents.events.filter( x => x.received == false );
+        let event           = null;
+        if (events.length >= 0)
+            event           = events[0];
+        if ( !event ) {
+            info.code       = apis.Code.NOT_FOUND;
+            info.message    = "暂时没有事件"
             info.submit();
             return;
         }
+        // 设置eventcity那一行为update
+        // let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOne({
+        //     uid: uid,
+        //     cid: cid,
+        //     received:false
+        // });
+        // if ( !row ) {
+        //     info.code       = apis.Code.NOT_FOUND;
+        //     info.message    = "暂时没有事件"
+        //     info.submit();
+        //     return;
+        // }
 
-        let eid           = row["eid"];
+        let eid           = event["eid"];
         let questCfg      = questRepo.find(eid);
 
         //数据库记录id 方便答对答错之后的奖励
-        info.id           = row['_id'];
+        info.id           = event['id'];
+        info.cid          = cid;
         info.quest        = {
-            id:            eid,
+            id:            eid, //前端没有此配置表
             type:          questCfg.type,
             describe:      questCfg['describe'],
             gold_used:     0,
             picture:       questCfg['picture'],
-            rewards:       questCfg.rewards,
+            rewards:       questCfg.getSpotRewardComment().reward,
             question:      questCfg['describe'],
             answers:       questCfg.answers(),
         };
@@ -820,12 +841,12 @@ class TourService extends Service {
 
         let cid                  = currentCity.cid;
         let timeNow              = new Date().getTime();
-        let timePrev             = timeNow - 60 * 10 * 10000; //10分钟之前到现在 放松限制
+        let timePrev             = timeNow - 60 * 10 * 1000; //10分钟之前到现在 放松限制
 
         this.logger.info("UID CID 是 ",uid,cid );
         this.logger.info("当前时间 ",timeNow, moment(timeNow).format('YYYY-MM-DD HH:mm:ss') , "间隔时间之前", moment(timePrev).format('YYYY-MM-DD HH:mm:ss'));
 
-        info.newEvent            = false;
+        info.newEvent            = true;
         if ( timePrev ){
             let events           = currentEvents['events'];
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
