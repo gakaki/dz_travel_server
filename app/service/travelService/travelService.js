@@ -96,30 +96,6 @@ class TravelService extends Service {
             let efficiencyReward = await this.service.travelService.tourService.leavetour(ui);
              info.score = efficiencyReward.score;
              info.reward = efficiencyReward.reward;
-            // let short_path = new ShortPath(lastCity.cid);
-            // let plan = lastCity.roadMap;
-            // let real = [];
-            // for(let planS of plan) {
-            //     if(planS.index != -1) {
-            //         if(planS.tracked || planS.endtime <= new Date().getTime()) {
-            //             real.push(planS.id);
-            //         }
-            //     }
-            // }
-            // info.score = 0;
-            // info.reward = 0;
-            // if(real.length > 0) {
-            //     let path = short_path.travelShortDistance(real);
-            //     let shortDistance = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: lastCity.cid });
-            //     //上个城市走的实际景点数
-            //     let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: lastCity.fid });
-            //     let efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
-            //     let reward = efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
-            //     //上个城市的评分奖励
-            //     cost[ "items." + travelConfig.Item.POINT] = reward || 0;
-            //     info.score = efficiency;
-            //     info.reward = reward;
-            // }
             if(ui.isNewPlayer && !fui && lastCity.startTime) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
@@ -159,7 +135,7 @@ class TravelService extends Service {
             }
 
         }
-        let flyid = "fly" + ui.pid + new Date().getTime();
+        let flyid = Number(ui.pid + new Date().getTime());
         let flyRecord = {
             uid: ui.uid, //用户ID
             fid: flyid,
