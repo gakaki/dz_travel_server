@@ -1585,13 +1585,17 @@ class RentProp extends Base {
         this.action = 'tour.rentprop';
     
         this._rentId = null;
+        this._forceBuy = null;
         this.requireFileds = ["rentId"];
-        this.reqFields = ["rentId"];
+        this.reqFields = ["rentId","forceBuy"];
         this.resFields = [];
     }
     //client input, require, type: number
     get rentId() {return this._rentId}
     set rentId(v) {this._rentId = v}
+    //client input, optional, type: number
+    get forceBuy() {return this._forceBuy}
+    set forceBuy(v) {this._forceBuy = v}
     static Init(ctx, checkLogin = false) {
         let o = new RentProp();
         o.ctx = ctx;
@@ -1635,6 +1639,38 @@ class RentedProp extends Base {
         }
     }
 }
+class BuyPostcardList extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.buypostcardlist';
+    
+        this._cid = null;
+        this._ptList = null;
+        this.requireFileds = ["cid"];
+        this.reqFields = ["cid"];
+        this.resFields = ["ptList"];
+    }
+    //client input, require, type: number
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //server output, type: Postcard[]
+    get ptList() {return this._ptList}
+    set ptList(v) {this._ptList = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new BuyPostcardList();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class Minapppay extends Base {
     constructor() {
         super();
@@ -1658,38 +1694,6 @@ class Minapppay extends Base {
     set payload(v) {this._payload = v}
     static Init(ctx, checkLogin = false) {
         let o = new Minapppay();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class BuyPostcard extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.buypostcard';
-    
-        this._ptid = null;
-        this._goldNum = null;
-        this.requireFileds = ["ptid"];
-        this.reqFields = ["ptid"];
-        this.resFields = ["goldNum"];
-    }
-    //client input, require, type: number
-    get ptid() {return this._ptid}
-    set ptid(v) {this._ptid = v}
-    //server output, type: number
-    get goldNum() {return this._goldNum}
-    set goldNum(v) {this._goldNum = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new BuyPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2290,6 +2294,34 @@ class Spe extends Base {
         }
     }
 }
+class ExchangeDeadline extends Base {
+    constructor() {
+        super();
+        this.action = 'integralShop.exchangedeadline';
+    
+        this._endtime = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["endtime"];
+    }
+    //server output, type: string
+    get endtime() {return this._endtime}
+    set endtime(v) {this._endtime = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ExchangeDeadline();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class GetUserLocation extends Base {
     constructor() {
         super();
@@ -2313,42 +2345,6 @@ class GetUserLocation extends Base {
     set address(v) {this._address = v}
     static Init(ctx, checkLogin = false) {
         let o = new GetUserLocation();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class ExchangeShop extends Base {
-    constructor() {
-        super();
-        this.action = 'integralShop.exchangeshop';
-    
-        this._id = null;
-        this._tel = null;
-        this._addr = null;
-        this.requireFileds = ["id","tel","addr"];
-        this.reqFields = ["id","tel","addr"];
-        this.resFields = [];
-    }
-    //client input, require, type: string
-    get id() {return this._id}
-    set id(v) {this._id = v}
-    //client input, require, type: string
-    get tel() {return this._tel}
-    set tel(v) {this._tel = v}
-    //client input, require, type: string
-    get addr() {return this._addr}
-    set addr(v) {this._addr = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new ExchangeShop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3385,25 +3381,61 @@ class ExchangeDetail extends Base {
         }
     }
 }
-class BuyPostcardList extends Base {
+class ExchangeShop extends Base {
     constructor() {
         super();
-        this.action = 'tour.buypostcardlist';
+        this.action = 'integralShop.exchangeshop';
     
-        this._cid = null;
-        this._ptList = null;
-        this.requireFileds = ["cid"];
-        this.reqFields = ["cid"];
-        this.resFields = ["ptList"];
+        this._id = null;
+        this._tel = null;
+        this._addr = null;
+        this.requireFileds = ["id","tel","addr"];
+        this.reqFields = ["id","tel","addr"];
+        this.resFields = [];
+    }
+    //client input, require, type: string
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //client input, require, type: string
+    get tel() {return this._tel}
+    set tel(v) {this._tel = v}
+    //client input, require, type: string
+    get addr() {return this._addr}
+    set addr(v) {this._addr = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ExchangeShop();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class BuyPostcard extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.buypostcard';
+    
+        this._ptid = null;
+        this._goldNum = null;
+        this.requireFileds = ["ptid"];
+        this.reqFields = ["ptid"];
+        this.resFields = ["goldNum"];
     }
     //client input, require, type: number
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //server output, type: Postcard[]
-    get ptList() {return this._ptList}
-    set ptList(v) {this._ptList = v}
+    get ptid() {return this._ptid}
+    set ptid(v) {this._ptid = v}
+    //server output, type: number
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
-        let o = new BuyPostcardList();
+        let o = new BuyPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3604,8 +3636,8 @@ exports.ShowQuestReport = ShowQuestReport;
 exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
+exports.BuyPostcardList = BuyPostcardList;
 exports.Minapppay = Minapppay;
-exports.BuyPostcard = BuyPostcard;
 exports.SetRouter = SetRouter;
 exports.ModifyRouter = ModifyRouter;
 exports.FreshSpots = FreshSpots;
@@ -3621,8 +3653,8 @@ exports.MySpe = MySpe;
 exports.CitySpes = CitySpes;
 exports.MySpes = MySpes;
 exports.Spe = Spe;
+exports.ExchangeDeadline = ExchangeDeadline;
 exports.GetUserLocation = GetUserLocation;
-exports.ExchangeShop = ExchangeShop;
 exports.ShareInfo = ShareInfo;
 exports.ViewpointInfo = ViewpointInfo;
 exports.Photograph = Photograph;
@@ -3652,7 +3684,8 @@ exports.ModifyRealInfo = ModifyRealInfo;
 exports.CheckGuide = CheckGuide;
 exports.IntegralShop = IntegralShop;
 exports.ExchangeDetail = ExchangeDetail;
-exports.BuyPostcardList = BuyPostcardList;
+exports.ExchangeShop = ExchangeShop;
+exports.BuyPostcard = BuyPostcard;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
 exports.SysMessage = SysMessage;

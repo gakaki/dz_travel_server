@@ -12,6 +12,7 @@ const ShortPath     = require("../pathService/shortPath");
 const moment        = require("moment");
 const _             = require("lodash");
 const  mongoose     = require('mongoose');
+const  utils     = require('../../utils/utils');
 class TourService extends Service {
 
     // 邀请码 查询当前队友
@@ -492,7 +493,7 @@ class TourService extends Service {
             });
             //返回明信片 id 图片
             info.postcard = cfgPostcard;
-            info.freePhoto = r.photographyCount - 1 < -1 ? -1 : r.photographyCount;
+            info.freePhoto = r.photographyCount - 1 < -1 ? -1 : r.photographyCount - 1;
         }else{
             info.code = apis.Code.NEED_ITEMS;
         }
@@ -763,9 +764,10 @@ class TourService extends Service {
             info.code = apis.Code.NOT_FOUND;
             return;
         }
+        let needChange = [ info.uid ];
 
         if(curCity.friend) {
-            let fCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend})
+            let fCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend });
             if (fCity.rentItems[info.rentId] > 0) {
                 this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
                 if(!info.forceBuy) {
@@ -774,6 +776,7 @@ class TourService extends Service {
                 }
 
             }
+            needChange.push(curCity.friend)
         }
 
 
@@ -790,10 +793,10 @@ class TourService extends Service {
 
         if(cfg.type == apis.RentItem.CAMERA) {
             if(cfg.value == -1) {
-                await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { photographyCount: cfg.value } });
+                await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { photographyCount: cfg.value } }, { multi: true });
             }else{
                if(curCity.photographyCount != -1) {
-                   await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $inc: { photographyCount: cfg.value } });
+                   await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $inc: { photographyCount: cfg.value } }, { multi: true });
 
                }
             }
@@ -833,10 +836,6 @@ class TourService extends Service {
                             }
                         }
                         //修改路线
-                        let needChange = [info.uid];
-                        if(curCity.friend) {
-                            needChange.push(curCity.friend)
-                        }
                         await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: rm.acceleration, modifyEventDate: new Date() } }, { multi: true });
                     }
 
@@ -926,13 +925,24 @@ class TourService extends Service {
         let short_path = new ShortPath(curCity.cid);
         let plan = curCity.roadMap;
         let real = [];
+        let planMap = [];
         for(let planS of plan) {
             if(planS.index != -1) {
                 if(planS.tracked || planS.endtime <= new Date().getTime()) {
-                    real[planS.index] = planS.id;
+                    planMap.push(planS);
+                    //real[planS.index] = planS.id;
                 }
             }
         }
+        planMap = utils.multisort(planMap,
+            (a, b) => a.index - b.index);
+        for(let pMap of planMap) {
+            this.logger.info(pMap.index);
+            this.logger.info(pMap.id);
+            real.push(pMap.id);
+        }
+        //this.logger.info(planMap);
+
         let efficiency = 0;
         let reward = 0;
         this.logger.info(real);
