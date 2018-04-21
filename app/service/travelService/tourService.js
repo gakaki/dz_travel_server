@@ -221,20 +221,23 @@ class TourService extends Service {
         }
 
         //task任务完成度信息
-        info.task.spot                    = [spot_arrived_count,6];
+        let isDobule                      = !currentCity["friend"] ? false : true;
+        let partnerTour                   = 0;
+        let partner                       = 0;
 
-        info.task.tour                    = [currentCity['tourCount'],2];
-        isDobule                          = !currentCity["friend"] ? false : true;
         if (isDobule ){
-            let partner                   = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
-            info.task.parterTour          = [partner.tourCount,2];
+            partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
+            partnerTour                   = [partner.tourCount,2];
         }
-        info.task.photo                   = [currentCity['photographyCount'],2];
-        info.task.parterPhoto             = [partner['photographyCount'],2];
-
+       info.task                         = {
+            spot                   : [spot_arrived_count,6],
+            tour                   : [currentCity['tourCount'],2],
+           parterTour              : [partner.tourCount,2],
+           photo                   : [currentCity['photographyCount'],2],
+           parterPhoto             : [partner['photographyCount'],2],
+        };
         // 这里缺可能总的拍照次数
     }
-
 
     //更新玩家游玩进度
     async updatePlayerProgress(currentCity, uid) {

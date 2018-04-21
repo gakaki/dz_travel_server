@@ -302,7 +302,7 @@ class TourController extends Controller {
 
     // 轮询的时候告诉我要刷新哪个
     async freshspots(ctx) {
-        let info                    = apis.Freshspots.Init(ctx);
+        let info                    = apis.FreshSpots.Init(ctx);
         await this.service.travelService.tourService.freshspots(info);
         info.submit();
     }
