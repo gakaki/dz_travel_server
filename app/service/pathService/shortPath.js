@@ -117,7 +117,7 @@ class ShortPath {
     // 第一个点是固定起点，寻找最短路径
     fixStartFindPath(realRoute) {
         let points = this.spotPoints;
-       if(realRoute && realRoute.length < 6) {
+       if(realRoute && realRoute.length) {
            let pArr = [];
            for(let r of realRoute) {
                pArr.push(travelConfig.Scenicspot.Get(r).coordinate);

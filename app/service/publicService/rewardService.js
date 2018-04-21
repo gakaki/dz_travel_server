@@ -171,12 +171,17 @@ class RewardService extends Service{
             //加特产
             await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
                 {
-                    uid: uid,
-                    spid: cfgId,
-                    $inc: {number: count },
-                    createDate: new Date()
+                    $set: {
+                        uid: uid,
+                        spid: cfgId,
+                        cid: cid,
+                        price: travelConfig.Speciality.Get(cfgId).localprice,
+                        createDate: new Date(),
+                    },
+                    $inc: { number: count },
+
                 },
-                {upsert: true});
+                { upsert: true });
 
             //购买记录
             await this.ctx.model.TravelModel.SpecialityBuy.create({
