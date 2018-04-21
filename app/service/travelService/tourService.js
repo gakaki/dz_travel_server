@@ -157,8 +157,6 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
 
-
-        
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
@@ -177,8 +175,66 @@ class TourService extends Service {
         }
 
         info.task = await this.queryTaskProgress(ui.uid, cid);
+    }
+
+    // 刷新节点信息
+    async freshspots(info) {
+
+        let uid                           = info.uid;
+        let currentCity                   = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        let roadMaps                      = currentCity.roadMap;
+        let spot_map                      = {};
+        let spot_arrived_count            = 0;
+        for(let spot of roadMaps) {
+            if(spot.index != -1) {
+                if(!spot.tracked) {
+                    if(spot.endtime <= new Date().getTime()) {
+                        spot.tracked      = true;
+                        spot.countdown    = 0;
+                        spot_arrived_count++;
+                    }
+                }else{
+                    spot.countdown        = 0
+                }
+
+            }
+            spot_map[spot.id]             = spot;
+        }
+        info.spots                        = roadMaps;
+        info.startTime                    = currentCity.startTime.getTime();
+        // 注意若所有的spots都已经tracked了记得要把 spots 每个设置为index -1
 
 
+        let acceleration                  = currentCity.acceleration;
+        info.display                      = 0;
+        if(acceleration) {
+            for(let car of travelConfig.shops) {
+                if(car.type == apis.RentItem.CAR) {
+                    if(car.value == acceleration) {
+                        info.display      = car.id;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //task任务完成度信息
+        let isDobule                      = !currentCity["friend"] ? false : true;
+        let partnerTour                   = 0;
+        let partner                       = 0;
+
+        if (isDobule ){
+            partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
+            partnerTour                   = [partner.tourCount,2];
+        }
+       info.task                         = {
+            spot                   : [spot_arrived_count,6],
+            tour                   : [currentCity['tourCount'],2],
+           parterTour              : [partner.tourCount,2],
+           photo                   : [currentCity['photographyCount'],2],
+           parterPhoto             : [partner['photographyCount'],2],
+        };
+        // 这里缺可能总的拍照次数
     }
 
     //更新玩家游玩进度
@@ -555,7 +611,28 @@ class TourService extends Service {
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){
             //若是 普通的随机事件 那么直接触发获得奖励了
-            let row                 = await this.rewardThanMark(info.uid,info.cid,eid);
+            let row                 = await this.rewardThanMark( uid,cid,eid);
+            //将当前时间设置为true
+            await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.id': event.id } , {
+                $set : {'events.$.received' : true}
+            });
+            this.logger.info("当前的数据信息",uid,cid,eid,event.id );
+            
+            let now                 = new Date().getTime();
+            //添加到spotevent
+            await this.ctx.model.TravelModel.SpotTravelEvent.create({
+                uid: uid,
+                eid: eid, 
+                cid: cid,
+                fid: null,
+                spotId: null,
+                isPhotography: false,
+                isTour:true,
+                reward: questCfg.getSpotRewardComment().reward,
+                type:questCfg.type,
+                createDate: now,
+                receivedDate:now,  //领取奖励时间
+            });
 
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             info.quest['rewards']   = {};
@@ -908,7 +985,9 @@ class TourService extends Service {
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
         info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
-
+        if ( info.spotsAllTraced == true){
+            info.spotsTracked    = 0;
+        }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
