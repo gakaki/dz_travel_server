@@ -985,7 +985,7 @@ class TourService extends Service {
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
         info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
-        if ( info.spotsAllTraced ){
+        if ( info.spotsAllTraced == true){
             info.spotsTracked    = 0;
         }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
