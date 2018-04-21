@@ -252,9 +252,7 @@ class TourService extends Service {
     // 刷新节点信息
     async freshspots(info) {
         let r           = await this.taskInfo( info.uid );
-
         this.logger.info(  "--==fresh spots start ==--" );
-        this.logger.info(  r );
         info.task       = r.task;
         info.spots      = r.spots;
         info.display    = r.display;
