@@ -154,6 +154,7 @@ class TourService extends Service {
             }
             info.spots = roadMaps;
             info.startTime = currentCity.startTime.getTime();
+            info.task  = this.taskInfo(uid);
         }
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
 
@@ -238,10 +239,6 @@ class TourService extends Service {
         };
     }
 
-    async tourtask(info){
-        let r           = this.taskInfo( info.uid );
-        info.task       = r.task;
-    }
 
     // 刷新节点信息
     async freshspots(info) {

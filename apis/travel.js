@@ -1821,11 +1821,10 @@ class PlayLoop extends Base {
         this._freshSpots = null;
         this._spotsTracked = null;
         this._spotsAllTraced = null;
-        this._spotsPlaned = null;
         this._doubleState = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTraced","spotsPlaned","doubleState"];
+        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTraced","doubleState"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
@@ -1839,9 +1838,6 @@ class PlayLoop extends Base {
     //server output, type: boolean//是否已经把地图上所有的景点都走过了
     get spotsAllTraced() {return this._spotsAllTraced}
     set spotsAllTraced(v) {this._spotsAllTraced = v}
-    //server output, type: boolean//路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
-    get spotsPlaned() {return this._spotsPlaned}
-    set spotsPlaned(v) {this._spotsPlaned = v}
     //server output, type: boolean//双人模式下对方是否取消了双人旅行
     get doubleState() {return this._doubleState}
     set doubleState(v) {this._doubleState = v}
@@ -2014,13 +2010,17 @@ class CheckCode extends Base {
         this.action = 'startGame.checkcode';
     
         this._inviteCode = null;
+        this._agree = null;
         this.requireFileds = ["inviteCode"];
-        this.reqFields = ["inviteCode"];
+        this.reqFields = ["inviteCode","agree"];
         this.resFields = [];
     }
     //client input, require, type: string
     get inviteCode() {return this._inviteCode}
     set inviteCode(v) {this._inviteCode = v}
+    //client input, optional, type: number
+    get agree() {return this._agree}
+    set agree(v) {this._agree = v}
     static Init(ctx, checkLogin = false) {
         let o = new CheckCode();
         o.ctx = ctx;
@@ -2924,9 +2924,6 @@ class Spot extends RouterSpot {
     
         //prop type: string[]
         this.building = null;
-    
-        //prop type: number//还有多久到下一个景点
-        this.countdown = null;
     
         
         

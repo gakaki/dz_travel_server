@@ -101,7 +101,7 @@ module.exports = app => {
     router.get('/tour/freshspots', routerUserInfo, controller.travelController.tourController.freshspots);
 
     //游玩界面 进入景点->景点完成任务
-    router.get('/tour/tourtask', controller.travelController.tourController.tourtask);
+    // router.get('/tour/tourtask', controller.travelController.tourController.tourtask);
 
     //游玩界面 进入景点->取消组队
     router.get('/tour/cancelparten', controller.travelController.tourController.cancelparten);
