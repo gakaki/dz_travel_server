@@ -226,7 +226,7 @@ class TravelService extends Service {
         //this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
-        allLogs = allLogs.slice((page - 1) * limit, page * limit);
+        //allLogs = allLogs.slice((page - 1) * limit, page * limit);
         for(let i = 0; i < allLogs.length; i++) {
             let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
             let onelog = {
@@ -251,13 +251,9 @@ class TravelService extends Service {
                     year = allLogs[i].year
                 }
             }
-            //this.logger.info(year);
-          //  this.logger.info(allLogs[i].year);
             outLog.push(onelog);
         }
-
-        outLog.reverse();
-        info.allLogs = outLog;
+        info.allLogs = outLog.slice((page - 1) * limit, page * limit).reverse();
     }
 
     async getCityCompletionList(info, ui) {
