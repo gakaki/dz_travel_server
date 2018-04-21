@@ -186,7 +186,7 @@ class TourController extends Controller {
 
     // 随机事件问答题答案提交
     // https://local.ddz2018.com/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
-    async tourspotanswer(ctx){
+    async answerquest(ctx){
 
         return ctx.body = {
             "data": {
@@ -210,11 +210,8 @@ class TourController extends Controller {
             },
             "code": 0
         };
-        // id   db_id
-        // eid  event id
-        // answer 答案
         let info            = apis.AnswerQuest.Init(ctx);
-        await this.ctx.service.travelService.tourService.tourspotanswer(info);
+        await this.ctx.service.travelService.tourService.answerquest(info);
         let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
