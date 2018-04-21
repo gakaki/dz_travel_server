@@ -106,7 +106,8 @@ api Photography {
 
 class Quest {
     prop time:number
-    prop id:string
+    prop id:string  //注意这个是数据库id 不是配置表id 对前端好像没用
+    prop eid:string //注意这个才是配置表的eventid 对前端好像没用
     prop type:string
     prop picture:string
     prop describe:string

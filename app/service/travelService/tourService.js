@@ -14,7 +14,7 @@ const moment        = require("moment");
 class TourService extends Service {
 
     // 邀请码 查询当前队友
-    async findAnotherPlayer2( uid){
+    async findAnotherPlayer2( uid ){
         if( inviteCode ){
             //通过redis获取到当前的队友
             let doubleInfo      = await this.app.redis.hgetall(inviteCode);
@@ -218,19 +218,21 @@ class TourService extends Service {
 
         //task任务完成度信息
         let isDobule                      = !currentCity["friend"] ? false : true;
-        let partnerTour                   = 0;
-        let partner                       = 0;
+        let partner                       = {};
+        let partnerTour                   = [];
+        let parterPhoto                   = [];
 
         if (isDobule ){
             partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
             partnerTour                   = [partner.tourCount,2];
+            parterPhoto                   = [partner['photographyCount'],2];
         }
         let  task                         = {
-            spot                   : [spot_arrived_count,6],
-            tour                   : [currentCity['tourCount'],2],
-            parterTour              : [partner.tourCount,2],
+            spot                    : [spot_arrived_count,6],
+            tour                    : [currentCity['tourCount'],2],
             photo                   : [currentCity['photographyCount'],2],
-            parterPhoto             : [partner['photographyCount'],2],
+            parterTour              : partnerTour,
+            parterPhoto             : parterPhoto
         };
         return {
              spots: spots,
@@ -242,8 +244,13 @@ class TourService extends Service {
 
     // 刷新节点信息
     async freshspots(info) {
-        let r           = this.taskInfo( info.uid );
+        let r           = await this.taskInfo( info.uid );
+
+        this.logger.info(  "--==fresh spots start ==--" );
+        this.logger.info(  r );
         info.task       = r.task;
+        info.spots      = r.spots;
+        info.display    = r.display;
     }
 
     //更新玩家游玩进度
@@ -578,8 +585,7 @@ class TourService extends Service {
         //过滤掉时间和received true的        没有领取并且小于当前时间的
         // let events          = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime() ); //为了测试
         let events          = cityEvents.events.filter( x => x.received == false );
-
-        this.logger.info("events content", events);
+        // this.logger.info("events content", events);
 
         info.total          = 10;
         info.current        = cityEvents.events.length - events.length
@@ -631,12 +637,12 @@ class TourService extends Service {
                 $set : {'events.$.received' : true}
             });
             this.logger.info("当前的数据信息",uid,cid,eid,event.id );
-            
+
             let now                 = new Date().getTime();
             //添加到spotevent
             await this.ctx.model.TravelModel.SpotTravelEvent.create({
                 uid: uid,
-                eid: eid, 
+                eid: eid,
                 cid: cid,
                 fid: null,
                 spotId: null,
@@ -944,7 +950,7 @@ class TourService extends Service {
                     o.tracked = true;
                 }
             }
-            
+
             return o;
         });
 
@@ -956,7 +962,7 @@ class TourService extends Service {
 
     //轮询访问地址
     async playloop(info){
-        
+
         let uid                 = info.uid;
         let currentCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
         if (!currentCity ) {
@@ -984,11 +990,11 @@ class TourService extends Service {
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
             this.logger.info("事件数量 ",events.length);
 
-            if ( events.length > 0 ){       
+            if ( events.length > 0 ){
                 info.newEvent    = true;    //是否有新事件
             }
         }
-        
+
         let spots                = currentCity['roadMap'];
         let spotsHasArrived      = spots.filter(  r =>  r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
@@ -1156,13 +1162,13 @@ class TourService extends Service {
 
     // 取消组队
     async cancelparten(info){
-        //双人变单人 
+        //双人变单人
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
         let inviteCode  = info.inviteCode;
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
         let partner     = await this.findAnotherPlayer(inviteCode,uid);
-        
-        //删除inviteCode 
+
+        //删除inviteCode
         await this.ctx.service.travelService.doubleService.deleteCode(info);
         //记录action
         this.ctx.model.PublicModel.UserActionRecord.create({
@@ -1171,13 +1177,13 @@ class TourService extends Service {
             type: apis.Code.USER_CANCEL_TEAM,
             createDate: new Date(),
         });
-        
+
         //删除current city里的 invite code中的用户id 的event 偷懒不删除了
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ uid, partner.uid ] }, { $set: { friend: "0" } }, { multi: true });
     }
-     
+
     async cancelpartenloop(info){
-        //双人变单人 
+        //双人变单人
         //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
         let partner     = await this.findAnotherPlayer(info.inviteCode,info.uid);
         if ( !partner ){
