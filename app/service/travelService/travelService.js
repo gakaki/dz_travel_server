@@ -42,13 +42,13 @@ class TravelService extends Service {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
         if (visit) {
             cid = visit.cid;
-            let weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-            for (let we of travelConfig.weathers) {
-                if (we.weather == weather) {
-                    outw = we.id;
-                    break;
-                }
-            }
+            outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
+            // for (let we of travelConfig.weathers) {
+            //     if (we.weather == weather) {
+            //         outw = we.id;
+            //         break;
+            //     }
+            // }
             info.location = cid;
         }
         if (ui.isSingleFirst) {
@@ -96,31 +96,7 @@ class TravelService extends Service {
             let efficiencyReward = await this.service.travelService.tourService.leavetour(ui);
              info.score = efficiencyReward.score;
              info.reward = efficiencyReward.reward;
-            // let short_path = new ShortPath(lastCity.cid);
-            // let plan = lastCity.roadMap;
-            // let real = [];
-            // for(let planS of plan) {
-            //     if(planS.index != -1) {
-            //         if(planS.tracked || planS.endtime <= new Date().getTime()) {
-            //             real.push(planS.id);
-            //         }
-            //     }
-            // }
-            // info.score = 0;
-            // info.reward = 0;
-            // if(real.length > 0) {
-            //     let path = short_path.travelShortDistance(real);
-            //     let shortDistance = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: lastCity.cid });
-            //     //上个城市走的实际景点数
-            //     let lastSN = await this.ctx.model.TravelModel.Footprints.count({ uid: info.uid, fid: lastCity.fid });
-            //     let efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
-            //     let reward = efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value;
-            //     //上个城市的评分奖励
-            //     cost[ "items." + travelConfig.Item.POINT] = reward || 0;
-            //     info.score = efficiency;
-            //     info.reward = reward;
-            // }
-            if(ui.isNewPlayer && !fui) {
+            if(ui.isNewPlayer && !fui && lastCity.startTime) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
 
@@ -159,7 +135,7 @@ class TravelService extends Service {
             }
 
         }
-        let flyid = "fly" + new Date().getTime();
+        let flyid = Number(ui.pid + new Date().getTime());
         let flyRecord = {
             uid: ui.uid, //用户ID
             fid: flyid,
@@ -241,13 +217,13 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
         let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             { $match: { uid: ui.uid } },
-            { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } }, scenicSpots: { $push: { spots: "$scenicspot" } } } },
-            { $sort: { "_id.date": 1 } },
+            { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } }, scenicSpots: { $push: "$scenicspot" } } },
+            { $sort: { "_id.date": -1 } },
             { $group: { _id: { year: "$_id.year", fid: "$_id.fid" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
-            { $sort: { "_id.fid": 1 } },
+            { $sort: { "_id.fid": -1 } },
             { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
-        ]).sort({ year: 1 }).skip((page - 1) * limit).limit(limit);
-      //  this.logger.info(JSON.stringify(allLogs));
+        ]).sort({ year: -1 }).skip((page - 1) * limit).limit(limit);
+        //this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
         for(let i = 0; i < allLogs.length; i++) {
@@ -259,18 +235,27 @@ class TravelService extends Service {
                // year : allLogs[i].year,
             };
 
+          //  this.logger.info(onelog);
+
             if(i == 0) {
                 onelog.year = allLogs[i].year;
                 year = allLogs[i].year
             }else{
-                if(year != allLogs[i].year){
+                if(year != allLogs[i].year) {
+                    onelog.year = allLogs[i].year;
+                    year = allLogs[i].year
+                }else{
+                    delete outLog[i - 1].year;
                     onelog.year = allLogs[i].year;
                     year = allLogs[i].year
                 }
             }
+            //this.logger.info(year);
+          //  this.logger.info(allLogs[i].year);
             outLog.push(onelog);
         }
 
+        outLog.reverse();
         info.allLogs = outLog;
     }
 

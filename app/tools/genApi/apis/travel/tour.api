@@ -28,7 +28,6 @@ class Spot extends RouterSpot{
     prop name:string
     //建筑图标
     prop building:string[]
-    prop countdown:number//还有多久到下一个景点
 }
 
 class TourTask {
@@ -112,10 +111,9 @@ class Quest {
     prop picture:string
     prop describe:string
     prop gold_used:number
-    prop rewards:KV[]
     prop question:string
     prop answers:string[]
-    prop rewardCommet:string
+    //prop rewardCommet:string
     prop rewards:string
 }
 
@@ -164,11 +162,10 @@ api AnswerQuest{
     require id:number
     require answer:string
 
-    output correct:boolean
+    output correct:number//0代表部分对错的答题类型，1，答对，2答错
+    output reward:string//奖励物品
     //更新后的用户信息
     output userInfo:UserInfo
-    //奖励物品
-    output rewards:KV[]
 }
 //点开显示随机事件
 api EventShow {
@@ -233,6 +230,7 @@ api SetRouter {
     //设置后景点数组
     output spots:RouterSpot[]//不包括起点
     output startTime: number //起点开始时间
+    output display: number //交通工具
 
 }
 //装备修改路线，组队模式下，如果双方同时触发此api，则稍晚的一方收到错误码,提示‘好友正在修改路线’
@@ -257,7 +255,6 @@ api PlayLoop {
     output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备，双人模式下一方修改了路线等，会影响景点的到达时间
     output spotsTracked:number//有几个到达了
     output spotsAllTraced:boolean//是否已经把地图上所有的景点都走过了
-    output spotsPlaned:boolean//路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
     output doubleState:boolean//双人模式下对方是否取消了双人旅行
 }
 

@@ -73,3 +73,7 @@ Date.prototype.format = function(fmt) {
     return fmt;
 }
 
+exports.getMonday = function() {
+    let day = new Date().getDay() ? new Date().getDay() : 7;
+    return new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - day)
+}

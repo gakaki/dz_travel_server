@@ -242,7 +242,7 @@ class MakeRoadMap {
         }
 
 
-        diffTime = 1000;
+        diffTime = 10000;
 
         console.log("需要的时间 " + diffTime);
         let now = new Date().getTime();
