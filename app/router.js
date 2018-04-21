@@ -89,7 +89,7 @@ module.exports = app => {
     //游玩界面 进入景点->人物点击-》显示事件（获得奖励）
     router.get('/tour/eventshow', routerUserInfo, controller.travelController.tourController.eventshow);
     //游玩界面 进入景点->人物点击-》显示事件（回答问题）-》提交
-    router.get('/tour/tourspotanswer', routerUserInfo, controller.travelController.tourController.tourspotanswer);
+    router.get('/tour/answerquest', routerUserInfo, controller.travelController.tourController.answerquest);
     //游玩界面 进入景点->重选路线
    // router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     //游玩界面 进入景点->定时获取是否有新的随机事件。

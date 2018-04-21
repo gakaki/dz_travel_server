@@ -10,6 +10,7 @@ const MakeEvent     = require("./makeEvent");
 const MakeSpotEvent = require("./makeSpotEvent");
 const ShortPath     = require("../pathService/shortPath");
 const moment        = require("moment");
+const _             = require("lodash");
 
 class TourService extends Service {
 
@@ -163,7 +164,7 @@ class TourService extends Service {
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
         let acceleration = currentCity.acceleration;
         info.display = 0;
-        info.mileage = ui.mileage;
+
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
@@ -176,6 +177,7 @@ class TourService extends Service {
         }
 
         info.task = await this.queryTaskProgress(ui.uid, cid);
+        info.mileage = ui.mileage;
     }
 
 
@@ -191,10 +193,10 @@ class TourService extends Service {
                     if(spot.endtime <= new Date().getTime()) {
                         spot.tracked      = true;
                         spot.countdown    = 0;
-                        spot_arrived_count++;
                     }
                 }else{
                     spot.countdown        = 0
+                    spot_arrived_count++;
                 }
 
             }
@@ -252,9 +254,7 @@ class TourService extends Service {
     // 刷新节点信息
     async freshspots(info) {
         let r           = await this.taskInfo( info.uid );
-
         this.logger.info(  "--==fresh spots start ==--" );
-        this.logger.info(  r );
         info.task       = r.task;
         info.spots      = r.spots;
         info.display    = r.display;
@@ -307,10 +307,13 @@ class TourService extends Service {
         let parterTour = 0;
         let parterPhoto = 0;
 
-        if(currentCity.friend != "0") {
-            parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
-            parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
-        }
+        //景点任务
+        let sTask = false;
+        //观光任务
+        let tTask = false;
+        //拍照任务
+        let pTask = false;
+
 
         //查找走过的景点数
         let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, fid: currentCity.fid, cid: cid, scenicspot: { $ne: null } });
@@ -322,20 +325,40 @@ class TourService extends Service {
         let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, fid: currentCity.fid, cid: cid, isTour: true });
         this.logger.info("观光" , tourCount);
 
+
+
         if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
             sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
-        }
-        if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-            photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
-            parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
-        }
-        if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-            tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
-            parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+            sTask = true;
         }
 
-        //TODO 双人点亮未做
-        if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value && photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value && tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
+        if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
+            tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+            tTask = true
+        }
+
+        if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
+            photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+            pTask = true;
+        }
+
+        if(currentCity.friend) {
+            parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
+            parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
+            if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
+                parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+
+            }else{
+                tTask = false;
+            }
+            if(parterPhoto >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
+                parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+            }else{
+                pTask = false;
+            }
+        }
+
+        if(sTask && tTask && pTask) {
             //查找是否已经点亮
             let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid });
             this.logger.info("是否已经点亮");
@@ -343,7 +366,17 @@ class TourService extends Service {
                 this.logger.info("创建点亮表");
                 await this.ctx.model.TravelModel.CityLightLog.create({ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
                 //更新足迹榜记录
-                await this.ctx.service.travelService.rankService.updateFootRecord(uid, cid);
+                await this.ctx.service.travelService.rankService.updateFootRecord(uid);
+            }
+            if(currentCity.friend) {
+                let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: currentCity.friend, cid: cid });
+                this.logger.info("是否已经点亮");
+                if(!cityLight) {
+                    this.logger.info("创建点亮表");
+                    await this.ctx.model.TravelModel.CityLightLog.create({ uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                    //更新足迹榜记录
+                    await this.ctx.service.travelService.rankService.updateFootRecord(currentCity.friend);
+                }
             }
         }
 
@@ -544,16 +577,19 @@ class TourService extends Service {
     }
 
     // 游玩 回答问题
-    async tourspotanswer(info){
-        // id   db_id
-        // answer 答案
+    async answerquest(info){
         let uid    = info.uid;
-        let id     = info.id;
+        let id     = info.id;     //数据库的事件id
         let answer = info.answer;
 
-        let row    = await this.ctx.model.TravelModel.SpotTravelEvent.findOne({
-            _id:     id
-        });
+        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid },  {'events.id': id});
+        // row        = await this.ctx.model.TravelModel.CityEvents.aggregate(
+        //     [
+        //         { $match :  { uid:uid } },
+        //         { $project: {"_id":1,"author.first":1} }
+        //     ]
+        //     { uid:uid },  {'events.id': id}); db.test.aggregate()
+        // )
         if ( !row ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -927,6 +963,7 @@ class TourService extends Service {
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
+
         return {
             score: efficiency,
             reward: reward,
@@ -1003,14 +1040,29 @@ class TourService extends Service {
         this.logger.info("UID CID 是 ",uid,cid );
         this.logger.info("当前时间 ",timeNow, moment(timeNow).format('YYYY-MM-DD HH:mm:ss') , "间隔时间之前", moment(timePrev).format('YYYY-MM-DD HH:mm:ss'));
 
-        info.newEvent            = true;
+        info.newEvent            = false;
         if ( timePrev ){
             let events           = currentEvents['events'];
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
             this.logger.info("事件数量 ",events.length);
 
-            if ( events.length > 0 ){
-                info.newEvent    = true;    //是否有新事件
+            let diffEventIds     = [];
+            let redisKey         = `playloop:${uid}`;
+            let prevEventIds     = await this.app.redis.smembers(redisKey);
+            let currentEventIds  = events.map( x => String(x.id) );
+            this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
+            if ( !prevEventIds  || prevEventIds.length <= 0 ){
+                await this.app.redis.sadd(redisKey,...currentEventIds);
+            }else{ //redis里存在上次的eventsid了
+                //求差集
+                diffEventIds     = _.difference(currentEventIds, prevEventIds);
+            }
+            this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
+            if ( diffEventIds && diffEventIds.length > 0){
+                info.newEvent    = true; //是否有新事件
+                await this.app.redis.sadd(redisKey,...currentEventIds);
+            }else{
+                info.newEvent    = false;
             }
         }
 
@@ -1147,11 +1199,21 @@ class TourService extends Service {
         let roadMap = currentCity.roadMap;
         for(let i = 0; i < roadMap.length; i++) {
             if(roadMap[i].index != -1) {
+                if(!roadMap[i].tracked && roadMap[i].endtime <= new Date().getTime()) {
+                    roadMap[i].tracked = true;
+                }
+
                 if(roadMap[i].index != 0) {
-                    let index = roadMap.findIndex((n) => n.index == (roadMap[i].index - 1));
-                    this.logger.info(roadMap[i].name);
-                    this.logger.info(roadMap[index].name);
-                    if (!roadMap[i].tracked && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime >= new Date().getTime()) {
+                 //   this.logger.info(roadMap[i].index);
+                //    this.logger.info(roadMap[i].name);
+                    let cindex = roadMap[i].index;
+                 //   this.logger.info("当前", cindex);
+                    let index = roadMap.findIndex((n) => n.index == (cindex - 1));
+                //    this.logger.info("结束", index);
+                 //   this.logger.info(roadMap[i]);
+                 //   this.logger.info(roadMap[index]);
+                    if (index == -1 || !roadMap[i].tracked && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime >= new Date().getTime() ) {
+                        this.logger.info(roadMap[i].name);
                         roadMap[i].index = -1;
                         roadMap[i].startime = "";
                         roadMap[i].endtime = "";

@@ -265,8 +265,11 @@ class MakeRoadMap {
             if(spotStart['endtime'] <= now) {
                 nextStart = now;
             }
-            spotStart['startime'] = nextStart;
-            spotEnd['endtime'] = nextStart + diffTime;
+            if(!spotStart['startime']){
+                spotStart['startime'] = nextStart;
+            }
+
+            spotEnd['endtime'] = spotStart['startime'] + diffTime;
             spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
             spotEnd['mileage'] = distance;
         }

@@ -156,7 +156,7 @@ class TravelService extends Service {
             fid: flyid,
             cid: cid,
             rentItems: rentItems,
-            friend: "0",
+            friend: null,
             roadMap: [],
             modifyEventDate: null,
             startTime: null,
