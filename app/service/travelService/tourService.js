@@ -11,7 +11,7 @@ const MakeSpotEvent = require("./makeSpotEvent");
 const ShortPath     = require("../pathService/shortPath");
 const moment        = require("moment");
 const _             = require("lodash");
-
+const  mongoose     = require('mongoose');
 class TourService extends Service {
 
     // 邀请码 查询当前队友
@@ -582,21 +582,26 @@ class TourService extends Service {
         let id     = info.id;     //数据库的事件id
         let answer = info.answer;
 
-        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid },  {'events.id': id});
+        if (!id){
+            info.code = apis.Code.NOT_FOUND;
+            return
+        }
+        let dbId   = new mongoose.mongo.ObjectId(id);
+        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid },  {'events.id': dbId} );
+        if ( !row || row['events'].length <= 0 ) {
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
         // row        = await this.ctx.model.TravelModel.CityEvents.aggregate(
         //     [
         //         { $match :  { uid:uid } },
         //         { $project: {"_id":1,"author.first":1} }
         //     ]
-        //     { uid:uid },  {'events.id': id}); db.test.aggregate()
         // )
-        if ( !row ) {
-            info.code = apis.Code.NOT_FOUND;
-            info.submit();
-            return;
-        }
 
-        let eid           = row['eid'];
+
+        let eid           = row['events'][0]['eid'];
         let questCfg      = questRepo.find(eid);
         let cid           = row['cid'];
 
