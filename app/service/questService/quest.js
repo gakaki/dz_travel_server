@@ -138,6 +138,10 @@ class Quest extends TreeNode {
 
         let totalStr = `${this.describe} `;
         let stmtArr  = [];
+
+        if ( !reward ){              //若外部reward为空 那么设置为本类的reward
+            reward   = this.reward;
+        }
         for (let rewardRow of reward) {
 
                 let typeId      = rewardRow['k'];
