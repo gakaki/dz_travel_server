@@ -91,6 +91,8 @@ enum Code {
     const HAS_SIGNIN = -144
     //还未起飞,用户没有当前城市
     const NO_CURRENTCITY = -145
+    //正在旅行中
+    const ISTRAVELLING = -146
 
     const UNKNOWN = -1000
     // 遇到了未处理的异常

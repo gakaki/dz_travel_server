@@ -222,10 +222,11 @@ class TravelService extends Service {
             { $group: { _id: { year: "$_id.year", fid: "$_id.fid" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
             { $sort: { "_id.fid": -1 } },
             { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
-        ]).sort({ year: -1 }).skip((page - 1) * limit).limit(limit);
+        ]).sort({ year: -1 });
         //this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
+        allLogs = allLogs.slice((page - 1) * limit, page * limit);
         for(let i = 0; i < allLogs.length; i++) {
             let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
             let onelog = {

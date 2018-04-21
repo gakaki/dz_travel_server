@@ -889,7 +889,7 @@ class TourService extends Service {
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
             //更新足迹表
-            this.queryTaskProgress(selfInfo.uid, curCity.cid);
+            await this.queryTaskProgress(selfInfo.uid, curCity.cid);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
