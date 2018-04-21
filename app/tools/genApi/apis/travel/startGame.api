@@ -74,6 +74,8 @@ api CreateCode{
 //检查邀请码是否过期
 api CheckCode{
     require inviteCode:string
+    //被邀请人是否同意(默认0)
+    optional agree:number
 }
 
 //取消组队
