@@ -554,6 +554,8 @@ class TourService extends Service {
     // 游玩 事件查看 http://127.0.0.1:7001/tour/eventshow?uid=1000001&cid=1
     async eventshow(info){
 
+        this.logger.info("--==event show start==--");
+
         //这里要分离奖励 部分和 寻找答题部分
         //设置领取状态
         //spotTravelEvent 作为日志received 作为 存档表吧
@@ -567,9 +569,13 @@ class TourService extends Service {
         //过滤掉时间和received true的        没有领取并且小于当前时间的
         // let events          = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime() ); //为了测试
         let events          = cityEvents.events.filter( x => x.received == false );
+
+        this.logger.info("events content", events);
+
         info.total          = 10;
         info.current        = cityEvents.events.length - events.length
         info.current        = info.current <= 0 ? 1 : info.current;
+        info.hasNext        = info.current + 1 >= events.length ? true : false;
 
         let event           = null;
         if (events.length >= 0)
@@ -597,7 +603,6 @@ class TourService extends Service {
 
         //数据库记录id 方便答对答错之后的奖励
         info.id           = event['id'];
-        info.cid          = cid;
         info.quest        = {
             id:            eid, //前端没有此配置表
             type:          questCfg.type,
@@ -990,7 +995,7 @@ class TourService extends Service {
         }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
-        info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
+        // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
     }
 
 

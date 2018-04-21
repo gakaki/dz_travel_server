@@ -293,7 +293,7 @@ class TourController extends Controller {
         // };
 
         let info            = apis.EventShow.Init(ctx);
-        await this.ctx.service.travelService.tourService.eventszhow(info);
+        await this.ctx.service.travelService.tourService.eventshow(info);
         let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();

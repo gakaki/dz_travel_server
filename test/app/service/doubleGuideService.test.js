@@ -7,6 +7,7 @@ const travelConfig  = require("../../../sheets/travel")
 const postcardRepo  = require('../../../app/service/configService/postcardRepo');
 const questRepo     = require('../../../app/service/questService/questRepo');
 const uuid          = require("uuid");
+const MakeEvent     = require('../../../app/service/travelService/makeEvent');
 
 // 测试双人旅行
 describe('test 测试双人旅行 流程 数据写入', () => {
@@ -17,7 +18,7 @@ describe('test 测试双人旅行 流程 数据写入', () => {
 
         let  uid             = "ov5W35XwjECAWGq0UK3omMfu9nak";
         let  friend          = "absdadew234resfdsfsd";
-
+        let  cid             = 3;
         //先清空数据库表
         await ctx.model.PublicModel.User.remove();
         await ctx.model.TravelModel.CityEvents.remove();
@@ -500,43 +501,25 @@ describe('test 测试双人旅行 流程 数据写入', () => {
 
 
         //写入event表的2个玩家的
+        let para                 = {
+            cid                  : cid,
+            rentItems            : [],
+            startTime            : new Date(),
+            timeTotalHour        : 24,
+            weather              : 0,
+            today                : 0,
+            itemSpecial          : 0
+        };
+
+
+        let e   = new MakeEvent(para);
         await ctx.model.TravelModel.CityEvents.create({
             "uid" : uid,
-            "events" : [
-            {
-                "triggerDateYHM" : "2018-04-20 13:34:57",
-                "triggerDate" : 1524202497785.0,
-                "received" : false,
-                "eid" : (110100),
-                "id" : ("5ad978b9d7366a0bc69ec1f2")
-            },
-            {
-                "triggerDateYHM" : "2018-04-20 13:49:57",
-                "triggerDate" : 1524203397785.0,
-                "received" : false,
-                "eid" : (110064),
-                "id" : ("5ad978b9d7366a0bc69ec1f3")
-            }
-            ]
+            "events" : e.eventsFormat
         });
         await ctx.model.TravelModel.CityEvents.create({
             "uid" : friend,
-            "events" : [
-                {
-                    "triggerDateYHM" : "2018-04-20 13:34:57",
-                    "triggerDate" : 1524202497785.0,
-                    "received" : false,
-                    "eid" : (110100),
-                    "id" : ("5ad978b9d7366a1bc69ec1f2")
-                },
-                {
-                    "triggerDateYHM" : "2018-04-20 13:49:57",
-                    "triggerDate" : 1524203397785.0,
-                    "received" : false,
-                    "eid" : (110064),
-                    "id" : ("5ad978b9d7366a1bc69ec1f3")
-                }
-            ]
+            "events" : e.eventsFormat
         });
 
     });
