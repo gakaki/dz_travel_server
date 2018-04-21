@@ -4,7 +4,7 @@ module.exports = appInfo => {
 
     // add your config here
     config.mongoose = {
-        url: 'mongodb://travel:'+ encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
+        url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
     };
 
     config.env = "prod";
@@ -17,6 +17,9 @@ module.exports = appInfo => {
     };
     config.redis = {
         client: config_redis,
+    };
+    config.logger = {
+        dir: "/root/server/travel/logs/",
     };
 
     config.io = {

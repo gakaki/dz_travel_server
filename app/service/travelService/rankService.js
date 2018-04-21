@@ -82,7 +82,7 @@ class RankService extends Service {
      * @param uid  require
      *
      * */
-    async updateFootRecord(uid, cid) {
+    async updateFootRecord(uid) {
         this.logger.info("更新点亮表");
        // let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid, lighten: true });
         //this.logger.info(cityLight);
