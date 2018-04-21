@@ -51,6 +51,11 @@ module.exports = new QuestRepo();
 //
 
 
+let n            = new QuestRepo();
+// type 1 金币
+let quest        = n.find("130204");
+let res          = quest.getSpotRewardComment();
+console.log(res);
 // let n            = new QuestRepo();
 // // type 1 金币
 // let quest        = n.find("110033");

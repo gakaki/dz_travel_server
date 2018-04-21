@@ -586,6 +586,7 @@ class TourService extends Service {
     }
 
     // 游玩 回答问题
+    // https://local.ddz2018.com/?sid=d9bb47efa9d5a73043d701599516c61e&uid=ov5W35XwjECAWGq0UK3omMfu9nak&cid=3&appName=travel&5adb3d45af8d8d10da2fe531&answer=更快点亮地图&id=&action=tour.answerquest
     async answerquest(info){
         let uid    = info.uid;
         let id     = info.id;     //数据库的事件id
@@ -596,7 +597,8 @@ class TourService extends Service {
             return
         }
         let dbId   = new mongoose.mongo.ObjectId(id);
-        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid },  {'events.id': dbId} );
+        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid , 'events.dbId' : dbId },  {'events.$': 1} );
+        this.logger.info( "row is ", row);
         if ( !row || row['events'].length <= 0 ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -612,6 +614,16 @@ class TourService extends Service {
         let eid           = row['events'][0]['eid'];
         let questCfg      = questRepo.find(eid);
         let cid           = row['cid'];
+        if ( !questCfg ) {
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+        //无论如何都要把事件重置为recived
+        await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
+            $set : {'events.$.received' : true}
+        });
 
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.answer == answer || questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
@@ -620,7 +632,9 @@ class TourService extends Service {
 
             //回答正确 给予正确奖励
             info.correct      = true;
-            info.rewards      = questCfg.rewards;
+            info.rewards      = questCfg.getSpotRewardComment();
+
+
         }else
         {
             //回答错误 给予错误奖励 现在暂时没逻辑
@@ -691,11 +705,10 @@ class TourService extends Service {
                 $set : {'events.$.received' : true}
             });
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
-            info.quest['rewards']   = {};
+            //在anserquest接口里领奖励
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
-            info.quest['rewards']   = {};
+            //在anserquest接口里领奖励
         }
-
 
         info.submit();
     }
