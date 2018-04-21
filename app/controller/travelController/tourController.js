@@ -293,14 +293,21 @@ class TourController extends Controller {
         // };
 
         let info            = apis.EventShow.Init(ctx);
-        await this.ctx.service.travelService.tourService.eventshow(info);
+        await this.ctx.service.travelService.tourService.eventszhow(info);
         let user_info       = ctx.session.ui;
         await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 
-    // 最新景点
+
+    // 轮询的时候告诉我要刷新哪个
     async freshspots(ctx) {
+        let info                    = apis.Freshspots.Init(ctx);
+        await this.service.travelService.tourService.freshspots(info);
+        info.submit();
+    }
+    // 最新景点
+    async freshspotsfake(ctx) {
 
         return ctx.body = {
             code : 0 ,
@@ -382,7 +389,7 @@ class TourController extends Controller {
         };
 
         let info                    = apis.ReqEnterspot.Init(ctx);
-        await this.service.questService.questService.reqenterspot(info);
+        await this.service.questService.questService.freshspots(info);
         info.submit();
     }
 
