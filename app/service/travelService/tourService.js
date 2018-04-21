@@ -218,15 +218,22 @@ class TourService extends Service {
 
         //task任务完成度信息
         let isDobule                      = !currentCity["friend"] ? false : true;
-        let partner                       = {};
-        let partnerTour                   = [];
-        let parterPhoto                   = [];
+
+        let partner                       = null;
+        let partnerTour                   = [0,2];
+        let parterPhoto                   = [0,2];
 
         if (isDobule ){
             partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
-            partnerTour                   = [partner.tourCount,2];
-            parterPhoto                   = [partner['photographyCount'],2];
+            // partner                       = null;
+            if ( partner ){
+                partnerTour               = [partner.tourCount,2];
+                parterPhoto               = [partner.photographyCount,2];
+            }
         }
+
+        // this.logger.info("是否是双人模式", isDobule , partner);
+
         let  task                         = {
             spot                    : [spot_arrived_count,6],
             tour                    : [currentCity['tourCount'],2],
