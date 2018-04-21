@@ -1040,7 +1040,7 @@ class TourService extends Service {
         this.logger.info("UID CID 是 ",uid,cid );
         this.logger.info("当前时间 ",timeNow, moment(timeNow).format('YYYY-MM-DD HH:mm:ss') , "间隔时间之前", moment(timePrev).format('YYYY-MM-DD HH:mm:ss'));
 
-        info.newEvent            = false;
+        info.newEvent            = true;
         if ( timePrev ){
             let events           = currentEvents['events'];
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
@@ -1052,7 +1052,9 @@ class TourService extends Service {
             let currentEventIds  = events.map( x => String(x.id) );
             this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
             if ( !prevEventIds  || prevEventIds.length <= 0 ){
-                await this.app.redis.sadd(redisKey,...currentEventIds);
+                if ( currentEventIds && currentEventIds.length > 0){
+                    await this.app.redis.sadd(redisKey,...currentEventIds);
+                }
             }else{ //redis里存在上次的eventsid了
                 //求差集
                 diffEventIds     = _.difference(currentEventIds, prevEventIds);
