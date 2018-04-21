@@ -485,19 +485,7 @@ class TourController extends Controller {
         info.submit();
     }
 
-    // 景点完成任务
-    async tourtask(ctx) {
-        return ctx.body = {
-            code : 0,
-            data : {
-                spot:[3,6],             // 3/6 景点完成度 一共6已完成3
-                tour:[0,2],              // 0/2 观光完成度 一共2已完成2
-                parterTour:[1,2],       //0/2 队友观光完成度 一共2已完成2(双人模式下)
-                photo:[1,2],            // 0/2 拍照完成度 一共2已完成2
-                parterPhoto:[2,2],      // 0/2 队友拍照完成度 一共2已完成2(双人模式下)
-            }
-        }
-    }
+
 
      // 取消组队
      async cancelparten(ctx) {
