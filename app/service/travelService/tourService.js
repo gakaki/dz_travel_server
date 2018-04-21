@@ -440,8 +440,18 @@ class TourService extends Service {
         // 获得明信片 读配置表 一个景点一个明信片 正好景点id同明信片id
         let cfgPostcard     = travelConfig.Postcard.Get(info.spotId);
         let dateNow         = new Date();
-        let update = await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
-        if(update.nModified) {
+        let canGet = false;
+        if(r.photographyCount == -1) {
+            canGet = true;
+        }
+        if(!canGet) {
+            let update = await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid, photographyCount: { $gt: 0 } }, { $inc: { photographyCount: -1 } });
+            if(update.nModified) {
+                canGet = true;
+            }
+        }
+
+        if(canGet) {
             let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
             await this.ctx.model.TravelModel.Postcard.create({
                 uid: ui.uid,
@@ -482,7 +492,7 @@ class TourService extends Service {
             });
             //返回明信片 id 图片
             info.postcard = cfgPostcard;
-            info.freePhoto = r.photographyCount - 1;
+            info.freePhoto = r.photographyCount - 1 < -1 ? -1 : r.photographyCount;
         }else{
             info.code = apis.Code.NEED_ITEMS;
         }
@@ -572,8 +582,6 @@ class TourService extends Service {
         info.goldNum        = ui.items[travelConfig.Item.GOLD];
 
        // info.userinfo       = ui;
-
-
     }
 
     // 游玩 回答问题
@@ -600,13 +608,12 @@ class TourService extends Service {
         //     ]
         // )
 
-
         let eid           = row['events'][0]['eid'];
         let questCfg      = questRepo.find(eid);
         let cid           = row['cid'];
 
-        if (questCfg.answer == answer){
-
+        //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
+        if (questCfg.answer == answer || questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
             await this.rewardThanMark(  uid , cid , eid );
 
@@ -729,23 +736,24 @@ class TourService extends Service {
         //若是 普通的随机事件 那么直接触发获得奖励了
         await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
-        let row  = await this.ctx.model.TravelModel.SpotTravelEvent.findOneAndUpdate(
-        {
+
+        let now                 = new Date().getTime();
+        let questCfg            = questRepo.find(eid);
+        //添加到spotevent
+        await this.ctx.model.TravelModel.SpotTravelEvent.create({
             uid: uid,
+            eid: eid,
             cid: cid,
-            received:false
-        },
-        {
-            $set: {
-                "receivedDate" : new Date() ,
-                "received": true           //设置为已经领取
-            }
-        },
-        {
-            returnNewDocument: true
+            fid: null,
+            spotId: null,
+            isPhotography: false,
+            isTour:true,
+            reward: questCfg.getSpotRewardComment().reward,
+            type:questCfg.type,
+            createDate: now,
+            received: true,             //设置为已经领取
+            receivedDate:now,           //领取奖励时间
         });
-        return row;
-        // info.quest['time']      = row['receivedDate'];
     }
 
     //观光??
@@ -787,6 +795,19 @@ class TourService extends Service {
             return;
         }
 
+        if(curCity.friend) {
+            let fCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend})
+            if (fCity.rentItems[info.rentId] > 0) {
+                this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
+                if(!info.forceBuy) {
+                    info.code = apis.Code.ALREADY_GOT;
+                    return;
+                }
+
+            }
+        }
+
+
         let rentItems = curCity.rentItems;
         rentItems[cfg.id] = 1;
         //扣钱
@@ -795,6 +816,9 @@ class TourService extends Service {
         //加道具
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.ui.uid }, { rentItems });
         this.logger.info(`租用道具${cfg.id}成功`);
+
+
+
         if(cfg.type == apis.RentItem.CAMERA) {
             if(cfg.value == -1) {
                 await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { photographyCount: cfg.value } });
@@ -840,13 +864,11 @@ class TourService extends Service {
                             }
                         }
                         //修改路线
-                        await this.ctx.model.TravelModel.CurrentCity.update({
-                            uid: info.uid,
-                        }, { $set: {
-                                roadMap: outPMap,
-                                acceleration: rm.acceleration,
-                                modifyEventDate: new Date(),
-                            } });
+                        let needChange = [info.uid];
+                        if(curCity.friend) {
+                            needChange.push(curCity.friend)
+                        }
+                        await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: rm.acceleration, modifyEventDate: new Date() } }, { multi: true });
                     }
 
                 }
