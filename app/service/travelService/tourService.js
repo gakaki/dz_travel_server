@@ -191,10 +191,10 @@ class TourService extends Service {
                     if(spot.endtime <= new Date().getTime()) {
                         spot.tracked      = true;
                         spot.countdown    = 0;
-                        spot_arrived_count++;
                     }
                 }else{
                     spot.countdown        = 0
+                    spot_arrived_count++;
                 }
 
             }
