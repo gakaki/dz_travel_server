@@ -177,10 +177,9 @@ class TourService extends Service {
         info.task = await this.queryTaskProgress(ui.uid, cid);
     }
 
-    // 刷新节点信息
-    async freshspots(info) {
 
-        let uid                           = info.uid;
+    async taskInfo(userId){
+        let uid                           = userId;
         let currentCity                   = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let roadMaps                      = currentCity.roadMap;
         let spot_map                      = {};
@@ -200,18 +199,16 @@ class TourService extends Service {
             }
             spot_map[spot.id]             = spot;
         }
-        info.spots                        = roadMaps;
-        info.startTime                    = currentCity.startTime.getTime();
-        // 注意若所有的spots都已经tracked了记得要把 spots 每个设置为index -1
 
-
+        let spots                         = roadMaps;
+        let startTime                     = currentCity.startTime.getTime();
         let acceleration                  = currentCity.acceleration;
-        info.display                      = 0;
+        let display                       = 0;
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
                     if(car.value == acceleration) {
-                        info.display      = car.id;
+                        display           = car.id;
                         break;
                     }
                 }
@@ -227,14 +224,29 @@ class TourService extends Service {
             partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
             partnerTour                   = [partner.tourCount,2];
         }
-       info.task                         = {
+        let  task                         = {
             spot                   : [spot_arrived_count,6],
             tour                   : [currentCity['tourCount'],2],
-           parterTour              : [partner.tourCount,2],
-           photo                   : [currentCity['photographyCount'],2],
-           parterPhoto             : [partner['photographyCount'],2],
+            parterTour              : [partner.tourCount,2],
+            photo                   : [currentCity['photographyCount'],2],
+            parterPhoto             : [partner['photographyCount'],2],
         };
-        // 这里缺可能总的拍照次数
+        return {
+             spots: spots,
+             display: display, //人物的表现形式
+             task:task
+        };
+    }
+
+    async tourtask(info){
+        let r           = this.taskInfo( info.uid );
+        info.task       = r.task;
+    }
+
+    // 刷新节点信息
+    async freshspots(info) {
+        let r           = this.taskInfo( info.uid );
+        info.task       = r.task;
     }
 
     //更新玩家游玩进度
