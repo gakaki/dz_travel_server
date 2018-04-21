@@ -28,7 +28,6 @@ class Spot extends RouterSpot{
     prop name:string
     //建筑图标
     prop building:string[]
-    prop countdown:number//还有多久到下一个景点
 }
 
 class TourTask {
@@ -256,7 +255,6 @@ api PlayLoop {
     output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备，双人模式下一方修改了路线等，会影响景点的到达时间
     output spotsTracked:number//有几个到达了
     output spotsAllTraced:boolean//是否已经把地图上所有的景点都走过了
-    output spotsPlaned:boolean//路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
     output doubleState:boolean//双人模式下对方是否取消了双人旅行
 }
 
