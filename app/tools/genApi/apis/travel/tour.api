@@ -199,6 +199,8 @@ api LeaveTour
 //租用道具
 api RentProp {
     require rentId:number  //装备id
+    //强制购买
+    optional forceBuy:number
 }
 //已租用的道具
 api RentedProp {

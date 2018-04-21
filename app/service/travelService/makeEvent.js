@@ -26,6 +26,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             return {
                 id              : e.id,
                 eid             : e.eid,
+                type            : e.type,
                 received        : false,                 //似乎没有必要 是记录在另一张表内
                 triggerDate     : e.triggerDate,
                 triggerDateYHM  : e.triggerDateYHM,
@@ -70,6 +71,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             triggerDate     : triggerDateTimeStamp,
             eid             : quest.id,
             received        : false,
+            type            : quest.type,
             triggerDateYHM  : timeUtil.formatYMDHMS(triggerDateTimeStamp)
             // minuteLength    : minuteLength,
             // quest           : quest
