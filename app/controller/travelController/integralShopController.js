@@ -35,4 +35,10 @@ module.exports = class IntegralShopController extends Controller {
         await ctx.service.travelService.integralService.initExchangeDetails();
         ctx.body = 'ok'
     }
+
+    async exchangeDeadline(ctx) {
+        let info = await apis.ExchangeDeadline.Init(ctx, true);
+        await ctx.service.travelService.integralService.exchangeDeadline(info);
+        info.submit()
+    }
 }

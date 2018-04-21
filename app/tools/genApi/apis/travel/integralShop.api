@@ -60,3 +60,8 @@ api GetUserLocation {
     output address:string
 
 }
+
+//商城活动截止日期
+api ExchangeDeadline {
+    output endtime:string
+}
