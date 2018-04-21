@@ -83,7 +83,7 @@ class DoubleController extends Controller {
             return;
         }
 
-        if(info.agree) {
+        if(!info.agree) {
             let lastCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
             if(lastCity) {
                 info.code = apis.Code.ISTRAVELLING;
