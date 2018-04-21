@@ -177,8 +177,6 @@ api EventShow {
     output current:number
     //事件
     output quest:Quest
-    //更新后的用户信息
-    output userInfo: UserInfo
 }
 
 //玩家完成该城市的景点的具体报告

@@ -667,26 +667,13 @@ class TourService extends Service {
             info.submit();
             return;
         }
-        // 设置eventcity那一行为update
-        // let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOne({
-        //     uid: uid,
-        //     cid: cid,
-        //     received:false
-        // });
-        // if ( !row ) {
-        //     info.code       = apis.Code.NOT_FOUND;
-        //     info.message    = "暂时没有事件"
-        //     info.submit();
-        //     return;
-        // }
 
         let eid           = event["eid"];
         let questCfg      = questRepo.find(eid);
-
-        //数据库记录id 方便答对答错之后的奖励
-        info.id           = event['id'];
+        info.id           = event['dbId'];
         info.quest        = {
-            id:            eid, //前端没有此配置表
+            dbId:          event['dbId'],
+            eid:           eid, //前端没有此配置表
             type:          questCfg.type,
             describe:      questCfg['describe'],
             gold_used:     0,
@@ -695,32 +682,13 @@ class TourService extends Service {
             question:      questCfg['describe'],
             answers:       questCfg.answers(),
         };
+        this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
-        if (questCfg.type == questCfg.EventTypeKeys.COMMON){
-            //若是 普通的随机事件 那么直接触发获得奖励了
+        if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
             let row                 = await this.rewardThanMark( uid,cid,eid);
-            //将当前时间设置为true
-            await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.id': event.id } , {
+            await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
                 $set : {'events.$.received' : true}
             });
-            this.logger.info("当前的数据信息",uid,cid,eid,event.id );
-
-            let now                 = new Date().getTime();
-            //添加到spotevent
-            await this.ctx.model.TravelModel.SpotTravelEvent.create({
-                uid: uid,
-                eid: eid,
-                cid: cid,
-                fid: null,
-                spotId: null,
-                isPhotography: false,
-                isTour:true,
-                reward: questCfg.getSpotRewardComment().reward,
-                type:questCfg.type,
-                createDate: now,
-                receivedDate:now,  //领取奖励时间
-            });
-
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             info.quest['rewards']   = {};
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
@@ -754,6 +722,7 @@ class TourService extends Service {
             received: true,             //设置为已经领取
             receivedDate:now,           //领取奖励时间
         });
+
     }
 
     //观光??
