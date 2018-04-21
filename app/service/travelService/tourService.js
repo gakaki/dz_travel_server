@@ -1160,12 +1160,25 @@ class TourService extends Service {
         'uid'        : uid,
         'cid'        : cid,
         },{ $set: {
-            roadMap  : outPMap,
-            acceleration: acceleration,
-            startTime:startTime,
-            modifyEventDate : new Date(),
+                changeRouteing: false,
+                roadMap: outPMap,
+                acceleration: acceleration,
+                startTime: startTime,
+                modifyEventDate: new Date(),
         }});
 
+        if(currentCity.friend) {
+            await this.ctx.model.TravelModel.CurrentCity.update({
+                'uid'        : currentCity.friend,
+                'cid'        : cid,
+            },{ $set: {
+                    changeRouteing: false,
+                    roadMap: outPMap,
+                    acceleration: acceleration,
+                    startTime: startTime,
+                    modifyEventDate: new Date(),
+                }});
+        }
 
 
 
@@ -1177,6 +1190,22 @@ class TourService extends Service {
 
     async modifyRouter(info, ui) {
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        let isDouble = false;
+        if(currentCity.friend) {
+            let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
+            if(fcity.changeRouteing) {
+                info.code = apis.Code.ISCHANGING;
+                return
+            }
+            isDouble = true;
+        }
+        if(currentCity.changeRouteing) {
+            info.code = apis.Code.ISCHANGING;
+            return
+        }
+
+
+
         let roadMap = currentCity.roadMap;
         for(let i = 0; i < roadMap.length; i++) {
             if(roadMap[i].index != -1) {
@@ -1217,9 +1246,18 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {
+                changeRouteing: true,
                 roadMap  : roadMap,
                 modifyEventDate : new Date()
             }});
+        if(isDouble) {
+            await this.ctx.model.TravelModel.CurrentCity.update({
+                'uid'        : currentCity.friend,
+            },{ $set: {
+                    roadMap  : roadMap,
+                    modifyEventDate : new Date()
+                }});
+        }
     }
 
     // 取消组队

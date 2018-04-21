@@ -113,6 +113,8 @@ class Code{
     
     static get ISTRAVELLING() { return -146;}
     
+    static get ISCHANGING() { return -147;}
+    
     static get UNKNOWN() { return -1000;}
     
     static get EXCEPTION() { return -999;}
@@ -679,6 +681,9 @@ class Quest {
     
         //prop type: string
         this.id = null;
+    
+        //prop type: string
+        this.eid = null;
     
         //prop type: string
         this.type = null;
