@@ -181,6 +181,7 @@ class TravelService extends Service {
         if (fui) {
             flyRecord.friend = fui.uid;
             currentCity.friend = fui.uid;
+            currentCity.isInviter = true;
           //  currentCity.efficiency = 0;
             await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
             await this.ctx.model.TravelModel.Footprints.create(footprint);
