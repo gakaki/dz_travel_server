@@ -469,9 +469,9 @@ class PlayerService extends Service {
                 achievement: info.ui.items[travelConfig.Item.POINT],
             };
             if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
-                this.logger.info("全国");
+             //   this.logger.info("全国");
                 rankInfos = await this.ctx.service.travelService.rankService.getScoreRankList(page, limit);
-                this.logger.info(rankInfos);
+               // this.logger.info(rankInfos);
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
                 rankInfos = await this.ctx.service.travelService.rankService.getUserFriendScoreRankList(friendList, page, limit);

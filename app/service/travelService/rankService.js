@@ -305,7 +305,7 @@ class RankService extends Service {
     async getUserFriendCompletionDegreeRankList(friendList, page, limit) {
         let out = [];
         let outFriendList = friendList.slice((page - 1) * limit, page * limit);
-        for(let friend of friendList) {
+        for(let friend of outFriendList) {
             out.push(await this.getUserCompletionDegree(friend));
         }
         return out;

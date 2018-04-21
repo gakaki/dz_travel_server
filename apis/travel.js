@@ -690,17 +690,11 @@ class Quest {
         //prop type: number
         this.gold_used = null;
     
-        //prop type: KV[]
-        this.rewards = null;
-    
         //prop type: string
         this.question = null;
     
         //prop type: string[]
         this.answers = null;
-    
-        //prop type: string
-        this.rewardCommet = null;
     
         //prop type: string
         this.rewards = null;
@@ -1442,11 +1436,11 @@ class AnswerQuest extends Base {
         this._id = null;
         this._answer = null;
         this._correct = null;
+        this._reward = null;
         this._userInfo = null;
-        this._rewards = null;
         this.requireFileds = ["id","answer"];
         this.reqFields = ["id","answer"];
-        this.resFields = ["correct","userInfo","rewards"];
+        this.resFields = ["correct","reward","userInfo"];
     }
     //client input, require, type: number
     get id() {return this._id}
@@ -1454,15 +1448,15 @@ class AnswerQuest extends Base {
     //client input, require, type: string
     get answer() {return this._answer}
     set answer(v) {this._answer = v}
-    //server output, type: boolean
+    //server output, type: number//0代表部分对错的答题类型，1，答对，2答错
     get correct() {return this._correct}
     set correct(v) {this._correct = v}
+    //server output, type: string//奖励物品
+    get reward() {return this._reward}
+    set reward(v) {this._reward = v}
     //server output, type: UserInfo
     get userInfo() {return this._userInfo}
     set userInfo(v) {this._userInfo = v}
-    //server output, type: KV[]
-    get rewards() {return this._rewards}
-    set rewards(v) {this._rewards = v}
     static Init(ctx, checkLogin = false) {
         let o = new AnswerQuest();
         o.ctx = ctx;
