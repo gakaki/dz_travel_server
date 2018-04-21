@@ -12,17 +12,20 @@ class SpecialityService extends Service {
             return;
         }
 
-        let specs = await this.ctx.model.TravelModel.Speciality.find({ uid: info.ui.uid })
+        let specs = await this.ctx.model.TravelModel.Speciality.find({uid: info.ui.uid})
         let nowNum = 0;
-        specs.forEach(v=>{
+        specs.forEach(v => {
             nowNum += v.number
         })
         let baglimit = sheets.Parameter.Get(sheets.Parameter.BAGLIMIT).value;
         let restNum = baglimit - nowNum;
-        info.restNum = restNum
+        info.restNum = restNum;
+
         //read specialitys
-        let spes = cityCfg.speciality.map(id => {
+        let spes = await Promise.all(cityCfg.speciality.map(async (id) => {
             let o = sheets.Speciality.Get(id);
+            let sps = await this.ctx.model.TravelModel.Speciality.findOne({spid: id});
+
             if (o) {
                 let s = new apis.Speciality();
                 s.name = o.specialityname;
@@ -30,7 +33,11 @@ class SpecialityService extends Service {
                 s.img = o.picture;
                 s.propId = o.id;
                 s.price = o.localprice;
-                s.limitNum = o.limit;
+                if (sps) {
+                    s.limitNum = o.limit == -1 ? o.limit : o.limit - sps.number;
+                } else {
+                    s.limitNum = o.limit
+                }
                 return s;
             }
             else {
@@ -38,6 +45,7 @@ class SpecialityService extends Service {
                 return null
             }
         })
+        )
         info.specialtys = spes.filter(s => s); // filter not null
     }
 
@@ -51,7 +59,7 @@ class SpecialityService extends Service {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
         info.specialtys = [];
 
-        let spes = await speModel.find({ uid: ui.uid });
+        let spes = await speModel.find({uid: ui.uid});
         await Promise.all(spes.map(s => {
             return new Promise(async resolve => {
                 let needFreshPrice = false;
@@ -80,7 +88,7 @@ class SpecialityService extends Service {
                     this.logger.info(s);
                     let price = 0;
                     if (s.cid == curCityId) {
-                        price = parseInt(s.price * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value/100);
+                        price = parseInt(s.price * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value / 100);
                     } else {
                         price = cfg.sellingprice[Math.floor(Math.random() * cfg.sellingprice.length)];
                     }
@@ -88,7 +96,7 @@ class SpecialityService extends Service {
                     s.sellPrice = price;
                     s.sellPriceDate = now;
 
-                    await speModel.update({ uid: s.uid, spid: s.spid }, { $set: { sellPrice: price, sellPriceDate: now }});
+                    await speModel.update({uid: s.uid, spid: s.spid}, {$set: {sellPrice: price, sellPriceDate: now}});
                     fillRes(info.specialtys, cfg, s);
                     resolve();
                 }
@@ -109,10 +117,11 @@ class SpecialityService extends Service {
 
 
     }
+
     //每次进入一个新城市游玩时，调用此接口,将自己背包里的特产出售价格清零
     async clearMySpePrice(uid) {
         let speModel = this.ctx.model.TravelModel.Speciality;
-        await speModel.update({ uid }, { $set: { sellPrice: 0 } }, { multi: true });
+        await speModel.update({uid}, {$set: {sellPrice: 0}}, {multi: true});
     }
 
     async buy(info) {
@@ -136,7 +145,7 @@ class SpecialityService extends Service {
         let baglimit = sheets.Parameter.Get(sheets.Parameter.BAGLIMIT).value;
         let hasCnt = 0;
         let spCnt = 0;//同id的已经拥有的数量
-        let sps = await this.ctx.model.TravelModel.Speciality.find({ uid: ui.uid });
+        let sps = await this.ctx.model.TravelModel.Speciality.find({uid: ui.uid});
         if (sps && sps.length) {
             hasCnt = sps.reduce((total, record) => {
                 if (record.spid == info.propId) {
@@ -150,7 +159,7 @@ class SpecialityService extends Service {
             this.logger.info(`购买特产失败，背包已满`);
             return;
         }
-        if (cfg.limit > 0 && spCnt + parseInt(info.count) >= cfg.limit) {
+        if (cfg.limit > 0 && spCnt + parseInt(info.count) > cfg.limit) {
             info.code = apis.Code.SPE_LIMIT;
             this.logger.info(`购买特产失败，物品限购`);
             return;
@@ -160,8 +169,8 @@ class SpecialityService extends Service {
         await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.GOLD]: -cost}, 'travel');
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
         //加特产
-         await this.ctx.model.TravelModel.Speciality.update(
-            { uid: ui.uid, spid: cfg.id },
+        await this.ctx.model.TravelModel.Speciality.update(
+            {uid: ui.uid, spid: cfg.id},
             {
                 $set: {
                     cid: cfg.cityid,
@@ -170,9 +179,9 @@ class SpecialityService extends Service {
                     price: cfg.localprice,
                     createDate: new Date(),
                 },
-                $inc: { number: parseInt(info.count) },
+                $inc: {number: parseInt(info.count)},
             },
-            { upsert: true });
+            {upsert: true});
         //购买记录
         await this.ctx.model.TravelModel.SpecialityBuy.create({
             uid: ui.uid,
@@ -228,7 +237,7 @@ class SpecialityService extends Service {
             uid: ui.uid,
             spid: cfg.id,
             number: info.count,
-           // numberLeft: sp.number - info.count,
+            // numberLeft: sp.number - info.count,
             createDate: new Date()
         });
         this.logger.info(`卖出特产成功,获得金币 x ${money}`);
