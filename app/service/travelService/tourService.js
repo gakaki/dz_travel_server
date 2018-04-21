@@ -290,6 +290,14 @@ class TourService extends Service {
         let cityConfig = travelConfig.City.Get(cid);
         await this.updatePlayerProgress(currentCity, uid);
 
+        let parterTour = 0;
+        let parterPhoto = 0;
+
+        if(currentCity.friend != "0") {
+            parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
+            parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
+        }
+
         //查找走过的景点数
         let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, fid: currentCity.fid, cid: cid, scenicspot: { $ne: null } });
         this.logger.info("查找走过的景点数" , sCount);
@@ -305,12 +313,14 @@ class TourService extends Service {
         }
         if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
             photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+            parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
         }
         if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
             tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+            parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
         }
 
-
+        //TODO 双人点亮未做
         if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value && photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value && tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
             //查找是否已经点亮
             let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid });
@@ -326,7 +336,9 @@ class TourService extends Service {
         return {
             spot: [ sCount, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value ],
             tour: [ tourCount, travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value ],
+            parterTour: [ parterTour, travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value ],
             photo: [ photoCount, travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value ],
+            parterPhoto: [ parterPhoto, travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value ],
         }
 
 
