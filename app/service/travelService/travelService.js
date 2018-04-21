@@ -181,6 +181,7 @@ class TravelService extends Service {
         if (fui) {
             flyRecord.friend = fui.uid;
             currentCity.friend = fui.uid;
+            currentCity.isInviter = true;
           //  currentCity.efficiency = 0;
             await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);
             await this.ctx.model.TravelModel.Footprints.create(footprint);
@@ -222,10 +223,11 @@ class TravelService extends Service {
             { $group: { _id: { year: "$_id.year", fid: "$_id.fid" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
             { $sort: { "_id.fid": -1 } },
             { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
-        ]).sort({ year: -1 }).skip((page - 1) * limit).limit(limit);
+        ]).sort({ year: -1 });
         //this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
+        //allLogs = allLogs.slice((page - 1) * limit, page * limit);
         for(let i = 0; i < allLogs.length; i++) {
             let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
             let onelog = {
@@ -250,13 +252,9 @@ class TravelService extends Service {
                     year = allLogs[i].year
                 }
             }
-            //this.logger.info(year);
-          //  this.logger.info(allLogs[i].year);
             outLog.push(onelog);
         }
-
-        outLog.reverse();
-        info.allLogs = outLog;
+        info.allLogs = outLog.slice((page - 1) * limit, page * limit).reverse();
     }
 
     async getCityCompletionList(info, ui) {

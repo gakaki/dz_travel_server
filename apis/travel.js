@@ -111,6 +111,8 @@ class Code{
     
     static get NO_CURRENTCITY() { return -145;}
     
+    static get ISTRAVELLING() { return -146;}
+    
     static get UNKNOWN() { return -1000;}
     
     static get EXCEPTION() { return -999;}

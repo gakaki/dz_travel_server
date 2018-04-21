@@ -37,16 +37,16 @@ class DoubleController extends Controller {
         info.submit();
     }
 
-    async checkcode(ctx){
+    async checkcode(ctx) {
         let info = await apis.CheckCode.Init(ctx,true);
-        if(!info.ui){
+        if(!info.ui) {
             return;
         }
-        this.logger.info("传入的邀请码 "+ info.inviteCode);
+        this.logger.info("传入的邀请码 " + info.inviteCode);
         //查询对应 code 相关信息
         let doubleInfo = await this.app.redis.hgetall(info.inviteCode);
         this.logger.info("房间信息 ", doubleInfo);
-        if(!doubleInfo || !doubleInfo.code){
+        if(!doubleInfo || !doubleInfo.code) {
             this.logger.info("房间不存在");
             info.code = apis.Code.ROOM_EXPIRED;
             info.submit();
@@ -54,9 +54,9 @@ class DoubleController extends Controller {
         }
         //查找用户是否在某个房间里
         let code = await this.app.redis.get(info.uid);
-        if(code){
+        if(code) {
             //用户所在房间与要进的房间一致
-            if(code == doubleInfo.code){
+            if(code == doubleInfo.code) {
                 this.logger.info("已经在房间内了");
                 info.code = apis.Code.ROOM_USER_EXISTS;
                 info.submit();
@@ -64,12 +64,12 @@ class DoubleController extends Controller {
             }else{
                 //更新用户已经离开的房间信息
                 let dInfo = await this.app.redis.hgetall(code);
-                if(dInfo && dInfo.code){
-                    if(dInfo.invitee == info.uid){
+                if(dInfo && dInfo.code) {
+                    if(dInfo.invitee == info.uid) {
                         dInfo.invitee = "0";
-                        await this.app.redis.hmset(code,dInfo);
+                        await this.app.redis.hmset(code, dInfo);
                     }
-                    if(dInfo.inviter == info.uid){
+                    if(dInfo.inviter == info.uid) {
                         await this.app.redis.del(code);
                     }
                 }
@@ -82,7 +82,17 @@ class DoubleController extends Controller {
             info.submit();
             return;
         }
-        await ctx.service.travelService.doubleService.checkCode(info,doubleInfo);
+
+        if(!info.agree) {
+            let lastCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+            if(lastCity) {
+                info.code = apis.Code.ISTRAVELLING;
+                info.submit();
+                return;
+            }
+        }
+
+        await ctx.service.travelService.doubleService.checkCode(info, doubleInfo);
 
         info.submit();
     }

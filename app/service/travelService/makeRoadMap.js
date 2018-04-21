@@ -207,6 +207,9 @@ class MakeRoadMap {
         }
         console.log("初始时间", timeHour);
 
+        //TODO 测试数据正式服改回来
+        timeHour = timeHour / 60;
+
 
         if (this.rentItems) {
             let shortTime = [];
@@ -242,7 +245,7 @@ class MakeRoadMap {
         }
 
 
-        diffTime = 10000;
+
 
         console.log("需要的时间 " + diffTime);
         let now = new Date().getTime();
