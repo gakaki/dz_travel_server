@@ -51,7 +51,7 @@ module.exports = appInfo => {
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
-    config.noticeurl = "https://h5t.ddz2018.com/weChat/shopdone";
+    config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
 
     config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
     config.weatherusername = "HE1804101712021052";
