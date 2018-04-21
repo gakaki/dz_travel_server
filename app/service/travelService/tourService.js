@@ -157,8 +157,6 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
 
-
-        
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
@@ -987,7 +985,9 @@ class TourService extends Service {
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
         info.spotsAllTraced      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
-
+        if ( info.spotsAllTraced ){
+            info.spotsTracked    = 0;
+        }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
