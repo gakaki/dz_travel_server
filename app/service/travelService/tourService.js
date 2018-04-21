@@ -572,8 +572,6 @@ class TourService extends Service {
         info.goldNum        = ui.items[travelConfig.Item.GOLD];
 
        // info.userinfo       = ui;
-
-
     }
 
     // 游玩 回答问题
@@ -600,13 +598,12 @@ class TourService extends Service {
         //     ]
         // )
 
-
         let eid           = row['events'][0]['eid'];
         let questCfg      = questRepo.find(eid);
         let cid           = row['cid'];
 
-        if (questCfg.answer == answer){
-
+        //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
+        if (questCfg.answer == answer || questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
             await this.rewardThanMark(  uid , cid , eid );
 
@@ -729,23 +726,24 @@ class TourService extends Service {
         //若是 普通的随机事件 那么直接触发获得奖励了
         await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
-        let row  = await this.ctx.model.TravelModel.SpotTravelEvent.findOneAndUpdate(
-        {
+
+        let now                 = new Date().getTime();
+        let questCfg            = questRepo.find(eid);
+        //添加到spotevent
+        await this.ctx.model.TravelModel.SpotTravelEvent.create({
             uid: uid,
+            eid: eid,
             cid: cid,
-            received:false
-        },
-        {
-            $set: {
-                "receivedDate" : new Date() ,
-                "received": true           //设置为已经领取
-            }
-        },
-        {
-            returnNewDocument: true
+            fid: null,
+            spotId: null,
+            isPhotography: false,
+            isTour:true,
+            reward: questCfg.getSpotRewardComment().reward,
+            type:questCfg.type,
+            createDate: now,
+            received: true,             //设置为已经领取
+            receivedDate:now,           //领取奖励时间
         });
-        return row;
-        // info.quest['time']      = row['receivedDate'];
     }
 
     //观光??
