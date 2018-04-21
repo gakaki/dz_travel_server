@@ -112,7 +112,6 @@ class Quest {
     prop picture:string
     prop describe:string
     prop gold_used:number
-    prop rewards:KV[]
     prop question:string
     prop answers:string[]
     prop rewardCommet:string
@@ -164,11 +163,10 @@ api AnswerQuest{
     require id:number
     require answer:string
 
-    output correct:boolean
+    output correct:number//0代表部分对错的答题类型，1，答对，2答错
+    output reward:string//奖励物品
     //更新后的用户信息
     output userInfo:UserInfo
-    //奖励物品
-    output rewards:KV[]
 }
 //点开显示随机事件
 api EventShow {
