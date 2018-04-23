@@ -64,7 +64,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
         let quest        = this.randomQuest(this.cid);
-        quest            = this.randomQuestForDebug(this.cid);
+        // quest            = this.randomQuestForDebug(this.cid);
 
         let questDbRow   = {
             dbId            : mongoose.Types.ObjectId(),
@@ -101,8 +101,8 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let quests      = QuestRepo.quests.filter( e  => (
             (e.belong == option.cid || !e.belong) &&
             (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY) &&
-            (e.type  == e.EventTypeKeys.QA_NO_NEED_RESULT ||  e.trigger_type == e.EventTypeKeys.QA_NEED_RESULT)
-            // e.type == e.EventTypeKeys.COMMON
+            // (e.type  == e.EventTypeKeys.QA_NO_NEED_RESULT ||  e.trigger_type == e.EventTypeKeys.QA_NEED_RESULT)
+            e.type == e.EventTypeKeys.COMMON
         ));
         //根据权重进行 随机 这里暂时偷懒为了快点出来先
         let randomEl    = _.shuffle(quests)[0];

@@ -1490,10 +1490,11 @@ class EventShow extends Base {
         this._cid = null;
         this._total = null;
         this._current = null;
+        this._hasNext = null;
         this._quest = null;
         this.requireFileds = ["cid"];
         this.reqFields = ["cid"];
-        this.resFields = ["total","current","quest"];
+        this.resFields = ["total","current","hasNext","quest"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1504,6 +1505,9 @@ class EventShow extends Base {
     //server output, type: number
     get current() {return this._current}
     set current(v) {this._current = v}
+    //server output, type: number
+    get hasNext() {return this._hasNext}
+    set hasNext(v) {this._hasNext = v}
     //server output, type: Quest
     get quest() {return this._quest}
     set quest(v) {this._quest = v}

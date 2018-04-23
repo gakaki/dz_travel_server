@@ -698,6 +698,11 @@ class TourService extends Service {
         info.current        = info.current <= 0 ? 1 : info.current;
         info.hasNext        = info.current + 1 >= events.length ? true : false;
 
+        info.total          = cityEvents.events.length;
+        info.current        = cityEvents.events.filter( x => x.received == true ).length + 1;
+        info.hasNext        = info.current + 1 >= info.total ?   false : true;
+
+
         let event           = null;
         if (events.length >= 0)
             event           = events[0];
@@ -709,7 +714,7 @@ class TourService extends Service {
 
         let eid           = event["eid"];
         let questCfg      = questRepo.find(eid);
-        let row                 = await this.rewardThanMark( uid,cid,eid);
+        let row           = await this.rewardThanMark( uid,cid,eid);
         info.id           = event['dbId'];
         info.quest        = {
             dbId:          event['dbId'],
@@ -726,9 +731,9 @@ class TourService extends Service {
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
-            //let row                 = await this.rewardThanMark( uid,cid,eid);
+            // let row                 = await this.rewardThanMark( uid,cid,eid);
             await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
-                $set : {'events.$.received' : true}
+                $set : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
@@ -1208,30 +1213,30 @@ class TourService extends Service {
             // 第一次生成的时候修改事件 后面修改的时候不改了
             let e                    = new MakeEvent(para);
 
-            let eventMe              = {
-                uid: uid,
-                cid: cid,
-                events: e.eventsFormat
-            };
-            let eventsNeedInsert    = [eventMe];
+            //更新events表
+            await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
+                $set : {
+                    uid : uid,
+                    events : e.eventsFormat
+                }
+            }, { upsert: true });
 
             if ( inviteCode ){        //双人模式
                 let partner         = await this.findAnotherPlayer(inviteCode,uid);
                 if ( partner ){
                     let f            = new MakeEvent(para);
                     eventspartner    = f.eventsFormat;
-                    let eventOther   = {
-                        uid: partner.uid,
-                        cid: cid,
-                        events: eventspartner
-                    };
-                    eventsNeedInsert.push(eventOther);
+
+                    await this.ctx.model.TravelModel.CityEvents.update({ uid: partner.uid }, {
+                        $set : {
+                            uid : partner.uid,
+                            events : f.eventsFormat
+                        }
+                    }, { upsert: true });
                 }else{
                     this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
                 }
             }
-            //更新events表
-            await this.ctx.model.TravelModel.CityEvents.insertMany(eventsNeedInsert);
         }
 
 

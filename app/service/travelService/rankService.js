@@ -306,7 +306,15 @@ class RankService extends Service {
         let out = [];
         let outFriendList = friendList.slice((page - 1) * limit, page * limit);
         for(let friend of outFriendList) {
-            out.push(await this.getUserCompletionDegree(friend));
+            let friendCom = await this.getUserCompletionDegree(friend);
+            if(!friendCom) {
+                friendCom = {
+                    uid: friend,
+                    completionDegree: 0,
+                    weekCompletionDegree: 0,
+                }
+            }
+            out.push(friendCom);
         }
         return out;
     }

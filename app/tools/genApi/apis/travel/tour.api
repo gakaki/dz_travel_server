@@ -176,6 +176,7 @@ api EventShow {
     output total:number
     //当前第几个从1开始
     output current:number
+    output hasNext:number
     //事件
     output quest:Quest
 }
