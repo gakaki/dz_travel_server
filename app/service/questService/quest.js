@@ -1,6 +1,6 @@
 const moment        = require("moment");
 const travelsConfig = require("../../../sheets/travel");
-
+const util          = require("util");
 //一个简单的树结构
 class TreeNode {
     constructor(  data ) {
@@ -118,6 +118,34 @@ class Quest extends TreeNode {
             let itemIdOrVal = rewardRow['v'];
             this.rewardKV[typeId] = itemIdOrVal;
         }
+    }
+
+    describeFormat(cid=null,spotId=null){
+        let res = "";
+        let replaceStr = "s%";
+        if ( this.describe && this.describe.indexOf(replaceStr) >= 0 ){
+
+            let c        = null;
+            let s        = null;
+
+            if ( cid ){
+                 c      = travelsConfig.City.Get(cid);
+            }
+            if ( spotId ){
+                 s      = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
+            }
+
+            if ( s ){
+                res     = this.describe.replace(replaceStr,s.scenicspot);
+            }
+            if ( c ){
+                res     = this.describe.replace(replaceStr,c.city);
+            }
+        }
+        else{
+            res =  this.describe;
+        }
+        return res;
     }
 
     answers(){

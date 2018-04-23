@@ -683,6 +683,9 @@ class Quest {
         this.id = null;
     
         //prop type: string
+        this.dbId = null;
+    
+        //prop type: string
         this.eid = null;
     
         //prop type: string

@@ -592,6 +592,9 @@ class TourService extends Service {
         let id     = info.id;     //数据库的事件id
         let answer = info.answer;
 
+        let currentCity  = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
+        let cid          = currentCity['cid'];
+
         if (!id){
             info.code = apis.Code.NOT_FOUND;
             return
@@ -604,16 +607,10 @@ class TourService extends Service {
             info.submit();
             return;
         }
-        // row        = await this.ctx.model.TravelModel.CityEvents.aggregate(
-        //     [
-        //         { $match :  { uid:uid } },
-        //         { $project: {"_id":1,"author.first":1} }
-        //     ]
-        // )
+
 
         let eid           = row['events'][0]['eid'];
         let questCfg      = questRepo.find(eid);
-        let cid           = row['cid'];
         if ( !questCfg ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -621,12 +618,13 @@ class TourService extends Service {
         }
 
         //无论如何都要把事件重置为recived
-        await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
+        await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': dbId } , {
             $set : {'events.$.received' : true}
         });
 
+        this.logger.info("这里的 UID CID EID 到底是多少 questCfg.type", uid , cid , eid ,questCfg.type);
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
-        if (questCfg.answer == answer || questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
+        if (questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
             let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
 
@@ -636,7 +634,20 @@ class TourService extends Service {
             info.rewards      = spotRewardComment.reward;
 
 
-        }else
+        }
+        if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
+            //给予奖励写入数据库
+            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
+
+            //回答正确 给予正确奖励
+            info.correct      = true;
+            //info.rewards      = questCfg.getSpotRewardComment();
+            info.rewards      = spotRewardComment.reward;
+
+        }
+
+
+        else
         {
             //回答错误 给予错误奖励 现在暂时没逻辑
             let rewardError  = questCfg['errorreward'];
@@ -692,7 +703,7 @@ class TourService extends Service {
             dbId:          event['dbId'],
             eid:           eid, //前端没有此配置表
             type:          questCfg.type,
-            describe:      questCfg['describe'],
+            describe:      questCfg.describeFormat(cid),
             gold_used:     0,
             picture:       questCfg['picture'],
            // rewards:       questCfg.getSpotRewardComment().reward,
@@ -722,6 +733,9 @@ class TourService extends Service {
         let reward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
 
+
+        this.logger.info(`uid , cid , eid ${uid} , ${cid} , ${eid}`);
+        
         let now                 = new Date().getTime();
         let questCfg            = questRepo.find(eid);
         let city = travelConfig.City.Get(cid);
@@ -1110,6 +1124,8 @@ class TourService extends Service {
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
+
+        info.newEvent               = true;
     }
 
 
