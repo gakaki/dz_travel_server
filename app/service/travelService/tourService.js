@@ -169,6 +169,7 @@ class TourService extends Service {
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
+                    this.logger.info(car);
                     if(car.value == acceleration) {
                         info.display = car.id;
                         break;
@@ -829,19 +830,29 @@ class TourService extends Service {
         let myRouteMap = [];
         if(cfg.type == apis.RentItem.CAR) {
             if(curCity.acceleration < cfg.value) {
+                let outPMap = [];
+                let planMap = [];
                 if(curCity.roadMap) {
                     for(let planS of curCity.roadMap) {
                         if(planS.index != -1) {
-                            myRouteMap[planS.index] = planS.id;
+                            planMap.push(planS);
+                        }else{
+                            outPMap.push(planS);
                         }
                     }
+                    planMap = utils.multisort(planMap,
+                        (a, b) => a.index - b.index);
+                    for(let pMap of planMap) {
+                        myRouteMap.push(pMap.id);
+                    }
+
                     if(myRouteMap.length > 0) {
                         let para = {
                             oldLine: curCity.roadMap,
                             line: myRouteMap,
                             cid: curCity.cid,
                             isNewPlayer: info.ui.isNewPlayer,
-                            rentItems: curCity.rentItems,
+                            rentItems: rentItems,
                             startTime: curCity.startTime,
                             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
                             today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
@@ -850,19 +861,15 @@ class TourService extends Service {
 
                         let rm = new MakeRoadMap(para);
                         let newRoadMap = rm.linesFormat;
-                        let outPMap = [];
-                        for(let roadMap of curCity.roadMap) {
-                            let index = newRoadMap.findIndex((n) => n.id == roadMap.id);
+                        for(let roadMap of myRouteMap) {
+                            let index = newRoadMap.findIndex((n) => n.id == roadMap);
                             if(index != -1) {
                                 outPMap.push(newRoadMap[index]);
-                            }else{
-                                outPMap.push(roadMap);
                             }
                         }
-                        //修改路线
-                        await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: rm.acceleration, modifyEventDate: new Date() } }, { multi: true });
                     }
-
+                    //修改路线
+                    await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
                 }
             }
         }
