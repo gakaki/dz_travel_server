@@ -42,8 +42,8 @@ class Quest extends TreeNode {
 
         this.EventTypeKeys =  { //事件触发类型
             COMMON:             "1",       // 1、普通事件
-            QA_NEED_RESULT:     "2",       // 2、剧情类答题事件（无需显示是否答对）
-            QA_NO_NEED_RESULT:  "3",       // 3、知识类答题事件（需要显示是否答对）
+            QA_NO_NEED_RESULT:     "2",       // 2、剧情类答题事件（无需显示是否答对）
+            QA_NEED_RESULT:  "3",       // 3、知识类答题事件（需要显示是否答对）
         };
 
         this.TriggerTypeKeys =  { //事件触发类型

@@ -615,6 +615,14 @@ class TourService extends Service {
 
 
         let eid           = row['events'][0]['eid'];
+        let received      = row['events'][0]['received'];
+        // if(received == true) //说明已经领取过了不能再次领取
+        // {
+        //     info.code = apis.Code.EXCEED_COUNT;
+        //     info.submit();
+        //     return;
+        // }
+
         let questCfg      = questRepo.find(eid);
         if ( !questCfg ) {
             info.code = apis.Code.NOT_FOUND;
@@ -632,25 +640,19 @@ class TourService extends Service {
         if (questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
             let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
-
             //回答正确 给予正确奖励
             info.correct      = true;
             //info.rewards      = questCfg.getSpotRewardComment();
-            info.rewards      = spotRewardComment.reward;
-
-
+            info.reward      = spotRewardComment;
         }
-        if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
+        else if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
             //给予奖励写入数据库
             let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
-
             //回答正确 给予正确奖励
             info.correct      = true;
             //info.rewards      = questCfg.getSpotRewardComment();
-            info.rewards      = spotRewardComment.reward;
-
+            info.reward      = spotRewardComment;
         }
-
 
         else
         {
