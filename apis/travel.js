@@ -1488,10 +1488,9 @@ class EventShow extends Base {
         this._total = null;
         this._current = null;
         this._quest = null;
-        this._userInfo = null;
         this.requireFileds = ["cid"];
         this.reqFields = ["cid"];
-        this.resFields = ["total","current","quest","userInfo"];
+        this.resFields = ["total","current","quest"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1505,9 +1504,6 @@ class EventShow extends Base {
     //server output, type: Quest
     get quest() {return this._quest}
     set quest(v) {this._quest = v}
-    //server output, type: 
-    get userInfo() {return this._userInfo}
-    set userInfo(v) {this._userInfo = v}
     static Init(ctx, checkLogin = false) {
         let o = new EventShow();
         o.ctx = ctx;
@@ -1589,13 +1585,17 @@ class RentProp extends Base {
         this.action = 'tour.rentprop';
     
         this._rentId = null;
+        this._forceBuy = null;
         this.requireFileds = ["rentId"];
-        this.reqFields = ["rentId"];
+        this.reqFields = ["rentId","forceBuy"];
         this.resFields = [];
     }
     //client input, require, type: number
     get rentId() {return this._rentId}
     set rentId(v) {this._rentId = v}
+    //client input, optional, type: number
+    get forceBuy() {return this._forceBuy}
+    set forceBuy(v) {this._forceBuy = v}
     static Init(ctx, checkLogin = false) {
         let o = new RentProp();
         o.ctx = ctx;

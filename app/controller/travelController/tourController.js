@@ -268,8 +268,6 @@ class TourController extends Controller {
 
         let info            = apis.EventShow.Init(ctx);
         await this.ctx.service.travelService.tourService.eventshow(info);
-        let user_info       = ctx.session.ui;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 
@@ -415,7 +413,6 @@ class TourController extends Controller {
         this.logger.info("play loop");
         let info                    = apis.PlayLoop.Init(ctx);
         await this.ctx.service.travelService.tourService.playloop(info);
-        info.newEvent               = false;
         info.submit();
     }
     //玩家完成该城市的经典的具体报告 在此回来查看城市完成报告的接口

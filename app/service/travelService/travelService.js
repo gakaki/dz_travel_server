@@ -157,6 +157,7 @@ class TravelService extends Service {
             cid: cid,
             rentItems: rentItems,
             friend: null,
+            isInviter: false,
             roadMap: [],
             modifyEventDate: null,
             startTime: null,
@@ -195,6 +196,7 @@ class TravelService extends Service {
             flyRecord.from = fvisit ? fvisit.cid : "初次旅行";
             currentCity.uid = fui.uid;
             currentCity.friend = ui.uid;
+            currentCity.isInviter = false;
             footprint.uid = fui.uid;
             await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
 

@@ -9,6 +9,7 @@ class RewardRankSchedule extends Subscription {
             //每天23:30执行一次
             cron: '0 0 0 * * 1', // s m h dayOfMonth month dayOfWeek; see http://eggjs.org/zh-cn/basics/schedule.html
             // interval: '3m'// 本地测试，每3分钟生成一次
+            //immediate: true,
         };
     }
 
@@ -42,6 +43,7 @@ class RewardRankSchedule extends Subscription {
         }
         //刷新周记录
         await this.ctx.model.TravelModel.CompletionDegreeRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
+        await this.ctx.model.TravelModel.CompletionDegreeCountryRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
         let footRankList = await this.ctx.service.travelService.rankService.getFootRankList();
         let content = travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).content;
         for(let foot of footRankList) {

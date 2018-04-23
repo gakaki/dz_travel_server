@@ -178,8 +178,9 @@ class WeChatService extends Service {
             path: referrerInfo.path,
             query: referrerInfo.query,
             scene: referrerInfo.scene,
-            shareTicket:referrerInfo.shareTicket,
-            createDate:new Date()
+            shareTicket: referrerInfo.shareTicket,
+            referrerInfo: referrerInfo.referrerInfo,
+            createDate: new Date(),
         };
 
         this.ctx.model.WeChatModel.Referrer.create(referrer);
@@ -262,9 +263,9 @@ class WeChatService extends Service {
                     }, {$set: {close: true}});
 
 
-                    if(appName == constant.AppName.TRAVEL){
-                        that.doComplete(resultParam.out_trade_no, appName);
-                    }
+
+                    that.doComplete(resultParam.out_trade_no, appName);
+
 
 
                     return result;
@@ -276,24 +277,24 @@ class WeChatService extends Service {
 
     }
 
-    async doComplete(orderid , appName) {
+    async doComplete(orderid, appName) {
         let rcd = await this.ctx.model.WeChatModel.RechargeRecord.findOne({
             orderid: orderid,
             close: true,
-            appName: appName
+            appName: appName,
         });
         this.logger.info("修改预下单状态 ：" + JSON.stringify(rcd));
         if (rcd == null) {
             return false;
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid, appName: appName});
+        let ui = await this.ctx.model.PublicModel.User.findOne({pid: rcd.pid, appName: appName });
         //修改数据库;
         let good = travelConfig.Pay.Get(rcd.goods);
         this.logger.info("商品 :", good);
         let cost = {
             ["items." + travelConfig.Item.GOLD]: Number(good.gold),
         };
-        await this.ctx.service.publicService.itemService.itemChange(ui, cost, appName);
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, cost, appName);
 
         return true;
     }

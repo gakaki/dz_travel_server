@@ -12,6 +12,7 @@ const ShortPath     = require("../pathService/shortPath");
 const moment        = require("moment");
 const _             = require("lodash");
 const  mongoose     = require('mongoose');
+const  utils     = require('../../utils/utils');
 class TourService extends Service {
 
     // 邀请码 查询当前队友
@@ -176,7 +177,7 @@ class TourService extends Service {
             }
         }
 
-        info.task = await this.queryTaskProgress(ui.uid, cid);
+        info.task = await this.queryTaskProgress(ui.uid, currentCity);
         info.mileage = ui.mileage;
     }
 
@@ -194,7 +195,9 @@ class TourService extends Service {
                         spot.tracked      = true;
                         spot.countdown    = 0;
                     }
-                }else{
+                }
+
+                if(spot.tracked) {
                     spot.countdown        = 0
                     spot_arrived_count++;
                 }
@@ -204,7 +207,7 @@ class TourService extends Service {
         }
 
         let spots                         = roadMaps;
-        let startTime                     = currentCity.startTime.getTime();
+      //  let startTime                     = currentCity.startTime.getTime();
         let acceleration                  = currentCity.acceleration;
         let display                       = 0;
         if(acceleration) {
@@ -219,34 +222,35 @@ class TourService extends Service {
         }
 
         //task任务完成度信息
-        let isDobule                      = !currentCity["friend"] ? false : true;
-
-        let partner                       = null;
-        let partnerTour                   = [0,2];
-        let parterPhoto                   = [0,2];
-
-        if (isDobule ){
-            partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
-            // partner                       = null;
-            if ( partner ){
-                partnerTour               = [partner.tourCount,2];
-                parterPhoto               = [partner.photographyCount,2];
-            }
-        }
+        // let isDobule                      = !currentCity["friend"] ? false : true;
+        //
+        // let partner                       = null;
+        // let partnerTour                   = [0,2];
+        // let parterPhoto                   = [0,2];
+        //
+        // if (isDobule ){
+        //     partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
+        //     // partner                       = null;
+        //     if ( partner ){
+        //         partnerTour               = [partner.tourCount,2];
+        //         parterPhoto               = [partner.photographyCount,2];
+        //     }
+        // }
 
         // this.logger.info("是否是双人模式", isDobule , partner);
-
-        let  task                         = {
-            spot                    : [spot_arrived_count,6],
-            tour                    : [currentCity['tourCount'],2],
-            photo                   : [currentCity['photographyCount'],2],
-            parterTour              : partnerTour,
-            parterPhoto             : parterPhoto
-        };
+        //
+        // let  task                         = {
+        //     spot                    : [spot_arrived_count,6],
+        //     tour                    : [currentCity['tourCount'],2],
+        //     photo                   : [currentCity['photographyCount'],2],
+        //     parterTour              : partnerTour,
+        //     parterPhoto             : parterPhoto
+        // };
         return {
              spots: spots,
              display: display, //人物的表现形式
-             task:task
+            // task:task
+             task: await this.queryTaskProgress(userId, currentCity),
         };
     }
 
@@ -299,8 +303,9 @@ class TourService extends Service {
 
 
     //任务查询
-    async queryTaskProgress(uid, cid) {
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+    async queryTaskProgress(uid, currentCity) {
+        //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
         await this.updatePlayerProgress(currentCity, uid);
 
@@ -492,7 +497,7 @@ class TourService extends Service {
             });
             //返回明信片 id 图片
             info.postcard = cfgPostcard;
-            info.freePhoto = r.photographyCount - 1 < -1 ? -1 : r.photographyCount;
+            info.freePhoto = r.photographyCount - 1 < -1 ? -1 : r.photographyCount - 1;
         }else{
             info.code = apis.Code.NEED_ITEMS;
         }
@@ -585,6 +590,7 @@ class TourService extends Service {
     }
 
     // 游玩 回答问题
+    // https://local.ddz2018.com/?sid=d9bb47efa9d5a73043d701599516c61e&uid=ov5W35XwjECAWGq0UK3omMfu9nak&cid=3&appName=travel&5adb3d45af8d8d10da2fe531&answer=更快点亮地图&id=&action=tour.answerquest
     async answerquest(info){
         let uid    = info.uid;
         let id     = info.id;     //数据库的事件id
@@ -595,7 +601,8 @@ class TourService extends Service {
             return
         }
         let dbId   = new mongoose.mongo.ObjectId(id);
-        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid },  {'events.id': dbId} );
+        let row    = await this.ctx.model.TravelModel.CityEvents.findOne( { uid:uid , 'events.dbId' : dbId },  {'events.$': 1} );
+        this.logger.info( "row is ", row);
         if ( !row || row['events'].length <= 0 ) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
@@ -611,15 +618,28 @@ class TourService extends Service {
         let eid           = row['events'][0]['eid'];
         let questCfg      = questRepo.find(eid);
         let cid           = row['cid'];
+        if ( !questCfg ) {
+            info.code = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+        //无论如何都要把事件重置为recived
+        await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
+            $set : {'events.$.received' : true}
+        });
 
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.answer == answer || questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
-            await this.rewardThanMark(  uid , cid , eid );
+            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
 
             //回答正确 给予正确奖励
             info.correct      = true;
-            info.rewards      = questCfg.rewards;
+            //info.rewards      = questCfg.getSpotRewardComment();
+            info.rewards      = spotRewardComment.reward;
+
+
         }else
         {
             //回答错误 给予错误奖励 现在暂时没逻辑
@@ -667,66 +687,35 @@ class TourService extends Service {
             info.submit();
             return;
         }
-        // 设置eventcity那一行为update
-        // let row             = await this.ctx.model.TravelModel.SpotTravelEvent.findOne({
-        //     uid: uid,
-        //     cid: cid,
-        //     received:false
-        // });
-        // if ( !row ) {
-        //     info.code       = apis.Code.NOT_FOUND;
-        //     info.message    = "暂时没有事件"
-        //     info.submit();
-        //     return;
-        // }
 
         let eid           = event["eid"];
         let questCfg      = questRepo.find(eid);
-
-        //数据库记录id 方便答对答错之后的奖励
-        info.id           = event['id'];
+        let row                 = await this.rewardThanMark( uid,cid,eid);
+        info.id           = event['dbId'];
         info.quest        = {
-            id:            eid, //前端没有此配置表
+            dbId:          event['dbId'],
+            eid:           eid, //前端没有此配置表
             type:          questCfg.type,
             describe:      questCfg['describe'],
             gold_used:     0,
             picture:       questCfg['picture'],
-            rewards:       questCfg.getSpotRewardComment().reward,
+           // rewards:       questCfg.getSpotRewardComment().reward,
+            rewards:       row.reward,
             question:      questCfg['describe'],
             answers:       questCfg.answers(),
         };
+        this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
-        if (questCfg.type == questCfg.EventTypeKeys.COMMON){
-            //若是 普通的随机事件 那么直接触发获得奖励了
-            let row                 = await this.rewardThanMark( uid,cid,eid);
-            //将当前时间设置为true
-            await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.id': event.id } , {
+        if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
+            //let row                 = await this.rewardThanMark( uid,cid,eid);
+            await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
                 $set : {'events.$.received' : true}
             });
-            this.logger.info("当前的数据信息",uid,cid,eid,event.id );
-
-            let now                 = new Date().getTime();
-            //添加到spotevent
-            await this.ctx.model.TravelModel.SpotTravelEvent.create({
-                uid: uid,
-                eid: eid,
-                cid: cid,
-                fid: null,
-                spotId: null,
-                isPhotography: false,
-                isTour:true,
-                reward: questCfg.getSpotRewardComment().reward,
-                type:questCfg.type,
-                createDate: now,
-                receivedDate:now,  //领取奖励时间
-            });
-
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
-            info.quest['rewards']   = {};
+            //在anserquest接口里领奖励
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
-            info.quest['rewards']   = {};
+            //在anserquest接口里领奖励
         }
-
 
         info.submit();
     }
@@ -734,11 +723,13 @@ class TourService extends Service {
     // 写入数据库获得了奖励 并给予标记
     async rewardThanMark(  uid , cid , eid  ){
         //若是 普通的随机事件 那么直接触发获得奖励了
-        await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
+        let reward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
 
         let now                 = new Date().getTime();
         let questCfg            = questRepo.find(eid);
+        let city = travelConfig.City.Get(cid);
+        let spotRewardComment = questCfg.getSpotRewardComment(city.city, reward).reward;
         //添加到spotevent
         await this.ctx.model.TravelModel.SpotTravelEvent.create({
             uid: uid,
@@ -747,13 +738,16 @@ class TourService extends Service {
             fid: null,
             spotId: null,
             isPhotography: false,
-            isTour:true,
-            reward: questCfg.getSpotRewardComment().reward,
-            type:questCfg.type,
+            isTour: true,
+            reward: spotRewardComment.reward,
+            desc: spotRewardComment.desc,
+            type: questCfg.type,
             createDate: now,
             received: true,             //设置为已经领取
-            receivedDate:now,           //领取奖励时间
+            receivedDate: now,           //领取奖励时间
         });
+
+        return spotRewardComment;
     }
 
     //观光??
@@ -794,9 +788,10 @@ class TourService extends Service {
             info.code = apis.Code.NOT_FOUND;
             return;
         }
+        let needChange = [ info.uid ];
 
         if(curCity.friend) {
-            let fCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend})
+            let fCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend });
             if (fCity.rentItems[info.rentId] > 0) {
                 this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
                 if(!info.forceBuy) {
@@ -805,6 +800,7 @@ class TourService extends Service {
                 }
 
             }
+            needChange.push(curCity.friend)
         }
 
 
@@ -821,10 +817,10 @@ class TourService extends Service {
 
         if(cfg.type == apis.RentItem.CAMERA) {
             if(cfg.value == -1) {
-                await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { photographyCount: cfg.value } });
+                await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { photographyCount: cfg.value } }, { multi: true });
             }else{
                if(curCity.photographyCount != -1) {
-                   await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $inc: { photographyCount: cfg.value } });
+                   await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $inc: { photographyCount: cfg.value } }, { multi: true });
 
                }
             }
@@ -864,10 +860,6 @@ class TourService extends Service {
                             }
                         }
                         //修改路线
-                        let needChange = [info.uid];
-                        if(curCity.friend) {
-                            needChange.push(curCity.friend)
-                        }
                         await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: rm.acceleration, modifyEventDate: new Date() } }, { multi: true });
                     }
 
@@ -957,13 +949,24 @@ class TourService extends Service {
         let short_path = new ShortPath(curCity.cid);
         let plan = curCity.roadMap;
         let real = [];
+        let planMap = [];
         for(let planS of plan) {
             if(planS.index != -1) {
                 if(planS.tracked || planS.endtime <= new Date().getTime()) {
-                    real[planS.index] = planS.id;
+                    planMap.push(planS);
+                    //real[planS.index] = planS.id;
                 }
             }
         }
+        planMap = utils.multisort(planMap,
+            (a, b) => a.index - b.index);
+        for(let pMap of planMap) {
+            this.logger.info(pMap.index);
+            this.logger.info(pMap.id);
+            real.push(pMap.id);
+        }
+        //this.logger.info(planMap);
+
         let efficiency = 0;
         let reward = 0;
         this.logger.info(real);
@@ -986,7 +989,7 @@ class TourService extends Service {
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
             //更新足迹表
-            await this.queryTaskProgress(selfInfo.uid, curCity.cid);
+            await this.queryTaskProgress(selfInfo.uid, curCity);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }

@@ -24,7 +24,8 @@ class RewardService extends Service{
             });
         }
 
-        this.logger.info(eventCfg);
+        this.logger.info("--== RewardService Reward method ==--");
+        this.logger.info("event  eid id ", eventCfg.eid ,eventCfg.type );
 
         let reward = [];
         for ( let k in eventCfg.rewardKV) {
@@ -92,13 +93,11 @@ class RewardService extends Service{
         return true;
     }
 
-    //TODO 该用户在该城市的总游玩时间 追加时间
     async time( uid , cid , eid , timeAppend = 0 ) {
-        // await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
-        await this.ctx.model.travelModel.currentCity.update(
+
+        await this.ctx.model.TravelModel.CurrentCity.update(
             {
-                'uid': uid,
-                'cid': cid
+                'uid': uid
             },
             {
                 $push: {
