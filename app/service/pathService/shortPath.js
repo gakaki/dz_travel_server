@@ -196,6 +196,6 @@ module.exports = ShortPath;
 
 
 var t = timer('用暴力法计算运行时间');
-let short_path = new ShortPath( 1 );
+let short_path = new ShortPath( 344 );
 short_path.shortPath();
 t.stop();

@@ -410,7 +410,7 @@ class PlayerService extends Service {
             let senderNickName = sender.nickName;
             let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
             let content = context.replace("s%", senderNickName);
-            if(senderid != postcard.uid) {
+            if(senderid != info.uid) {
                 await this.ctx.model.TravelModel.UserMsg.create({
                     uid: senderid,
                     mid: "msg" + travelConfig.Message.POSTCARDMESSAGE + sender.pid + new Date().getTime(),

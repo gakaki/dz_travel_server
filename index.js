@@ -8,6 +8,6 @@ require('egg').startCluster({
         cert: __dirname + "/config/server.pem"
     },
     port: 443,
-    sticky: true,
-    workers:1
+    //sticky: true,
+    //workers:1
 });

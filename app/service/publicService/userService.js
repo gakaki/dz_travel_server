@@ -260,19 +260,19 @@ class UserService extends Service {
         this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000}, "travel");
 
         //进入积分榜单
-        await this.ctx.model.TravelModel.IntegralRecord.create({
+        await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {
             uid: uid,
             integral: 0,
             updateDate: new Date(),
-        });
+        }, { upsert: true });
 
       //  let key = "lightCity" + 0;
      //   this.app.redis.setnx(key, 0);
         //进入足迹榜
-        await this.ctx.model.TravelModel.FootRecord.create({
+        await this.ctx.model.TravelModel.FootRecord.update({ uid: uid }, {
             uid: uid, //玩家uid
             updateDate: new Date(), //更新时间
-        });
+        }, { upsert: true });
         //设置点亮城市段集
      //   await this.app.redis.incr(key);
         // 日志
