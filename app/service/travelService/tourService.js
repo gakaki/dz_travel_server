@@ -699,8 +699,8 @@ class TourService extends Service {
         info.hasNext        = info.current + 1 >= events.length ? true : false;
 
         info.total          = cityEvents.events.length;
-        info.current        = cityEvents.evenrandomQuestForDebugts.filter( x => x.received == true ).length + 1;
-        info.hasNext        = info.current + 1 >= info.total ? true : false;
+        info.current        = cityEvents.events.filter( x => x.received == true ).length + 1;
+        info.hasNext        = info.current + 1 >= info.total ?   false : true;
 
 
         let event           = null;
@@ -1213,30 +1213,30 @@ class TourService extends Service {
             // 第一次生成的时候修改事件 后面修改的时候不改了
             let e                    = new MakeEvent(para);
 
-            let eventMe              = {
-                uid: uid,
-                cid: cid,
-                events: e.eventsFormat
-            };
-            let eventsNeedInsert    = [eventMe];
+            //更新events表
+            await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
+                $set : {
+                    uid : uid,
+                    events : e.eventsFormat
+                }
+            }, { upsert: true });
 
             if ( inviteCode ){        //双人模式
                 let partner         = await this.findAnotherPlayer(inviteCode,uid);
                 if ( partner ){
                     let f            = new MakeEvent(para);
                     eventspartner    = f.eventsFormat;
-                    let eventOther   = {
-                        uid: partner.uid,
-                        cid: cid,
-                        events: eventspartner
-                    };
-                    eventsNeedInsert.push(eventOther);
+
+                    await this.ctx.model.TravelModel.CityEvents.update({ uid: partner.uid }, {
+                        $set : {
+                            uid : partner.uid,
+                            events : f.eventsFormat
+                        }
+                    }, { upsert: true });
                 }else{
                     this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
                 }
             }
-            //更新events表
-            await this.ctx.model.TravelModel.CityEvents.insertMany(eventsNeedInsert);
         }
 
 
