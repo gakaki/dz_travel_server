@@ -24,15 +24,15 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     async formatEvents(){
         this.eventsFormat =  this.events.map( e => {
             return {
-                id              : e.id,
+                dbId            : e.dbId,
                 eid             : e.eid,
+                type            : e.type,
                 received        : false,                 //似乎没有必要 是记录在另一张表内
                 triggerDate     : e.triggerDate,
                 triggerDateYHM  : e.triggerDateYHM,
                 // quest           : e.quest
                 // minuteLength    : e.minuteLength,     //似乎没有必要
             }
-
         })
     }
 
@@ -64,12 +64,14 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
         let quest        = this.randomQuest(this.cid);
+        quest            = this.randomQuestForDebug(this.cid);
 
         let questDbRow   = {
-            id              : mongoose.Types.ObjectId(),
+            dbId            : mongoose.Types.ObjectId(),
             triggerDate     : triggerDateTimeStamp,
             eid             : quest.id,
             received        : false,
+            type            : quest.type,
             triggerDateYHM  : timeUtil.formatYMDHMS(triggerDateTimeStamp)
             // minuteLength    : minuteLength,
             // quest           : quest
@@ -95,7 +97,17 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let randomEl = _.shuffle(quests)[0];
         return randomEl;
     }
-
+    randomQuestForDebug(option){
+        let quests      = QuestRepo.quests.filter( e  => (
+            (e.belong == option.cid || !e.belong) &&
+            (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY) &&
+            (e.type  == e.EventTypeKeys.QA_NO_NEED_RESULT ||  e.trigger_type == e.EventTypeKeys.QA_NEED_RESULT)
+            // e.type == e.EventTypeKeys.COMMON
+        ));
+        //根据权重进行 随机 这里暂时偷懒为了快点出来先
+        let randomEl    = _.shuffle(quests)[0];
+        return randomEl;
+    }
 }
 
 module.exports = MakeEvent;

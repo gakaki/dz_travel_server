@@ -185,31 +185,8 @@ class TourController extends Controller {
     }
 
     // 随机事件问答题答案提交
-    // https://local.ddz2018.com/tour/tourspotanswer?uid=1000001&id=5acd8915a7955d4ba3a41824&answer=西藏
+    // https://local.ddz2018.com/tour/answerquest?uid=ov5W35XwjECAWGq0UK3omMfu9nak&id=5adadff87fad359ce9f4f121&answer=西藏
     async answerquest(ctx){
-
-        return ctx.body = {
-            "data": {
-                "action": "tour.answerquest",
-                "correct": true,
-                "userInfo": null,
-                "rewards": {
-                    "1": {
-                        "name": "金币",
-                        "type_id": "1",
-                        "count": "100",
-                        "countText": "+100"
-                    },
-                    "5": {
-                        "name": "积分",
-                        "type_id": "5",
-                        "count": "229",
-                        "countText": "+229"
-                    }
-                }
-            },
-            "code": 0
-        };
         let info            = apis.AnswerQuest.Init(ctx);
         await this.ctx.service.travelService.tourService.answerquest(info);
         let user_info       = ctx.session.ui;
@@ -291,8 +268,6 @@ class TourController extends Controller {
 
         let info            = apis.EventShow.Init(ctx);
         await this.ctx.service.travelService.tourService.eventshow(info);
-        let user_info       = ctx.session.ui;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
 

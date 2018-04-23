@@ -93,7 +93,7 @@ class IntegralService extends Service {
     //兑换物品
     async exchange(res, ui) {
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
-        if (!ui.mobile) {
+        if (!ui.address) {
             res.code = apis.Code.NEED_ADDRESS;
             this.logger.info('未填地址，返回');
             return;
@@ -157,6 +157,14 @@ class IntegralService extends Service {
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}成功兑换了物品${item.name}`);
     }
 
+    async exchangeDeadline(info){
+        let endtime = await this.ctx.model.TravelModel.ExchangeDeadline.findOne();
+        if(!endtime) {
+            this.logger.info('请在数据库中插入兑换活动的截止日期')
+        } else {
+            info.endtime = endtime.endtime
+        }
+    }
 
 }
 

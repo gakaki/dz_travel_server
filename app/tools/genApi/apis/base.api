@@ -93,6 +93,8 @@ enum Code {
     const NO_CURRENTCITY = -145
     //正在旅行中
     const ISTRAVELLING = -146
+    //正在修改路线中
+    const ISCHANGING = -147
 
     const UNKNOWN = -1000
     // 遇到了未处理的异常
