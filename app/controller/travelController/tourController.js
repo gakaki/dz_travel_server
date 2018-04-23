@@ -435,24 +435,36 @@ class TourController extends Controller {
 
     async rentprop(ctx) {
         let info = await apis.RentProp.Init(ctx, true);
+        if(!info.ui) {
+            return
+        }
         await this.ctx.service.travelService.tourService.rentprop(info);
         info.submit();
     }
 
     async rentedprop(ctx) {
         let info = await apis.RentedProp.Init(ctx, true);
+        if(!info.ui) {
+            return
+        }
         await this.ctx.service.travelService.tourService.rentedprop(info);
         info.submit();
     }
 
     async buypostcardlist(ctx) {
         let info = await apis.BuyPostcardList.Init(ctx, true);
+        if(!info.ui) {
+            return
+        }
         await this.ctx.service.travelService.tourService.buypostcardlist(info);
         info.submit();
     }
 
     async buypostcard(ctx) {
         let info = await apis.BuyPostcard.Init(ctx, true);
+        if(!info.ui) {
+            return
+        }
         await this.ctx.service.travelService.tourService.buypostcard(info);
         info.submit();
     }
@@ -462,6 +474,9 @@ class TourController extends Controller {
      // 取消组队
      async cancelparten(ctx) {
         let info = await apis.CancelParten.Init(ctx, true);
+         if(!info.ui) {
+             return
+         }
         await this.ctx.service.travelService.tourService.cancelparten(info);
         info.submit();
     }
@@ -469,6 +484,9 @@ class TourController extends Controller {
      // 取消组队循环
      async cancelpartenloop(ctx) {
         let info = await apis.CancelPartenLoop.Init(ctx, true);
+         if(!info.ui) {
+             return
+         }
         await this.ctx.service.travelService.tourService.cancelpartenloop(info);
         info.submit();
     }

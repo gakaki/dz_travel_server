@@ -169,6 +169,7 @@ class TourService extends Service {
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
+                    this.logger.info(car);
                     if(car.value == acceleration) {
                         info.display = car.id;
                         break;
@@ -177,7 +178,7 @@ class TourService extends Service {
             }
         }
 
-        info.task = await this.queryTaskProgress(ui.uid, cid);
+        info.task = await this.queryTaskProgress(ui.uid, currentCity);
         info.mileage = ui.mileage;
     }
 
@@ -195,7 +196,9 @@ class TourService extends Service {
                         spot.tracked      = true;
                         spot.countdown    = 0;
                     }
-                }else{
+                }
+
+                if(spot.tracked) {
                     spot.countdown        = 0
                     spot_arrived_count++;
                 }
@@ -205,7 +208,7 @@ class TourService extends Service {
         }
 
         let spots                         = roadMaps;
-        let startTime                     = currentCity.startTime.getTime();
+      //  let startTime                     = currentCity.startTime.getTime();
         let acceleration                  = currentCity.acceleration;
         let display                       = 0;
         if(acceleration) {
@@ -220,34 +223,35 @@ class TourService extends Service {
         }
 
         //task任务完成度信息
-        let isDobule                      = !currentCity["friend"] ? false : true;
-
-        let partner                       = null;
-        let partnerTour                   = [0,2];
-        let parterPhoto                   = [0,2];
-
-        if (isDobule ){
-            partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
-            // partner                       = null;
-            if ( partner ){
-                partnerTour               = [partner.tourCount,2];
-                parterPhoto               = [partner.photographyCount,2];
-            }
-        }
+        // let isDobule                      = !currentCity["friend"] ? false : true;
+        //
+        // let partner                       = null;
+        // let partnerTour                   = [0,2];
+        // let parterPhoto                   = [0,2];
+        //
+        // if (isDobule ){
+        //     partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
+        //     // partner                       = null;
+        //     if ( partner ){
+        //         partnerTour               = [partner.tourCount,2];
+        //         parterPhoto               = [partner.photographyCount,2];
+        //     }
+        // }
 
         // this.logger.info("是否是双人模式", isDobule , partner);
-
-        let  task                         = {
-            spot                    : [spot_arrived_count,6],
-            tour                    : [currentCity['tourCount'],2],
-            photo                   : [currentCity['photographyCount'],2],
-            parterTour              : partnerTour,
-            parterPhoto             : parterPhoto
-        };
+        //
+        // let  task                         = {
+        //     spot                    : [spot_arrived_count,6],
+        //     tour                    : [currentCity['tourCount'],2],
+        //     photo                   : [currentCity['photographyCount'],2],
+        //     parterTour              : partnerTour,
+        //     parterPhoto             : parterPhoto
+        // };
         return {
              spots: spots,
              display: display, //人物的表现形式
-             task:task
+            // task:task
+             task: await this.queryTaskProgress(userId, currentCity),
         };
     }
 
@@ -300,8 +304,9 @@ class TourService extends Service {
 
 
     //任务查询
-    async queryTaskProgress(uid, cid) {
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+    async queryTaskProgress(uid, currentCity) {
+        //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
         await this.updatePlayerProgress(currentCity, uid);
 
@@ -839,19 +844,29 @@ class TourService extends Service {
         let myRouteMap = [];
         if(cfg.type == apis.RentItem.CAR) {
             if(curCity.acceleration < cfg.value) {
+                let outPMap = [];
+                let planMap = [];
                 if(curCity.roadMap) {
                     for(let planS of curCity.roadMap) {
                         if(planS.index != -1) {
-                            myRouteMap[planS.index] = planS.id;
+                            planMap.push(planS);
+                        }else{
+                            outPMap.push(planS);
                         }
                     }
+                    planMap = utils.multisort(planMap,
+                        (a, b) => a.index - b.index);
+                    for(let pMap of planMap) {
+                        myRouteMap.push(pMap.id);
+                    }
+
                     if(myRouteMap.length > 0) {
                         let para = {
                             oldLine: curCity.roadMap,
                             line: myRouteMap,
                             cid: curCity.cid,
                             isNewPlayer: info.ui.isNewPlayer,
-                            rentItems: curCity.rentItems,
+                            rentItems: rentItems,
                             startTime: curCity.startTime,
                             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
                             today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
@@ -860,19 +875,15 @@ class TourService extends Service {
 
                         let rm = new MakeRoadMap(para);
                         let newRoadMap = rm.linesFormat;
-                        let outPMap = [];
-                        for(let roadMap of curCity.roadMap) {
-                            let index = newRoadMap.findIndex((n) => n.id == roadMap.id);
+                        for(let roadMap of myRouteMap) {
+                            let index = newRoadMap.findIndex((n) => n.id == roadMap);
                             if(index != -1) {
                                 outPMap.push(newRoadMap[index]);
-                            }else{
-                                outPMap.push(roadMap);
                             }
                         }
-                        //修改路线
-                        await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: rm.acceleration, modifyEventDate: new Date() } }, { multi: true });
                     }
-
+                    //修改路线
+                    await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
                 }
             }
         }
@@ -999,7 +1010,7 @@ class TourService extends Service {
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
             //更新足迹表
-            await this.queryTaskProgress(selfInfo.uid, curCity.cid);
+            await this.queryTaskProgress(selfInfo.uid, curCity);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
@@ -1309,7 +1320,7 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {
-                changeRouteing: true,
+                changeRouteing: currentCity.friend ? true : false,
                 roadMap  : roadMap,
                 modifyEventDate : new Date()
             }});
