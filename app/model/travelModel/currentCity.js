@@ -21,6 +21,7 @@ module.exports = app => {
         startTime: { type: Date }, //开始游玩的时间
         acceleration: { type: Number, default: 0 }, //当前加速百分比
         visitCount: { type: Number, default: 0 }, //当前城市是第几次访问了 每次访问该城市的时候+1
+        hasPlay: { type: Boolean, default: false },
     });
 
     return mongoose.model('CurrentCity', CurrentCitySchema);

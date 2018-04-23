@@ -1445,12 +1445,13 @@ class AnswerQuest extends Base {
     
         this._id = null;
         this._answer = null;
+        this._type = null;
         this._correct = null;
         this._reward = null;
         this._userInfo = null;
         this.requireFileds = ["id","answer"];
         this.reqFields = ["id","answer"];
-        this.resFields = ["correct","reward","userInfo"];
+        this.resFields = ["type","correct","reward","userInfo"];
     }
     //client input, require, type: number
     get id() {return this._id}
@@ -1458,6 +1459,9 @@ class AnswerQuest extends Base {
     //client input, require, type: string
     get answer() {return this._answer}
     set answer(v) {this._answer = v}
+    //server output, type: number
+    get type() {return this._type}
+    set type(v) {this._type = v}
     //server output, type: number//0代表部分对错的答题类型，1，答对，2答错
     get correct() {return this._correct}
     set correct(v) {this._correct = v}
@@ -1763,12 +1767,16 @@ class ModifyRouter extends Base {
         super();
         this.action = 'tour.modifyrouter';
     
+        this._spotsAllTracked = null;
         this._spots = null;
         this._goldNum = null;
-        this.requireFileds = [];
-        this.reqFields = [];
+        this.requireFileds = ["spotsAllTracked"];
+        this.reqFields = ["spotsAllTracked"];
         this.resFields = ["spots","goldNum"];
     }
+    //client input, require, type: number//是否已经把地图上所有的景点都走过了,0或1
+    get spotsAllTracked() {return this._spotsAllTracked}
+    set spotsAllTracked(v) {this._spotsAllTracked = v}
     //server output, type: RouterSpot[]//不包括起点
     get spots() {return this._spots}
     set spots(v) {this._spots = v}
@@ -1834,11 +1842,11 @@ class PlayLoop extends Base {
         this._newEvent = null;
         this._freshSpots = null;
         this._spotsTracked = null;
-        this._spotsAllTraced = null;
+        this._spotsAllTracked = null;
         this._doubleState = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTraced","doubleState"];
+        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
@@ -1850,8 +1858,8 @@ class PlayLoop extends Base {
     get spotsTracked() {return this._spotsTracked}
     set spotsTracked(v) {this._spotsTracked = v}
     //server output, type: boolean//是否已经把地图上所有的景点都走过了
-    get spotsAllTraced() {return this._spotsAllTraced}
-    set spotsAllTraced(v) {this._spotsAllTraced = v}
+    get spotsAllTracked() {return this._spotsAllTracked}
+    set spotsAllTracked(v) {this._spotsAllTracked = v}
     //server output, type: boolean//双人模式下对方是否取消了双人旅行
     get doubleState() {return this._doubleState}
     set doubleState(v) {this._doubleState = v}

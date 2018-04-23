@@ -649,7 +649,7 @@ class TourService extends Service {
             //回答正确 给予正确奖励
             info.correct      = true;
             //info.rewards      = questCfg.getSpotRewardComment();
-            info.reward      = spotRewardComment;
+            info.rewards      = spotRewardComment;
         }
         else if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
             //给予奖励写入数据库
@@ -657,7 +657,7 @@ class TourService extends Service {
             //回答正确 给予正确奖励
             info.correct      = true;
             //info.rewards      = questCfg.getSpotRewardComment();
-            info.reward      = spotRewardComment;
+            info.rewards      = spotRewardComment;
         }
 
         else
