@@ -1447,11 +1447,11 @@ class AnswerQuest extends Base {
         this._answer = null;
         this._type = null;
         this._correct = null;
-        this._reward = null;
+        this._rewards = null;
         this._userInfo = null;
         this.requireFileds = ["id","answer"];
         this.reqFields = ["id","answer"];
-        this.resFields = ["type","correct","reward","userInfo"];
+        this.resFields = ["type","correct","rewards","userInfo"];
     }
     //client input, require, type: number
     get id() {return this._id}
@@ -1466,8 +1466,8 @@ class AnswerQuest extends Base {
     get correct() {return this._correct}
     set correct(v) {this._correct = v}
     //server output, type: string//奖励物品
-    get reward() {return this._reward}
-    set reward(v) {this._reward = v}
+    get rewards() {return this._rewards}
+    set rewards(v) {this._rewards = v}
     //server output, type: UserInfo
     get userInfo() {return this._userInfo}
     set userInfo(v) {this._userInfo = v}
