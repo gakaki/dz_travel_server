@@ -1005,14 +1005,11 @@ class TourService extends Service {
         let reward = 0;
         this.logger.info(real);
         if(real.length > 0) {
+            this.logger.info(real);
             let path = short_path.travelShortDistance(real);
-            let shortDistance = 0;
-          //  let cityShortPath = await this.ctx.model.TravelModel.CityShortPath.findOne({ cid: curCity.cid });
-          //  if(!cityShortPath) {
-                shortDistance = short_path.shortPath(real).min;
-         //   }else{
-        //        shortDistance = cityShortPath.shortestDistance;
-        //    }
+
+            let shortDistance = short_path.shortPath(real).min;
+
             //上个城市走的实际景点数
             let lastSN = real.length;
             this.logger.info("走过的景点数 " + lastSN);
