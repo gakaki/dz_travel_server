@@ -219,22 +219,71 @@ class PlayerService extends Service {
           { $group: { _id: "$province", collectPostcardNum: { $sum: 1 }, citys: { $push: { cid: "$cid" } }, pcards: { $push: { ptid: "$ptid", createDate: "$createDate" } } } },
           { $project: { _id: 0, province: "$_id", collectPostcardNum: 1, citys: 1, pcards: 1 } },
             ]);
+
       let postcardInfos = [];
+      let provinceSet = new Set();
       for(let postcard of postcards) {
-          let citys = postcard.citys;
+          provinceSet.add(postcard.province);
+        //  let citys = postcard.citys;
+        //  this.logger.info(citys);
           let postcardnum = 0;
           let postcardInfo = {
               url: travelConfig.Postcard.Get(postcard.pcards[0].ptid).picture,
               province: postcard.province,
               collectPostcardNum: postcard.collectPostcardNum,
           };
-          for(let city of citys) {
-              postcardnum += travelConfig.City.Get(city.cid).postcardnum;
+          let provinces = travelConfig.finds;
+          for(let province of provinces) {
+              if(province.province == postcard.province) {
+                  for(let city of province.cityid) {
+                      postcardnum += travelConfig.City.Get(city).postcardnum;
+                  }
+                  break;
+              }
+
+              this.logger.info(postcardnum)
           }
           postcardInfo.allPostcardNum = postcardnum;
           postcardInfos.push(postcardInfo);
-
       }
+
+      let watchePost = [];
+      let watchChats = await this.ctx.model.TravelModel.PostcardChatWatch.find({ uid: info.uid });
+      for(let watchChat of watchChats) {
+          let postcard = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: watchChat.pscid });
+          if(postcard) {
+              if(!provinceSet.has(postcard.province)) {
+                  provinceSet.add(postcard.province);
+                  watchePost.push(postcard);
+              }
+          }
+      }
+
+
+      for(let postcard of watchePost) {
+          let postcardInfo = {
+              url: travelConfig.Postcard.Get(postcard.ptid).picture,
+              province: postcard.province,
+              collectPostcardNum: 0,
+          };
+          let provinces = travelConfig.finds;
+          let postcardnum = 0;
+          for(let province of provinces) {
+              if(province.province == postcard.province) {
+                  for(let city of province.cityid) {
+                      postcardnum += travelConfig.City.Get(city).postcardnum;
+                  }
+                  break;
+              }
+
+              this.logger.info(postcardnum)
+          }
+          postcardInfo.allPostcardNum = postcardnum;
+          postcardInfos.push(postcardInfo);
+      }
+
+
+
         info.postcardInfo = postcardInfos;
     }
     async showCityPostcards(info, ui) {
@@ -349,6 +398,7 @@ class PlayerService extends Service {
         let limit = Number(info.messageLength) ? Number(info.messageLength) : travelConfig.Parameter.Get(travelConfig.Parameter.MAXMESSAGE).value;
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({ pscid: info.id }).sort({ createDate: -1 }).skip((page - 1) * limit).limit(limit);
         let postcard = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: info.id });
+        await this.ctx.model.TravelModel.PostcardChatWatch.update({ uid: info.uid, pscid: info.id }, { uid: info.uid, pscid: info.id, watchDate: new Date() }, { upsert: true });
         info.mainUrl = travelConfig.Postcard.Get(postcard.ptid).picture;
         info.pattern = travelConfig.Postcard.Get(postcard.ptid).pattern;
         let detailLiveMessages = [];
