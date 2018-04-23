@@ -195,8 +195,8 @@ class MakeRoadMap {
         travelMap.push(spotEnd.id);
         console.log(travelMap);
         let short_path = new ShortPath(this.cid);
-        let distance = Math.round(short_path.travelShortDistance(travelMap));
-        console.log(distance);
+        let distance = Math.round(short_path.getDistance(travelMap));
+        console.log("距离 ：" + distance);
 
         let timeHour = 0;
         for(let speed of travelConfig.speeds) {
@@ -208,7 +208,7 @@ class MakeRoadMap {
         console.log("初始时间", timeHour);
 
         //TODO 测试数据正式服改回来
-        timeHour = timeHour / 60;
+        //timeHour = timeHour / 60;
 
 
         if (this.rentItems) {
@@ -244,10 +244,10 @@ class MakeRoadMap {
             }
         }
 
-        diffTime = 30 * 1000//test
+        //diffTime = 30 * 1000//test
 
 
-        diffTime = 10000
+        //diffTime = 10000
 
 
 

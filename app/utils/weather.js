@@ -2474,7 +2474,8 @@ async function reqWeather(city,that) {
         });
         let plain = argus.join("&") + key;
         let sign = utils.MD5(plain);
-        let turl = "https://free-api.heweather.com/s6/weather/now?parameters&location=" + encodeURIComponent(city) + "&username=" + username + "&t=" + t + "&lang=" + lang + "&sign=" + encodeURIComponent(sign);
+       // let turl = "https://free-api.heweather.com/s6/weather/now?parameters&location=" + encodeURIComponent(city) + "&username=" + username + "&t=" + t + "&lang=" + lang + "&sign=" + encodeURIComponent(sign);
+        let turl = "https://api.heweather.com/s6/weather/now?parameters&location=" + encodeURIComponent(city) + "&username=" + username + "&t=" + t + "&lang=" + lang + "&sign=" + encodeURIComponent(sign);
         that.logger.info(city);
         that.logger.info(turl);
         request(turl, (err, res, body) => {

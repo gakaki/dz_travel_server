@@ -13,16 +13,24 @@ class Point {
     }
 
     static distance(a, b) {
-        let lat1 = this.ConvertDegreesToRadians(a[0]);
-        let lon1 = this.ConvertDegreesToRadians(a[1]);
-        let lat2 = this.ConvertDegreesToRadians(b[0]);
-        let lon2 = this.ConvertDegreesToRadians(b[1]);
+        // let lat1 = this.ConvertDegreesToRadians(a[0]);
+        // let lon1 = this.ConvertDegreesToRadians(a[1]);
+        // let lat2 = this.ConvertDegreesToRadians(b[0]);
+        // let lon2 = this.ConvertDegreesToRadians(b[1]);
+        //
+        // let vLon = Math.abs(lon1 - lon2);
+        // let vLat = Math.abs(lat1 - lat2);
+        // let h = this.HaverSin(vLat) + Math.cos(lat1) * Math.cos(lat2) * this.HaverSin(vLon);
+        //
+        // return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
+        console.log(a);
+        console.log(b);
 
-        let vLon = Math.abs(lon1 - lon2);
-        let vLat = Math.abs(lat1 - lat2);
-        let h = this.HaverSin(vLat) + Math.cos(lat1) * Math.cos(lat2) * this.HaverSin(vLon);
+        let vLon = Math.abs(a.x - b.x);
+         let vLat = Math.abs(a.y - b.y);
 
-        return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
+
+        return Math.sqrt(Math.pow(vLon, 2) + Math.pow(vLat, 2));
     }
 
     static ConvertDegreesToRadians(degrees) {
@@ -81,22 +89,35 @@ class ShortPath {
 
         let spotPoints = [];
         for(let spotId of city["scenicspot"]) {
-          //  if(scenicPos.Get(spotId)) {
-            spotPoints.push(travelConfig.Scenicspot.Get(spotId).coordinate);
-         //   }
+            if(scenicPos.Get(spotId)) {
+            spotPoints.push(scenicPos.Get(spotId));
+            }
         }
 
         //console.log(spotPoints);
         this.city           = city;
         this.spotPoints     = spotPoints;
         this.cid            = cid;
-        this.startPos       = travelConfig.City.Get(cid).coordinate;
+        this.startPos       = scenicPos.Get(cid);
         //console.log( this.startPos )
     }
 
     //给定城市 来计算最短路径
     shortPath(realRoute) {
         return this.fixStartFindPath(realRoute);
+    }
+
+    getDistance(map) {
+        let value = 0;
+        if(map.length == 1) {
+             value = Point.distance(this.startPos, scenicPos.Get(map[0]));
+        }else{
+            for (let j = 0; j < map.length - 1; j++) {
+                value += Point.distance(scenicPos.Get((map[j])), scenicPos.Get(map[j + 1]));
+            }
+        }
+
+        return value
     }
 
     travelShortDistance(travelMap, extraRoute = 0) {
@@ -106,9 +127,9 @@ class ShortPath {
         }
 
        // console.log(travelMap);
-        let value = Point.distance(this.startPos, travelConfig.Scenicspot.Get(travelMap[0]).coordinate);
+        let value = Point.distance(this.startPos, scenicPos.Get(travelMap[0]));
         for (let j = 0; j < travelMap.length - 1; j++) {
-            value += Point.distance(travelConfig.Scenicspot.Get(travelMap[j]).coordinate, travelConfig.Scenicspot.Get(travelMap[j + 1]).coordinate);
+            value += Point.distance(scenicPos.Get((travelMap[j])), scenicPos.Get(travelMap[j + 1]));
         }
 
         return value + extraRoute;
@@ -120,7 +141,7 @@ class ShortPath {
        if(realRoute && realRoute.length) {
            let pArr = [];
            for(let r of realRoute) {
-               pArr.push(travelConfig.Scenicspot.Get(r).coordinate);
+               pArr.push(scenicPos.Get(r));
            }
            if(pArr.length) {
                points = pArr;
