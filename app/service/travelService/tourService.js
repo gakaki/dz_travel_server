@@ -634,6 +634,7 @@ class TourService extends Service {
             info.submit();
             return;
         }
+        info.type         = questCfg.type;
 
         //无论如何都要把事件重置为recived
         await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': dbId } , {
