@@ -2,28 +2,26 @@ const Service = require('egg').Service;
 
 
 class ItemService extends Service {
-    async itemChange(uid, delta, appMame="travel") {
+    async itemChange(uid, delta, appName = "travel") {
         for (let indexs in delta) {
             let daddup = delta[indexs] > 0 ? delta[indexs] : 0;
-            let dcost = delta[indexs] > 0 ? 0 : -delta[indexs];  // cost统计时按照正数统计
+            let dcost = delta[indexs] > 0 ? 0 : -delta[indexs]; // cost统计时按照正数统计
             let index = indexs.replace("items.", "");
             try {
                 let update = delta[indexs] < 0 ?
-                    await this.ctx.model.PublicModel.User.update({uid:uid,[indexs] : {$gte: dcost}},{$inc:{[indexs]:delta[indexs]}}):
-                    await this.ctx.model.PublicModel.User.update({uid:uid},{$inc:{[indexs]:delta[indexs]}});
+                    await this.ctx.model.PublicModel.User.update({ uid: uid, [indexs]: { $gte: dcost } }, { $inc: { [indexs]: delta[indexs] } }) :
+                    await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { [indexs]: delta[indexs] } });
                 this.logger.info(update);
-                if(update.nModified){
+                if(update.nModified) {
                     await this.ctx.model.PublicModel.UserItemCounter.update({
-                        uid: uid, index: index, appName: appMame
-                    }, {
-                        $set: {delta: delta[indexs]},
-                        $inc: {total: delta[indexs] ,addup: daddup, cost: dcost}
-                    }, {upsert: true});
+                        uid: uid, index: index, appName: appName }, {
+                        $set: { delta: delta[indexs] },
+                        $inc: { total: delta[indexs], addup: daddup, cost: dcost } }, { upsert: true });
 
                     await this.ctx.model.PublicModel.ItemRecord.create({
                         uid: uid,
                         index: index,
-                        appName: appMame,
+                        appName: appName,
                         delta: delta[indexs],
                         time: new Date(),
 

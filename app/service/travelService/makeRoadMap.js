@@ -246,7 +246,9 @@ class MakeRoadMap {
 
         diffTime = 30 * 1000//test
 
+
         diffTime = 10000
+
 
 
         console.log("需要的时间 " + diffTime);

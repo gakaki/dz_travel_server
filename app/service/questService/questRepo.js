@@ -41,9 +41,45 @@ class QuestRepo {
 }
 
 module.exports = new QuestRepo();
-
-
+//
+//
 // let n            = new QuestRepo();
+// let questConfigs = [130010,
+// 130020,
+// // 130030,
+// // 130040,
+// 130050,
+// 130060,
+// 130061,
+// 130070,
+// 130080,
+// 130090,
+// 130200,
+// 130201,
+// 130202,
+// 130203,
+// 130204,
+// 130205,
+// 130206,
+// 130207,
+// 130208,
+// 130209];
+//
+// for (let q of questConfigs){
+//    let quest        = n.find(q);
+//    let cid          = 1;
+//    let spotId       = 100101;
+//    let res          = quest.describeFormat(cid ,spotId);
+//
+//    console.log(res);
+//    res              = quest.describeFormat(1 );
+//    console.log(res);
+//
+//     res              = quest.describeFormat(null,100101 );
+//     console.log(res);
+// }
+
+//
 // // type 1 金币
 // let quest        = n.find("400037");
 // let res          = quest.getSpotRewardComment();
@@ -51,11 +87,11 @@ module.exports = new QuestRepo();
 //
 
 
-let n            = new QuestRepo();
-// type 1 金币
-let quest        = n.find("130204");
-let res          = quest.getSpotRewardComment();
-console.log(res);
+// let n            = new QuestRepo();
+// // type 1 金币
+// let quest        = n.find("130204");
+// let res          = quest.getSpotRewardComment();
+// console.log(res);
 // let n            = new QuestRepo();
 // // type 1 金币
 // let quest        = n.find("110033");

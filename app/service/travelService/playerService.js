@@ -26,7 +26,7 @@ class PlayerService extends Service {
         //this.logger.info(specialty);
 
         if(visit) {
-           await this.ctx.service.travelService.tourService.queryTaskProgress(ui.uid, visit.cid);
+           await this.ctx.service.travelService.tourService.queryTaskProgress(ui.uid, visit);
            ui = await this.ctx.model.PublicModel.User.findOne({ uid: ui.uid })
         }
      //   let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
