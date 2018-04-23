@@ -165,7 +165,7 @@ api AnswerQuest{
     require answer:string
     output type:number
     output correct:number//0代表部分对错的答题类型，1，答对，2答错
-    output reward:string//奖励物品
+    output rewards:string//奖励物品
     //更新后的用户信息
     output userInfo:UserInfo
 }
