@@ -238,6 +238,7 @@ api SetRouter {
 }
 //装备修改路线，组队模式下，如果双方同时触发此api，则稍晚的一方收到错误码,提示‘好友正在修改路线’
 api ModifyRouter {
+    require spotsAllTracked:boolean//是否已经把地图上所有的景点都走过了
     //当前景点状态数组
     output spots:RouterSpot[]//不包括起点
     //设置路线后剩余金币
