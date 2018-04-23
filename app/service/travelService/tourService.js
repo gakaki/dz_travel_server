@@ -1294,7 +1294,7 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {
-                changeRouteing: true,
+                changeRouteing: currentCity.friend ? true : false,
                 roadMap  : roadMap,
                 modifyEventDate : new Date()
             }});

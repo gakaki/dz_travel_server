@@ -243,8 +243,7 @@ class MakeRoadMap {
                 diffTime = travelConfig.Parameter.Get(travelConfig.Parameter.LONGESTTIME).value
             }
         }
-
-
+        
 
 
         console.log("需要的时间 " + diffTime);
