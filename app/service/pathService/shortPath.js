@@ -25,7 +25,7 @@ class Point {
         // return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
         //console.log(a);
        // console.log(b);
-
+        if ( !a || !b || !a.x || !b.x) return;
         let vLon = Math.abs(a.x - b.x);
          let vLat = Math.abs(a.y - b.y);
 

@@ -12,7 +12,7 @@ class TestSchedule extends Subscription {
             //每天23:30执行一次
             cron: '0 0 0 * * *',// s m h dayOfMonth month dayOfWeek; see http://eggjs.org/zh-cn/basics/schedule.html
             // interval: '3m'// 本地测试，每3分钟生成一次
-             immediate: false,
+             //immediate: false,
         };
     }
 
