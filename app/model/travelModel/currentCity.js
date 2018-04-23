@@ -6,11 +6,11 @@ module.exports = app => {
         cid: { type: String },
        // progress:   {  type: Number , default: 0 },
         isInviter: { type: Boolean, default: false },
-        changeRouteing: { type: Boolean, default:false},
+        changeRouteing: { type: Boolean, default: false },
        // sspid: { type: String }, //景点id
         //progress: { type: Number }, //完成度？
        // efficiency: { type: Number }, //效率评分，根据规划的路径与最短路径比值计算 ???可能不用入库
-        friend: { type: String }, //默认单人旅行
+        friend: { type: String, default: null }, //默认单人旅行
         rentItems: { type: JSON },
         photographyCount: { type: Number, default: 0 }, //城市拍照次数 前2次免费
       //  photographySpots: { type: Array, default: [] }, //拍照的景点id

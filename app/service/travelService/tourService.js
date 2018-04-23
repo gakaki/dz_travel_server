@@ -1376,7 +1376,7 @@ class TourService extends Service {
         });
 
         //删除current city里的 invite code中的用户id 的event 偷懒不删除了
-        await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ uid, partner.uid ] }, { $set: { friend: "0" } }, { multi: true });
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ uid, partner.uid ] }, { $set: { friend: null } }, { multi: true });
     }
 
     async cancelpartenloop(info){

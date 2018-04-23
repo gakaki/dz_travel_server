@@ -247,7 +247,7 @@ class MakeRoadMap {
         //diffTime = 30 * 1000//test
 
 
-        diffTime = 5000;
+        diffTime = 60000;
 
 
 
