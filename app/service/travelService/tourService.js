@@ -628,11 +628,12 @@ class TourService extends Service {
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.answer == answer || questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
-            await this.rewardThanMark(  uid , cid , eid );
+            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
 
             //回答正确 给予正确奖励
             info.correct      = true;
-            info.rewards      = questCfg.getSpotRewardComment();
+            //info.rewards      = questCfg.getSpotRewardComment();
+            info.rewards      = spotRewardComment.reward;
 
 
         }else
@@ -685,6 +686,7 @@ class TourService extends Service {
 
         let eid           = event["eid"];
         let questCfg      = questRepo.find(eid);
+        let row                 = await this.rewardThanMark( uid,cid,eid);
         info.id           = event['dbId'];
         info.quest        = {
             dbId:          event['dbId'],
@@ -693,14 +695,15 @@ class TourService extends Service {
             describe:      questCfg['describe'],
             gold_used:     0,
             picture:       questCfg['picture'],
-            rewards:       questCfg.getSpotRewardComment().reward,
+           // rewards:       questCfg.getSpotRewardComment().reward,
+            rewards:       row.reward,
             question:      questCfg['describe'],
             answers:       questCfg.answers(),
         };
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
-            let row                 = await this.rewardThanMark( uid,cid,eid);
+            //let row                 = await this.rewardThanMark( uid,cid,eid);
             await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
                 $set : {'events.$.received' : true}
             });
@@ -716,11 +719,13 @@ class TourService extends Service {
     // 写入数据库获得了奖励 并给予标记
     async rewardThanMark(  uid , cid , eid  ){
         //若是 普通的随机事件 那么直接触发获得奖励了
-        await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
+        let reward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
 
         let now                 = new Date().getTime();
         let questCfg            = questRepo.find(eid);
+        let city = travelConfig.City.Get(cid);
+        let spotRewardComment = questCfg.getSpotRewardComment(city.city, reward).reward;
         //添加到spotevent
         await this.ctx.model.TravelModel.SpotTravelEvent.create({
             uid: uid,
@@ -729,14 +734,16 @@ class TourService extends Service {
             fid: null,
             spotId: null,
             isPhotography: false,
-            isTour:true,
-            reward: questCfg.getSpotRewardComment().reward,
-            type:questCfg.type,
+            isTour: true,
+            reward: spotRewardComment.reward,
+            desc: spotRewardComment.desc,
+            type: questCfg.type,
             createDate: now,
             received: true,             //设置为已经领取
-            receivedDate:now,           //领取奖励时间
+            receivedDate: now,           //领取奖励时间
         });
 
+        return spotRewardComment;
     }
 
     //观光??
