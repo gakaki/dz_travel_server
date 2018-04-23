@@ -177,7 +177,7 @@ class TourService extends Service {
             }
         }
 
-        info.task = await this.queryTaskProgress(ui.uid, cid);
+        info.task = await this.queryTaskProgress(ui.uid, currentCity);
         info.mileage = ui.mileage;
     }
 
@@ -205,7 +205,7 @@ class TourService extends Service {
         }
 
         let spots                         = roadMaps;
-        let startTime                     = currentCity.startTime.getTime();
+      //  let startTime                     = currentCity.startTime.getTime();
         let acceleration                  = currentCity.acceleration;
         let display                       = 0;
         if(acceleration) {
@@ -220,34 +220,35 @@ class TourService extends Service {
         }
 
         //task任务完成度信息
-        let isDobule                      = !currentCity["friend"] ? false : true;
-
-        let partner                       = null;
-        let partnerTour                   = [0,2];
-        let parterPhoto                   = [0,2];
-
-        if (isDobule ){
-            partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
-            // partner                       = null;
-            if ( partner ){
-                partnerTour               = [partner.tourCount,2];
-                parterPhoto               = [partner.photographyCount,2];
-            }
-        }
+        // let isDobule                      = !currentCity["friend"] ? false : true;
+        //
+        // let partner                       = null;
+        // let partnerTour                   = [0,2];
+        // let parterPhoto                   = [0,2];
+        //
+        // if (isDobule ){
+        //     partner                       = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity["friend"] });
+        //     // partner                       = null;
+        //     if ( partner ){
+        //         partnerTour               = [partner.tourCount,2];
+        //         parterPhoto               = [partner.photographyCount,2];
+        //     }
+        // }
 
         // this.logger.info("是否是双人模式", isDobule , partner);
-
-        let  task                         = {
-            spot                    : [spot_arrived_count,6],
-            tour                    : [currentCity['tourCount'],2],
-            photo                   : [currentCity['photographyCount'],2],
-            parterTour              : partnerTour,
-            parterPhoto             : parterPhoto
-        };
+        //
+        // let  task                         = {
+        //     spot                    : [spot_arrived_count,6],
+        //     tour                    : [currentCity['tourCount'],2],
+        //     photo                   : [currentCity['photographyCount'],2],
+        //     parterTour              : partnerTour,
+        //     parterPhoto             : parterPhoto
+        // };
         return {
              spots: spots,
              display: display, //人物的表现形式
-             task:task
+            // task:task
+             task: await this.queryTaskProgress(userId, currentCity),
         };
     }
 
@@ -300,8 +301,9 @@ class TourService extends Service {
 
 
     //任务查询
-    async queryTaskProgress(uid, cid) {
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+    async queryTaskProgress(uid, currentCity) {
+        //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
         await this.updatePlayerProgress(currentCity, uid);
 
@@ -985,7 +987,7 @@ class TourService extends Service {
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
             //更新足迹表
-            await this.queryTaskProgress(selfInfo.uid, curCity.cid);
+            await this.queryTaskProgress(selfInfo.uid, curCity);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
