@@ -698,6 +698,11 @@ class TourService extends Service {
         info.current        = info.current <= 0 ? 1 : info.current;
         info.hasNext        = info.current + 1 >= events.length ? true : false;
 
+        info.total          = cityEvents.events.length;
+        info.current        = cityEvents.evenrandomQuestForDebugts.filter( x => x.received == true ).length + 1;
+        info.hasNext        = info.current + 1 >= info.total ? true : false;
+
+
         let event           = null;
         if (events.length >= 0)
             event           = events[0];
@@ -709,7 +714,7 @@ class TourService extends Service {
 
         let eid           = event["eid"];
         let questCfg      = questRepo.find(eid);
-        let row                 = await this.rewardThanMark( uid,cid,eid);
+        let row           = await this.rewardThanMark( uid,cid,eid);
         info.id           = event['dbId'];
         info.quest        = {
             dbId:          event['dbId'],
@@ -726,9 +731,9 @@ class TourService extends Service {
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
-            //let row                 = await this.rewardThanMark( uid,cid,eid);
+            // let row                 = await this.rewardThanMark( uid,cid,eid);
             await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
-                $set : {'events.$.received' : true}
+                $set : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
