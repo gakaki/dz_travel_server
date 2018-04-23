@@ -511,6 +511,11 @@ class TourService extends Service {
             info.code = apis.Code.NOT_FOUND;
             return
         }
+        let city = travelConfig.City.Get(info.cid);
+        if(!city) {
+            info.code = apis.Code.NOT_FOUND;
+            return
+        }
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
         if(!currentCity) {
             info.code = apis.Code.NO_CURRENTCITY;
