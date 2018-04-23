@@ -106,7 +106,7 @@ describe('test 测试双人旅行 流程 数据写入', () => {
             "cid" : "3",
             "fid" : "fly1524222664526",
             "friend" : "absdadew234resfdsfsd",
-            "isInviter" : false,
+            "isInviter" : true,
             "modifyEventDate" : ("2018-04-20T11:11:14.916+0000"),
             "photographyCount" : (2),
             "rentItems" : {
