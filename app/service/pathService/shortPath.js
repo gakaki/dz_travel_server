@@ -23,8 +23,8 @@ class Point {
         // let h = this.HaverSin(vLat) + Math.cos(lat1) * Math.cos(lat2) * this.HaverSin(vLon);
         //
         // return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
-        console.log(a);
-        console.log(b);
+        //console.log(a);
+       // console.log(b);
 
         let vLon = Math.abs(a.x - b.x);
          let vLat = Math.abs(a.y - b.y);
@@ -195,7 +195,7 @@ class ShortPath {
 module.exports = ShortPath;
 
 
-// var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( 1 );
-// short_path.shortPath();
-// t.stop();
+var t = timer('用暴力法计算运行时间');
+let short_path = new ShortPath( 1 );
+short_path.shortPath();
+t.stop();
