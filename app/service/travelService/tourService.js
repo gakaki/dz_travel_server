@@ -195,7 +195,9 @@ class TourService extends Service {
                         spot.tracked      = true;
                         spot.countdown    = 0;
                     }
-                }else{
+                }
+
+                if(spot.tracked) {
                     spot.countdown        = 0
                     spot_arrived_count++;
                 }
