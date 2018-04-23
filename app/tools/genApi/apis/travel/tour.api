@@ -163,7 +163,7 @@ api SpotTour {
 api AnswerQuest{
     require id:number
     require answer:string
-
+    output type:number
     output correct:number//0代表部分对错的答题类型，1，答对，2答错
     output reward:string//奖励物品
     //更新后的用户信息
@@ -176,6 +176,7 @@ api EventShow {
     output total:number
     //当前第几个从1开始
     output current:number
+    output hasNext:number
     //事件
     output quest:Quest
 }
@@ -256,7 +257,7 @@ api PlayLoop {
     output newEvent:boolean  //是否有新事件
     output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备，双人模式下一方修改了路线等，会影响景点的到达时间
     output spotsTracked:number//有几个到达了
-    output spotsAllTraced:boolean//是否已经把地图上所有的景点都走过了
+    output spotsAllTracked:boolean//是否已经把地图上所有的景点都走过了
     output doubleState:boolean//双人模式下对方是否取消了双人旅行
 }
 
