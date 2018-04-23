@@ -486,6 +486,7 @@ class PlayerService extends Service {
                     weekAchievement: selfCompletionDegree ? selfCompletionDegree.weekCompletionDegree : 0,
                 };
                 rankInfos = await this.ctx.service.travelService.rankService.getCompletionDegreeRankList(page, limit);
+
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
                 info.selfRank = {
