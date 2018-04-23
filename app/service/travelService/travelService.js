@@ -160,6 +160,7 @@ class TravelService extends Service {
             isInviter: false,
             roadMap: [],
             acceleration: 0,
+            changeRouteing: false,
             modifyEventDate: null,
             startTime: null,
             events: null,
