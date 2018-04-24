@@ -559,7 +559,8 @@ class TourService extends Service {
         let para                 = {
             uid                  : uid,
             cid                  : cid || 1,       //城市id
-            weatherId            : weatherId || 1  //特定天气 注意是id        //特定日期 服务器端取呀
+            weatherId            : weatherId || 1,  //特定天气 注意是id        //特定日期 服务器端取呀
+            rentItems          :currentCity.rentItems,
         };
 
         let e                    = new MakeSpotEvent(para);
