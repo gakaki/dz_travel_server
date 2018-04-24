@@ -563,7 +563,7 @@ class PlayerService extends Service {
             }
         }
 
-        this.logger.info(rankInfos);
+        //this.logger.info(rankInfos);
 
         let rankIndex = rankInfos.findIndex((n) => n.uid == info.ui.uid);
         this.logger.info("weizhi ========");
