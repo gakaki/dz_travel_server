@@ -1318,6 +1318,7 @@ class TourService extends Service {
                             roadMap[i].arriveStampYMDHMS = "";
                         }
                     }
+
                 }
             }
         }else{
@@ -1333,9 +1334,12 @@ class TourService extends Service {
         }
 
 
+        if(!Number(info.planedAllTracked)) {
+            //扣钱
+            await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
+        }
 
-        //扣钱
-        await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
+
        // info.startTime = currentCity.startTime.getTime();
 
         info.spots = roadMap;

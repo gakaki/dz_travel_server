@@ -95,11 +95,15 @@ class TourController extends Controller {
 
         let user_info = ctx.session.ui;
       //  this.logger.info(user_info);
-        if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value) {
-            info.code = apis.Code.NEED_MONEY;
-            info.submit();
-            return
+
+        if(!Number(info.planedAllTracked)) {
+            if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value) {
+                info.code = apis.Code.NEED_MONEY;
+                info.submit();
+                return
+            }
         }
+
         await this.service.travelService.tourService.modifyRouter(info, user_info);
         info.submit();
     }
