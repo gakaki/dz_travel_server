@@ -44,6 +44,10 @@ module.exports = new QuestRepo();
 //
 //
 // let n            = new QuestRepo();
+// let quest        = n.find("110136");
+// let res          = quest.getSpotRewardComment();
+// console.log(quest.type,res);
+
 // let questConfigs = [130010,
 // 130020,
 // // 130030,
