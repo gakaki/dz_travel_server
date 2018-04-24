@@ -124,6 +124,13 @@ class QuestRepo {
 module.exports = new QuestRepo();
 
 // let n            = new QuestRepo();
+// let quest        = n.find("110034");
+// let res          = quest.getSpotRewardComment();
+// let question     = quest.describe;
+// let answers      = quest.answers();
+// console.log(quest.type,res,question,answers);
+
+// let n            = new QuestRepo();
 // let quest        = n.find("110139");
 // let res          = quest.getSpotRewardComment();
 // let question     = quest.describe;
