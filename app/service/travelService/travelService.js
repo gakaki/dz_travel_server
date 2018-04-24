@@ -135,6 +135,8 @@ class TravelService extends Service {
             }
 
         }
+
+
         let flyid = Number(ui.pid + new Date().getTime());
         let flyRecord = {
             uid: ui.uid, //用户ID
@@ -147,9 +149,26 @@ class TravelService extends Service {
             cost: Number(info.cost), //花费的金币
             createDate: new Date(),
         };
+
         let rentItems = {};
+        let acceleration = 0;
+        let present = false;
         for (let rentItem of travelConfig.shops) {
-            rentItems[rentItem.id] = 0;
+            if(ui.playTimes && ui.playTimes < travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
+                if(rentItem.id == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARID).value) {
+                    rentItems[rentItem.id] = 1;
+                    acceleration = rentItem.value;
+                    present = true;
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
+                }else{
+                    rentItems[rentItem.id] = 0;
+                }
+            }else{
+                rentItems[rentItem.id] = 0;
+            }
+        }
+        if(ui.playTimes == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
+            await this.ctx.model.PublicModel.User.update({ uid: info.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
         }
         let currentCity = {
             uid: ui.uid,
@@ -158,8 +177,9 @@ class TravelService extends Service {
             rentItems: rentItems,
             friend: null,
             isInviter: false,
+            present: present,
             roadMap: [],
-            acceleration: 0,
+            acceleration: acceleration,
             changeRouteing: false,
             modifyEventDate: null,
             startTime: null,
@@ -190,9 +210,30 @@ class TravelService extends Service {
             await this.ctx.model.TravelModel.Footprints.create(footprint);
             await this.ctx.model.TravelModel.CurrentCity.update({ uid: currentCity.uid }, currentCity, { upsert: true });
 
+
+
             //更新好友
             await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $addToSet: { friendList: fui.uid } });
             let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: fui.uid });
+
+            for (let rentItem of travelConfig.shops) {
+                if(fui.playTimes && fui.playTimes < travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
+                    if(rentItem.id == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARID).value) {
+                        currentCity.rentItems[rentItem.id] = 1;
+                        currentCity.acceleration = rentItem.value;
+                        currentCity.present = true;
+                        await this.ctx.model.PublicModel.User.update({ uid: fui.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
+                    }else{
+                        currentCity.rentItems[rentItem.id] = 0;
+                    }
+                }else{
+                    currentCity.rentItems[rentItem.id] = 0;
+                }
+
+            }
+            if(fui.playTimes == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
+                await this.ctx.model.PublicModel.User.update({ uid: info.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
+            }
             flyRecord.uid = fui.uid;
             flyRecord.friend = ui.uid;
             flyRecord.from = fvisit ? fvisit.cid : "初次旅行";

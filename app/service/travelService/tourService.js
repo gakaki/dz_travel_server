@@ -106,7 +106,13 @@ class TourService extends Service {
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
 
         //this.logger.info(currentCity);
-
+        info.present = currentCity.present;
+        if(!currentCity.present && currentCity.friend) {
+            let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
+            if(fcity) {
+                info.present = fcity.present;
+            }
+        }
         if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
@@ -163,13 +169,15 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+
+
+
         let acceleration = currentCity.acceleration;
         info.display = 0;
 
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
-                    this.logger.info(car);
                     if(car.value == acceleration) {
                         info.display = car.id;
                         break;
@@ -177,6 +185,7 @@ class TourService extends Service {
                 }
             }
         }
+
 
         info.task = await this.queryTaskProgress(ui.uid, currentCity);
         info.mileage = ui.mileage;
@@ -1091,13 +1100,16 @@ class TourService extends Service {
 
         let uid                 = info.uid;
         let currentCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
+       // this.logger.info(currentCity);
         if (!currentCity ) {
+            this.logger.info("城市没找到")
             info.code           = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
         let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid  });
         if (!currentEvents ) {
+            this.logger.info("事件没找到")
             info.code           = apis.Code.NOT_FOUND;
             info.submit();
             return;
@@ -1223,13 +1235,13 @@ class TourService extends Service {
             let e                    = new MakeEvent(para);
 
             //更新events表
-            await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
+           let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
                 $set : {
                     uid : uid,
                     events : e.eventsFormat
                 }
             }, { upsert: true });
-
+         this.logger.info("更新时间没？？？？？？？", up);
             if ( inviteCode ){        //双人模式
                 let partner         = await this.findAnotherPlayer(inviteCode,uid);
                 if ( partner ){
@@ -1328,6 +1340,9 @@ class TourService extends Service {
                             roadMap[i].arriveStamp = "";
                             roadMap[i].arriveStampYMDHMS = "";
                         }
+                        if(roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
+                            roadMap[i].startime = "";
+                        }
                     }
 
                 }
@@ -1337,6 +1352,7 @@ class TourService extends Service {
                 roadMap[i].index = -1;
                 roadMap[i].startime = "";
                 roadMap[i].endtime = "";
+                roadMap[i].tracked = true;
                 roadMap[i].mileage = 0;
                 roadMap[i].countdown = 0;
                 roadMap[i].arriveStamp = "";

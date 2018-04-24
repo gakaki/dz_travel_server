@@ -7,6 +7,7 @@ module.exports = app => {
        // progress:   {  type: Number , default: 0 },
         isInviter: { type: Boolean, default: false },
         changeRouteing: { type: Boolean, default: false },
+        present: { type: Boolean, default: false },
        // sspid: { type: String }, //景点id
         //progress: { type: Number }, //完成度？
        // efficiency: { type: Number }, //效率评分，根据规划的路径与最短路径比值计算 ???可能不用入库

@@ -186,7 +186,7 @@ class RewardService extends Service{
             ]);
         this.logger.info(spcount);
 
-        if(spcount[0].count < travelConfig.Parameter.Get(travelConfig.Parameter.BAGLIMIT).value) {
+        if(spcount.length == 0 || spcount[0].count < travelConfig.Parameter.Get(travelConfig.Parameter.BAGLIMIT).value) {
             //加特产
             await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
                 {
