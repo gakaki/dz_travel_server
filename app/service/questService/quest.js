@@ -1,6 +1,11 @@
-const moment        = require("moment");
-const travelsConfig = require("../../../sheets/travel");
-const util          = require("util");
+const moment            = require("moment");
+const travelsConfig     = require("../../../sheets/travel");
+const util              = require("util");
+const _                 = require("lodash");
+const specialityRepo    = require("./specialityRepo");
+const scenicspotRepo    = require("./scenicspotRepo");
+const cityRepo          = require("./cityRepo");
+
 //一个简单的树结构
 class TreeNode {
     constructor(  data ) {
@@ -17,7 +22,7 @@ class TreeNode {
     }
 }
 
-const _             = require("lodash");
+
 
 //事件（或者叫任务）类 有前后置关系 所以做成树状
 class Quest extends TreeNode {
@@ -51,6 +56,14 @@ class Quest extends TreeNode {
             RANDOM_CITY:        "2",       // 2、特定城市事件：在特定城市游玩才能触发的事件；
             TOUR_COMMON:        "3",       // 3、通用观光checkGuide事件：在所有城市观光都可以触发的事件；
             TOUR_CITY:          "4",       // 4、特定观光事件：在特定城市观光才能触发的事件；
+        };
+
+        // 知识点 knowlege
+        this.KnowledgeKeys     = {
+            NORMAL:             "0",            //常规
+            SPECIALITY:         "1",            //特产
+            SCENICSPOT:         "2",            //景点
+            CITY:               "3",            //地方归属
         };
 
         this.RewardType     = {
@@ -118,6 +131,36 @@ class Quest extends TreeNode {
             let itemIdOrVal = rewardRow['v'];
             this.rewardKV[typeId] = itemIdOrVal;
         }
+
+        //处理该死的含有知识点的
+        // this.dealKnowledgeRow();
+
+    }
+
+    dealKnowledgeRow(){
+
+        // 特产随机
+        if ( this.topic     == this.KnowledgeKeys.SPECIALITY ){ //1
+            //Random 特产
+            // let items       = specialityRepo.random4();
+
+            //
+
+
+
+        }
+        // 景点随机
+        if ( this.topic     == this.KnowledgeKeys.SCENICSPOT ){ //2
+            // scenicspotRepo.random4();
+
+        }
+
+        // 城市随机
+        if ( this.topic     == this.KnowledgeKeys.CITY ){ //3
+            // cityRepo.random4();
+        }
+
+
     }
 
     describeFormat(cid=null,spotId=null){
@@ -155,8 +198,6 @@ class Quest extends TreeNode {
         if (!answers || answers.length <= 0) return null;
         return  _.shuffle( answers )
     }
-
-
 
     // 景点奖励语句
     getSpotRewardComment(spotName,getReward){
