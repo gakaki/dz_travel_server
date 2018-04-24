@@ -20,8 +20,9 @@ class IntegralService extends Service {
                 shops[i].uid = ui.uid;
                 shops[i].createDate = new Date();
                 shops[i].remaining = shops[i].num;
-                shops[i].time1 = new Date(shops[i].time1)
-                shops[i].time2 = new Date(shops[i].time2)
+                shops[i].time1 = new Date(shops[i].time1);
+                shops[i].time2 = new Date(shops[i].time2);
+                shops[i].type = shops[i].type;
                 await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
             }
         }
@@ -93,11 +94,11 @@ class IntegralService extends Service {
     //兑换物品
     async exchange(res, ui) {
         this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
-        if (!ui.address) {
-            res.code = apis.Code.NEED_ADDRESS;
-            this.logger.info('未填地址，返回');
-            return;
-        }
+        // if (!ui.address) {
+        //     res.code = apis.Code.NEED_ADDRESS;
+        //     this.logger.info('未填地址，返回');
+        //     return;
+        // }
 
         let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({id: res.id,remaining:{$gt:0}});
         if (!item) {
