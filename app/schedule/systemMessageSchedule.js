@@ -37,7 +37,7 @@ module.exports = {
                       ctx.logger.info("属于城市" + event.belong);
                       if(event.belong) {
                           let content = travelConfig.Message.Get(travelConfig.Message.SYSTEMMESSAGE).content;
-                          let context = content.replace(new RegExp("s%","gm"), travelConfig.City.Get(event.belong).city);
+                          let context = content.replace(new RegExp("s%", "gm"), travelConfig.City.Get(event.belong).city);
                           let users = await ctx.model.PublicModel.User.find({ appName: "travel" });
                           let createDate = new Date();
                           for(let i = 0, length = users.length; i < length; i++) {
