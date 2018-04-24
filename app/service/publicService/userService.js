@@ -14,14 +14,14 @@ class UserService extends Service {
         if (sid) {
             let authUi = await this.collect(sid, appName);
             if (authUi == null) {
-                let loginUser = await this.ctx.model.PublicModel.User.findOne({uid: uid, appName: appName });
+                let loginUser = await this.ctx.model.PublicModel.User.findOne({ uid: uid, appName: appName });
                 if (loginUser != null) {
                     this.logger.info("通过openid查库 ：" + loginUser.uid + "昵称 ：" + loginUser.nickName);
                     let _sid = this.GEN_SID(loginUser.pid);
                     this.recruitSid(_sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + _sid);
 
-                    await this.ctx.model.PublicModel.User.update({pid: loginUser.pid, appName: appName }, {
+                    await this.ctx.model.PublicModel.User.update({ pid: loginUser.pid, appName: appName }, {
                         $set: {
                             nickName: info.nickName,
                             avatarUrl: info.avatarUrl,
@@ -29,6 +29,7 @@ class UserService extends Service {
                             city: info.city,
                             province: info.province,
                             country: info.country,
+                            lastLogin: new Date(),
                         },
                     });
                     result.sid = _sid;
@@ -42,7 +43,7 @@ class UserService extends Service {
                     result.info = null;
                 } else {
 
-                    await this.ctx.model.PublicModel.User.update({pid: authUi.pid, appName: appName }, {
+                    await this.ctx.model.PublicModel.User.update({ pid: authUi.pid, appName: appName }, {
                         $set: {
                             nickName: info.nickName,
                             avatarUrl: info.avatarUrl,
@@ -50,6 +51,7 @@ class UserService extends Service {
                             city: info.city,
                             province: info.province,
                             country: info.country,
+                            lastLogin: new Date(),
                         },
                     });
 
@@ -96,6 +98,7 @@ class UserService extends Service {
                         city: info.city,
                         province: info.province,
                         country: info.country,
+                        lastLogin: new Date(),
                     },
                 });
                 ui = await this.ctx.model.PublicModel.User.findOne({
@@ -116,7 +119,7 @@ class UserService extends Service {
             }
         }
 
-        this.logger.info(JSON.stringify(ses));
+        //this.logger.info(JSON.stringify(ses));
 
 
         this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
@@ -253,11 +256,12 @@ class UserService extends Service {
             third: third,
             pid: pidStr,
             items: items,
+            lastLogin: new Date(),
         });
 
         //TODO 测试多给点钱。正式服改回来
        // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "travel");
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000}, "travel");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000 }, "travel");
 
         //进入积分榜单
         await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {

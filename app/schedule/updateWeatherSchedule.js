@@ -18,20 +18,23 @@ module.exports = {
         let segment = 100;
         let weathers = "晴";
         for(let city of citys) {
-            let key = "weather" + Math.round(city.id / segment);
-            try {
-                let meteorological = await weather(city.city, ctx.app);
-                weathers = meteorological.now.cond_txt;
-            }catch(err) {
-                 ctx.logger.error(err);
-                 return;
+            if(city.id != 10000) {
+                let key = "weather" + Math.round(city.id / segment);
+                try {
+                    let meteorological = await weather(city.city, ctx.app);
+                    weathers = meteorological.now.cond_txt;
+                }catch(err) {
+                    ctx.logger.error(err);
+                    return;
+                }
+
+                let map = {
+                    [city.id]: weathers,
+                };
+
+                await ctx.app.redis.hmset(key, map);
             }
 
-            let map = {
-              [city.id]: weathers,
-            };
-
-            await ctx.app.redis.hmset(key, map);
         }
     },
 };

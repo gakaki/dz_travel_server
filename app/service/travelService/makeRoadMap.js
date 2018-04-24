@@ -21,7 +21,7 @@ class MakeRoadMap {
         this.linesFormat = []; //返回给前端用的
 
         this.rentItems      = obj.rentItems || 0;
-        this.clacSpeed();        // 时间配置
+       // this.clacSpeed();        // 时间配置
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
         this.formatOutput();      // 输出最后的结果
@@ -81,8 +81,8 @@ class MakeRoadMap {
 
     calcTimeTotal() {
 
-        let lineCount = this.spotIds.length - 1;    // 几个点-1 为多少个line 线
-        let timeTotal = lineCount * this.timeHumanPreLineHour; //无道具正常时间 小时单位
+       // let lineCount = this.spotIds.length - 1;    // 几个点-1 为多少个line 线
+       // let timeTotal = lineCount * this.timeHumanPreLineHour; //无道具正常时间 小时单位
 
         // 计算总时间 并生成具体的 line线
         this.setLines();
