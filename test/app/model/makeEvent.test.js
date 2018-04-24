@@ -12,18 +12,17 @@ const MakeEvent     = require('../../../app/service/travelService/makeEvent');
 // 测试双人旅行
 describe('test 测试双人旅行 流程 数据写入', () => {
 
-    it('生成 事件 含有知识点的  ',  async () => {
+    it('生成 事件 去掉那些%s s%的数据  ',  async () => {
 
         let para                 = {
-            cid                  : cid,
-            rentItems            : currentCity.rentItems,
-            startTime            : currentCity.startTime,
+            cid                  : 1,
+            rentItems            : [],
+            startTime            : [],
             weather              : 0,
             today                : 0,
             itemSpecial          : 0
         };
         let e                    = new MakeEvent(para);
-
         console.log(e.eventsFormat);
     });
 

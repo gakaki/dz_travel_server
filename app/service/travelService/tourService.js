@@ -706,6 +706,7 @@ class TourService extends Service {
             }
             let total                                                    = 10;
             current                                                      = total - current;
+            if (current <= 1) current = 1;
             console.log(`[debug] current index is ${current}/10`);
             return  current;
         }
