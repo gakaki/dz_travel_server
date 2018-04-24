@@ -6,7 +6,7 @@ module.exports = {
     schedule: {
         cron: '0 30 0 * * *',      //秒(0-59)，分(0-59)，时(0-23)，日(1-31)，月(1-12)，周(0-7,0和7代表周日)
         type: 'worker', // all 指定所有的 worker 都需要执行
-        immediate: true,
+        //immediate: true,
     },
     async task(ctx) {
         ctx.logger.info("每日事件推送");
@@ -30,10 +30,10 @@ module.exports = {
                       today = new Date(lunar.lunarYear + "-" + lunar.lunarMonth + "-" + lunar.lunarDay);
                   }
 
-                  ctx.logger.info("今天", today);
-                  ctx.logger.info("开始", start);
-                  ctx.logger.info("结束", end);
-                  if(start <= today && today >= end) {
+                  if(start <= today && today <= end) {
+                      ctx.logger.info("今天", today);
+                      ctx.logger.info("开始", start);
+                      ctx.logger.info("结束", end);
                       ctx.logger.info("属于城市" + event.belong);
                       if(event.belong) {
                           let content = travelConfig.Message.Get(travelConfig.Message.SYSTEMMESSAGE).content;

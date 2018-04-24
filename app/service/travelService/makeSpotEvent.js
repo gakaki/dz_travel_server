@@ -8,16 +8,18 @@ class MakeSpotEvent {
     constructor( obj ){
         this.cid            = obj.cid || 0;
         this.weatherId      = obj.weatherId || 0;
-        this.today          = obj.today || 0;
-        this.itemSpecial    = obj.rentItems;
+        this.today          = obj.today || new Date();
+        this.itemSpecial    = obj.rentItems || {};
         this.event          = {}; //最后生成的随机事件1个
         this.genEvent();  // 生成事件(景点)
     }
 
     async genEvent(){
         // 事件类型为3 ，4 并且根据三个条件和最后的概率进行生成
-        let quests          = QuestRepo.filterTourQuests({ cid: this.cid });
-        console.log(quests.length);
+        let quests          = QuestRepo.filterTourQuests({ cid: this.cid, weather: this.weatherId, today: this.today, itemSpecial: this.itemSpecial });
+       // let index = quests.find(n => n.id == 401111);
+       // console.log("有没有马祖？？？？？", index);
+         //console.log(quests.length);
         //根据权重进行 随机 这里暂时偷懒为了快点出来先
          /* 需要补逻辑
     3、通用观光事件：在所有城市观光都可以触发的事件；
