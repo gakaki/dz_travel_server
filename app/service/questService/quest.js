@@ -184,16 +184,18 @@ class Quest extends TreeNode {
                 let str         = "";
                 switch(typeId) {
                     case "1": //金币
-                        str             = `增加`;
-                        if( itemIdOrVal < 0)
-                            str         = `消耗`;
-                        str             = str + `${Math.abs(itemIdOrVal)}金币`;
+                        str = '金币';
+                        str             =str + `+`;
+                       // if( itemIdOrVal < 0)
+                           // str         =str + `-`;
+                        str             = str + `${Math.abs(itemIdOrVal)}`;
                         break;
                     case "2": //积分
-                        str             = `增加`;
-                        if( itemIdOrVal < 0)
-                            str         = `减少`;
-                        str             = str + `${Math.abs(itemIdOrVal)}积分`
+                        str = '积分';
+                        str             = str + `+`;
+                       // if( itemIdOrVal < 0)
+                            str      //   = str + `-`;
+                        str             = str + `${Math.abs(itemIdOrVal)}`;
                         break;
                     case "3": //时间  据说观光的时间是没有的所以不管了
                         itemCount       = itemIdOrVal;
@@ -204,11 +206,14 @@ class Quest extends TreeNode {
                         let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
                         itemName        = speciality.specialityname;
                        // if(isGet) {
-                            str         = `获得${typeName}${itemName}`
+                            str         = `${typeName}${itemName} +` + rewardRow['n'];
+                            if(!rewardRow['n']) {
+                                str = str + " 背包已满";
+                            }
                        // }
                         break;
                     case "5": //明信片  明信片随机所以无所谓了
-                        str             = `获得明信片`
+                        str             = `明信片 +` + rewardRow['n'];
                         break;
                 }
                 stmtArr.unshift(str);

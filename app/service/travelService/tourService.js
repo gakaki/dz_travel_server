@@ -430,15 +430,19 @@ class TourService extends Service {
             info.code = apis.Code.NO_DB_ROW;
             return;
         }
-        if (r.photographyCount == 0) {
-            info.code = apis.Code.NEED_ITEMS;
-            return;
-        }
+
         //查询城市的拍照次数
         if (!await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r)) {
             info.code = apis.Code.EXCEED_COUNT;
             return;
         }
+
+
+        if (r.photographyCount == 0) {
+            info.code = apis.Code.NEED_ITEMS;
+            return;
+        }
+
     //    this.logger.info(r);
       //  this.logger.info(await this.limitByCityAndSpotPhotoGraphyCount(ui.uid, info.spotId, r));
 
@@ -566,7 +570,7 @@ class TourService extends Service {
 
       //  this.logger.info(sp);
         let getReward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
-        this.logger.info(getReward);
+        this.logger.info("获得的奖励" ,getReward);
         let desc = questRepo.find(eid).getSpotRewardComment(sp.scenicspot, getReward);
         let row                  = {
             uid:uid,
