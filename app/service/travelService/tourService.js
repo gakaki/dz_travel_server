@@ -1338,16 +1338,21 @@ class TourService extends Service {
         }
 
 
+        let modify = 0;
         if(!Number(info.planedAllTracked)) {
             //扣钱
-            await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
+            modify = - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
+            await this.ctx.service.publicService.itemService.itemChange(info.uid, { ["items." + travelConfig.Item.GOLD ]: modify });
+           // await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
+           // info.goldNum = ui.items[travelConfig.Item.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
         }
 
 
+       // ui = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
        // info.startTime = currentCity.startTime.getTime();
 
         info.spots = roadMap;
-        info.goldNum = ui.items[travelConfig.Item.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
+        info.goldNum = ui.items[travelConfig.Item.GOLD] + modify;
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {
