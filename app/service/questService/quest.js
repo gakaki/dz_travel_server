@@ -197,15 +197,14 @@ class Quest extends TreeNode {
                         break;
                     case "3": //时间  据说观光的时间是没有的所以不管了
                         itemCount       = itemIdOrVal;
-                        str             = `增加${typeName}${itemIdOrVal}分钟`;
-                        str             = "";
+                        str             = `增加路程${typeName}${itemIdOrVal}分钟`;
                         break;
                     case "4": //特产
                         itemCount       = itemIdOrVal;
                         let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
                         itemName        = speciality.specialityname;
                        // if(isGet) {
-                            str             = `获得${typeName}${itemName}`
+                            str         = `获得${typeName}${itemName}`
                        // }
                         break;
                     case "5": //明信片  明信片随机所以无所谓了
