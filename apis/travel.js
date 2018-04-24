@@ -1088,11 +1088,12 @@ class TourIndexInfo extends Base {
         this._startPos = null;
         this._others = null;
         this._display = null;
+        this._present = null;
         this._startTime = null;
         this._partener = null;
         this.requireFileds = ["cid","inviteCode"];
         this.reqFields = ["cid","inviteCode"];
-        this.resFields = ["weather","mileage","spots","task","startPos","others","display","startTime","partener"];
+        this.resFields = ["weather","mileage","spots","task","startPos","others","display","present","startTime","partener"];
     }
     //client input, require, type: number
     get cid() {return this._cid}
@@ -1121,6 +1122,9 @@ class TourIndexInfo extends Base {
     //server output, type: 
     get display() {return this._display}
     set display(v) {this._display = v}
+    //server output, type: 
+    get present() {return this._present}
+    set present(v) {this._present = v}
     //server output, type: 
     get startTime() {return this._startTime}
     set startTime(v) {this._startTime = v}
