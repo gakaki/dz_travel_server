@@ -115,7 +115,6 @@ class Quest {
     prop gold_used:number
     prop question:string
     prop answers:string[]
-    //prop rewardCommet:string
     prop rewards:string
 }
 
