@@ -41,6 +41,16 @@ class QuestRepo {
 }
 
 module.exports = new QuestRepo();
+
+
+// let n            = new QuestRepo();
+// let quest        = n.find("110011");
+// let res          = quest.getSpotRewardComment();
+// console.log(quest.type,res);
+
+
+	// 你好像有点迷路了，看来要耽误时间了，早知道找个导游了。	1		0	1	0	6.jpg				2:4,3:10	0	0	0	0	0	100	0							0
+
 //
 //
 // let n            = new QuestRepo();
