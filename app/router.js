@@ -123,5 +123,5 @@ module.exports = app => {
   
     
 
-    io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
+    //io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

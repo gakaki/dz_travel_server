@@ -22,15 +22,15 @@ module.exports = appInfo => {
         dir: "/root/server/travel/logs/",
     };
 
-    config.io = {
-        namespace: {
-            '/travel': {
-                connectionMiddleware: [ 'connection' ],
-                packetMiddleware: [],
-            },
-        },
-        redis: config_redis,
-    };
+    // config.io = {
+    //     namespace: {
+    //         '/travel': {
+    //             connectionMiddleware: [ 'connection' ],
+    //             packetMiddleware: [],
+    //         },
+    //     },
+    //     redis: config_redis,
+    // };
 
     //事件队列
     config.kue = {
