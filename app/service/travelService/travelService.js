@@ -36,7 +36,7 @@ class TravelService extends Service {
             cost = cost * multiple;
             dcost = dcost * multiple;
             rcost = rcost * multiple;
-            info.holiday = holiday[0];
+            info.holiday = holiday[0] + "节";
         }
         let cid = null;
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
@@ -153,7 +153,7 @@ class TravelService extends Service {
         }
         let currentCity = {
             uid: ui.uid,
-            fid: flyid,
+            fid: flyid.toString(),
             cid: cid,
             rentItems: rentItems,
             friend: null,
@@ -170,7 +170,7 @@ class TravelService extends Service {
         };
         let footprint = {
             uid: ui.uid,
-            fid: flyid,
+            fid: flyid.toString(),
             cid: cid,
             country: travelConfig.City.Get(cid).country,
             province: travelConfig.City.Get(cid).province,
@@ -233,30 +233,33 @@ class TravelService extends Service {
         let year = new Date().getFullYear();
         //allLogs = allLogs.slice((page - 1) * limit, page * limit);
         for(let i = 0; i < allLogs.length; i++) {
+            this.logger.info(allLogs[i].fid);
             let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
-            let onelog = {
-                city: travelConfig.City.Get(fly.destination).city,
-                time: fly.createDate.format("yyyy-MM-dd"),
-                scenicSpots: allLogs[i].scenicSpots,
-               // year : allLogs[i].year,
-            };
+            if(fly) {
+                let onelog = {
+                    city: travelConfig.City.Get(fly.destination).city,
+                    time: fly.createDate.format("yyyy-MM-dd"),
+                    scenicSpots: allLogs[i].scenicSpots,
+                    // year : allLogs[i].year,
+                };
 
-          //  this.logger.info(onelog);
+                //  this.logger.info(onelog);
 
-            if(i == 0) {
-                onelog.year = allLogs[i].year;
-                year = allLogs[i].year
-            }else{
-                if(year != allLogs[i].year) {
+                if(i == 0) {
                     onelog.year = allLogs[i].year;
                     year = allLogs[i].year
                 }else{
-                    delete outLog[i - 1].year;
-                    onelog.year = allLogs[i].year;
-                    year = allLogs[i].year
+                    if(year != allLogs[i].year) {
+                        onelog.year = allLogs[i].year;
+                        year = allLogs[i].year
+                    }else{
+                        delete outLog[i - 1].year;
+                        onelog.year = allLogs[i].year;
+                        year = allLogs[i].year
+                    }
                 }
+                outLog.push(onelog);
             }
-            outLog.push(onelog);
         }
         info.allLogs = outLog.slice((page - 1) * limit, page * limit).reverse();
     }

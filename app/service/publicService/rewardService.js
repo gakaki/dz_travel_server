@@ -58,17 +58,28 @@ class RewardService extends Service{
                      reward.push(
                          {
                              k:k,
-                             v:v
+                             v:v,
+                             n:1
                          }
                      )
                 }
             }
             if ( k == eventCfg.RewardType.Speciality){ //特产
+                this.logger.info(v);
                  if(await this.speciality( uid , cid ,v )) {
                      reward.push(
                          {
                              k:k,
-                             v:v
+                             v:v,
+                             n:1
+                         }
+                     )
+                 }else{
+                     reward.push(
+                         {
+                             k:k,
+                             v:v,
+                             n:0,
                          }
                      )
                  }
@@ -138,7 +149,10 @@ class RewardService extends Service{
             createDate:dateNow      //创建时间
         });
         this.logger.info(`获得明信片成功,获得${cfgId} x ${1}`);
-
+        let count = await this.ctx.model.TravelModel.Postcard.count({ uid: uid, ptid: cfgId, cid: cid });
+        if(count == 1) {
+            this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+        }
 
 
 
@@ -165,8 +179,14 @@ class RewardService extends Service{
             return false;
         }
 
-        let spcount = await this.ctx.model.TravelModel.Speciality.count({ uid: uid });
-        if(spcount < travelConfig.Parameter.Get(travelConfig.Parameter.BAGLIMIT).value) {
+        let spcount = await this.ctx.model.TravelModel.Speciality.aggregate([
+            { $match: { uid: uid } },
+            { $group: { _id: "$uid", count: { $sum: "$number" } } },
+            { $project: { _id: 0, uid: "$_id", count: 1 } },
+            ]);
+        this.logger.info(spcount);
+
+        if(spcount[0].count < travelConfig.Parameter.Get(travelConfig.Parameter.BAGLIMIT).value) {
             //加特产
             await this.ctx.model.TravelModel.Speciality.update({uid: uid, spid: cfgId },
                 {
@@ -205,7 +225,7 @@ class RewardService extends Service{
             this.logger.info(`系统赠送特产成功,获得 ${cfgId}  x ${count}`);
             return true;
         }else{
-            this.logger.info(`系统赠送特产失败,玩家背包当前特产数量 ${spcount} 已达上限 `);
+            this.logger.info(`系统赠送特产失败,玩家背包当前特产数量 ${spcount[0].count} 已达上限 `);
             return false;
         }
 
