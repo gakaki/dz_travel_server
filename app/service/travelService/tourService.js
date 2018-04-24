@@ -696,14 +696,15 @@ class TourService extends Service {
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false );
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
-        let calcCurrIndex = ( eReceivedCount ) => {
+        let calcCurrIndex = ( eReceivedCount ) => { //倒计时计算
             let current                                                  = 0;
             if ( eReceivedCount <= 0 ){
                 current                                                  = 1;
             }else{
-                current                                                  = eReceivedCount >= 10 ? 10 : eReceivedCount + 1;
+                current                                                  = eReceivedCount >= 10 ? 10 : eReceivedCount ;
             }
             let total                                                    = 10;
+            current                                                      = total - current;
             console.log(`[debug] current index is ${current}/10`);
             return  current;
         }
