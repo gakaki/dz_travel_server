@@ -6,8 +6,9 @@ class QuestRepo {
         return this.quests.find( e  => e.id == row_id );
     }
     constructor() {
+        let rows = travelConfig.events.filter(  e=> e.describe.indexOf("s%") < 0 )
         this.quests = []
-        for(let row of travelConfig.events){
+        for(let row of rows){
             this._add(row)
         }
     }
