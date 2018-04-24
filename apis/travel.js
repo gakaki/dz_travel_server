@@ -1767,13 +1767,17 @@ class ModifyRouter extends Base {
         super();
         this.action = 'tour.modifyrouter';
     
+        this._planedAllTracked = null;
         this._spotsAllTracked = null;
         this._spots = null;
         this._goldNum = null;
-        this.requireFileds = ["spotsAllTracked"];
-        this.reqFields = ["spotsAllTracked"];
+        this.requireFileds = ["planedAllTracked","spotsAllTracked"];
+        this.reqFields = ["planedAllTracked","spotsAllTracked"];
         this.resFields = ["spots","goldNum"];
     }
+    //client input, require, type: number//是否已经把规划的所有景点都走过了,0或1,如果为1,则继续规划路线时不扣钱
+    get planedAllTracked() {return this._planedAllTracked}
+    set planedAllTracked(v) {this._planedAllTracked = v}
     //client input, require, type: number//是否已经把地图上所有的景点都走过了,0或1
     get spotsAllTracked() {return this._spotsAllTracked}
     set spotsAllTracked(v) {this._spotsAllTracked = v}
