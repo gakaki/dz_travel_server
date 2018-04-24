@@ -16,170 +16,122 @@ const  utils     = require('../../utils/utils');
 class TourService extends Service {
 
     // 邀请码 查询当前队友
-    async findAnotherPlayer2( uid ){
-        if( inviteCode ){
-            //通过redis获取到当前的队友
-            let doubleInfo      = await this.app.redis.hgetall(inviteCode);
-            this.logger.info("查询双人信息" + uid, doubleInfo.inviter, doubleInfo.invitee != uid, doubleInfo.invitee);
-
-            // partener 就是另一个玩家
-            let partenerId      = [doubleInfo.inviter,doubleInfo.invitee].find(x => x != uid);
-            let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: partenerId })
-            if ( !partnetObj )  return null;
-
-            this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
-
-            let partener        = {
-                uid:   partenerId,
-                nickName: partnetObj.nickName,
-                gender:1,//性别
-                img:partnetObj.avatarUrl,//头像地址
-                isInviter:doubleInfo.inviter == uid ? true : false //是否是邀请者
-            }
-            return partener;
-        }else{
-            return null;
+    async findAnotherPlayer(myUid){
+        let curCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: myUid });
+        if(!curCity) {
+            this.ctx.session.info.code = apis.Code.NOT_FOUND;
+            this.ctx.session.info.submit();
+            return;
         }
-    }
-
-
-    async findAnotherPlayer(inviteCode, myUid){
-        if( inviteCode ){
-            //通过redis获取到当前的队友
-            let doubleInfo      = await this.app.redis.hgetall(inviteCode);
-            this.logger.info("查询双人信息" + myUid, doubleInfo.inviter, doubleInfo.invitee != myUid, doubleInfo.invitee);
-
-            // partener 就是另一个玩家
-            let partenerId      = [doubleInfo.inviter,doubleInfo.invitee].find(x => x != myUid);
-            let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: partenerId })
-            if ( !partnetObj )  return null;
-
-            this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
-
-            let partener        = {
-                uid:   partenerId,
-                nickName: partnetObj.nickName,
-                gender:1,//性别
-                img:partnetObj.avatarUrl,//头像地址
-                isInviter:doubleInfo.inviter == myUid ? false : true //是否是邀请者
-            }
-            return partener;
-        }else{
-            return null;
+        let friendId        = curCity['friend'];
+        let isInviter       = curCity['isInviter'];
+        if ( !friendId || !isInviter ){
+            return null; //shuomi
         }
+        this.logger.info("[double guide]查询双人信息" + myUid + ` isInviter ${isInviter}`, "好友id是" + friendId + ` isInviter ${!isInviter}`);
+
+        // partener 就是另一个玩家
+        let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: friendId })
+        if ( !partnetObj )  return null;
+        this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
+
+        let partener        = {
+            uid:   partenerId,
+            nickName: partnetObj.nickName,
+            gender:1,//性别
+            img:partnetObj.avatarUrl,//头像地址
+            isInviter:!isInviter //是否是邀请者 被邀请者当然是和邀请者相反咯
+        }
+        return partener;
     }
     async tourindexinfo(info, ui) {
 
-        let uid             = info.uid;
-        let isMulti         = false;
-        let inviteCode      = 1231234;
+        let uid                                                       = info.uid;
+        let cid                                                      = parseInt(info.cid);
+        this.ctx.session.info                                        = info;
 
-         //是否双人模式  通过cid其实能够查到是否是双人模式
-        let cid             = parseInt(info.cid);
-        // 根据被邀请人的uid
-        let fakeDouble      = {
-                code        : 1231234,
-                uid         : uid,
-                inviter     : "ov5W35XwjECAWGq0UK3omMfu9nak",       //邀请者
-                invitee     : "absdadew234resfdsfsd"                //被邀请者
-                // ov5W35XwjECAWGq0UK3omMfu9nak (inviter) ====(invite邀请)====>invitee（被邀请者）
-        };
-        if ( fakeDouble ){
-            await this.app.redis.hmset(inviteCode,fakeDouble);
-        }
-        info.partener       = await this.findAnotherPlayer(inviteCode,uid);
+        info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
-        info.others         = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
 
-        let cityConfig      = travelConfig.City.Get( cid );
+        let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
-            info.code = apis.Code.PARAMETER_NOT_MATCH;
+            info.code                                                = apis.Code.PARAMETER_NOT_MATCH;
             info.submit();
             return;
         }
-        info.spots          = [];
-        let spot_map        = {};
-
-        let lng             = cityConfig['coordinate'][0];
-        let lat             = cityConfig['coordinate'][1];
-
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
-
-        //this.logger.info(currentCity);
-
+        info.spots                                                   = [];
+        let spot_map                                                 = {};
+        let currentCity                                              = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
         if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
-                let spotsConfig = travelConfig.Scenicspot.Get(spot_id);
-                let xy = ScenicPos.Get(spot_id);
+                let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
+                let xy                                               = ScenicPos.Get(spot_id);
 
                 if ( spotsConfig == null ) continue;
 
-                //  let lng           = spotsConfig['coordinate'][0];
-                //  let lat           = spotsConfig['coordinate'][1];
-
-                let row = {
-                    id          : spot_id,
-                    cid         : cid,
-                    x         : xy.x,
-                    y         : xy.y,
-                    isStart     : false,
-                    tracked     : false, //是否经过了 等下从数据库比对
+                let row                                              = {
+                    id                                               : spot_id,
+                    cid                                              : cid,
+                    x                                                : xy.x,
+                    y                                                : xy.y,
+                    isStart                                          : false,
+                    tracked                                          : false, //是否经过了 等下从数据库比对
                  //   index       : spotsConfig['index'],
-                    trackedNo   : 0, //用户自己走的顺序
-                    name        : spotsConfig['scenicspot'],
-                    desc        : spotsConfig['description'],
-                    building : spotsConfig['building'],
-                    index       : -1,
-
+                    trackedNo                                        : 0, //用户自己走的顺序
+                    name                                             : spotsConfig['scenicspot'],
+                    desc                                             : spotsConfig['description'],
+                    building                                         : spotsConfig['building'],
+                    index                                            : -1,
                 }
                 info.spots.push(row);
                 //info.startCoordinate = spotsConfig.coordinate;
 
-                spot_map[spot_id] = row;
+                spot_map[spot_id]                                    = row;
             }
         }else{
-            let roadMaps = currentCity.roadMap;
+            let roadMaps                                             = currentCity.roadMap;
             for(let spot of roadMaps) {
                 if(spot.index != -1) {
                     if(!spot.tracked) {
                         if(spot.endtime <= new Date().getTime()) {
-                            spot.tracked = true;
-                            spot.countdown = 0
+                            spot.tracked                             = true;
+                            spot.countdown                           = 0
                         }
                     }else{
-                        spot.countdown = 0
+                        spot.countdown                               = 0
                     }
 
                 }
-                spot_map[spot.id] = spot;
+                spot_map[spot.id]                                    = spot;
             }
-            info.spots = roadMaps;
-            info.startTime = currentCity.startTime.getTime();
-            info.task  = this.taskInfo(uid);
+            info.spots                                               = roadMaps;
+            info.startTime                                           = currentCity.startTime.getTime();
+            info.task                                                = this.taskInfo(uid);
         }
-        await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.uid }, { $set: { roadMap: info.spots } });
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid    : info.uid }, { $set: { roadMap: info.spots } });
 
-        info.startPos = ScenicPos.Get(cid).cfg;
-        info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-        let acceleration = currentCity.acceleration;
-        info.display = 0;
+        info.startPos                                                = ScenicPos.Get(cid).cfg;
+        info.weather                                                 = await this.ctx.service.publicService.thirdService.getWeather(cid);
+        info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        let acceleration                                             = currentCity.acceleration;
+        info.display                                                 = 0;
 
         if(acceleration) {
             for(let car of travelConfig.shops) {
                 if(car.type == apis.RentItem.CAR) {
                     this.logger.info(car);
                     if(car.value == acceleration) {
-                        info.display = car.id;
+                        info.display                                 = car.id;
                         break;
                     }
                 }
             }
         }
 
-        info.task = await this.queryTaskProgress(ui.uid, currentCity);
-        info.mileage = ui.mileage;
+        info.task                                                    = await this.queryTaskProgress(ui.uid, currentCity);
+        info.mileage                                                 = ui.mileage;
     }
 
 
@@ -694,7 +646,7 @@ class TourService extends Service {
         let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid                                                          : uid
         });
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false );
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime());
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
         let calcCurrIndex = ( eReceivedCount ) => { //倒计时计算
@@ -1163,7 +1115,6 @@ class TourService extends Service {
 
     //第一次点击开始游玩按钮
     async setrouter(info){
-        let inviteCode           = info.inviteCode;
         let uid                  = info.uid;
         let cid                  = info.cid;
         let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
@@ -1231,7 +1182,7 @@ class TourService extends Service {
             }, { upsert: true });
 
             if ( inviteCode ){        //双人模式
-                let partner         = await this.findAnotherPlayer(inviteCode,uid);
+                let partner          = await this.findAnotherPlayer(uid);
                 if ( partner ){
                     let f            = new MakeEvent(para);
                     eventspartner    = f.eventsFormat;
@@ -1243,7 +1194,7 @@ class TourService extends Service {
                         }
                     }, { upsert: true });
                 }else{
-                    this.logger.info("没有找到对应的伙伴id 有问题！", inviteCode , uid );
+                    this.logger.info("没有找到对应的伙伴id 有问题！",  uid );
                 }
             }
         }
@@ -1377,13 +1328,10 @@ class TourService extends Service {
         }
     }
 
-    // 取消组队
+    // 取消组队 双人变单人
     async cancelparten(info){
-        //双人变单人
-        //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
-        let inviteCode  = info.inviteCode;
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
-        let partner     = await this.findAnotherPlayer(inviteCode,uid);
+        let partner     = await this.findAnotherPlayer(uid);
 
         //删除inviteCode
         await this.ctx.service.travelService.doubleService.deleteCode(info);
@@ -1394,15 +1342,13 @@ class TourService extends Service {
             type: apis.Code.USER_CANCEL_TEAM,
             createDate: new Date(),
         });
-
-        //删除current city里的 invite code中的用户id 的event 偷懒不删除了
+        // friend 置空
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ uid, partner.uid ] }, { $set: { friend: null } }, { multi: true });
     }
 
+    //双人变单人 要把events 离开的置空 清空 或者 记录action 事件
     async cancelpartenloop(info){
-        //双人变单人
-        //要把events 离开的置空 清空invite code 或者invite code  //记录action 事件
-        let partner     = await this.findAnotherPlayer(info.inviteCode,info.uid);
+        let partner     = await this.findAnotherPlayer(info.uid);
         if ( !partner ){
                 info.code = apis.Code.USER_CANCEL_TEAM;
                 return;
