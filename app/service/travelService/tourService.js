@@ -33,10 +33,10 @@ class TourService extends Service {
         // partener 就是另一个玩家
         let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: friendId })
         if ( !partnetObj )  return null;
-        this.logger.info(`查询队友信息 ${partenerId}` + partnetObj['nickName']);
+        this.logger.info(`查询队友信息 ${friendId}` + partnetObj['nickName']);
 
         let partener        = {
-            uid:   partenerId,
+            uid:   friendId,
             nickName: partnetObj.nickName,
             gender:1,//性别
             img:partnetObj.avatarUrl,//头像地址
@@ -46,7 +46,7 @@ class TourService extends Service {
     }
     async tourindexinfo(info, ui) {
 
-        let uid                                                       = info.uid;
+        let uid                                                      = info.uid;
         let cid                                                      = parseInt(info.cid);
         this.ctx.session.info                                        = info;
 
@@ -646,7 +646,8 @@ class TourService extends Service {
         let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid                                                          : uid
         });
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime());
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false ).slice(3);
+        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived);
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
         let calcCurrIndex = ( eReceivedCount ) => { //倒计时计算
@@ -1126,6 +1127,8 @@ class TourService extends Service {
             'uid'        : uid,
             'cid'        : cid
         });
+        let isDobule             = currentCity["friend"] ? true : false;
+
      //   this.logger.info(currentCity);
 
         let para                 = {
@@ -1181,7 +1184,8 @@ class TourService extends Service {
                 }
             }, { upsert: true });
 
-            if ( inviteCode ){        //双人模式
+
+            if ( isDobule ){        //双人模式
                 let partner          = await this.findAnotherPlayer(uid);
                 if ( partner ){
                     let f            = new MakeEvent(para);
@@ -1199,8 +1203,6 @@ class TourService extends Service {
             }
         }
 
-
-
         //更新 currentcity的 roadmap
         await this.ctx.model.TravelModel.CurrentCity.update({
         'uid'        : uid,
@@ -1213,7 +1215,7 @@ class TourService extends Service {
                 modifyEventDate: new Date(),
         }});
 
-        if(currentCity.friend) {
+        if(isDobule) {
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : currentCity.friend,
                 'cid'        : cid,
@@ -1225,8 +1227,6 @@ class TourService extends Service {
                     modifyEventDate: new Date(),
                 }});
         }
-
-
 
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
@@ -1333,12 +1333,11 @@ class TourService extends Service {
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
         let partner     = await this.findAnotherPlayer(uid);
 
-        //删除inviteCode
-        await this.ctx.service.travelService.doubleService.deleteCode(info);
+        // 两边用户的数据表记录 删除friend 字段
+
         //记录action
         this.ctx.model.PublicModel.UserActionRecord.create({
             uid: uid,
-            inviteCode: inviteCode,
             type: apis.Code.USER_CANCEL_TEAM,
             createDate: new Date(),
         });
