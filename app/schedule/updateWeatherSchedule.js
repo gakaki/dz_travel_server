@@ -18,7 +18,7 @@ module.exports = {
         let segment = 100;
         let weathers = "晴";
         for(let city of citys) {
-            if(city.id != 10000) {
+            if(city.city) {
                 let key = "weather" + Math.round(city.id / segment);
                 try {
                     let meteorological = await weather(city.city, ctx.app);

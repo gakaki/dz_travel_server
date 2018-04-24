@@ -49,6 +49,8 @@ class ThirdService extends Service {
 
 
     getHoliday(date = new Date()) {
+       //   date = new Date("2018-5-1");
+         //this.logger.info(date);
          let holidays = holiday(date);
          this.logger.info('holiday', holidays);
         return holidays
