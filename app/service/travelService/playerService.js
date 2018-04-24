@@ -340,12 +340,13 @@ class PlayerService extends Service {
           // this.logger.info(postcardChats);
 
             let watchChats = await this.ctx.model.TravelModel.PostcardChatWatch.find({ uid: info.uid });
-            let pscids = new Set(postcardChats.pscid);
+
             for(let watchChat of watchChats) {
                 let postcard = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: watchChat.pscid });
                 if(postcard) {
-                    if(!pscids.has(postcard.pscid)) {
-                        pscids.add(postcard.pscid);
+                    let index = postcardChats.findIndex((n) => n.pscid == postcard.pscid);
+                    this.logger.info(index);
+                    if(index == -1) {
                         let firstMsg = await await this.ctx.model.TravelModel.PostcardChat.find({ pscid: postcard.pscid }).sort({ createDate: -1 });
                         if(firstMsg[0]) {
                             let postcardInfo = {

@@ -162,7 +162,7 @@ class IntegralService extends Service {
         if(!endtime) {
             this.logger.info('请在数据库中插入兑换活动的截止日期')
         } else {
-            info.endtime = endtime.endtime
+            info.endtime = (endtime.endtime).format("yyyy-MM-dd")
         }
     }
 
