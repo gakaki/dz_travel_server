@@ -75,7 +75,7 @@ api TourIndexInfo{
     //其他玩家头像，为图片url数组
     output others:string[]
     output display: number //人物的表现形式
-    output present: false//第二次進入的城市贈送豪華車
+    output present: boolean//第二次進入的城市贈送豪華車
     output startTime: number //开始时间
     output partener:Partener//组队者信息,非组队模式下传空
 }
