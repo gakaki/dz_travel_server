@@ -60,7 +60,7 @@ class TourService extends Service {
             info.submit();
             return;
         }
-<<<<<<< HEAD
+
         info.spots          = [];
         let spot_map        = {};
 
@@ -77,11 +77,6 @@ class TourService extends Service {
                 info.present = fcity.present;
             }
         }
-=======
-        info.spots                                                   = [];
-        let spot_map                                                 = {};
-        let currentCity                                              = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
->>>>>>> 13e3d4e8a6ba3d4ea6040ea9c48b79d257c6ae31
         if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
@@ -131,7 +126,7 @@ class TourService extends Service {
         }
         await this.ctx.model.TravelModel.CurrentCity.update({ uid    : info.uid }, { $set: { roadMap: info.spots } });
 
-<<<<<<< HEAD
+
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
@@ -140,13 +135,6 @@ class TourService extends Service {
 
         let acceleration = currentCity.acceleration;
         info.display = 0;
-=======
-        info.startPos                                                = ScenicPos.Get(cid).cfg;
-        info.weather                                                 = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
-        let acceleration                                             = currentCity.acceleration;
-        info.display                                                 = 0;
->>>>>>> 13e3d4e8a6ba3d4ea6040ea9c48b79d257c6ae31
 
         if(acceleration) {
             for(let car of travelConfig.shops) {
@@ -159,14 +147,11 @@ class TourService extends Service {
             }
         }
 
-<<<<<<< HEAD
+
 
         info.task = await this.queryTaskProgress(ui.uid, currentCity);
         info.mileage = ui.mileage;
-=======
-        info.task                                                    = await this.queryTaskProgress(ui.uid, currentCity);
-        info.mileage                                                 = ui.mileage;
->>>>>>> 13e3d4e8a6ba3d4ea6040ea9c48b79d257c6ae31
+
     }
 
 
@@ -1221,30 +1206,24 @@ class TourService extends Service {
                     events : e.eventsFormat
                 }
             }, { upsert: true });
-<<<<<<< HEAD
+
          this.logger.info("更新时间没？？？？？？？", up);
-            if ( inviteCode ){        //双人模式
-                let partner         = await this.findAnotherPlayer(inviteCode,uid);
-=======
-
-
-            if ( isDobule ){        //双人模式
-                let partner          = await this.findAnotherPlayer(uid);
->>>>>>> 13e3d4e8a6ba3d4ea6040ea9c48b79d257c6ae31
-                if ( partner ){
-                    let f            = new MakeEvent(para);
-                    eventspartner    = f.eventsFormat;
-
-                    await this.ctx.model.TravelModel.CityEvents.update({ uid: partner.uid }, {
-                        $set : {
-                            uid : partner.uid,
-                            events : f.eventsFormat
-                        }
-                    }, { upsert: true });
-                }else{
-                    this.logger.info("没有找到对应的伙伴id 有问题！",  uid );
-                }
-            }
+            // if ( inviteCode ){        //双人模式
+            //     let partner         = await this.findAnotherPlayer(inviteCode,uid);
+            //     if ( partner ){
+            //         let f            = new MakeEvent(para);
+            //         eventspartner    = f.eventsFormat;
+            //
+            //         await this.ctx.model.TravelModel.CityEvents.update({ uid: partner.uid }, {
+            //             $set : {
+            //                 uid : partner.uid,
+            //                 events : f.eventsFormat
+            //             }
+            //         }, { upsert: true });
+            //     }else{
+            //         this.logger.info("没有找到对应的伙伴id 有问题！",  uid );
+            //     }
+            // }
         }
 
         //更新 currentcity的 roadmap
