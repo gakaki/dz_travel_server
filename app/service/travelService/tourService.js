@@ -688,57 +688,59 @@ class TourService extends Service {
         //spotTravelEvent 作为日志received 作为 存档表吧
         //所以查cid的cityevent表
 
-        let uid             = info.uid;
-        let cid             = info.cid;
-        let cityEvents      = await this.ctx.model.TravelModel.CityEvents.findOne({
-            uid:            uid
+        let uid                                                          = info.uid;
+        let cid                                                          = info.cid;
+        let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
+            uid                                                          : uid
         });
-        //过滤掉时间和received true的        没有领取并且小于当前时间的
-        // let events          = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime() ); //为了测试
-        let events          = cityEvents.events.filter( x => x.received == false );
-        // this.logger.info("events content", events);
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false );
+        let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
-        info.total          = 10;
-        info.current        = cityEvents.events.length - events.length
-        info.current        = info.current <= 0 ? 1 : info.current;
-        info.hasNext        = info.current + 1 >= events.length ? true : false;
+        let calcCurrIndex = ( eReceivedCount ) => {
+            let current                                                  = 0;
+            if ( eReceivedCount <= 0 ){
+                current                                                  = 1;
+            }else{
+                current                                                  = eReceivedCount >= 10 ? 10 : eReceivedCount + 1;
+            }
+            let total                                                    = 10;
+            console.log(`[debug] current index is ${current}/10`);
+            return  current;
+        }
 
-        info.total          = cityEvents.events.length;
-        info.current        = cityEvents.events.filter( x => x.received == true ).length + 1;
-        info.hasNext        = info.current + 1 >= info.total ?   false : true;
-
-
-        let event           = null;
-        if (events.length >= 0)
-            event           = events[0];
+        info.current                                                     = calcCurrIndex(eventsReceived.length);
+        info.total                                                       = 10;
+        let event                                                        = null;
+        if (eventsNoReceived.length >= 0)
+            event                                                        = eventsNoReceived[0];
         if ( !event ) {
-            info.code       = apis.Code.NOT_FOUND;
+            info.code                                                    = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
 
-        let eid           = event["eid"];
-        let questCfg      = questRepo.find(eid);
-        let row           = await this.rewardThanMark( uid,cid,eid);
-        info.id           = event['dbId'];
-        info.quest        = {
-            dbId:          event['dbId'],
-            eid:           eid, //前端没有此配置表
-            type:          questCfg.type,
-            describe:      questCfg.describeFormat(cid),
-            gold_used:     0,
-            picture:       questCfg['picture'],
-           // rewards:       questCfg.getSpotRewardComment().reward,
-            rewards:       row.reward,
-            question:      questCfg['describe'],
-            answers:       questCfg.answers(),
+        let eid                                                          = event["eid"];
+        let questCfg                                                     = questRepo.find(eid);
+        let row                                                          = await this.rewardThanMark( uid,cid,eid);
+        info.id                                                          = event['dbId'];
+        info.quest                                                       = {
+            dbId                                                         : event['dbId'],
+            eid                                                          : eid, //前端没有此配置表
+            type                                                         : questCfg.type,
+            describe                                                     : questCfg.describeFormat(cid),
+            gold_used                                                    : 0,
+            picture                                                      : questCfg['picture'],
+            // rewards:       questCfg.getSpotRewardComment().reward,
+            rewards                                                      : row.reward,
+            question                                                     : questCfg['describe'],
+            answers                                                      : questCfg.answers(),
         };
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
             // let row                 = await this.rewardThanMark( uid,cid,eid);
-            await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': event.dbId } , {
-                $set : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
+            await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
+                $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
@@ -1113,9 +1115,9 @@ class TourService extends Service {
 
             let diffEventIds     = [];
             let redisKey         = `playloop:${uid}`;
-            let prevEventIds     = await this.app.redis.smembers(redisKey);
-            let currentEventIds  = events.map( x => String(x.id) );
-            this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
+            let prevEventIds     = await this.app.redis.smembers(redisKey).filter( (e) => e != undefined && e!= "undefined");
+            let currentEventIds  = events.map( x => String(x.id) ).filter( (e) => e != undefined && e!= "undefined");
+            // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
             if ( !prevEventIds  || prevEventIds.length <= 0 ){
                 if ( currentEventIds && currentEventIds.length > 0){
                     await this.app.redis.sadd(redisKey,...currentEventIds);
@@ -1124,7 +1126,7 @@ class TourService extends Service {
                 //求差集
                 diffEventIds     = _.difference(currentEventIds, prevEventIds);
             }
-            this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
+            // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
             if ( diffEventIds && diffEventIds.length > 0){
                 info.newEvent    = true; //是否有新事件
                 await this.app.redis.sadd(redisKey,...currentEventIds);
@@ -1141,8 +1143,10 @@ class TourService extends Service {
         }
 
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
-        info.spotsTracked        = spotsHasArrived ? spotsHasArrived.length : 0;
-        info.spotsAllTracked      = info.spotsTracked == travelConfig.City.Get(cid).scenicspot.length;
+        info.spotsTracked         = spotsHasArrived ? spotsHasArrived.length : 0;
+        let citySpotsLength       = travelConfig.City.Get(cid).scenicspot.length;
+        info.spotsAllTracked      = info.spotsTracked == citySpotsLength;
+        this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
         if ( info.spotsAllTracked == true){
             info.spotsTracked    = 0;
         }
@@ -1160,7 +1164,7 @@ class TourService extends Service {
         let uid                  = info.uid;
         let cid                  = info.cid;
         let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        let today                = 0; //new Date().getDate();
+        let today                = 0;
         //设置的路线
         let lines                = JSON.parse(info.line);
         //判断是否是第一次设置路线
