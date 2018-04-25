@@ -736,7 +736,7 @@ class TourService extends Service {
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived);
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
-        info.current                                                     = MakeEvent.fakeCalcCurrIndex(eventsReceived.length);
+        info.current                                                     = MakeEvent.fakeCalcCurrIndex(eventsReceived.length,eventsReceived.length);
         info.total                                                       = 10;
         let event                                                        = null;
         if (eventsNoReceived.length >= 0)
@@ -1155,7 +1155,7 @@ class TourService extends Service {
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
-       // info.newEvent               = true;
+        // info.newEvent               = true;
     }
 
 
