@@ -244,7 +244,7 @@ class TourService extends Service {
              spots: spots,
              display: display, //人物的表现形式
             // task:task
-             task: await this.queryTaskProgress(userId, currentCity, false),
+             task: await this.queryTaskProgress(userId, currentCity),
         };
     }
 
@@ -267,6 +267,7 @@ class TourService extends Service {
         for(let spot of roadMaps) {
             let update = false;
             let isOver = false;
+            let hascome = false;
             if(spot.index != -1) {
                 if(!spot.tracked) {
                     if(spot.endtime <= new Date().getTime()) {
@@ -282,8 +283,12 @@ class TourService extends Service {
                         }
                     }else {
                         let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
+                        let count = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, scenicspot: spot.name });
                         if(!footPrints) {
                             update = true;
+                        }
+                        if(count > 0) {
+                            hascome = true;
                         }
 
                     }
@@ -307,8 +312,14 @@ class TourService extends Service {
                 });
 
                 await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
-                //增加积分
-                await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value);
+                if(hascome) {
+                    //增加积分
+                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTAGAIN).value);
+                }else{
+                    //增加积分
+                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value);
+                }
+
                 //更新里程数
                 await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage } });
                 if(isOver) {
@@ -1007,6 +1018,11 @@ class TourService extends Service {
             type:city.type,//明信片类型
             createDate: new Date()
         });
+        //第一次获得这种明信片，获得积分
+        let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.ptid, cid: cfg.cityid });
+        if(count == 1) {
+            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+        }
         this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(ui.uid, cfg.cityid);
         this.logger.info(`购买明信片成功`);
 
