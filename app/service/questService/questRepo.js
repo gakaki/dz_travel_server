@@ -38,11 +38,12 @@ class QuestRepo {
 
         return this.quests.filter( e  => {
             let conditionBelong = false;
-            if(e.belong == option.cid || !e.belong){
+            //console.log(e.belong);
+            if(e.belong == option.cid || !e.belong || e.belong == option.spotId) {
                 conditionBelong = true;
             }
             let conditionType = false;
-            if(e.trigger_type == e.TriggerTypeKeys.TOUR_COMMON || e.trigger_type == e.TriggerTypeKeys.TOUR_CITY){
+            if(e.trigger_type == e.TriggerTypeKeys.TOUR_COMMON || e.trigger_type == e.TriggerTypeKeys.TOUR_CITY) {
                 conditionType = true;
             }
             let conditionTime = false;
@@ -114,6 +115,7 @@ class QuestRepo {
 
 
            if(conditionBelong && conditionType && conditionTime && conditionWeather && conditionCar && conditionM) {
+              // console.log(e.belong);
                return e
            }
         });
@@ -123,7 +125,15 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
+
+//
+//
 // let n            = new QuestRepo();
+//  let x = n.filterTourQuests({cid: 1,weather: 1, today: new Date(), itemSpecial: {},spotId:100101 })
+// console.log(x.length);
+// for(let xx of x) {
+//     console.log(xx.id,xx.belong,xx.type);
+// }
 // let quest        = n.find("110034");
 // let res          = quest.getSpotRewardComment();
 // let question     = quest.describe;
