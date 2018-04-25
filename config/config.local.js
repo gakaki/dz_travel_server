@@ -46,6 +46,10 @@ module.exports = appInfo => {
     config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
     config.weatherusername = "HE1804101712021052";
 
+    config.debug = {
+        eventRandomS:1
+    };
+
     //事件队列
     config.kue =  {
         app : true,

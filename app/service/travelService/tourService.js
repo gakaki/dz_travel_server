@@ -753,13 +753,19 @@ class TourService extends Service {
         if (eventsNoReceived.length >= 0)
             event                                                        = eventsNoReceived[0];
         if ( !event ) {
-            info.code                                                    = apis.Code.NOT_FOUND;
+            // info.code                                                    = apis.Code.NOT_FOUND;
+            // info.submit();
+            // return;
+            info.current = 0;
+            info.quest   = {};
+            info.total   = 10;
             info.submit();
             return;
         }
 
         let eid                                                          = event["eid"];
         let questCfg                                                     = questRepo.find(eid);
+        questCfg.dealKnowledgeRow(cid);
         let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
         info.id                                                          = event['dbId'];
         info.quest                                                       = {
