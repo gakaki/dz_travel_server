@@ -180,7 +180,7 @@ class RankService extends Service {
         ]);
 
         let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            { $match: { uid: uid, cid: cid, received: true } },
+            { $match: { uid: uid, cid: cid, received: true, type: [ 2, 4 ] } },
             { $group: { _id: "$eid" } },
         ]);
         let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
@@ -188,7 +188,7 @@ class RankService extends Service {
             { $group: { _id: "$ptid" } },
         ]);
        // let day = new Date().getDay() ? new Date().getDay() : 7;
-       // this.logger.info(day);
+        this.logger.info(userEvents);
       //  let thisMonday = moment().subtract(day, 'days');
         let thisMonday = utils.getMonday();
         this.logger.info("这周一", thisMonday);
@@ -198,7 +198,7 @@ class RankService extends Service {
         ]);
 
         let weekUserEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            { $match: { uid: uid, cid: cid, received: true, createDate: { $gte: thisMonday } } },
+            { $match: { uid: uid, cid: cid, received: true, type: [ 2, 4 ], createDate: { $gte: thisMonday } } },
             { $group: { _id: "$eid" } },
         ]);
         let weekUserPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([

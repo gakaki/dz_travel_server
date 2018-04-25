@@ -468,7 +468,7 @@ class PlayerService extends Service {
             context: info.message,
             createDate: new Date(),
         });
-        let chats = await this.ctx.model.TravelModel.PostcardChat.find({ psccid: postcard.psccid });
+        let chats = await this.ctx.model.TravelModel.PostcardChat.find({ pscid: postcard.pscid });
         let senders = new Set();
         for(let chat of chats) {
             senders.add(chat.sender);
@@ -476,12 +476,13 @@ class PlayerService extends Service {
         if(!senders.has(postcard.uid)) {
             senders.add(postcard.uid)
         }
+        let pcard = await this.ctx.model.TravelModel.Postcard.findOne({ pscid: postcard.pscid });
         //给所有人发送留言
         for(let senderid of senders) {
             let sender = await this.ctx.model.PublicModel.User.findOne({ uid: senderid });
             //let senderNickName = sender.nickName;
             let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
-            let content = context.replace("s%", ui.nickName);
+            let content = context.replace("s%", ui.nickName).replace("a%", pcard.province).replace("b%", pcard.city);
             if(senderid != info.uid) {
                 await this.ctx.model.TravelModel.UserMsg.create({
                     uid: senderid,
