@@ -19,20 +19,16 @@ describe('test 测试quest类', () => {
         // assert( q.answers[0].match(/s%/) == false )
     });
 
-    it('测试 按照权重生成  ',  async () => {
-        let makeEvent   = new MakeEvent();
-        let events      = makeEvent.eventsFormat;
-        assert(events.length > 0);
-    });
 
-    it('测试 有知识点的生成  ',  async () => {
-        let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
-        assert(row.length > 0);
-    });
 
     it('检测缺少picture字段的  ',  async () => {
         let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
         assert(row.length > 0);
+    });
+
+    it('测试 必然触发的和有前置事件的',  async () => {
+        let row         = questRepo.quests.filter( e=>  e.probability == "-1" );
+        assert(row.length <= 0);
     });
 
     it('测试 reward 事件5',  async () => {

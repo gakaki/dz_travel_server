@@ -26,16 +26,35 @@ describe('test 测试双人旅行 流程 数据写入', () => {
         console.log(e.eventsFormat);
     });
 
-    it('makeEventTest fakeCalcCurrIndex  ',  async () => {
-
+    it('makeEventTest fakeCalcCurrIndex 测试错误页面  ',  async () => {
         for ( let i=-1; i < 13; i++ ){
             let dbReceivedCount = i;
             let dbNoReceivedCount = i + 1;
             let res             = MakeEvent.fakeCalcCurrIndex(dbReceivedCount,dbNoReceivedCount);
         }
-
     });
 
 
+    it('测试 按照权重生成  ',  async () => {
+        let para        = {
+            timeTotalHour  : 0,
+            isNewPlayer    : 0,
+            cid            : 0,
+            weather        : 0,
+            today          : 0,
+            itemSpecial    : 0,
+            spotId         : 0,
+        }
+
+        //权重优先 -1 那些 和 前置事件触发的后面必然在触发
+        let makeEvent   = new MakeEvent();
+        let events      = makeEvent.eventsFormat;
+        assert(events.length > 0);
+    });
+
+    it('测试 有知识点的生成  ',  async () => {
+        let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
+        assert(row.length > 0);
+    });
 });
 
