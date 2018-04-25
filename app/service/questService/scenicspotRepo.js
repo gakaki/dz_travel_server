@@ -1,13 +1,22 @@
 const travelConfig = require("../../../sheets/travel");
-const Quest        = require("./quest");
+const _                 = require("lodash");
 
 class ScenicspotRepo {
-
+    find(row_id) {
+        return this.rows.find( e  => e.id == row_id );
+    }
     constructor() {
-        this.quests = []
+        this.rows  = travelConfig.scenicspots.filter(  e=> e.scenicspot != null )
     }
 
 
+    random4ByCity( cid ){
+        if (!cid) cid = 1;
+        let rows  = this.rows.filter( e => e.cityid == cid );
+        let items =  _.shuffle(rows).slice(0,4);
+        return items;
+    }
 }
-
 module.exports = new ScenicspotRepo();
+
+
