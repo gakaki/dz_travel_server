@@ -1090,7 +1090,8 @@ class TourService extends Service {
             info.submit();
             return;
         }
-        let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid, received: false });
+        let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid});
+
         if (!currentEvents ) {
             // this.logger.info("事件没找到")
             // info.code           = apis.Code.NOT_FOUND;
@@ -1098,7 +1099,7 @@ class TourService extends Service {
             // return;
             currentEvents = {events :[]}
         }
-
+        this.logger.info("预存的事件数量", currentEvents.events.length);
         let cid                  = currentCity.cid;
         let timeNow              = new Date().getTime();
         let timePrev             = timeNow - 60 * 10 * 1000; //10分钟之前到现在 放松限制
@@ -1109,7 +1110,7 @@ class TourService extends Service {
         info.newEvent            = false;
         if ( timePrev ){
             let events           = currentEvents['events'];
-            events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
+            events               = events.filter(  r =>  r.triggerDate  >= timePrev && r.triggerDate <= timeNow && r.received == false  );
             this.logger.info("事件数量 ",events.length);
 
             // let diffEventIds     = [];
@@ -1147,7 +1148,7 @@ class TourService extends Service {
         let citySpotsLength       = travelConfig.City.Get(cid).scenicspot.length;
         info.spotsAllTracked      = spotsAllTrackedNum == citySpotsLength;
         this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
-        if ( info.spotsAllTracked == true){
+        if ( info.spotsTracked == citySpotsLength){
             info.spotsTracked    = 0;
         }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
