@@ -261,6 +261,7 @@ class MessageType{
 class Partener {
     constructor() {
     
+        
     
         //prop type: string//队员名
         this.nickName = null;
@@ -282,6 +283,7 @@ class Partener {
 class Payload {
     constructor() {
     
+        
     
         //prop type: string
         this.timeStamp = null;
@@ -306,6 +308,7 @@ class Payload {
 class OneDayLog {
     constructor() {
     
+        
     
         //prop type: string
         this.time = null;
@@ -321,6 +324,7 @@ class OneDayLog {
 class OneCityLog {
     constructor() {
     
+        
     
         //prop type: string
         this.city = null;
@@ -339,6 +343,7 @@ class OneCityLog {
 class Log {
     constructor() {
     
+        
     
         //prop type: string
         this.year = null;
@@ -354,6 +359,7 @@ class Log {
 class FriendInfo {
     constructor() {
     
+        
     
         //prop type: string
         this.cid = null;
@@ -369,6 +375,7 @@ class FriendInfo {
 class ProvencePer {
     constructor() {
     
+        
     
         //prop type: 
         this.proLetter = null;
@@ -387,6 +394,7 @@ class ProvencePer {
 class CityPer {
     constructor() {
     
+        
     
         //prop type: string//城市id
         this.cityId = null;
@@ -408,6 +416,7 @@ class CityPer {
 class UserBriefInfo {
     constructor() {
     
+        
     
         //prop type: string
         this.uid = null;
@@ -426,6 +435,7 @@ class UserBriefInfo {
 class OtherUserInfo {
     constructor() {
     
+        
     
         //prop type: number
         this.totalIntegral = null;
@@ -453,6 +463,7 @@ class OtherUserInfo {
 class RealInfo {
     constructor() {
     
+        
     
         //prop type: string
         this.uid = null;
@@ -477,6 +488,7 @@ class RealInfo {
 class TicketInfo {
     constructor() {
     
+        
     
         //prop type: string
         this.cid = null;
@@ -495,12 +507,16 @@ class TicketInfo {
 class Base {
     constructor() {
     
+        
     
         //prop type: string
         this.action = null;
     
         //prop type: number//服务器返回的状态码
         this.code = null;
+    
+        //prop type: boolean//是否弹出错误信息
+        this.toastErr = null;
     
         //prop type: string
         this.uid = null;
@@ -567,6 +583,7 @@ class Base {
 class Ws {
     constructor() {
     
+        
     
         
         
@@ -576,6 +593,7 @@ class Ws {
 class Http {
     constructor() {
     
+        
     
         
         
@@ -585,6 +603,7 @@ class Http {
 class QuestReport {
     constructor() {
     
+        
     
         //prop type: number
         this.spotCount = null;
@@ -603,6 +622,7 @@ class QuestReport {
 class RouterSpot {
     constructor() {
     
+        
     
         //prop type: boolean
         this.tracked = null;
@@ -624,6 +644,7 @@ class RouterSpot {
 class TourTask {
     constructor() {
     
+        
     
         //prop type: number[]
         this.spot = null;
@@ -648,6 +669,7 @@ class TourTask {
 class oneSpot {
     constructor() {
     
+        
     
         
         
@@ -657,6 +679,7 @@ class oneSpot {
 class Postcard {
     constructor() {
     
+        
     
         //prop type: string
         this.id = null;
@@ -678,6 +701,7 @@ class Postcard {
 class Quest {
     constructor() {
     
+        
     
         //prop type: number
         this.time = null;
@@ -720,6 +744,7 @@ class Quest {
 class EnterSpot {
     constructor() {
     
+        
     
         //prop type: string
         this.id = null;
@@ -750,6 +775,7 @@ class EnterSpot {
 class Event {
     constructor() {
     
+        
     
         //prop type: string
         this.desc = null;
@@ -765,6 +791,7 @@ class Event {
 class Speciality {
     constructor() {
     
+        
     
         //prop type: number//特产id
         this.propId = null;
@@ -792,6 +819,7 @@ class Speciality {
 class Sight {
     constructor() {
     
+        
     
         //prop type: string//景点id
         this.pointId = null;
@@ -807,6 +835,7 @@ class Sight {
 class RankItem {
     constructor() {
     
+        
     
         //prop type: number
         this.rank = null;
@@ -831,6 +860,7 @@ class RankItem {
 class SelfRank {
     constructor() {
     
+        
     
         //prop type: number
         this.rank = null;
@@ -849,6 +879,7 @@ class SelfRank {
 class ProvincePostcardInfo {
     constructor() {
     
+        
     
         //prop type: string
         this.url = null;
@@ -870,6 +901,7 @@ class ProvincePostcardInfo {
 class CityPostcardInfo {
     constructor() {
     
+        
     
         //prop type: string
         this.city = null;
@@ -891,6 +923,7 @@ class CityPostcardInfo {
 class PostcardBriefDetail {
     constructor() {
     
+        
     
         //prop type: string
         this.id = null;
@@ -909,6 +942,7 @@ class PostcardBriefDetail {
 class OneBriefMessage {
     constructor() {
     
+        
     
         //prop type: number
         this.id = null;
@@ -933,6 +967,7 @@ class OneBriefMessage {
 class Post {
     constructor() {
     
+        
     
         //prop type: string//城市id
         this.cityId = null;
@@ -966,6 +1001,7 @@ class Post {
 class Comment {
     constructor() {
     
+        
     
         //prop type: UserBriefInfo//用户简单信息
         this.user = null;
@@ -996,6 +1032,7 @@ class Comment {
 class MessageItem {
     constructor() {
     
+        
     
         //prop type: number
         this.mid = null;
@@ -1020,6 +1057,7 @@ class MessageItem {
 class ExchangeShopDetail {
     constructor() {
     
+        
     
         //prop type: string
         this.nickName = null;
@@ -1038,6 +1076,7 @@ class ExchangeShopDetail {
 class Shop {
     constructor() {
     
+        
     
         //prop type: string
         this.id = null;
@@ -1060,6 +1099,7 @@ class FinishGuide extends Base {
     constructor() {
         super();
         this.action = 'tour.finishguide';
+        
     
         this.requireFileds = [];
         this.reqFields = [];
@@ -1084,6 +1124,7 @@ class TourIndexInfo extends Base {
     constructor() {
         super();
         this.action = 'tour.tourindexinfo';
+        
     
         this._cid = null;
         this._inviteCode = null;
@@ -1156,6 +1197,7 @@ class CancelParten extends Base {
     constructor() {
         super();
         this.action = 'tour.cancelparten';
+        
     
         this._inviteCode = null;
         this.requireFileds = ["inviteCode"];
@@ -1184,6 +1226,7 @@ class LookTicket extends Base {
     constructor() {
         super();
         this.action = 'player.lookticket';
+        
     
         this._ticket = null;
         this.requireFileds = [];
@@ -1212,6 +1255,7 @@ class Photography extends Base {
     constructor() {
         super();
         this.action = 'tour.photography';
+        
     
         this._cid = null;
         this._spotId = null;
@@ -1252,6 +1296,7 @@ class SignInfo extends Base {
     constructor() {
         super();
         this.action = 'player.signinfo';
+        
     
         this._theDay = null;
         this._hasSign = null;
@@ -1284,6 +1329,7 @@ class ToSign extends Base {
     constructor() {
         super();
         this.action = 'player.tosign';
+        
     
         this._theDay = null;
         this.requireFileds = [];
@@ -1312,6 +1358,7 @@ class ReqEnterspot extends Base {
     constructor() {
         super();
         this.action = 'tour.reqenterspot';
+        
     
         this._spotId = null;
         this._cid = null;
@@ -1356,6 +1403,7 @@ class TravelFootprint extends Base {
     constructor() {
         super();
         this.action = 'player.travelfootprint';
+        
     
         this._playerUid = null;
         this._userInfo = null;
@@ -1408,6 +1456,7 @@ class SpotTour extends Base {
     constructor() {
         super();
         this.action = 'tour.spottour';
+        
     
         this._cid = null;
         this._spotId = null;
@@ -1452,6 +1501,7 @@ class AnswerQuest extends Base {
     constructor() {
         super();
         this.action = 'tour.answerquest';
+        
     
         this._id = null;
         this._answer = null;
@@ -1500,6 +1550,7 @@ class EventShow extends Base {
     constructor() {
         super();
         this.action = 'tour.eventshow';
+        
     
         this._cid = null;
         this._total = null;
@@ -1544,6 +1595,7 @@ class ShowQuestReport extends Base {
     constructor() {
         super();
         this.action = 'tour.showquestreport';
+        
     
         this._questReport = null;
         this.requireFileds = [];
@@ -1572,6 +1624,7 @@ class LeaveTour extends Base {
     constructor() {
         super();
         this.action = 'tour.leavetour';
+        
     
         this._userinfo = null;
         this._cityPer = null;
@@ -1604,6 +1657,7 @@ class RentProp extends Base {
     constructor() {
         super();
         this.action = 'tour.rentprop';
+        
     
         this._rentId = null;
         this._forceBuy = null;
@@ -1636,6 +1690,7 @@ class RentedProp extends Base {
     constructor() {
         super();
         this.action = 'tour.rentedprop';
+        
     
         this._rentItems = null;
         this.requireFileds = [];
@@ -1664,6 +1719,7 @@ class BuyPostcardList extends Base {
     constructor() {
         super();
         this.action = 'tour.buypostcardlist';
+        
     
         this._cid = null;
         this._ptList = null;
@@ -1696,6 +1752,7 @@ class Minapppay extends Base {
     constructor() {
         super();
         this.action = 'weChat.minapppay';
+        
     
         this._goodsId = null;
         this._payCount = null;
@@ -1732,6 +1789,7 @@ class SetRouter extends Base {
     constructor() {
         super();
         this.action = 'tour.setrouter';
+        
     
         this._cid = null;
         this._line = null;
@@ -1776,6 +1834,7 @@ class ModifyRouter extends Base {
     constructor() {
         super();
         this.action = 'tour.modifyrouter';
+        
     
         this._planedAllTracked = null;
         this._spotsAllTracked = null;
@@ -1816,6 +1875,7 @@ class FreshSpots extends Base {
     constructor() {
         super();
         this.action = 'tour.freshspots';
+        
     
         this._spots = null;
         this._display = null;
@@ -1856,6 +1916,7 @@ class PlayLoop extends Base {
     constructor() {
         super();
         this.action = 'tour.playloop';
+        
     
         this._newEvent = null;
         this._freshSpots = null;
@@ -1900,6 +1961,7 @@ class FlyInfo extends Base {
     constructor() {
         super();
         this.action = 'startGame.flyinfo';
+        
     
         this._type = null;
         this._gold = null;
@@ -1968,6 +2030,7 @@ class StartGame extends Base {
     constructor() {
         super();
         this.action = 'startGame.startgame';
+        
     
         this._type = null;
         this._cid = null;
@@ -2020,6 +2083,7 @@ class CreateCode extends Base {
     constructor() {
         super();
         this.action = 'startGame.createcode';
+        
     
         this._inviteCode = null;
         this.requireFileds = [];
@@ -2048,6 +2112,7 @@ class CheckCode extends Base {
     constructor() {
         super();
         this.action = 'startGame.checkcode';
+        
     
         this._inviteCode = null;
         this._agree = null;
@@ -2080,6 +2145,7 @@ class DeleteCode extends Base {
     constructor() {
         super();
         this.action = 'startGame.deletecode';
+        
     
         this._inviteCode = null;
         this.requireFileds = ["inviteCode"];
@@ -2108,6 +2174,7 @@ class PartnerInfo extends Base {
     constructor() {
         super();
         this.action = 'startGame.partnerinfo';
+        
     
         this._inviteCode = null;
         this._nickName = null;
@@ -2184,6 +2251,7 @@ class TraveledPlaces extends Base {
     constructor() {
         super();
         this.action = 'player.traveledplaces';
+        
     
         this._playerUid = null;
         this._provinces = null;
@@ -2219,6 +2287,7 @@ class TraveledPlaces extends Base {
 class MySpe extends Speciality {
     constructor() {
         super();
+        
     
         //prop type: number//特产卖出价格
         this.sellPrice = null;
@@ -2235,6 +2304,7 @@ class CitySpes extends Base {
     constructor() {
         super();
         this.action = 'speciality.cityspes';
+        
     
         this._cityId = null;
         this._specialtys = null;
@@ -2271,6 +2341,7 @@ class MySpes extends Base {
     constructor() {
         super();
         this.action = 'speciality.myspes';
+        
     
         this._specialtys = null;
         this.requireFileds = [];
@@ -2299,6 +2370,7 @@ class Spe extends Base {
     constructor() {
         super();
         this.action = 'speciality.spe';
+        
     
         this._propId = null;
         this._count = null;
@@ -2331,6 +2403,7 @@ class ExchangeDeadline extends Base {
     constructor() {
         super();
         this.action = 'integralShop.exchangedeadline';
+        
     
         this._endtime = null;
         this.requireFileds = [];
@@ -2359,6 +2432,7 @@ class GetUserLocation extends Base {
     constructor() {
         super();
         this.action = 'integralShop.getuserlocation';
+        
     
         this._nickName = null;
         this._tel = null;
@@ -2395,6 +2469,7 @@ class ShareInfo extends Base {
     constructor() {
         super();
         this.action = 'player.shareinfo';
+        
     
         this._isFirst = null;
         this.requireFileds = [];
@@ -2423,6 +2498,7 @@ class ViewpointInfo extends Base {
     constructor() {
         super();
         this.action = 'sight.viewpointinfo';
+        
     
         this._pointId = null;
         this._season = null;
@@ -2471,6 +2547,7 @@ class Photograph extends Base {
     constructor() {
         super();
         this.action = 'sight.photograph';
+        
     
         this._pointId = null;
         this._postImg = null;
@@ -2503,6 +2580,7 @@ class CityListPer extends Base {
     constructor() {
         super();
         this.action = 'city.citylistper';
+        
     
         this._data = null;
         this.requireFileds = [];
@@ -2530,6 +2608,7 @@ class CityListPer extends Base {
 class WsSend extends Base {
     constructor() {
         super();
+        
     
         
         
@@ -2540,6 +2619,7 @@ class RankInfo extends Base {
     constructor() {
         super();
         this.action = 'rank.rankinfo';
+        
     
         this._rankType = null;
         this._rankSubtype = null;
@@ -2587,6 +2667,7 @@ class RankInfo extends Base {
 class WsReceive extends Base {
     constructor() {
         super();
+        
     
         
         
@@ -2604,6 +2685,7 @@ class WsReceive extends Base {
 class UserInfo extends UserBriefInfo {
     constructor() {
         super();
+        
     
         //prop type: string
         this.gender = null;
@@ -2644,6 +2726,7 @@ class IndexInfo extends Base {
     constructor() {
         super();
         this.action = 'travel.indexinfo';
+        
     
         this._isFirst = null;
         this._season = null;
@@ -2700,6 +2783,7 @@ class TravelLog extends Base {
     constructor() {
         super();
         this.action = 'travel.travellog';
+        
     
         this._playerUid = null;
         this._page = null;
@@ -2739,6 +2823,7 @@ class TravelLog extends Base {
 class DetailLiveMessage extends OneBriefMessage {
     constructor() {
         super();
+        
     
         //prop type: boolean
         this.hasNext = null;
@@ -2755,6 +2840,7 @@ class MyPostcards extends Base {
     constructor() {
         super();
         this.action = 'postcard.mypostcards';
+        
     
         this._playerUid = null;
         this._postcardInfo = null;
@@ -2787,6 +2873,7 @@ class CityPostcards extends Base {
     constructor() {
         super();
         this.action = 'postcard.citypostcards';
+        
     
         this._province = null;
         this._playerUid = null;
@@ -2827,6 +2914,7 @@ class DetailPostcard extends Base {
     constructor() {
         super();
         this.action = 'postcard.detailpostcard';
+        
     
         this._id = null;
         this._page = null;
@@ -2875,6 +2963,7 @@ class SendPostcard extends Base {
     constructor() {
         super();
         this.action = 'postcard.sendpostcard';
+        
     
         this._id = null;
         this._message1 = null;
@@ -2911,6 +3000,7 @@ class PlayerInfo extends Base {
     constructor() {
         super();
         this.action = 'player.playerinfo';
+        
     
         this._playerUid = null;
         this._info = null;
@@ -2942,6 +3032,7 @@ class PlayerInfo extends Base {
 class Spot extends RouterSpot {
     constructor() {
         super();
+        
     
         //prop type: number
         this.cid = null;
@@ -2970,6 +3061,7 @@ class PostList extends Base {
     constructor() {
         super();
         this.action = 'post.postlist';
+        
     
         this._cityId = null;
         this._page = null;
@@ -3014,6 +3106,7 @@ class CommentPost extends Base {
     constructor() {
         super();
         this.action = 'post.commentpost';
+        
     
         this._cityId = null;
         this._postId = null;
@@ -3062,6 +3155,7 @@ class PostComments extends Base {
     constructor() {
         super();
         this.action = 'post.postcomments';
+        
     
         this._cityId = null;
         this._postId = null;
@@ -3122,6 +3216,7 @@ class ThumbComment extends Base {
     constructor() {
         super();
         this.action = 'post.thumbcomment';
+        
     
         this._commentId = null;
         this._thumbs = null;
@@ -3158,6 +3253,7 @@ class GetRealInfo extends Base {
     constructor() {
         super();
         this.action = 'player.getrealinfo';
+        
     
         this._realInfo = null;
         this.requireFileds = [];
@@ -3186,6 +3282,7 @@ class GetMessage extends Base {
     constructor() {
         super();
         this.action = 'message.getmessage';
+        
     
         this._page = null;
         this._limit = null;
@@ -3226,6 +3323,7 @@ class CheckMsgCnt extends Base {
     constructor() {
         super();
         this.action = 'message.checkmsgcnt';
+        
     
         this._unreadMsgCnt = null;
         this.requireFileds = [];
@@ -3254,6 +3352,7 @@ class ClearMsg extends Base {
     constructor() {
         super();
         this.action = 'message.clearmsg';
+        
     
         this._mid = null;
         this.requireFileds = ["mid"];
@@ -3282,6 +3381,7 @@ class ModifyRealInfo extends Base {
     constructor() {
         super();
         this.action = 'player.modifyrealinfo';
+        
     
         this._name = null;
         this._birthday = null;
@@ -3326,6 +3426,7 @@ class CheckGuide extends Base {
     constructor() {
         super();
         this.action = 'tour.checkguide';
+        
     
         this._hasPlay = null;
         this.requireFileds = [];
@@ -3354,6 +3455,7 @@ class IntegralShop extends Base {
     constructor() {
         super();
         this.action = 'integralShop.integralshop';
+        
     
         this._integral = null;
         this._rank = null;
@@ -3390,6 +3492,7 @@ class ExchangeDetail extends Base {
     constructor() {
         super();
         this.action = 'integralShop.exchangedetail';
+        
     
         this._page = null;
         this._exchangeDetail = null;
@@ -3422,6 +3525,7 @@ class ExchangeShop extends Base {
     constructor() {
         super();
         this.action = 'integralShop.exchangeshop';
+        
     
         this._id = null;
         this._tel = null;
@@ -3458,6 +3562,7 @@ class BuyPostcard extends Base {
     constructor() {
         super();
         this.action = 'tour.buypostcard';
+        
     
         this._ptid = null;
         this._goldNum = null;
@@ -3490,6 +3595,7 @@ class SellSpe extends Spe {
     constructor() {
         super();
         this.action = 'speciality.sellspe';
+        
     
         this._goldNum = null;
         this.requireFileds = ["propId","count"];
@@ -3518,6 +3624,7 @@ class BuySpe extends Spe {
     constructor() {
         super();
         this.action = 'speciality.buyspe';
+        
     
         this._goldNum = null;
         this.requireFileds = ["propId","count"];
@@ -3546,6 +3653,7 @@ class SysMessage extends WsReceive {
     constructor() {
         super();
         this.action = 'sysmessage';
+        
     
         this._mid = null;
         this._type = null;
@@ -3586,6 +3694,7 @@ class TestSend extends WsSend {
     constructor() {
         super();
         this.action = 'testsend';
+        
     
         this._test = null;
         this.requireFileds = ["test"];
