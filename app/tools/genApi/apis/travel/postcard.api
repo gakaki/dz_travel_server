@@ -45,7 +45,9 @@ class OneBriefMessage {
     //发送该留言的玩家的个人信息
     prop userInfo: UserBriefInfo
     //留言明信片内容
-    prop message:string
+    prop message1:string
+    prop message2:string
+
 }
 
 //一条留言的具体信息
@@ -100,7 +102,8 @@ api SendPostcard {
     //明信片的id
     require id:number
     //具体的留言信息
-    require message:string
+    optional message1:string
+    optional message2:string
 }
 
 

@@ -954,7 +954,10 @@ class OneBriefMessage {
         this.userInfo = null;
     
         //prop type: string
-        this.message = null;
+        this.message1 = null;
+    
+        //prop type: string
+        this.message2 = null;
     
         
         
@@ -2967,17 +2970,21 @@ class SendPostcard extends Base {
         
     
         this._id = null;
-        this._message = null;
-        this.requireFileds = ["id","message"];
-        this.reqFields = ["id","message"];
+        this._message1 = null;
+        this._message2 = null;
+        this.requireFileds = ["id"];
+        this.reqFields = ["id","message1","message2"];
         this.resFields = [];
     }
     //client input, require, type: number
     get id() {return this._id}
     set id(v) {this._id = v}
-    //client input, require, type: string
-    get message() {return this._message}
-    set message(v) {this._message = v}
+    //client input, optional, type: string
+    get message1() {return this._message1}
+    set message1(v) {this._message1 = v}
+    //client input, optional, type: string
+    get message2() {return this._message2}
+    set message2(v) {this._message2 = v}
     static Init(ctx, checkLogin = false) {
         let o = new SendPostcard();
         o.ctx = ctx;
