@@ -3412,17 +3412,17 @@ class ExchangeShop extends Base {
         this._id = null;
         this._tel = null;
         this._addr = null;
-        this.requireFileds = ["id","tel","addr"];
+        this.requireFileds = ["id"];
         this.reqFields = ["id","tel","addr"];
         this.resFields = [];
     }
     //client input, require, type: string
     get id() {return this._id}
     set id(v) {this._id = v}
-    //client input, require, type: string
+    //client input, optional, type: string
     get tel() {return this._tel}
     set tel(v) {this._tel = v}
-    //client input, require, type: string
+    //client input, optional, type: string
     get addr() {return this._addr}
     set addr(v) {this._addr = v}
     static Init(ctx, checkLogin = false) {
