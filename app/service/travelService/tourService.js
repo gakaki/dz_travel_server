@@ -48,7 +48,7 @@ class TourService extends Service {
 
         let uid                                                      = info.uid;
         let cid                                                      = parseInt(info.cid);
-        this.ctx.session.info                                        = info;
+       // this.ctx.session.info                                        = info;
 
         info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
@@ -1073,10 +1073,11 @@ class TourService extends Service {
         }
         let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid  });
         if (!currentEvents ) {
-            this.logger.info("事件没找到")
-            info.code           = apis.Code.NOT_FOUND;
-            info.submit();
-            return;
+            // this.logger.info("事件没找到")
+            // info.code           = apis.Code.NOT_FOUND;
+            // info.submit();
+            // return;
+            currentEvents = {events :[]}
         }
 
         let cid                  = currentCity.cid;
@@ -1086,7 +1087,7 @@ class TourService extends Service {
         this.logger.info("UID CID 是 ",uid,cid );
         this.logger.info("当前时间 ",timeNow, moment(timeNow).format('YYYY-MM-DD HH:mm:ss') , "间隔时间之前", moment(timePrev).format('YYYY-MM-DD HH:mm:ss'));
 
-        info.newEvent            = true;
+        info.newEvent            = false;
         if ( timePrev ){
             let events           = currentEvents['events'];
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
