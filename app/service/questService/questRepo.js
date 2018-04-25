@@ -140,13 +140,13 @@ module.exports = new QuestRepo();
 // let answers      = quest.answers();
 // console.log(quest.type,res,question,answers);
 
-// let n            = new QuestRepo();
-// let quest        = n.find("202335");
-// let res          = quest.getSpotRewardComment();
-// let question     = quest.describe;
-// let answers      = quest.answers();
-// let picture      = quest.picture;
-// console.log(quest.type,res,question,answers,picture);
+let n            = new QuestRepo();
+let quest        = n.find("202335");
+let res          = quest.getSpotRewardComment();
+let question     = quest.describe;
+let answers      = quest.answers();
+let picture      = quest.picture;
+console.log(quest.type,res,question,answers,picture);
 
 
 

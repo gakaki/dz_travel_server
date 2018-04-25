@@ -16,10 +16,27 @@ describe('test 测试quest类', () => {
 
         let eid         =  '130010';  //上图是s%的哪个特产？
         let q           = questRepo.find(eid);
-
         // assert( q.answers[0].match(/s%/) == false )
     });
 
+    it('测试 按照权重生成  ',  async () => {
+        let makeEvent   = new MakeEvent();
+        let events      = makeEvent.eventsFormat;
+        assert(events.length > 0);
+    });
 
+    it('测试 有知识点的生成  ',  async () => {
+        let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
+        assert(row.length > 0);
+    });
 
+    it('检测缺少picture字段的  ',  async () => {
+        let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
+        assert(row.length > 0);
+    });
+
+    it('测试 reward 事件5',  async () => {
+        let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
+        assert(row.length > 0);
+    });
 });

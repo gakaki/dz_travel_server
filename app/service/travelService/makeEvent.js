@@ -14,7 +14,8 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         this.today          = obj.today || 0;
         this.itemSpecial    = obj.itemSpecial || 0;
         this.timeTotalHour  = obj.timeTotalHour || 0;
-
+        this.spotId         = obj.spotId || 0;
+        
         this.events         = []; //最后生成的随机事件
         this.eventsFormat   = [];
         this.genEventNonSpot();  // 生成事件(非景点)
