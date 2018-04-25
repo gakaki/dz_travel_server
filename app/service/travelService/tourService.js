@@ -749,6 +749,7 @@ class TourService extends Service {
 
         let eid                                                          = event["eid"];
         let questCfg                                                     = questRepo.find(eid);
+        questCfg.dealKnowledgeRow(cid);
         let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
         info.id                                                          = event['dbId'];
         info.quest                                                       = {
