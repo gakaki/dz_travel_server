@@ -746,7 +746,7 @@ class TourService extends Service {
             // info.submit();
             // return;
             info.current = 0;
-            info.quest   = null;
+            info.quest   = {};
             info.total   = 10;
             info.submit();
             return;
@@ -754,7 +754,7 @@ class TourService extends Service {
 
         let eid                                                          = event["eid"];
         let questCfg                                                     = questRepo.find(eid);
-        // questCfg.dealKnowledgeRow(cid);
+        questCfg.dealKnowledgeRow(cid);
         let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
         info.id                                                          = event['dbId'];
         info.quest                                                       = {
