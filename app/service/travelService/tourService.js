@@ -231,7 +231,7 @@ class TourService extends Service {
     // 刷新节点信息
     async freshspots(info) {
         let r           = await this.taskInfo( info.uid );
-        let ui = await this.ctx.mode.PublicModel.User.findOne({ uid: info.uid });
+        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
         this.logger.info(  "--==fresh spots start ==--" );
         info.task       = r.task;
         info.spots      = r.spots;
