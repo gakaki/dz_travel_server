@@ -585,7 +585,7 @@ class TourService extends Service {
         };
 
         let e                    = new MakeSpotEvent(para);
-        this.logger.info("事件",e);
+       // this.logger.info("事件",e);
 
         let eid                  = e.event.id;
         //奖励 的数值
@@ -616,11 +616,9 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
 
         //城市专有事件，更新完成度
-        if(e.event.type == e.event.TriggerTypeKeys.TOUR_CITY) {
+        if(e.event.trigger_type == e.event.TriggerTypeKeys.TOUR_CITY) {
             this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
         }
-
-
 
         info.event          = desc;
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
@@ -674,8 +672,12 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': dbId } , {
             $set : {'events.$.received' : true}
         });
-        await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
-        this.logger.info("这里的 UID CID EID 到底是多少 questCfg.type", uid , cid , eid ,questCfg.type);
+
+        if(questCfg.trigger_type == questCfg.TriggerTypeKeys.RANDOM_CITY) {
+            await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
+        }
+
+        this.logger.info("这里的 UID CID EID 到底是多少 questCfg.type", uid , cid , eid ,questCfg.type,questCfg.trigger_type);
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
@@ -768,7 +770,6 @@ class TourService extends Service {
             await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
                 $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
-            await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
@@ -1142,7 +1143,8 @@ class TourService extends Service {
             info.freshSpots                                           = true;
         }
 
-        let spotsAllTrackedNum = spots.filter(  r =>  r.tracked  == true ) ? spots.filter(  r =>  r.tracked  == true ).length : 0;
+        let spotsAllTrackedNum = spots.filter(  r =>  r.endtime && r.endtime  <= new Date().getTime() ) ? spots.filter(  r =>  r.endtime && r.endtime  <= new Date().getTime() ).length : 0;
+        this.logger.info(spotsAllTrackedNum)
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked                                             = spotsHasArrived ? spotsHasArrived.length : 0;
         let citySpotsLength                                           = travelConfig.City.Get(cid).scenicspot.length;
@@ -1297,25 +1299,51 @@ class TourService extends Service {
         let spotsAllTracked = Number(info.spotsAllTracked);
 
         let roadMap = currentCity.roadMap;
-        if(!spotsAllTracked) {
-            for(let i = 0; i < roadMap.length; i++) {
-                if(roadMap[i].index != -1) {
-                    if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
-                        roadMap[i].tracked = true;
-                        roadMap[i].roundTracked = true;
+        let hasOver = false;
+      //  if(!spotsAllTracked) {
+
+      //  }else{
+            let map = roadMap.filter(n => n.endtime && n.endtime <= new Date().getTime());
+            this.logger.info(map);
+       //     this.logger.info(map.length);
+            if(map.length == travelConfig.City.Get(currentCity.cid).scenicspot.length) {
+                for(let i = 0; i < roadMap.length; i++) {
+                    roadMap[i].index = -1;
+                    roadMap[i].startime = "";
+                    roadMap[i].endtime = "";
+                    roadMap[i].tracked = true;
+                    roadMap[i].roundTracked = false;
+                    roadMap[i].mileage = 0;
+                    roadMap[i].countdown = 0;
+                    roadMap[i].arriveStamp = "";
+                    roadMap[i].arriveStampYMDHMS = "";
+                }
+            }else{
+                let needMap = utils.multisort(map,
+                    (a, b) => a.index - b.index
+                    );
+                let lastspot = needMap.pop();
+                let lastindex = -1;
+                if(lastspot) {
+                    if(lastspot.startime) {
+                        lastindex = lastspot.index + 1;
+                    }else{
+                        hasOver = true;
                     }
 
-                    if(roadMap[i].index != 0) {
-                        //   this.logger.info(roadMap[i].index);
-                        //    this.logger.info(roadMap[i].name);
-                        let cindex = roadMap[i].index;
-                        //   this.logger.info("当前", cindex);
-                        let index = roadMap.findIndex((n) => n.index == (cindex - 1));
-                        //    this.logger.info("结束", index);
-                        //   this.logger.info(roadMap[i]);
-                        //   this.logger.info(roadMap[index]);
-                        if (index == -1 || !roadMap[i].roundTracked && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime >= new Date().getTime()) {
-                            this.logger.info(roadMap[i].name);
+                    this.logger.info(lastspot);
+                    this.logger.info(map);
+                    map.push(lastspot);
+                }
+
+                if(hasOver) {
+                    for(let i = 0; i < roadMap.length; i++) {
+                        let index = roadMap[i].index;
+                        let haswalkindex = map.findIndex(n => n.index == index);
+                        if(haswalkindex != -1) {
+                            roadMap[i].tracked = true;
+                            roadMap[i].roundTracked = true;
+                        }else{
                             roadMap[i].index = -1;
                             roadMap[i].startime = "";
                             roadMap[i].endtime = "";
@@ -1324,25 +1352,76 @@ class TourService extends Service {
                             roadMap[i].arriveStamp = "";
                             roadMap[i].arriveStampYMDHMS = "";
                         }
-                        if(roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
+
+                    }
+                }else{
+                    for(let i = 0; i < roadMap.length; i++) {
+                        let index = roadMap[i].index;
+                        let haswalkindex = map.findIndex(n => n.index == index);
+                        if(haswalkindex != -1) {
+                            roadMap[i].tracked = true;
+                            roadMap[i].roundTracked = true;
+                        }else if(index != lastindex){
+                            roadMap[i].index = -1;
+                            roadMap[i].startime = "";
+                            roadMap[i].endtime = "";
+                            roadMap[i].mileage = 0;
+                            roadMap[i].countdown = 0;
+                            roadMap[i].arriveStamp = "";
+                            roadMap[i].arriveStampYMDHMS = "";
+                        }else{
                             roadMap[i].startime = "";
                         }
-                    }
 
+
+
+                    }
                 }
-            }
-        }else{
-            for(let i = 0; i < roadMap.length; i++) {
-                roadMap[i].index = -1;
-                roadMap[i].startime = "";
-                roadMap[i].endtime = "";
-                roadMap[i].tracked = true;
-                roadMap[i].roundTracked = false;
-                roadMap[i].mileage = 0;
-                roadMap[i].countdown = 0;
-                roadMap[i].arriveStamp = "";
-                roadMap[i].arriveStampYMDHMS = "";
-            }
+
+
+
+
+                    // if(roadMap[i].index != -1) {
+                    //     if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
+                    //         roadMap[i].tracked = true;
+                    //         roadMap[i].roundTracked = true;
+                    //     }
+                    //
+                    //     if(roadMap[i].index != 0) {
+                    //         //   this.logger.info(roadMap[i].index);
+                    //         //    this.logger.info(roadMap[i].name);
+                    //         let cindex = roadMap[i].index;
+                    //         //   this.logger.info("当前", cindex);
+                    //         let index = roadMap.findIndex((n) => n.index == (cindex - 1));
+                    //         //    this.logger.info("结束", index);
+                    //         //   this.logger.info(roadMap[i]);
+                    //         //   this.logger.info(roadMap[index]);
+                    //         if (index == -1 || !roadMap[index].startime || !roadMap[i].roundTracked && roadMap[i].endtime > new Date().getTime() && roadMap[index].startime > new Date().getTime()) {
+                    //             this.logger.info(roadMap[i].name);
+                    //             roadMap[i].index = -1;
+                    //             roadMap[i].startime = "";
+                    //             roadMap[i].endtime = "";
+                    //             roadMap[i].mileage = 0;
+                    //             roadMap[i].countdown = 0;
+                    //             roadMap[i].arriveStamp = "";
+                    //             roadMap[i].arriveStampYMDHMS = "";
+                    //         }
+                    //         if(roadMap[i].endtime && roadMap[index].startime && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
+                    //             this.logger.info("重置");
+                    //             this.logger.info(roadMap[i].name);
+                    //             roadMap[i].startime = "";
+                    //         }
+                    //     }else{
+                    //         if(roadMap[i].endtime >= new Date().getTime()) {
+                    //             roadMap[i].startime = "";
+                    //         }
+                    //
+                    //     }
+                    //
+                    // }
+
+         //   }
+
         }
 
 

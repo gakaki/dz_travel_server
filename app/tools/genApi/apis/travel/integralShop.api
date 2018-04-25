@@ -18,6 +18,8 @@ class Shop {
     prop name:string
     //兑换该商品所需积分
     prop integral:string
+    //是否已经有兑换码,如果有返回
+    prop exchangeCode:string
 
 }
 
@@ -48,6 +50,8 @@ api ExchangeShop {
     optional tel:string
     //邮寄地址
     optional addr:string
+    //如果该商品是虚拟商品,返回兑换码
+    output exchangeCode:string
 }
 
 //获取玩家地址

@@ -1090,6 +1090,9 @@ class Shop {
         //prop type: string
         this.integral = null;
     
+        //prop type: string
+        this.exchangeCode = null;
+    
         
         
         
@@ -3534,9 +3537,10 @@ class ExchangeShop extends Base {
         this._id = null;
         this._tel = null;
         this._addr = null;
+        this._exchangeCode = null;
         this.requireFileds = ["id"];
         this.reqFields = ["id","tel","addr"];
-        this.resFields = [];
+        this.resFields = ["exchangeCode"];
     }
     //client input, require, type: string
     get id() {return this._id}
@@ -3547,6 +3551,9 @@ class ExchangeShop extends Base {
     //client input, optional, type: string
     get addr() {return this._addr}
     set addr(v) {this._addr = v}
+    //server output, type: string
+    get exchangeCode() {return this._exchangeCode}
+    set exchangeCode(v) {this._exchangeCode = v}
     static Init(ctx, checkLogin = false) {
         let o = new ExchangeShop();
         o.ctx = ctx;
