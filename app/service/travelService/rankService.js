@@ -304,8 +304,8 @@ class RankService extends Service {
      * */
     async getUserFriendCompletionDegreeRankList(friendList, page, limit) {
         let out = [];
-        let outFriendList = friendList.slice((page - 1) * limit, page * limit);
-        for(let friend of outFriendList) {
+        //let outFriendList = friendList.slice((page - 1) * limit, page * limit);
+        for(let friend of friendList) {
             let friendCom = await this.getUserCompletionDegree(friend);
             if(!friendCom) {
                 friendCom = {
@@ -316,7 +316,10 @@ class RankService extends Service {
             }
             out.push(friendCom);
         }
-        return out;
+        out = utils.multisort(out,
+            (a, b) => b.completionDegree - a.completionDegree
+        );
+        return out.slice((page - 1) * limit, page * limit);
     }
     /**
      * 获取榜单奖励
