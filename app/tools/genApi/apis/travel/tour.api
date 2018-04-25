@@ -260,6 +260,7 @@ api FreshSpots {
 //游玩界面轮询
 api PlayLoop {
     output newEvent:boolean  //是否有新事件
+    output latestEvent:Quest //直接传送出新的事件了
     output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备，双人模式下一方修改了路线等，会影响景点的到达时间
     output spotsTracked:number//有几个到达了
     output spotsAllTracked:boolean//是否已经把地图上所有的景点都走过了

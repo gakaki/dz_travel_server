@@ -197,6 +197,7 @@ class Base{
     prop client _app:App
     prop action:string
     prop code:number//服务器返回的状态码
+    prop toastErr:boolean//是否弹出错误信息
     prop server uid:string
     prop server _sid:string
     prop server ctx:Context
@@ -204,6 +205,10 @@ class Base{
     prop client reqFields:string[]
     prop server resFields:string[]
 
+    func client init() {
+        //this function will be call in constructor, to init prop values .etc;
+        this.toastErr = true;
+    }
     func client get app() {
         if (!this._app) {
             this._app = getApp();
@@ -223,7 +228,7 @@ class Base{
                       console.log('fetch got an error code',this.code);
                       let sheets = require('./sheets.js')
                       let error = sheets.Error.Get(this.code)
-                      if (error && error.message) {
+                      if (this.toastErr && error && error.message) {
                         wx.showToast({
                           title: error.message,
                           icon: 'none'

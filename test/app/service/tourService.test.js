@@ -6,20 +6,16 @@ const constant      = require('../../../app/utils/constant');
 const travelConfig  = require("../../../sheets/travel")
 const apis          = require("../../../apis/travel");
 
-let calcPageCount = (receivedTrueCount)  => {
-    let total               = 10;
-    let receivedTrueCount   = 10;
-    let diff                = total - receivedTrueCount;
-    let res                 = 0;
-    if (diff <= 0 ){
-        res                 = 10;
-    }else{
-        res                 = diff;
-    }
-    return res;
-}
 
 describe('test tour services', () => {
+
+    // let app;
+    // before(() => {
+    //     // 创建当前应用的 app 实例
+    //     app = mock.app();
+    //     // 等待 app 启动成功，才能执行测试用例
+    //     return app.ready();
+    // });
 
     it('test userSpots',  async (done) => {
         const ctx       = app.mockContext();
@@ -45,5 +41,21 @@ describe('test tour services', () => {
     });
 
 
+    it('test 测试单人游玩中的playloop逻辑',  async (done) => {
+        const ctx       = app.mockContext();
+        let info        = apis.PlayLoop.Init(ctx);
+        info.uid        = "ov5W35XwjECAWGq0UK3omMfu9nak";
+        let res         = await ctx.service.travelService.tourService.playloop(info);
+        console.log(res);
+        assert( res == '0');
+    });
 
-});
+
+    it('test 测试单人游玩中的playloop逻辑',  async (done) => {
+        const ctx       = app.mockContext();
+        let info        = apis.PlayLoop.Init(ctx);
+        info.uid        = "ov5W35XwjECAWGq0UK3omMfu9nak";
+        let res         = await ctx.service.travelService.tourService.playloop(info);
+        console.log(res);
+        assert( res == '0');
+    });

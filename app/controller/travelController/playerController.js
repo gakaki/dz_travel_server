@@ -227,14 +227,15 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
-        if(!info.message) {
-            this.logger.info("留言信息为空");
-            info.code = apis.Code.ITEM_LESS;
-            info.submit();
-            return;
-        }
+        // if(!info.message1) {
+        //     this.logger.info("留言信息为空");
+        //     info.code = apis.Code.ITEM_LESS;
+        //     info.submit();
+        //     return;
+        // }
 
-        if(info.message.length > travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDWORDLIMIT).value) {
+        let limit = travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDWORDLIMIT).value;
+        if(info.message2.length + info.message1.length > limit  ) {
             this.logger.info("留言信息字数超限");
             info.code = apis.Code.ITEM_MAX;
             info.submit();

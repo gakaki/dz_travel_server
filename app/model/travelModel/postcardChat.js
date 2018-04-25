@@ -6,6 +6,7 @@ module.exports = app => {
         chatid:{type:String},
         sender:{type:String},//回复者
         context:{type:String},
+        context2:{type:String},
         createDate:{type:Date}
     });
 
