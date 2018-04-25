@@ -1143,7 +1143,7 @@ class TourService extends Service {
             info.freshSpots                                           = true;
         }
 
-        let spotsAllTrackedNum = spots.filter(  r =>  r.endtime  <= new Date().getTime() ) ? spots.filter(  r =>  r.endtime  <= new Date().getTime() ).length : 0;
+        let spotsAllTrackedNum = spots.filter(  r =>  r.endtime && r.endtime  <= new Date().getTime() ) ? spots.filter(  r =>  r.endtime && r.endtime  <= new Date().getTime() ).length : 0;
         this.logger.info(spotsAllTrackedNum)
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked                                             = spotsHasArrived ? spotsHasArrived.length : 0;
@@ -1299,11 +1299,12 @@ class TourService extends Service {
         let spotsAllTracked = Number(info.spotsAllTracked);
 
         let roadMap = currentCity.roadMap;
+        let hasOver = false;
       //  if(!spotsAllTracked) {
 
       //  }else{
-            let map = roadMap.filter(n => n.endtime <= new Date().getTime());
-            this.logger.info(map.length);
+            let map = roadMap.filter(n => n.endtime && n.endtime <= new Date().getTime());
+            this.logger.info(map);
        //     this.logger.info(map.length);
             if(map.length == travelConfig.City.Get(currentCity.cid).scenicspot.length) {
                 for(let i = 0; i < roadMap.length; i++) {
@@ -1318,45 +1319,107 @@ class TourService extends Service {
                     roadMap[i].arriveStampYMDHMS = "";
                 }
             }else{
-                for(let i = 0; i < roadMap.length; i++) {
-                    if(roadMap[i].index != -1) {
-                        if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
+                let needMap = utils.multisort(map,
+                    (a, b) => a.index - b.index
+                    );
+                let lastspot = needMap.pop();
+                let lastindex = -1;
+                if(lastspot) {
+                    if(lastspot.startime) {
+                        lastindex = lastspot.index + 1;
+                    }else{
+                        hasOver = true;
+                    }
+
+                    this.logger.info(lastspot);
+                    this.logger.info(map);
+                    map.push(lastspot);
+                }
+
+                if(hasOver) {
+                    for(let i = 0; i < roadMap.length; i++) {
+                        let index = roadMap[i].index;
+                        let haswalkindex = map.findIndex(n => n.index == index);
+                        if(haswalkindex != -1) {
                             roadMap[i].tracked = true;
                             roadMap[i].roundTracked = true;
-                        }
-
-                        if(roadMap[i].index != 0) {
-                            //   this.logger.info(roadMap[i].index);
-                            //    this.logger.info(roadMap[i].name);
-                            let cindex = roadMap[i].index;
-                            //   this.logger.info("当前", cindex);
-                            let index = roadMap.findIndex((n) => n.index == (cindex - 1));
-                            //    this.logger.info("结束", index);
-                            //   this.logger.info(roadMap[i]);
-                            //   this.logger.info(roadMap[index]);
-                            if (index == -1 || !roadMap[i].roundTracked && roadMap[i].endtime > new Date().getTime() && roadMap[index].startime > new Date().getTime()) {
-                                this.logger.info(roadMap[i].name);
-                                roadMap[i].index = -1;
-                                roadMap[i].startime = "";
-                                roadMap[i].endtime = "";
-                                roadMap[i].mileage = 0;
-                                roadMap[i].countdown = 0;
-                                roadMap[i].arriveStamp = "";
-                                roadMap[i].arriveStampYMDHMS = "";
-                            }
-                            if(roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
-                                this.logger.info("重置");
-                                roadMap[i].startime = "";
-                            }
                         }else{
-                            if(roadMap[i].endtime >= new Date().getTime()) {
-                                roadMap[i].startime = "";
-                            }
-
+                            roadMap[i].index = -1;
+                            roadMap[i].startime = "";
+                            roadMap[i].endtime = "";
+                            roadMap[i].mileage = 0;
+                            roadMap[i].countdown = 0;
+                            roadMap[i].arriveStamp = "";
+                            roadMap[i].arriveStampYMDHMS = "";
                         }
 
                     }
+                }else{
+                    for(let i = 0; i < roadMap.length; i++) {
+                        let index = roadMap[i].index;
+                        let haswalkindex = map.findIndex(n => n.index == index);
+                        if(haswalkindex != -1) {
+                            roadMap[i].tracked = true;
+                            roadMap[i].roundTracked = true;
+                        }else if(index != lastindex){
+                            roadMap[i].index = -1;
+                            roadMap[i].startime = "";
+                            roadMap[i].endtime = "";
+                            roadMap[i].mileage = 0;
+                            roadMap[i].countdown = 0;
+                            roadMap[i].arriveStamp = "";
+                            roadMap[i].arriveStampYMDHMS = "";
+                        }else{
+                            roadMap[i].startime = "";
+                        }
+
+
+
+                    }
                 }
+
+
+
+
+                    // if(roadMap[i].index != -1) {
+                    //     if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
+                    //         roadMap[i].tracked = true;
+                    //         roadMap[i].roundTracked = true;
+                    //     }
+                    //
+                    //     if(roadMap[i].index != 0) {
+                    //         //   this.logger.info(roadMap[i].index);
+                    //         //    this.logger.info(roadMap[i].name);
+                    //         let cindex = roadMap[i].index;
+                    //         //   this.logger.info("当前", cindex);
+                    //         let index = roadMap.findIndex((n) => n.index == (cindex - 1));
+                    //         //    this.logger.info("结束", index);
+                    //         //   this.logger.info(roadMap[i]);
+                    //         //   this.logger.info(roadMap[index]);
+                    //         if (index == -1 || !roadMap[index].startime || !roadMap[i].roundTracked && roadMap[i].endtime > new Date().getTime() && roadMap[index].startime > new Date().getTime()) {
+                    //             this.logger.info(roadMap[i].name);
+                    //             roadMap[i].index = -1;
+                    //             roadMap[i].startime = "";
+                    //             roadMap[i].endtime = "";
+                    //             roadMap[i].mileage = 0;
+                    //             roadMap[i].countdown = 0;
+                    //             roadMap[i].arriveStamp = "";
+                    //             roadMap[i].arriveStampYMDHMS = "";
+                    //         }
+                    //         if(roadMap[i].endtime && roadMap[index].startime && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
+                    //             this.logger.info("重置");
+                    //             this.logger.info(roadMap[i].name);
+                    //             roadMap[i].startime = "";
+                    //         }
+                    //     }else{
+                    //         if(roadMap[i].endtime >= new Date().getTime()) {
+                    //             roadMap[i].startime = "";
+                    //         }
+                    //
+                    //     }
+                    //
+                    // }
+
          //   }
 
         }
