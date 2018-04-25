@@ -252,6 +252,7 @@ api FreshSpots {
     output display: number //人物的表现形式
     //任务完成度信息
     output task:TourTask
+    output mileage: number //里程数
 }
 
 //游玩界面轮询
