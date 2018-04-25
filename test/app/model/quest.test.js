@@ -6,6 +6,10 @@ const constant      = require('../../../app/utils/constant');
 const travelConfig  = require("../../../sheets/travel")
 const postcardRepo  = require('../../../app/service/configService/postcardRepo');
 const questRepo     = require('../../../app/service/questService/questRepo');
+const cityRepo      = require('../../../app/service/questService/cityRepo');
+const scenicspotRepo= require('../../../app/service/questService/scenicspotRepo');
+const specialityRepo= require('../../../app/service/questService/specialityRepo');
+
 const uuid          = require("uuid");
 const MakeEvent     = require('../../../app/service/travelService/makeEvent');
 
@@ -19,23 +23,45 @@ describe('test 测试quest类', () => {
         // assert( q.answers[0].match(/s%/) == false )
     });
 
-
-
     it('检测缺少picture字段的  ',  async () => {
         let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
         assert(row.length > 0);
     });
 
-    it('测试 必然触发的和有前置事件的',  async () => {
+    it('测试 必然触发的和有前置事件的 居然暂时不做了',  async () => {
         let row         = questRepo.quests.filter( e=>  e.probability == "-1" );
         assert(row.length <= 0);
     });
 
-    it('测试 reward 事件5',  async () => {
-        let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
-        assert(row.length > 0);
+    it('测试 生成带s%的事件 知识点 = 1 130030 上图是哪个特产？',  async () => {
+        let row         = questRepo.find("130010");
+        row.dealKnowledgeRow(2); //天津
+        assert((row && row.answers[0].indexOf("s%") == -1));
+    });
+    it('测试 生成带s%的事件 知识点 = 2 130040 上图是哪个景点？',  async () => {
+        let row         = questRepo.find("130040");
+        row.dealKnowledgeRow(2); //天津
+        assert((row && row.answers[0].indexOf("s%") == -1));
+    });
+    it('测试 生成带s%的事件 知识点 = 3 130090 以下景点中，s%位于中国的哪个省？？',  async () => {
+        let row         = questRepo.find("130090");
+        row.dealKnowledgeRow(2);
+        assert((row && row.answers[0].indexOf("s%") == -1));
     });
 
+    it('测试 CityRepo ScenpoRepo 和 specialRepo的 random 4 函数',  async () => {
+
+        let c = cityRepo.random4();
+        assert(c.length == 4);
+        c     = scenicspotRepo.random4()
+        assert(c.length == 4);
+        c     = specialityRepo.random4();
+        assert(c.length == 4);
+
+    });
+
+
+    
 
 
 //

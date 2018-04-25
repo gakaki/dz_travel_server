@@ -8,7 +8,11 @@ class QuestRepo {
         return this.quests.find( e  => e.id == row_id );
     }
     constructor() {
-        let rows = travelConfig.events.filter(  e=> e.describe.indexOf("s%") < 0 )
+
+        //注意这里会 filter 的事件
+        let rows = travelConfig.events;
+        // .filter(  e=> e.describe.indexOf("s%") < 0 )
+        rows     = rows.filter( e => e.probability != 0 );
         this.quests = []
         for(let row of rows){
             this._add(row)

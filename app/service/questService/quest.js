@@ -131,39 +131,84 @@ class Quest extends TreeNode {
             let itemIdOrVal = rewardRow['v'];
             this.rewardKV[typeId] = itemIdOrVal;
         }
-
-        //处理该死的含有知识点的
-        // this.dealKnowledgeRow();
-
     }
 
-    dealKnowledgeRow(){
+    hasSpecialTopic(){
+        return  this.describe.indexOf("%s") < 0 || this.describe.indexOf("s%") < 0 ;
+    }
+    //生成带topic的quest 需要传入cid spotId等
+    dealKnowledgeRow( currentCid = null , spotId = null ) {
+        if (this.topic == 0) {
+            return;
+        }
+
+        let cfgCity, cfgSpot = null;
+        if (!currentCid) {
+            currentCid = 1;
+        }
+        cfgCity = travelsConfig.City.Get(currentCid);
+
+        if (spotId) {
+            cfgSpot = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
+        }
+
+        if (!this.hasSpecialTopic()) {
+            // console.log(this.eid,this.describe);
+            return;
+        } else {
+            console.log(this.id, this.describe);
+        }
+        let itemPic   = null;
+        let itemNames = [];
+        let items     = null;
 
         // 特产随机
-        if ( this.topic     == this.KnowledgeKeys.SPECIALITY ){ //1
-            //Random 特产
-            // let items       = specialityRepo.random4();
+        if (this.topic == this.KnowledgeKeys.SPECIALITY) { //1
+             items      = specialityRepo.random4ByCity(currentCid);
+         }
+        // 景点随机
+        else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
+             items      = scenicspotRepo.random4ByCity(currentCid);
+        }
+        // 城市随机
+        else if (this.topic == this.KnowledgeKeys.CITY) { //3
+             items       = cityRepo.random4ByCity(currentCid);
+        }
 
-            //
+        //this.describe 里的%s其实全都是城市的意思
+        let rightItem               = items.pop();
 
-
-
+        // 特产随机
+        if (this.topic == this.KnowledgeKeys.SPECIALITY) { //1
+            itemNames               = items.map(e => e.specialityname);
+            this.picture            = rightItem.picture;
+            this.answer             = rightItem.specialityname;
         }
         // 景点随机
-        if ( this.topic     == this.KnowledgeKeys.SCENICSPOT ){ //2
-            // scenicspotRepo.random4();
-
+        else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
+            itemNames   = items.map(e => e.scenicspot);
+            this.picture            = rightItem.picture;
+            this.answer             = rightItem.scenicspot;
         }
-
         // 城市随机
-        if ( this.topic     == this.KnowledgeKeys.CITY ){ //3
-            // cityRepo.random4();
+        else if (this.topic == this.KnowledgeKeys.CITY) { //3
+            itemNames               = items.map(e => e.city);
+            this.picture            = rightItem.picture;
+            this.answer             = rightItem.city;
         }
 
+        let [wrong1, wrong2, wrong3] = _.shuffle(itemNames);
+        this.wrong1 = wrong1;
+        this.wrong2 = wrong2;
+        this.wrong3 = wrong3;
+
+        let currentCityName = cfgCity.city;
+        let replaceStr   = "s%";
+        this.describe    = this.describe.replace(replaceStr ,currentCityName );
 
     }
 
-    describeFormat(cid=null,spotId=null){
+    describeFormat(currentCid=null,spotId=null){
         let res = "";
         let replaceStr = "s%";
         if ( this.describe && this.describe.indexOf(replaceStr) >= 0 ){
@@ -171,8 +216,8 @@ class Quest extends TreeNode {
             let c        = null;
             let s        = null;
 
-            if ( cid ){
-                 c      = travelsConfig.City.Get(cid);
+            if ( currentCid ){
+                 c      = travelsConfig.City.Get(currentCid);
             }
             if ( spotId ){
                  s      = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
