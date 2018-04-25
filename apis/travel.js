@@ -1814,9 +1814,10 @@ class FreshSpots extends Base {
         this._spots = null;
         this._display = null;
         this._task = null;
+        this._mileage = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["spots","display","task"];
+        this.resFields = ["spots","display","task","mileage"];
     }
     //server output, type: RouterSpot[]
     get spots() {return this._spots}
@@ -1827,6 +1828,9 @@ class FreshSpots extends Base {
     //server output, type: TourTask
     get task() {return this._task}
     set task(v) {this._task = v}
+    //server output, type: 
+    get mileage() {return this._mileage}
+    set mileage(v) {this._mileage = v}
     static Init(ctx, checkLogin = false) {
         let o = new FreshSpots();
         o.ctx = ctx;
