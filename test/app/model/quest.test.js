@@ -36,17 +36,17 @@ describe('test 测试quest类', () => {
     it('测试 生成带s%的事件 知识点 = 1 130030 上图是哪个特产？',  async () => {
         let row         = questRepo.find("130010");
         row.dealKnowledgeRow(2); //天津
-        assert((row && row.answers[0].indexOf("s%") == -1));
+        assert((row && row.answers().indexOf("s%") == -1));
     });
     it('测试 生成带s%的事件 知识点 = 2 130040 上图是哪个景点？',  async () => {
         let row         = questRepo.find("130040");
         row.dealKnowledgeRow(2); //天津
-        assert((row && row.answers[0].indexOf("s%") == -1));
+        assert((row && row.answers().indexOf("s%") == -1));
     });
     it('测试 生成带s%的事件 知识点 = 3 130090 以下景点中，s%位于中国的哪个省？？',  async () => {
         let row         = questRepo.find("130090");
         row.dealKnowledgeRow(2);
-        assert((row && row.answers[0].indexOf("s%") == -1));
+        assert((row && row.answers().indexOf("s%") == -1));
     });
 
     it('测试 CityRepo ScenpoRepo 和 specialRepo的 random 4 函数',  async () => {
