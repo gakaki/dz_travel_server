@@ -607,6 +607,9 @@ class RouterSpot {
         //prop type: boolean
         this.tracked = null;
     
+        //prop type: boolean
+        this.roundTracked = null;
+    
         //prop type: number
         this.index = null;
     

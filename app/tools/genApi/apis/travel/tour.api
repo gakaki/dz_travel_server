@@ -10,8 +10,10 @@ class QuestReport {
 }
 
 class RouterSpot {
-    //是否经过
+    //是否已到达
     prop tracked:boolean
+    //本轮是否已达到
+    prop roundTracked:boolean
     //经过的顺序
     prop index:number
     //预计达到时间戳
