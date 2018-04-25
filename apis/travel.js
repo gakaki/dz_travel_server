@@ -1916,17 +1916,21 @@ class PlayLoop extends Base {
         
     
         this._newEvent = null;
+        this._latestEvent = null;
         this._freshSpots = null;
         this._spotsTracked = null;
         this._spotsAllTracked = null;
         this._doubleState = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState"];
+        this.resFields = ["newEvent","latestEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
     set newEvent(v) {this._newEvent = v}
+    //server output, type: Quest
+    get latestEvent() {return this._latestEvent}
+    set latestEvent(v) {this._latestEvent = v}
     //server output, type: boolean
     get freshSpots() {return this._freshSpots}
     set freshSpots(v) {this._freshSpots = v}

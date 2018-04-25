@@ -1081,80 +1081,46 @@ class TourService extends Service {
     //轮询访问地址
     async playloop(info){
 
-        let uid                 = info.uid;
-        let currentCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
-       // this.logger.info(currentCity);
+        let uid                                                       = info.uid;
+        let currentCity                                               = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
         if (!currentCity ) {
             this.logger.info("城市没找到")
-            info.code           = apis.Code.NOT_FOUND;
+            info.code                                                 = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
-        let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid});
-
+        let currentEvents                                             = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid});
         if (!currentEvents ) {
-            // this.logger.info("事件没找到")
-            // info.code           = apis.Code.NOT_FOUND;
-            // info.submit();
-            // return;
-            currentEvents = {events :[]}
+            currentEvents                                             = {events :[]}
         }
+
         this.logger.info("预存的事件数量", currentEvents.events.length);
-        let cid                  = currentCity.cid;
-        let timeNow              = new Date().getTime();
-        let timePrev             = timeNow - 60 * 10 * 1000; //10分钟之前到现在 放松限制
+        let cid                                                       = currentCity.cid;
+        let timeNow                                                   = new Date().getTime();
+        let events                                                    = currentEvents['events'];
+        events                                                        = events.filter( r => r.triggerDate <= timeNow && r.received == false  );
+        this.logger.info("事件数量 ",events.length);
+        info.newEvent                                                 = events && events.length > 0 ? true : false;
+        info.lastestEvent                                             = events.length > 0 ? events[0] : null;
 
-        this.logger.info("UID CID 是 ",uid,cid );
-        this.logger.info("当前时间 ",timeNow, moment(timeNow).format('YYYY-MM-DD HH:mm:ss') , "间隔时间之前", moment(timePrev).format('YYYY-MM-DD HH:mm:ss'));
-
-        info.newEvent            = false;
-        if ( timePrev ){
-            let events           = currentEvents['events'];
-            events               = events.filter(  r =>  r.triggerDate  >= timePrev && r.triggerDate <= timeNow && r.received == false  );
-            this.logger.info("事件数量 ",events.length);
-
-            // let diffEventIds     = [];
-            // let redisKey         = `playloop:${uid}`;
-            // let prevEventIds     = await this.app.redis.smembers(redisKey).filter( (e) => e != undefined && e!= "undefined");
-            // let currentEventIds  = events.map( x => String(x.id) ).filter( (e) => e != undefined && e!= "undefined");
-            // // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
-            // if ( !prevEventIds  || prevEventIds.length <= 0 ){
-            //     if ( currentEventIds && currentEventIds.length > 0){
-            //         await this.app.redis.sadd(redisKey,...currentEventIds);
-            //     }
-            // }else{ //redis里存在上次的eventsid了
-            //     //求差集
-            //     diffEventIds     = _.difference(currentEventIds, prevEventIds);
-            // }
-            // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
-            if ( events && events.length > 0){
-                info.newEvent    = true; //是否有新事件
-               // await this.app.redis.sadd(redisKey,...currentEventIds);
-            }else{
-                info.newEvent    = false;
-            }
-        }
-
-        let spots                = currentCity['roadMap'];
-        let spotsHasArrived      = spots.filter(  r =>  r.arriveStamp  <= timeNow );
+        let spots                                                     = currentCity['roadMap'];
+        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
-            info.freshSpots      = true;
-            //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
+            info.freshSpots                                           = true;
         }
 
         let spotsAllTrackedNum = spots.filter(  r =>  r.tracked  == true ) ? spots.filter(  r =>  r.tracked  == true ).length : 0;
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
-        info.spotsTracked         = spotsHasArrived ? spotsHasArrived.length : 0;
-        let citySpotsLength       = travelConfig.City.Get(cid).scenicspot.length;
-        info.spotsAllTracked      = spotsAllTrackedNum == citySpotsLength;
+        info.spotsTracked                                             = spotsHasArrived ? spotsHasArrived.length : 0;
+        let citySpotsLength                                           = travelConfig.City.Get(cid).scenicspot.length;
+        info.spotsAllTracked                                          = spotsAllTrackedNum == citySpotsLength;
         this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
         if ( info.spotsTracked == citySpotsLength){
-            info.spotsTracked    = 0;
+            info.spotsTracked                                         = 0;
         }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
-
        // info.newEvent               = true;
     }
 
