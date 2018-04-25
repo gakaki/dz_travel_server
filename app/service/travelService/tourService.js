@@ -244,7 +244,7 @@ class TourService extends Service {
              spots: spots,
              display: display, //人物的表现形式
             // task:task
-             task: await this.queryTaskProgress(userId, currentCity),
+             task: await this.queryTaskProgress(userId, currentCity, false),
         };
     }
 
@@ -261,10 +261,12 @@ class TourService extends Service {
     }
 
     //更新玩家游玩进度
-    async updatePlayerProgress(currentCity, uid) {
+    async updatePlayerProgress(currentCity, uid, spotId) {
         let cityConfig = travelConfig.City.Get(currentCity.cid);
         let roadMaps = currentCity.roadMap;
         for(let spot of roadMaps) {
+            let update = false;
+            let isOver = false;
             if(spot.index != -1) {
                 if(!spot.tracked) {
                     if(spot.endtime <= new Date().getTime()) {
@@ -272,39 +274,61 @@ class TourService extends Service {
                     }
                 }
                 if(spot.tracked) {
-                    let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
-                    if(!footPrints) {
-                    this.logger.info("更新足迹表");
-                        //更新足迹表
-                        await this.ctx.model.TravelModel.Footprints.create({
-                            uid: uid,
-                            fid: currentCity.fid,
-                            cid: currentCity.cid,
-                            country: cityConfig.country,
-                            province: cityConfig.province,
-                            city: cityConfig.city,
-                            scenicspot: spot.name,
-                            createDate: new Date(spot.endtime),
-                        });
+                    if(spotId) {
+                        if(spotId == spot.id) {
+                            update = true;
+                            isOver = true;
+                            //break;
+                        }
+                    }else {
+                        let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
+                        if(!footPrints) {
+                            update = true;
+                        }
 
-                        await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
-                        //更新里程数
-                        await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage } });
                     }
 
                 }
 
             }
+
+            if(update) {
+                this.logger.info("更新足迹表");
+                //更新足迹表
+                await this.ctx.model.TravelModel.Footprints.create({
+                    uid: uid,
+                    fid: currentCity.fid,
+                    cid: currentCity.cid,
+                    country: cityConfig.country,
+                    province: cityConfig.province,
+                    city: cityConfig.city,
+                    scenicspot: spot.name,
+                    createDate: new Date(spot.endtime),
+                });
+
+                await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
+                //增加积分
+                await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value);
+                //更新里程数
+                await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage } });
+                if(isOver) {
+                    break;
+                }
+            }
         }
+
+
     }
 
 
     //任务查询
-    async queryTaskProgress(uid, currentCity) {
+    async queryTaskProgress(uid, currentCity, needUpdate = true, spotId = 0) {
         //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
-        await this.updatePlayerProgress(currentCity, uid);
+        if(needUpdate) {
+            await this.updatePlayerProgress(currentCity, uid, needUpdate, spotId);
+        }
 
         let parterTour = 0;
         let parterPhoto = 0;
@@ -578,6 +602,7 @@ class TourService extends Service {
             desc: desc.desc,//时间描述
             reward: desc.reward,
             type: questCfg.type,
+            subType: questCfg.trigger_type,
             cid:cid,           //cityId
             spotId:spotId,     //现在用不上
             fid:currentCity.fid,
@@ -654,7 +679,7 @@ class TourService extends Service {
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
-            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
+            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid);
             //回答正确 给予正确奖励
             info.correct      = true;
             //info.rewards      = questCfg.getSpotRewardComment();
@@ -662,7 +687,7 @@ class TourService extends Service {
         }
         else if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
             //给予奖励写入数据库
-            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid );
+            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid);
             //回答正确 给予正确奖励
             info.correct      = true;
             //info.rewards      = questCfg.getSpotRewardComment();
@@ -695,6 +720,13 @@ class TourService extends Service {
 
         let uid                                                          = info.uid;
         let cid                                                          = info.cid;
+
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        if(!currentCity) {
+            info.code = apis.Code.NO_CURRENTCITY;
+            return;
+        }
+
         let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid                                                          : uid
         });
@@ -715,7 +747,7 @@ class TourService extends Service {
 
         let eid                                                          = event["eid"];
         let questCfg                                                     = questRepo.find(eid);
-        let row                                                          = await this.rewardThanMark( uid,cid,eid);
+        let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
         info.id                                                          = event['dbId'];
         info.quest                                                       = {
             dbId                                                         : event['dbId'],
@@ -747,7 +779,7 @@ class TourService extends Service {
     }
 
     // 写入数据库获得了奖励 并给予标记
-    async rewardThanMark(  uid , cid , eid  ){
+    async rewardThanMark(  uid , cid , eid ,fid ){
         //若是 普通的随机事件 那么直接触发获得奖励了
         let reward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
@@ -758,25 +790,26 @@ class TourService extends Service {
         let now                 = new Date().getTime();
         let questCfg            = questRepo.find(eid);
         let city = travelConfig.City.Get(cid);
-        let spotRewardComment = questCfg.getSpotRewardComment(city.city, reward).reward;
+        let spotRewardComment = questCfg.getSpotRewardComment(city.city, reward);
         //添加到spotevent
         await this.ctx.model.TravelModel.SpotTravelEvent.create({
             uid: uid,
             eid: eid,
             cid: cid,
-            fid: null,
+            fid: fid,
             spotId: null,
             isPhotography: false,
             isTour: true,
             reward: spotRewardComment.reward,
             desc: spotRewardComment.desc,
             type: questCfg.type,
+            subType: questCfg.trigger_type,
             createDate: now,
             received: true,             //设置为已经领取
             receivedDate: now,           //领取奖励时间
         });
 
-        return spotRewardComment;
+        return spotRewardComment.reward;
     }
 
     //观光??

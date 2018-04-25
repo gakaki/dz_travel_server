@@ -180,7 +180,7 @@ class RankService extends Service {
         ]);
 
         let userEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            { $match: { uid: uid, cid: cid, received: true, type: [ 2, 4 ] } },
+            { $match: { uid: uid, cid: cid, received: true, subType: { $in: [ 2, 4 ] } } },
             { $group: { _id: "$eid" } },
         ]);
         let userPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
@@ -198,7 +198,7 @@ class RankService extends Service {
         ]);
 
         let weekUserEvents = await this.ctx.model.TravelModel.SpotTravelEvent.aggregate([
-            { $match: { uid: uid, cid: cid, received: true, type: [ 2, 4 ], createDate: { $gte: thisMonday } } },
+            { $match: { uid: uid, cid: cid, received: true, subType: { $in: [ 2, 4 ] }, createDate: { $gte: thisMonday } } },
             { $group: { _id: "$eid" } },
         ]);
         let weekUserPostcards = await this.ctx.model.TravelModel.Postcard.aggregate([
