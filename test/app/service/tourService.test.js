@@ -33,9 +33,8 @@ describe('test tour services', () => {
 
     });
 
-    it('test 测试eventshow 弹出框中的事件page数字 05/10',  async (done) => {
+    it('test 弹出框中的事件page数字 05/10',  async (done) => {
         const ctx       = app.mockContext();
-
 
         let res         = calcPageCount()
         console.log(res);
@@ -45,8 +44,6 @@ describe('test tour services', () => {
 
     });
 
-
-    // (10 - received true count) >= 10 ? get one not received : 10 - received true count
 
 
 });
