@@ -435,7 +435,8 @@ class PlayerService extends Service {
                     nickName: sender.nickName,
                     avatarUrl: sender.avatarUrl,
                 },
-                message: chat.context,
+                message1: chat.context,
+                message2: chat.context2,
             };
             if(chats.length > 1) {
                 if(i == 0) {
@@ -465,7 +466,8 @@ class PlayerService extends Service {
             pscid: postcard.pscid,   //明信片
             chatid: chatid,
             sender: ui.uid,          //回复者
-            context: info.message,
+            context: info.message1,
+            context2: info.message2,
             createDate: new Date(),
         });
         let chats = await this.ctx.model.TravelModel.PostcardChat.find({ pscid: postcard.pscid });
