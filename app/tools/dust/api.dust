@@ -12,6 +12,7 @@ class {.name}{?.parent} extends {.parent}{/.parent} {
     constructor() {~lb}
     {?.parent}    super();{/.parent}{?.isProto}
         this.action = '{.action}';{/.isProto}
+        {^server}{?.isProto}this.init();{/.isProto}{/server}
     {?server}{#.propsS}
         //prop type: {.v|s}
         this.{.k|s} = null;
