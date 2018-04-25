@@ -585,7 +585,7 @@ class TourService extends Service {
         };
 
         let e                    = new MakeSpotEvent(para);
-        this.logger.info("事件",e);
+       // this.logger.info("事件",e);
 
         let eid                  = e.event.id;
         //奖励 的数值
@@ -616,11 +616,9 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.SpotTravelEvent.create(row);
 
         //城市专有事件，更新完成度
-        if(e.event.type == e.event.TriggerTypeKeys.TOUR_CITY) {
+        if(e.event.trigger_type == e.event.TriggerTypeKeys.TOUR_CITY) {
             this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
         }
-
-
 
         info.event          = desc;
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: uid});
@@ -674,8 +672,12 @@ class TourService extends Service {
         await this.ctx.model.TravelModel.CityEvents.update( { uid:uid , 'events.dbId': dbId } , {
             $set : {'events.$.received' : true}
         });
-        await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
-        this.logger.info("这里的 UID CID EID 到底是多少 questCfg.type", uid , cid , eid ,questCfg.type);
+
+        if(questCfg.trigger_type == questCfg.TriggerTypeKeys.RANDOM_CITY) {
+            await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
+        }
+
+        this.logger.info("这里的 UID CID EID 到底是多少 questCfg.type", uid , cid , eid ,questCfg.type,questCfg.trigger_type);
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
@@ -768,7 +770,6 @@ class TourService extends Service {
             await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
                 $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
-            await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, cid);
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
