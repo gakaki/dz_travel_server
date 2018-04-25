@@ -544,12 +544,14 @@ class TourService extends Service {
       //  this.logger.info(sp);
         let getReward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         this.logger.info("获得的奖励" ,getReward);
-        let desc = questRepo.find(eid).getSpotRewardComment(sp.scenicspot, getReward);
+        let questCfg  = questRepo.find(eid);
+        let desc = questCfg.getSpotRewardComment(sp.scenicspot, getReward);
         let row                  = {
             uid:uid,
             eid:eid,        //事件id 这个是随机出来的
             desc: desc.desc,//时间描述
             reward: desc.reward,
+            type: questCfg.type,
             cid:cid,           //cityId
             spotId:spotId,     //现在用不上
             fid:currentCity.fid,
@@ -666,25 +668,11 @@ class TourService extends Service {
         let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid                                                          : uid
         });
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false ).slice(3);
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime());
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived);
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
-        let calcCurrIndex = ( eReceivedCount ) => { //倒计时计算
-            let current                                                  = 0;
-            if ( eReceivedCount <= 0 ){
-                current                                                  = 1;
-            }else{
-                current                                                  = eReceivedCount >= 10 ? 10 : eReceivedCount ;
-            }
-            let total                                                    = 10;
-            current                                                      = total - current;
-            if (current <= 1) current = 1;
-            console.log(`[debug] current index is ${current}/10`);
-            return  current;
-        }
-
-        info.current                                                     = calcCurrIndex(eventsReceived.length);
+        info.current                                                     = MakeEvent.fakeCalcCurrIndex(eventsReceived.length);
         info.total                                                       = 10;
         let event                                                        = null;
         if (eventsNoReceived.length >= 0)
