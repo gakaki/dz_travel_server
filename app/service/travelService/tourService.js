@@ -1071,7 +1071,7 @@ class TourService extends Service {
             info.submit();
             return;
         }
-        let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid  });
+        let currentEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid, received: false });
         if (!currentEvents ) {
             // this.logger.info("事件没找到")
             // info.code           = apis.Code.NOT_FOUND;
@@ -1093,23 +1093,23 @@ class TourService extends Service {
             events               = events.filter(  r =>  r.triggerDate  > timePrev && r.triggerDate < timeNow  );
             this.logger.info("事件数量 ",events.length);
 
-            let diffEventIds     = [];
-            let redisKey         = `playloop:${uid}`;
-            let prevEventIds     = await this.app.redis.smembers(redisKey).filter( (e) => e != undefined && e!= "undefined");
-            let currentEventIds  = events.map( x => String(x.id) ).filter( (e) => e != undefined && e!= "undefined");
+            // let diffEventIds     = [];
+            // let redisKey         = `playloop:${uid}`;
+            // let prevEventIds     = await this.app.redis.smembers(redisKey).filter( (e) => e != undefined && e!= "undefined");
+            // let currentEventIds  = events.map( x => String(x.id) ).filter( (e) => e != undefined && e!= "undefined");
+            // // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
+            // if ( !prevEventIds  || prevEventIds.length <= 0 ){
+            //     if ( currentEventIds && currentEventIds.length > 0){
+            //         await this.app.redis.sadd(redisKey,...currentEventIds);
+            //     }
+            // }else{ //redis里存在上次的eventsid了
+            //     //求差集
+            //     diffEventIds     = _.difference(currentEventIds, prevEventIds);
+            // }
             // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
-            if ( !prevEventIds  || prevEventIds.length <= 0 ){
-                if ( currentEventIds && currentEventIds.length > 0){
-                    await this.app.redis.sadd(redisKey,...currentEventIds);
-                }
-            }else{ //redis里存在上次的eventsid了
-                //求差集
-                diffEventIds     = _.difference(currentEventIds, prevEventIds);
-            }
-            // this.logger.info("diffEventIds 是 ", diffEventIds ,"previds 是",prevEventIds , "currentEventIds是" ,currentEventIds  );
-            if ( diffEventIds && diffEventIds.length > 0){
+            if ( events && events.length > 0){
                 info.newEvent    = true; //是否有新事件
-                await this.app.redis.sadd(redisKey,...currentEventIds);
+               // await this.app.redis.sadd(redisKey,...currentEventIds);
             }else{
                 info.newEvent    = false;
             }
@@ -1134,7 +1134,7 @@ class TourService extends Service {
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
 
-        info.newEvent               = true;
+       // info.newEvent               = true;
     }
 
 
