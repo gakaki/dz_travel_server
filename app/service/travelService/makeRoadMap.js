@@ -118,7 +118,8 @@ class MakeRoadMap {
                 o.y = xy.y;
                 o.mileage = 0;
                 o.countdown = 0;
-                o.tracked = false;
+                o.tracked = old ? old.tracked : false;
+                o.roundTracked = false;
                 o.index = index;
                 o.startime = "";
                 o.endtime = "";
@@ -128,6 +129,7 @@ class MakeRoadMap {
             } else {
                 if(new Date().getTime() >= old.endtime) {
                     old.tracked = true;
+                    old.roundTracked = true;
                     o.countdown = 0;
                 }
                 hasRouter.push(old.index);
@@ -146,6 +148,7 @@ class MakeRoadMap {
             x: 0,   //这里的不算数
             y: 0,
             tracked: true,  //起点肯定默认就到达了
+            roundTracked: true,  //起点肯定默认就到达了
             index: 0,     //这个index 有必要吗
             startime: this.startTime ? this.startTime.getTime() : 0,    //开始时间
             endtime: "",    //结束时间

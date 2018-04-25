@@ -71,12 +71,15 @@ class TourService extends Service {
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
+
         if(!currentCity.present && currentCity.friend) {
             let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
             if(fcity) {
                 info.present = fcity.present;
             }
         }
+
+        let hasCome = info.present;
         if(!currentCity.startTime) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
@@ -92,6 +95,7 @@ class TourService extends Service {
                     y                                                : xy.y,
                     isStart                                          : false,
                     tracked                                          : false, //是否经过了 等下从数据库比对
+                    roundTracked                                     : false,//当前轮是否经过
                  //   index       : spotsConfig['index'],
                     trackedNo                                        : 0, //用户自己走的顺序
                     name                                             : spotsConfig['scenicspot'],
@@ -114,7 +118,10 @@ class TourService extends Service {
                             spot.countdown                           = 0
                         }
                     }else{
-                        spot.countdown                               = 0
+                        if(spot.endtime <= new Date().getTime()) {
+                            spot.roundTracked = true;
+                            spot.countdown                               = 0
+                        }
                     }
 
                 }
@@ -124,7 +131,14 @@ class TourService extends Service {
             info.startTime                                           = currentCity.startTime.getTime();
             info.task                                                = this.taskInfo(uid);
         }
-        await this.ctx.model.TravelModel.CurrentCity.update({ uid    : info.uid }, { $set: { roadMap: info.spots } });
+        let upset = {
+            roadMap: info.spots,
+        };
+
+        if(hasCome) {
+            upset.present = false;
+        }
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid    : info.uid }, { $set: upset });
 
 
         info.startPos = ScenicPos.Get(cid).cfg;
@@ -171,8 +185,15 @@ class TourService extends Service {
                 }
 
                 if(spot.tracked) {
-                    spot.countdown        = 0
-                    spot_arrived_count++;
+                    if(spot.endtime <= new Date().getTime()) {
+                        spot.roundTracked      = true;
+                        spot.countdown    = 0;
+                    }
+
+                    if(spot.roundTracked) {
+                        spot_arrived_count++;
+                    }
+
                 }
 
             }
@@ -253,7 +274,7 @@ class TourService extends Service {
                 if(spot.tracked) {
                     let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
                     if(!footPrints) {
-                        this.logger.info("更新足迹表")
+                    this.logger.info("更新足迹表");
                         //更新足迹表
                         await this.ctx.model.TravelModel.Footprints.create({
                             uid: uid,
@@ -265,11 +286,12 @@ class TourService extends Service {
                             scenicspot: spot.name,
                             createDate: new Date(spot.endtime),
                         });
+
                         await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
                         //更新里程数
                         await this.ctx.model.PublicModel.User.update({ uid: uid }, { $inc: { mileage: spot.mileage } });
-
                     }
+
                 }
 
             }
@@ -1119,10 +1141,11 @@ class TourService extends Service {
             //是否要刷新景点状态列表，一些事件、装备会影响景点的到达时间
         }
 
+        let spotsAllTrackedNum = spots.filter(  r =>  r.tracked  == true ) ? spots.filter(  r =>  r.tracked  == true ).length : 0;
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked         = spotsHasArrived ? spotsHasArrived.length : 0;
         let citySpotsLength       = travelConfig.City.Get(cid).scenicspot.length;
-        info.spotsAllTracked      = info.spotsTracked == citySpotsLength;
+        info.spotsAllTracked      = spotsAllTrackedNum == citySpotsLength;
         this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
         if ( info.spotsAllTracked == true){
             info.spotsTracked    = 0;
@@ -1277,8 +1300,9 @@ class TourService extends Service {
         if(!spotsAllTracked) {
             for(let i = 0; i < roadMap.length; i++) {
                 if(roadMap[i].index != -1) {
-                    if(!roadMap[i].tracked && roadMap[i].endtime <= new Date().getTime()) {
+                    if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
                         roadMap[i].tracked = true;
+                        roadMap[i].roundTracked = true;
                     }
 
                     if(roadMap[i].index != 0) {
@@ -1290,7 +1314,7 @@ class TourService extends Service {
                         //    this.logger.info("结束", index);
                         //   this.logger.info(roadMap[i]);
                         //   this.logger.info(roadMap[index]);
-                        if (index == -1 || !roadMap[i].tracked && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime >= new Date().getTime() ) {
+                        if (index == -1 || !roadMap[i].roundTracked && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime >= new Date().getTime()) {
                             this.logger.info(roadMap[i].name);
                             roadMap[i].index = -1;
                             roadMap[i].startime = "";
@@ -1313,6 +1337,7 @@ class TourService extends Service {
                 roadMap[i].startime = "";
                 roadMap[i].endtime = "";
                 roadMap[i].tracked = true;
+                roadMap[i].roundTracked = false;
                 roadMap[i].mileage = 0;
                 roadMap[i].countdown = 0;
                 roadMap[i].arriveStamp = "";
