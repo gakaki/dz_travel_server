@@ -201,7 +201,7 @@ class MakeRoadMap {
         let timeHour = 0;
         for(let speed of travelConfig.speeds) {
             if(distance <= speed.distance2) {
-                timeHour = (((distance - speed.distance1) / (speed.distance2 - speed.distance1)) * (speed.speed2 - speed.speed1) + speed.speed1) / 1000;
+                timeHour = distance / ((((distance - speed.distance1) / (speed.distance2 - speed.distance1)) * (speed.speed2 - speed.speed1) + speed.speed1) / 1000);
                 break;
             }
         }
@@ -247,9 +247,10 @@ class MakeRoadMap {
         //diffTime = 30 * 1000//test
 
 
-        diffTime = 5000;
+        // diffTime = 5000;
 
-
+        let mileage = Math.round(short_path.getMileage(travelMap));
+        console.log("经纬距离 ：" + mileage);
 
         console.log("需要的时间 " + diffTime);
         let now = new Date().getTime();
@@ -261,7 +262,7 @@ class MakeRoadMap {
             let end = spotStart['startime'] + diffTime;
             spotEnd['endtime'] = end;
             spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
-            spotEnd['mileage'] = distance;
+            spotEnd['mileage'] = mileage;
 
         }else{
             let nextStart = spotStart['endtime'];
@@ -274,7 +275,7 @@ class MakeRoadMap {
 
             spotEnd['endtime'] = spotStart['startime'] + diffTime;
             spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
-            spotEnd['mileage'] = distance;
+            spotEnd['mileage'] = mileage;
         }
         console.log("达到时间 " + new Date(spotEnd['endtime']));
 

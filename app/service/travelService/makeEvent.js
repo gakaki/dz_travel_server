@@ -108,6 +108,18 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let randomEl    = _.shuffle(quests)[0];
         return randomEl;
     }
+
+
+    static fakeCalcCurrIndex (dbReceivedCount , dbNonReceivedCount ) { //倒计时计算
+        if (dbReceivedCount <= 0)   dbReceivedCount = 0;
+        if (dbNonReceivedCount <= 0)   dbNonReceivedCount = 0;
+
+        let total                                                    = 10;
+        let current                                                  = dbReceivedCount >= total ? 0 : total - dbReceivedCount ;
+        if ( dbNonReceivedCount >= 1 && current <= 1 ) current = 1;
+        console.log(`[debug] current  is ${current}/${total} , receivedCount is ${dbReceivedCount} , noReceivedCount is ${dbNonReceivedCount}`);
+        return  current;
+    }
 }
 
 module.exports = MakeEvent;

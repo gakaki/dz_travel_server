@@ -12,26 +12,33 @@ class Point {
         this.y = y;
     }
 
+    //坐标算法
     static distance(a, b) {
-        // let lat1 = this.ConvertDegreesToRadians(a[0]);
-        // let lon1 = this.ConvertDegreesToRadians(a[1]);
-        // let lat2 = this.ConvertDegreesToRadians(b[0]);
-        // let lon2 = this.ConvertDegreesToRadians(b[1]);
-        //
-        // let vLon = Math.abs(lon1 - lon2);
-        // let vLat = Math.abs(lat1 - lat2);
-        // let h = this.HaverSin(vLat) + Math.cos(lat1) * Math.cos(lat2) * this.HaverSin(vLon);
-        //
-        // return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
-        //console.log(a);
-       // console.log(b);
-        if ( !a || !b || !a.x || !b.x) return;
+        if (!a || !b || !a.x || !b.x) return;
         let vLon = Math.abs(a.x - b.x);
          let vLat = Math.abs(a.y - b.y);
 
 
         return Math.sqrt(Math.pow(vLon, 2) + Math.pow(vLat, 2));
     }
+
+
+    //经纬度算法
+    static mileage(a, b) {
+        let lat1 = this.ConvertDegreesToRadians(a[0]);
+        let lon1 = this.ConvertDegreesToRadians(a[1]);
+        let lat2 = this.ConvertDegreesToRadians(b[0]);
+        let lon2 = this.ConvertDegreesToRadians(b[1]);
+
+        let vLon = Math.abs(lon1 - lon2);
+        let vLat = Math.abs(lat1 - lat2);
+        let h = this.HaverSin(vLat) + Math.cos(lat1) * Math.cos(lat2) * this.HaverSin(vLon);
+
+        return 2 * EARTH_RADIUS * Math.asin(Math.sqrt(h));
+    }
+
+
+
 
     static ConvertDegreesToRadians(degrees) {
         return degrees * Math.PI / 180;
@@ -99,6 +106,7 @@ class ShortPath {
         this.spotPoints     = spotPoints;
         this.cid            = cid;
         this.startPos       = scenicPos.Get(cid);
+        this.startLLPos     = travelConfig.City.Get(cid).coordinate;
         //console.log( this.startPos )
     }
 
@@ -114,6 +122,19 @@ class ShortPath {
         }else{
             for (let j = 0; j < map.length - 1; j++) {
                 value += Point.distance(scenicPos.Get((map[j])), scenicPos.Get(map[j + 1]));
+            }
+        }
+
+        return value
+    }
+
+    getMileage(map) {
+        let value = 0;
+        if(map.length == 1) {
+            value = Point.mileage(this.startLLPos, travelConfig.Scenicspot.Get(map[0]).coordinate);
+        }else{
+            for (let j = 0; j < map.length - 1; j++) {
+                value += Point.mileage(travelConfig.Scenicspot.Get(map[j]).coordinate, travelConfig.Scenicspot.Get(map[j + 1]).coordinate);
             }
         }
 
@@ -196,6 +217,8 @@ module.exports = ShortPath;
 
 
 // var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( 344 );
-// short_path.shortPath();
+// let short_path = new ShortPath( 1 );
+// //short_path.shortPath();
+// let a = Math.round(short_path.getMileage([100101]));
+// console.log(a);
 // t.stop();

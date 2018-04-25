@@ -26,6 +26,16 @@ describe('test 测试双人旅行 流程 数据写入', () => {
         console.log(e.eventsFormat);
     });
 
+    it('makeEventTest fakeCalcCurrIndex  ',  async () => {
+
+        for ( let i=-1; i < 13; i++ ){
+            let dbReceivedCount = i;
+            let dbNoReceivedCount = i + 1;
+            let res             = MakeEvent.fakeCalcCurrIndex(dbReceivedCount,dbNoReceivedCount);
+        }
+
+    });
 
 
 });
+
