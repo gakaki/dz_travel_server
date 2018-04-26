@@ -25,9 +25,9 @@ class IntegralService extends Service {
         //         await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
         //     }
         // }
-        // shops = shops.filter(v=>{
-        //     return new Date() >= v.time1 && new Date() <= v.time2
-        // })
+        shops = shops.filter(v=>{
+            return new Date() >= v.time1 && new Date() <= v.time2
+        })
         shops = utils.multisort(shops, (a, b) => a.sort - b.sort);
         res.shops = shops
 
@@ -41,19 +41,32 @@ class IntegralService extends Service {
             return;
         }
         let exchangeItems = await this.ctx.model.TravelModel.ExchangeRecord.find({ uid: res.uid, exId: res.id });
+        let code = 1;
+        if(exchangeItems.length) {
 
-        let code = null;
-
-        if(item.type == 2) {
-            for(let exItem of exchangeItems) {
-                if(!exItem.sent) {
-                    code = exItem.code;
-                    break;
+            if(item.type == 2) {
+                for(let exItem of exchangeItems) {
+                    if(!exItem.sent) {
+                        code = exItem.code;
+                        break;
+                    }
                 }
             }
+
+        }else{
+            code = null;
         }
-        item.code = code;
-        res.shop = item;
+        let out = {
+            id: item.id,
+            introduce: item.introduce,
+            name: item.name,
+            pic: item.pic,
+            integral: item.integral,
+            exchangeCode: code,
+            type: item.type,
+        }
+
+        res.shop = out;
 
     }
 
@@ -168,10 +181,13 @@ class IntegralService extends Service {
             return;
         }
 
-        if (item.type == 1 && !ui.address) {
-            res.code = apis.Code.NEED_ADDRESS;
-            this.logger.info('未填地址，返回');
-            return;
+        if (item.type == 1) {
+            if(!ui.address){
+                res.code = apis.Code.NEED_ADDRESS;
+                this.logger.info('未填地址，返回');
+                return;
+            }
+            code = res.exchangeCode = 1;
         }
 
         let result = await this.ctx.model.TravelModel.ExchangeItem.update({ id: res.id, remaining: { $gt: 0 } },
