@@ -140,7 +140,7 @@ class UserService extends Service {
         result.sid = ses.sid;
         result.info = ui;
 
-        shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
+        shareUid && uid != shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
 
         return result;
     }
