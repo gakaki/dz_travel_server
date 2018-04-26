@@ -51,7 +51,9 @@ class TourService extends Service {
 
         info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
-        info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+
+
+
 
         let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
@@ -70,16 +72,15 @@ class TourService extends Service {
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
-
         if(!currentCity.present && currentCity.friend) {
             let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
             if(fcity) {
                 info.present = fcity.present;
             }
         }
-
+       // info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(friendList, cid);
         let hasCome = info.present;
-        if(!currentCity.roadMap.length) {
+        if(!currentCity.roadMap || !currentCity.roadMap.length) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
@@ -145,7 +146,7 @@ class TourService extends Service {
 
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid, uid, currentCity.friend);
 
 
 
@@ -1092,6 +1093,8 @@ class TourService extends Service {
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
+
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [] } });
 
         return {
             score: efficiency,
