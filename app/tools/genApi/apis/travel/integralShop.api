@@ -23,7 +23,7 @@ class Shop {
     //是否已经有兑换码,如果有返回
     prop exchangeCode:string
     //是否仍有剩余
-    prop remaining:boolean
+    prop remaining:number
 }
 
 //积分商店信息

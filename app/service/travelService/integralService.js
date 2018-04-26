@@ -14,17 +14,17 @@ class IntegralService extends Service {
         let date = new Date().format("yyyy-MM-dd");
         let shops = await this.ctx.model.TravelModel.ExchangeItem.find({ ifShow: 1 });
 
-        if(!shops.length && sheets.exchanges) {
-            shops = sheets.exchanges;
-            for (let i = 0; i < shops.length; i++) {
-                shops[i].createDate = new Date();
-                shops[i].remaining = shops[i].num;
-                shops[i].time1 = new Date(shops[i].time1);
-                shops[i].time2 = new Date(shops[i].time2);
-                shops[i].codes = shops[i].code || [];
-                await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
-            }
-        }
+        // if(!shops.length && sheets.exchanges) {
+        //     shops = sheets.exchanges;
+        //     for (let i = 0; i < shops.length; i++) {
+        //         shops[i].createDate = new Date();
+        //         shops[i].remaining = shops[i].num;
+        //         shops[i].time1 = new Date(shops[i].time1);
+        //         shops[i].time2 = new Date(shops[i].time2);
+        //         shops[i].codes = shops[i].code || [];
+        //         await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
+        //     }
+        // }
         // shops = shops.filter(v=>{
         //     return new Date() >= v.time1 && new Date() <= v.time2
         // })
