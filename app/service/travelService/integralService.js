@@ -40,6 +40,19 @@ class IntegralService extends Service {
             this.logger.info('找不到要兑换的物品，返回');
             return;
         }
+        let exchangeItems = await this.ctx.model.TravelModel.ExchangeRecord.find({ uid: res.uid, exId: res.id });
+
+        let code = null;
+
+        if(item.type == 2) {
+            for(let exItem of exchangeItems) {
+                if(!exItem.sent) {
+                    code = exItem.code;
+                    break;
+                }
+            }
+        }
+        item.code = code;
         res.shop = item;
 
     }
