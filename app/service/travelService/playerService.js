@@ -66,10 +66,10 @@ class PlayerService extends Service {
     async travelFootprint(info, ui) {
         let totalCitys = travelConfig.citys.length;
         this.logger.info("总城市 " + totalCitys);
-        let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(info.uid);
+        let playerFootprints = await this.ctx.service.travelService.rankService.getUserFoot(ui.uid);
         let totalArrive = playerFootprints ? playerFootprints.lightCityNum : 0;
         let provinces = await this.ctx.model.TravelModel.CityLightLog.aggregate([
-            { $match: { uid: info.uid, lighten: true } },
+            { $match: { uid: ui.uid, lighten: true } },
             { $group: { _id: "$province" } },
         ]);
 
