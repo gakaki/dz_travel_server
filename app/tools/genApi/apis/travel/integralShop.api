@@ -22,6 +22,8 @@ class Shop {
     prop desc:string
     //是否已经有兑换码,如果有返回
     prop exchangeCode:string
+    //是否仍有剩余
+    prop remaining:boolean
 }
 
 //积分商店信息
