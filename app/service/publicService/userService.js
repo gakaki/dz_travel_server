@@ -140,7 +140,7 @@ class UserService extends Service {
         result.sid = ses.sid;
         result.info = ui;
 
-        shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
+        shareUid && uid != shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
 
         return result;
     }
@@ -162,7 +162,7 @@ class UserService extends Service {
 
             isFirst = true;
             //发奖励
-            await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + itemId]: itemCnt }, 'travel');
+            await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + itemId]: itemCnt }, 'firstShare');
 
             this.logger.info(`用户${uid}获得今日首次分享奖励->${itemId}x${itemCnt}个`);
             //插入分享记录
@@ -194,7 +194,7 @@ class UserService extends Service {
     //带来一个新用户奖励
     async newUserShareReward(uid, itemId, itemCnt) {
         //直接发奖励
-        await this.ctx.service.publicService.itemService.itemChange(uid, { ["items." + itemId]: itemCnt }, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(uid, { ["items." + itemId]: itemCnt }, 'newUserShare');
         //通知到消息中心
         let content = travelConfig.Message.Get(travelConfig.Message.INVITEMESSAGE).content;
         content = content.replace("s%", itemCnt);
@@ -260,8 +260,8 @@ class UserService extends Service {
         });
 
         //TODO 测试多给点钱。正式服改回来
-       // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "travel");
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000 }, "travel");
+       // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000 }, "origin");
 
         //进入积分榜单
         await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {

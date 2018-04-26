@@ -92,15 +92,13 @@ class TravelService extends Service {
 
         };
         //上个城市效率奖励
-        if(lastCity) {
+        if(lastCity && lastCity.roadMap) {
             let efficiencyReward = await this.service.travelService.tourService.leavetour(ui);
              info.score = efficiencyReward.score;
              info.reward = efficiencyReward.reward;
             if(ui.isNewPlayer && !fui && lastCity.startTime) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
-
-
         }
 
 
@@ -114,7 +112,7 @@ class TravelService extends Service {
 
         }
         //道具更新
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, cost);
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, cost, "flyTicket");
         if (ui.isFirst) {
             this.logger.info("首次飞行");
             await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isFirst: false } });
@@ -178,7 +176,6 @@ class TravelService extends Service {
             friend: null,
             isInviter: false,
             present: present,
-            roadMap: [],
             acceleration: acceleration,
             changeRouteing: false,
             modifyEventDate: null,

@@ -208,6 +208,13 @@ class Quest extends TreeNode {
 
     }
 
+    toString() {
+        let res = `${this.id} ${this.describe} 
+        答案为: ${this.answer}
+        错误为: ${this.wrong1},${this.wrong2},${this.wrong3}`;
+        return res;
+    }
+
     describeFormat(currentCid=null,spotId=null){
         let res = "";
         let replaceStr = "s%";
@@ -271,9 +278,13 @@ class Quest extends TreeNode {
                 switch(typeId) {
                     case "1": //金币
                         str = '金币';
-                        str             =str + `+`;
-                       // if( itemIdOrVal < 0)
-                           // str         =str + `-`;
+
+                       if( itemIdOrVal < 0){
+                           str         =str + `-`;
+                       }else{
+                           str             =str + `+`;
+                       }
+
                         str             = str + `${Math.abs(itemIdOrVal)}`;
                         break;
                     case "2": //积分

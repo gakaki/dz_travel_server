@@ -294,7 +294,7 @@ class WeChatService extends Service {
         let cost = {
             ["items." + travelConfig.Item.GOLD]: Number(good.gold),
         };
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, cost, appName);
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, cost, "recharge", appName);
 
         return true;
     }

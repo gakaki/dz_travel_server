@@ -84,7 +84,7 @@ api TourIndexInfo{
 
 //取消组队
 api CancelParten {
-    require inviteCode:string 
+
 }
 
 

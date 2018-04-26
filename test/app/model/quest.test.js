@@ -36,6 +36,7 @@ describe('test 测试quest类', () => {
     it('测试 生成带s%的事件 知识点 = 1 130030 上图是哪个特产？',  async () => {
         let row         = questRepo.find("130010");
         row.dealKnowledgeRow(2); //天津
+        console.log(row.toString());
         assert((row && row.answers().indexOf("s%") == -1));
     });
     it('测试 生成带s%的事件 知识点 = 2 130040 上图是哪个景点？',  async () => {
@@ -50,14 +51,12 @@ describe('test 测试quest类', () => {
     });
 
     it('测试 CityRepo ScenpoRepo 和 specialRepo的 random 4 函数',  async () => {
-
         let c = cityRepo.random4();
         assert(c.length == 4);
         c     = scenicspotRepo.random4()
         assert(c.length == 4);
         c     = specialityRepo.random4();
         assert(c.length == 4);
-
     });
 
 

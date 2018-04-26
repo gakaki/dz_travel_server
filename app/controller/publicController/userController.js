@@ -76,7 +76,7 @@ class UserController extends Controller {
         };
        // await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
 
-        await this.service.publicService.itemService.itemChange(ui.uid, cost, appName);
+        await this.service.publicService.itemService.itemChange(ui.uid, cost, "artificial");
     }
 
 

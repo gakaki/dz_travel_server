@@ -19,13 +19,12 @@ class TourService extends Service {
     async findAnotherPlayer(myUid){
         let curCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: myUid });
         if(!curCity) {
-            this.ctx.session.info.code = apis.Code.NOT_FOUND;
-            this.ctx.session.info.submit();
+            throw new Error("not found currentcity table");
             return;
         }
         let friendId        = curCity['friend'];
         let isInviter       = curCity['isInviter'];
-        if ( !friendId || !isInviter ){
+        if ( !friendId ){
             return null; //shuomi
         }
         this.logger.info("[double guide]查询双人信息" + myUid + ` isInviter ${isInviter}`, "好友id是" + friendId + ` isInviter ${!isInviter}`);
@@ -43,7 +42,7 @@ class TourService extends Service {
             isInviter:!isInviter //是否是邀请者 被邀请者当然是和邀请者相反咯
         }
         return partener;
-    }
+     }
     async tourindexinfo(info, ui) {
 
         let uid                                                      = info.uid;
@@ -52,7 +51,9 @@ class TourService extends Service {
 
         info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
-        info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+
+
+
 
         let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
@@ -71,16 +72,15 @@ class TourService extends Service {
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
-
         if(!currentCity.present && currentCity.friend) {
             let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
             if(fcity) {
                 info.present = fcity.present;
             }
         }
-
+       // info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(friendList, cid);
         let hasCome = info.present;
-        if(!currentCity.startTime) {
+        if(!currentCity.roadMap || !currentCity.roadMap.length) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
@@ -128,7 +128,10 @@ class TourService extends Service {
                 spot_map[spot.id]                                    = spot;
             }
             info.spots                                               = roadMaps;
-            info.startTime                                           = currentCity.startTime.getTime();
+            if(currentCity.startTime) {
+                info.startTime                                           = currentCity.startTime.getTime();
+            }
+
             info.task                                                = this.taskInfo(uid);
         }
         let upset = {
@@ -143,7 +146,7 @@ class TourService extends Service {
 
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid, uid, currentCity.friend);
 
 
 
@@ -265,6 +268,9 @@ class TourService extends Service {
         this.logger.info("更新玩家游玩进度");
         let cityConfig = travelConfig.City.Get(currentCity.cid);
         let roadMaps = currentCity.roadMap;
+        if(!roadMaps) {
+            return
+        }
         for(let spot of roadMaps) {
             let update = false;
             let isOver = false;
@@ -317,10 +323,10 @@ class TourService extends Service {
                 await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
                 if(hascome) {
                     //增加积分
-                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTAGAIN).value);
+                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTAGAIN).value, "againTravel");
                 }else{
                     //增加积分
-                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value);
+                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value, "firstTravel");
                 }
 
                 //更新里程数
@@ -340,7 +346,7 @@ class TourService extends Service {
         //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
-        this.logger.info(needUpdate)
+        //this.logger.info(needUpdate)
         if(needUpdate) {
             await this.updatePlayerProgress(currentCity, uid, spotId);
         }
@@ -363,7 +369,7 @@ class TourService extends Service {
         let photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, fid: currentCity.fid, cid: cid });
         this.logger.info("查找拍照" , photoCount);
         //观光
-        let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, fid: currentCity.fid, cid: cid, isTour: true });
+        let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, fid: currentCity.fid, cid: cid, subType: { $in: [ 3, 4 ] } });
         this.logger.info("观光" , tourCount);
 
 
@@ -405,7 +411,7 @@ class TourService extends Service {
             this.logger.info("是否已经点亮");
             if(!cityLight) {
                 this.logger.info("创建点亮表");
-                await this.ctx.model.TravelModel.CityLightLog.create({ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid },{ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                 //更新足迹榜记录
                 await this.ctx.service.travelService.rankService.updateFootRecord(uid);
             }
@@ -414,7 +420,7 @@ class TourService extends Service {
                 this.logger.info("是否已经点亮");
                 if(!cityLight) {
                     this.logger.info("创建点亮表");
-                    await this.ctx.model.TravelModel.CityLightLog.create({ uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                    await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid }, { uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                     //更新足迹榜记录
                     await this.ctx.service.travelService.rankService.updateFootRecord(currentCity.friend);
                 }
@@ -513,7 +519,7 @@ class TourService extends Service {
             //第一次获得这种明信片，获得积分
             let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
             if(count == 1) {
-                this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+                this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value, "firstPostcard");
             }
             this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(info.uid, cid);
             // sysGiveLog表记录
@@ -582,7 +588,7 @@ class TourService extends Service {
                 return;
             }
             //消耗金币
-            this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'travel');
+            this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'tour');
             info.freeSight = 0;
         }
 
@@ -892,12 +898,17 @@ class TourService extends Service {
         rentItems[cfg.id] = 1;
         //扣钱
         let money = cfg.price;
-        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: -money }, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: -money }, 'rentItem');
         //加道具
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.ui.uid }, { rentItems });
         this.logger.info(`租用道具${cfg.id}成功`);
 
-
+        await this.ctx.model.TravelModel.RentItemLog.create({
+            uid: info.ui.uid,
+            cid: curCity.cid,
+            rentId: cfg.id,
+            createDate: new Date(),
+        });
 
         if(cfg.type == apis.RentItem.CAMERA) {
             if(cfg.value == -1) {
@@ -1013,7 +1024,7 @@ class TourService extends Service {
             return;
         }
 
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'PostcardBuy');
 
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
         //加明信片
@@ -1031,7 +1042,7 @@ class TourService extends Service {
         //第一次获得这种明信片，获得积分
         let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.ptid, cid: cfg.cityid });
         if(count == 1) {
-            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value, "firstPostcard");
         }
         this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(ui.uid, cfg.cityid);
         this.logger.info(`购买明信片成功`);
@@ -1078,13 +1089,17 @@ class TourService extends Service {
             this.logger.info("我规划的路径 " + path);
              efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
              reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
+             efficiency = efficiency || 0;
+            reward = reward || 0;
             //上个城市的评分奖励
-            this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
+            this.ctx.service.travelService.integralService.add(selfInfo.uid, reward, "efficiency");
             //更新足迹表
             await this.queryTaskProgress(selfInfo.uid, curCity);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
 
         }
+
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [] } });
 
         return {
             score: efficiency,
@@ -1164,7 +1179,7 @@ class TourService extends Service {
         info.lastestEvent                                             = events.length > 0 ? events[0] : null;
 
         let spots                                                     = currentCity['roadMap'];
-        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp  <= timeNow );
+        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
             info.freshSpots                                           = true;
         }
@@ -1330,8 +1345,8 @@ class TourService extends Service {
 
       //  }else{
             let map = roadMap.filter(n => n.endtime && n.endtime <= new Date().getTime());
-            this.logger.info(map);
-       //     this.logger.info(map.length);
+        //    this.logger.info(map);
+            this.logger.info(map.length);
             if(map.length == travelConfig.City.Get(currentCity.cid).scenicspot.length) {
                 for(let i = 0; i < roadMap.length; i++) {
                     roadMap[i].index = -1;
@@ -1344,6 +1359,7 @@ class TourService extends Service {
                     roadMap[i].arriveStamp = "";
                     roadMap[i].arriveStampYMDHMS = "";
                 }
+                currentCity.startTime = null;
             }else{
                 let needMap = utils.multisort(map,
                     (a, b) => a.index - b.index
@@ -1358,7 +1374,7 @@ class TourService extends Service {
                     }
 
                     this.logger.info(lastspot);
-                    this.logger.info(map);
+          //          this.logger.info(map);
                     map.push(lastspot);
                 }
 
@@ -1398,56 +1414,8 @@ class TourService extends Service {
                         }else{
                             roadMap[i].startime = "";
                         }
-
-
-
                     }
                 }
-
-
-
-
-                    // if(roadMap[i].index != -1) {
-                    //     if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
-                    //         roadMap[i].tracked = true;
-                    //         roadMap[i].roundTracked = true;
-                    //     }
-                    //
-                    //     if(roadMap[i].index != 0) {
-                    //         //   this.logger.info(roadMap[i].index);
-                    //         //    this.logger.info(roadMap[i].name);
-                    //         let cindex = roadMap[i].index;
-                    //         //   this.logger.info("当前", cindex);
-                    //         let index = roadMap.findIndex((n) => n.index == (cindex - 1));
-                    //         //    this.logger.info("结束", index);
-                    //         //   this.logger.info(roadMap[i]);
-                    //         //   this.logger.info(roadMap[index]);
-                    //         if (index == -1 || !roadMap[index].startime || !roadMap[i].roundTracked && roadMap[i].endtime > new Date().getTime() && roadMap[index].startime > new Date().getTime()) {
-                    //             this.logger.info(roadMap[i].name);
-                    //             roadMap[i].index = -1;
-                    //             roadMap[i].startime = "";
-                    //             roadMap[i].endtime = "";
-                    //             roadMap[i].mileage = 0;
-                    //             roadMap[i].countdown = 0;
-                    //             roadMap[i].arriveStamp = "";
-                    //             roadMap[i].arriveStampYMDHMS = "";
-                    //         }
-                    //         if(roadMap[i].endtime && roadMap[index].startime && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
-                    //             this.logger.info("重置");
-                    //             this.logger.info(roadMap[i].name);
-                    //             roadMap[i].startime = "";
-                    //         }
-                    //     }else{
-                    //         if(roadMap[i].endtime >= new Date().getTime()) {
-                    //             roadMap[i].startime = "";
-                    //         }
-                    //
-                    //     }
-                    //
-                    // }
-
-         //   }
-
         }
 
 
@@ -1455,7 +1423,7 @@ class TourService extends Service {
         if(!Number(info.planedAllTracked)) {
             //扣钱
             modify = - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
-            await this.ctx.service.publicService.itemService.itemChange(info.uid, { ["items." + travelConfig.Item.GOLD ]: modify });
+            await this.ctx.service.publicService.itemService.itemChange(info.uid, { ["items." + travelConfig.Item.GOLD ]: modify }, "modifyRourte");
            // await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
            // info.goldNum = ui.items[travelConfig.Item.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
         }
@@ -1471,14 +1439,16 @@ class TourService extends Service {
         },{ $set: {
                 changeRouteing: currentCity.friend ? true : false,
                 roadMap  : roadMap,
-                modifyEventDate : new Date()
+                modifyEventDate : new Date(),
+                startTime: currentCity.startTime,
             }});
         if(isDouble) {
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : currentCity.friend,
             },{ $set: {
-                    roadMap  : roadMap,
-                    modifyEventDate : new Date()
+                    roadMap: roadMap,
+                    modifyEventDate: new Date(),
+                    startTime: currentCity.startTime,
                 }});
         }
     }

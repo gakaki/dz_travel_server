@@ -100,7 +100,7 @@ class RewardService extends Service{
     }
     // 奖励金钱
     async gold( uid , num = 0 ) {
-        await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "travel");
+        await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "event");
         return true;
     }
 
@@ -151,7 +151,7 @@ class RewardService extends Service{
         this.logger.info(`获得明信片成功,获得${cfgId} x ${1}`);
         let count = await this.ctx.model.TravelModel.Postcard.count({ uid: uid, ptid: cfgId, cid: cid });
         if(count == 1) {
-            this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value, "firstPostcard");
         }
 
 
@@ -234,7 +234,7 @@ class RewardService extends Service{
 
     // 奖励积分的服务
     async integral( uid , integral  ) {
-        await this.ctx.service.travelService.integralService.add(uid, integral);
+        await this.ctx.service.travelService.integralService.add(uid, integral, "event");
         return true;
     }
 }
