@@ -80,7 +80,7 @@ class TourService extends Service {
         }
 
         let hasCome = info.present;
-        if(!currentCity.startTime) {
+        if(!currentCity.roadMap) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
@@ -128,7 +128,10 @@ class TourService extends Service {
                 spot_map[spot.id]                                    = spot;
             }
             info.spots                                               = roadMaps;
-            info.startTime                                           = currentCity.startTime.getTime();
+            if(currentCity.startTime) {
+                info.startTime                                           = currentCity.startTime.getTime();
+            }
+
             info.task                                                = this.taskInfo(uid);
         }
         let upset = {
@@ -265,6 +268,9 @@ class TourService extends Service {
         this.logger.info("更新玩家游玩进度");
         let cityConfig = travelConfig.City.Get(currentCity.cid);
         let roadMaps = currentCity.roadMap;
+        if(!roadMaps) {
+            return
+        }
         for(let spot of roadMaps) {
             let update = false;
             let isOver = false;
@@ -340,7 +346,7 @@ class TourService extends Service {
         //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
-        this.logger.info(needUpdate)
+        //this.logger.info(needUpdate)
         if(needUpdate) {
             await this.updatePlayerProgress(currentCity, uid, spotId);
         }
@@ -363,7 +369,7 @@ class TourService extends Service {
         let photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, fid: currentCity.fid, cid: cid });
         this.logger.info("查找拍照" , photoCount);
         //观光
-        let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, fid: currentCity.fid, cid: cid, isTour: true });
+        let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, fid: currentCity.fid, cid: cid, subType: { $in: [ 3, 4 ] } });
         this.logger.info("观光" , tourCount);
 
 
@@ -405,7 +411,7 @@ class TourService extends Service {
             this.logger.info("是否已经点亮");
             if(!cityLight) {
                 this.logger.info("创建点亮表");
-                await this.ctx.model.TravelModel.CityLightLog.create({ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid },{ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                 //更新足迹榜记录
                 await this.ctx.service.travelService.rankService.updateFootRecord(uid);
             }
@@ -414,7 +420,7 @@ class TourService extends Service {
                 this.logger.info("是否已经点亮");
                 if(!cityLight) {
                     this.logger.info("创建点亮表");
-                    await this.ctx.model.TravelModel.CityLightLog.create({ uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                    await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid }, { uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                     //更新足迹榜记录
                     await this.ctx.service.travelService.rankService.updateFootRecord(currentCity.friend);
                 }
@@ -1078,6 +1084,8 @@ class TourService extends Service {
             this.logger.info("我规划的路径 " + path);
              efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
              reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
+             efficiency = efficiency || 0;
+            reward = reward || 0;
             //上个城市的评分奖励
             this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
             //更新足迹表
@@ -1330,8 +1338,8 @@ class TourService extends Service {
 
       //  }else{
             let map = roadMap.filter(n => n.endtime && n.endtime <= new Date().getTime());
-            this.logger.info(map);
-       //     this.logger.info(map.length);
+        //    this.logger.info(map);
+            this.logger.info(map.length);
             if(map.length == travelConfig.City.Get(currentCity.cid).scenicspot.length) {
                 for(let i = 0; i < roadMap.length; i++) {
                     roadMap[i].index = -1;
@@ -1344,6 +1352,7 @@ class TourService extends Service {
                     roadMap[i].arriveStamp = "";
                     roadMap[i].arriveStampYMDHMS = "";
                 }
+                currentCity.startTime = null;
             }else{
                 let needMap = utils.multisort(map,
                     (a, b) => a.index - b.index
@@ -1358,7 +1367,7 @@ class TourService extends Service {
                     }
 
                     this.logger.info(lastspot);
-                    this.logger.info(map);
+          //          this.logger.info(map);
                     map.push(lastspot);
                 }
 
@@ -1398,56 +1407,8 @@ class TourService extends Service {
                         }else{
                             roadMap[i].startime = "";
                         }
-
-
-
                     }
                 }
-
-
-
-
-                    // if(roadMap[i].index != -1) {
-                    //     if(!roadMap[i].roundTracked && roadMap[i].endtime <= new Date().getTime()) {
-                    //         roadMap[i].tracked = true;
-                    //         roadMap[i].roundTracked = true;
-                    //     }
-                    //
-                    //     if(roadMap[i].index != 0) {
-                    //         //   this.logger.info(roadMap[i].index);
-                    //         //    this.logger.info(roadMap[i].name);
-                    //         let cindex = roadMap[i].index;
-                    //         //   this.logger.info("当前", cindex);
-                    //         let index = roadMap.findIndex((n) => n.index == (cindex - 1));
-                    //         //    this.logger.info("结束", index);
-                    //         //   this.logger.info(roadMap[i]);
-                    //         //   this.logger.info(roadMap[index]);
-                    //         if (index == -1 || !roadMap[index].startime || !roadMap[i].roundTracked && roadMap[i].endtime > new Date().getTime() && roadMap[index].startime > new Date().getTime()) {
-                    //             this.logger.info(roadMap[i].name);
-                    //             roadMap[i].index = -1;
-                    //             roadMap[i].startime = "";
-                    //             roadMap[i].endtime = "";
-                    //             roadMap[i].mileage = 0;
-                    //             roadMap[i].countdown = 0;
-                    //             roadMap[i].arriveStamp = "";
-                    //             roadMap[i].arriveStampYMDHMS = "";
-                    //         }
-                    //         if(roadMap[i].endtime && roadMap[index].startime && roadMap[i].endtime >= new Date().getTime() && roadMap[index].startime <= new Date().getTime()) {
-                    //             this.logger.info("重置");
-                    //             this.logger.info(roadMap[i].name);
-                    //             roadMap[i].startime = "";
-                    //         }
-                    //     }else{
-                    //         if(roadMap[i].endtime >= new Date().getTime()) {
-                    //             roadMap[i].startime = "";
-                    //         }
-                    //
-                    //     }
-                    //
-                    // }
-
-         //   }
-
         }
 
 
@@ -1471,14 +1432,16 @@ class TourService extends Service {
         },{ $set: {
                 changeRouteing: currentCity.friend ? true : false,
                 roadMap  : roadMap,
-                modifyEventDate : new Date()
+                modifyEventDate : new Date(),
+                startTime: currentCity.startTime,
             }});
         if(isDouble) {
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : currentCity.friend,
             },{ $set: {
-                    roadMap  : roadMap,
-                    modifyEventDate : new Date()
+                    roadMap: roadMap,
+                    modifyEventDate: new Date(),
+                    startTime: currentCity.startTime,
                 }});
         }
     }
