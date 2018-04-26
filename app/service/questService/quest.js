@@ -271,9 +271,13 @@ class Quest extends TreeNode {
                 switch(typeId) {
                     case "1": //金币
                         str = '金币';
-                        str             =str + `+`;
-                       // if( itemIdOrVal < 0)
-                           // str         =str + `-`;
+
+                       if( itemIdOrVal < 0){
+                           str         =str + `-`;
+                       }else{
+                           str             =str + `+`;
+                       }
+
                         str             = str + `${Math.abs(itemIdOrVal)}`;
                         break;
                     case "2": //积分
