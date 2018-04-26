@@ -11,6 +11,7 @@ module.exports = app => {
         tel: {type: String}, //收件人电话
         addr: {type: String}, //收件地址
         sent: {type:Boolean}, //是否已发货
+        code: {type:String}, //兑换码
         createDate: {type: Date}
     })
 
