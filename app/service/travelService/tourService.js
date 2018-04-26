@@ -1094,6 +1094,8 @@ class TourService extends Service {
 
         }
 
+        await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [] } });
+
         return {
             score: efficiency,
             reward: reward,
