@@ -47,7 +47,7 @@ module.exports = appInfo => {
     config.weatherusername = "HE1804101712021052";
 
     config.debug = {
-        eventRandomS:1
+        eventRandomPercents:1
     };
 
     //事件队列
