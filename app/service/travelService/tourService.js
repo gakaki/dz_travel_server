@@ -411,7 +411,7 @@ class TourService extends Service {
             this.logger.info("是否已经点亮");
             if(!cityLight) {
                 this.logger.info("创建点亮表");
-                await this.ctx.model.TravelModel.CityLightLog.create({ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid },{ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                 //更新足迹榜记录
                 await this.ctx.service.travelService.rankService.updateFootRecord(uid);
             }
@@ -420,7 +420,7 @@ class TourService extends Service {
                 this.logger.info("是否已经点亮");
                 if(!cityLight) {
                     this.logger.info("创建点亮表");
-                    await this.ctx.model.TravelModel.CityLightLog.create({ uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() });
+                    await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid }, { uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                     //更新足迹榜记录
                     await this.ctx.service.travelService.rankService.updateFootRecord(currentCity.friend);
                 }
