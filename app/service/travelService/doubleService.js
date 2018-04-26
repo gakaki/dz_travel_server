@@ -47,7 +47,7 @@ class DoubleService extends Service {
             let cid = visit.cid;
             outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
             info.location = cid;
-            if(isFly && invitee) {
+            if(isFly && invitee && visit.roadMap) {
                 let self = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
                 let efficiencyReward = await this.service.travelService.tourService.leavetour(self);
                 info.score = efficiencyReward.score;

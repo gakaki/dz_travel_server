@@ -80,7 +80,7 @@ class TourService extends Service {
         }
        // info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(friendList, cid);
         let hasCome = info.present;
-        if(!currentCity.roadMap.length) {
+        if(!currentCity.roadMap || !currentCity.roadMap.length) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
