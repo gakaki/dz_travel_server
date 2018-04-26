@@ -1202,14 +1202,10 @@ class CancelParten extends Base {
         this.action = 'tour.cancelparten';
         
     
-        this._inviteCode = null;
-        this.requireFileds = ["inviteCode"];
-        this.reqFields = ["inviteCode"];
+        this.requireFileds = [];
+        this.reqFields = [];
         this.resFields = [];
     }
-    //client input, require, type: string
-    get inviteCode() {return this._inviteCode}
-    set inviteCode(v) {this._inviteCode = v}
     static Init(ctx, checkLogin = false) {
         let o = new CancelParten();
         o.ctx = ctx;
