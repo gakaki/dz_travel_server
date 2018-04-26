@@ -30,12 +30,21 @@ class FriendService extends Service {
      * @param uid  自己的id
      * @return {Promise<Array>}
      */
-    async findMySameCityFriends(friendList, cid, uid) {
+    async findMySameCityFriends(friendList, cid, uid, paruid) {
+        if(paruid) {
+            let index = friendList.findIndex(n => n == paruid);
+            if(index > -1) {
+                friendList = friendList.splice(index, 1);
+            }
+        }
         let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList, cid: cid.toString() });
         let friends = await this.getUsersInfo(friendCurrentCitys);
         if (friends.length < travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value) {
             // 人员不足的时候同城市的来几个
             friendList.push(uid);
+            if(paruid) {
+                friendList.push(paruid)
+            }
             let cityFriends = this.findSameCityFriends(friendList, cid, (travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value - friends.length));
             friends = friends.concat(cityFriends);
         }

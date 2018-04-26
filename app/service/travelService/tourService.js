@@ -19,8 +19,7 @@ class TourService extends Service {
     async findAnotherPlayer(myUid){
         let curCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: myUid });
         if(!curCity) {
-            this.ctx.session.info.code = apis.Code.NOT_FOUND;
-            this.ctx.session.info.submit();
+            throw new Error("not found currentcity table");
             return;
         }
         let friendId        = curCity['friend'];
@@ -52,7 +51,9 @@ class TourService extends Service {
 
         info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
-        info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+
+
+
 
         let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
@@ -71,16 +72,15 @@ class TourService extends Service {
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
-
         if(!currentCity.present && currentCity.friend) {
             let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
             if(fcity) {
                 info.present = fcity.present;
             }
         }
-
+       // info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(friendList, cid);
         let hasCome = info.present;
-        if(!currentCity.roadMap) {
+        if(!currentCity.roadMap.length) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
@@ -146,7 +146,7 @@ class TourService extends Service {
 
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid);
+        info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid, uid, currentCity.friend);
 
 
 
@@ -1172,7 +1172,7 @@ class TourService extends Service {
         info.lastestEvent                                             = events.length > 0 ? events[0] : null;
 
         let spots                                                     = currentCity['roadMap'];
-        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp  <= timeNow );
+        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
             info.freshSpots                                           = true;
         }
