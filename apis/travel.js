@@ -1091,7 +1091,13 @@ class Shop {
         this.integral = null;
     
         //prop type: string
+        this.desc = null;
+    
+        //prop type: string
         this.exchangeCode = null;
+    
+        //prop type: boolean
+        this.remaining = null;
     
         
         
@@ -3491,6 +3497,39 @@ class IntegralShop extends Base {
         }
     }
 }
+class ShopDetail extends Base {
+    constructor() {
+        super();
+        this.action = 'integralShop.shopdetail';
+        
+    
+        this._id = null;
+        this._shop = null;
+        this.requireFileds = ["id"];
+        this.reqFields = ["id"];
+        this.resFields = ["shop"];
+    }
+    //client input, require, type: string
+    get id() {return this._id}
+    set id(v) {this._id = v}
+    //server output, type: Shop
+    get shop() {return this._shop}
+    set shop(v) {this._shop = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new ShopDetail();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class ExchangeDetail extends Base {
     constructor() {
         super();
@@ -3836,6 +3875,7 @@ exports.ClearMsg = ClearMsg;
 exports.ModifyRealInfo = ModifyRealInfo;
 exports.CheckGuide = CheckGuide;
 exports.IntegralShop = IntegralShop;
+exports.ShopDetail = ShopDetail;
 exports.ExchangeDetail = ExchangeDetail;
 exports.ExchangeShop = ExchangeShop;
 exports.BuyPostcard = BuyPostcard;

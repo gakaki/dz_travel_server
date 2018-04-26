@@ -59,6 +59,7 @@ module.exports = app => {
     router.get('/integralShop/getuserlocation', controller.travelController.integralShopController.getuserlocation);
     router.get('/integralShop/exchangeshop', controller.travelController.integralShopController.exchangeshop);
     router.get('/integralShop/integralshop', controller.travelController.integralShopController.integralshop);
+    router.get('/integralShop/shopdetail', controller.travelController.integralShopController.shopdetail);
     router.get('/integralShop/exchangedetail', controller.travelController.integralShopController.exchangedetail);
     router.get('/integralShop/initExchangeDetails', controller.travelController.integralShopController.initExchangeDetails);//test
     router.get('/integralShop/exchangedeadline', controller.travelController.integralShopController.exchangeDeadline);

@@ -4,28 +4,45 @@ const apis = require('../../../apis/travel');
 module.exports = class IntegralShopController extends Controller {
     async integralshop(ctx) {
         let info = await apis.IntegralShop.Init(ctx, true);
-
+        if(!info.uid) {
+            return;
+        }
         await ctx.service.travelService.integralService.getInfo(info, info.ui);
+        info.submit();
+    }
+
+    async shopdetail(ctx) {
+        let info = await apis.ShopDetail.Init(ctx, true);
+        if(!info.uid) {
+            return;
+        }
+        await ctx.service.travelService.integralService.shopDetail(info, info.ui);
         info.submit();
     }
 
     async exchangedetail(ctx) {
         let info = await apis.ExchangeDetail.Init(ctx, true);
-
+        if(!info.uid) {
+            return;
+        }
         await ctx.service.travelService.integralService.exchangeDetail(info);
         info.submit();
     }
 
     async exchangeshop(ctx) {
         let info = await apis.ExchangeShop.Init(ctx, true);
-
+        if(!info.uid) {
+            return;
+        }
         await ctx.service.travelService.integralService.exchange(info, info.ui);
         info.submit();
     }
 
     async getuserlocation(ctx) {
         let info = await apis.GetUserLocation.Init(ctx, true);
-
+        if(!info.uid) {
+            return;
+        }
         await ctx.service.travelService.playerService.getMailAddress(info, info.ui);
         info.submit();
     }
@@ -38,6 +55,9 @@ module.exports = class IntegralShopController extends Controller {
 
     async exchangeDeadline(ctx) {
         let info = await apis.ExchangeDeadline.Init(ctx, true);
+        if(!info.uid) {
+            return;
+        }
         await ctx.service.travelService.integralService.exchangeDeadline(info);
         info.submit()
     }

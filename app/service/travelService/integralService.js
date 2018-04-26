@@ -12,26 +12,38 @@ class IntegralService extends Service {
         res.rank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
         //本期积分商店售卖的物品,配置在数据库中
         let date = new Date().format("yyyy-MM-dd");
-        let shops = await this.ctx.model.TravelModel.ExchangeItem.find();
+        let shops = await this.ctx.model.TravelModel.ExchangeItem.find({ ifShow: 1 });
 
         if(!shops.length && sheets.exchanges) {
-            shops = sheets.exchanges
-            for (let i = 0;i<shops.length;i++) {
-                shops[i].uid = ui.uid;
+            shops = sheets.exchanges;
+            for (let i = 0; i < shops.length; i++) {
                 shops[i].createDate = new Date();
                 shops[i].remaining = shops[i].num;
                 shops[i].time1 = new Date(shops[i].time1);
                 shops[i].time2 = new Date(shops[i].time2);
-                shops[i].type = shops[i].type;
+                shops[i].codes = shops[i].code || [];
                 await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
             }
         }
-        shops = shops.filter(v=>{
-            return new Date() >= v.time1 && new Date() <= v.time2
-        })
+        // shops = shops.filter(v=>{
+        //     return new Date() >= v.time1 && new Date() <= v.time2
+        // })
+        shops = utils.multisort(shops, (a, b) => a.sort - b.sort);
         res.shops = shops
 
     }
+
+    async shopDetail(res) {
+        let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({ id: res.id });
+        if (!item) {
+            res.code = apis.Code.PARAMETER_NOT_MATCH;
+            this.logger.info('找不到要兑换的物品，返回');
+            return;
+        }
+        res.shop = item;
+
+    }
+
 
     async exchangeDetail(res) {
         const pageLimit = 10;// 每页数据
@@ -93,14 +105,9 @@ class IntegralService extends Service {
 
     //兑换物品
     async exchange(res, ui) {
-        this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`)
-        // if (!ui.address) {
-        //     res.code = apis.Code.NEED_ADDRESS;
-        //     this.logger.info('未填地址，返回');
-        //     return;
-        // }
+        this.logger.info(`用户${ui.uid}姓名${ui.nickName}请求兑换物品`);
 
-        let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({id: res.id,remaining:{$gt:0}});
+        let item = await this.ctx.model.TravelModel.ExchangeItem.findOne({ id: res.id });
         if (!item) {
             res.code = apis.Code.PARAMETER_NOT_MATCH;
             this.logger.info('找不到要兑换的物品，返回');
@@ -115,38 +122,63 @@ class IntegralService extends Service {
         }
 
 
-
-        let condition = await this.ctx.model.TravelModel.ExchangeCondition.findOne();
-        if (!condition) {
-            //还未配置兑换条件
-            this.logger.warn(`还未配置兑换条件！！请到数据库exchangecondition表中插入一条，字段有rank和integral`);
-            res.code = apis.Code.FAILED;
-            return;
-        }
-        let myRank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
-
-        if (myRank > condition.rank) {
+        let rank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
+        if(!rank || rank > item.ranking) {
             res.code = apis.Code.RANK_NOT_MEET;
+            this.logger.info('排名不符合要求，返回');
             return;
         }
-        if (myIntegral < condition.integral) {
-            res.code = apis.Code.INTEGRAL_NOT_MEET;
+
+        let exchangeItems = await this.ctx.model.TravelModel.ExchangeRecord.find({ uid: ui.uid, exId: res.id });
+        let codes = item.codes || [];
+        let code = null;
+
+        if(item.type == 2) {
+            if(!codes.length) {
+                res.code = apis.Code.ITEM_MAX;
+                this.logger.info("全部兑换完毕 ");
+                return;
+            }
+            for(let exItem of exchangeItems) {
+                if(!exItem.sent) {
+                    res.exchangeCode = exItem.code;
+                    return;
+                }
+            }
+            code = res.exchangeCode = codes.pop();
+
+        }
+
+        if(exchangeItems.length >= item.ifLimited) {
+            res.code = apis.Code.COUNT_OVER;
+            this.logger.info("限购次数 " + item.ifLimited);
             return;
         }
-        let result = await this.ctx.model.TravelModel.ExchangeItem.update({id: res.id,remaining:{$gt:0}},{$inc:{remaining:-1}});
-        if(result.nModified){
-            await this.ctx.model.TravelModel.ExchangeRecord.create({
+
+        if (item.type == 1 && !ui.address) {
+            res.code = apis.Code.NEED_ADDRESS;
+            this.logger.info('未填地址，返回');
+            return;
+        }
+
+        let result = await this.ctx.model.TravelModel.ExchangeItem.update({ id: res.id, remaining: { $gt: 0 } },
+            { $inc: { remaining: -1 }, $set: { codes: codes } });
+        if(result.nModified) {
+            let exRecord = {
                 uid: ui.uid,
                 nickName: ui.nickName,
                 avatar: ui.avatarUrl,
                 exId: res.id,
                 exName: item.name,
                 integral: item.integral,
+                type: item.type,
+                code: code,
                 tel: res.tel,
                 addr: res.addr,
                 sent: false,
-                createDate: new Date()
-            });
+                createDate: new Date(),
+            }
+            await this.ctx.model.TravelModel.ExchangeRecord.create(exRecord);
             await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + sheets.Item.POINT]: -item.integral }, '"integralExchange"');
 
         }else{
