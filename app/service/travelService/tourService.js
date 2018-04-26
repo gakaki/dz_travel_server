@@ -25,7 +25,7 @@ class TourService extends Service {
         }
         let friendId        = curCity['friend'];
         let isInviter       = curCity['isInviter'];
-        if ( !friendId || !isInviter ){
+        if ( !friendId ){
             return null; //shuomi
         }
         this.logger.info("[double guide]查询双人信息" + myUid + ` isInviter ${isInviter}`, "好友id是" + friendId + ` isInviter ${!isInviter}`);
@@ -43,7 +43,7 @@ class TourService extends Service {
             isInviter:!isInviter //是否是邀请者 被邀请者当然是和邀请者相反咯
         }
         return partener;
-    }
+     }
     async tourindexinfo(info, ui) {
 
         let uid                                                      = info.uid;

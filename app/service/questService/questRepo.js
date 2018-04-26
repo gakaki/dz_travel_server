@@ -11,13 +11,14 @@ class QuestRepo {
     fetchRows(){
         //注意这里会 filter 的事件
         let rows = travelConfig.events;
-        // .filter(  e=> e.describe.indexOf("s%") < 0 )
+
+        // // .filter(  e=> e.describe.indexOf("s%") < 0 )
         rows     = rows.filter( e => e.probability != 0 && e.describe.indexOf("s%") < 0);
         return rows;
     }
+
     constructor() {
         let rows    = this.fetchRows();
-        
 
         this.quests = []
         for(let row of rows){
