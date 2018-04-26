@@ -14,10 +14,17 @@ class Point {
 
     //坐标算法
     static distance(a, b) {
-        if (!a || !b || !a.x || !b.x) return;
+        console.log("坐标");
+        console.log(a.x,b.x);
+        if (!a || !b || (!a.x && a.x != 0) || (!b.x && b.x !=0) || (!a.y && a.y !=0 ) || (!b.y && b.y != 0)) {
+            return
+
+        }
         let vLon = Math.abs(a.x - b.x);
          let vLat = Math.abs(a.y - b.y);
 
+
+        console.log(vLat,vLon);
 
         return Math.sqrt(Math.pow(vLon, 2) + Math.pow(vLat, 2));
     }
@@ -158,7 +165,7 @@ class ShortPath {
 
     // 第一个点是固定起点，寻找最短路径
     fixStartFindPath(realRoute) {
-        let points = this.spotPoints;
+        let points = this.startPos;
        if(realRoute && realRoute.length) {
            let pArr = [];
            for(let r of realRoute) {
@@ -168,6 +175,7 @@ class ShortPath {
                points = pArr;
            }
        }
+        console.log(points);
         let ids = [...points.keys()];
         //去掉 id0 的点
       //  ids.splice(0,1);
@@ -175,11 +183,14 @@ class ShortPath {
         console.log(perms.length);
         let roadValues = [];
         perms.forEach((pids, idx) => {
+            console.log(this.startPos);
             let value = Point.distance(this.startPos, points[pids[0]]);
-          //  console.log(this.startPos)
+            console.log(value);
+            //  console.log(this.startPos)
           //  console.log(points[pids[0]])
           //  console.log(value)
             for (let j = 0; j < pids.length - 1; j++) {
+                console.log(points[pids[j]]);
                 value += Point.distance(points[pids[j]], points[pids[j + 1]]);
             }
 
@@ -190,7 +201,7 @@ class ShortPath {
         });
 
         // console.log(perms);
-        // console.log(roadValues);
+         console.log(roadValues);
 
         let min = roadValues[0];
         let minIdx = 0;
@@ -217,8 +228,8 @@ module.exports = ShortPath;
 
 
 // var t = timer('用暴力法计算运行时间');
-// let short_path = new ShortPath( 1 );
+// let short_path = new ShortPath( 100 );
 // //short_path.shortPath();
-// let a = Math.round(short_path.getMileage([100101]));
+// let a = Math.round(short_path.shortPath([110003]).min);
 // console.log(a);
 // t.stop();
