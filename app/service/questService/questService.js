@@ -33,7 +33,7 @@ class QuestService extends Service{
 
         let spot                    = {
             season:     await this.ctx.service.publicService.thirdService.getSeason(),
-            weather:    await this.ctx.service.publicService.thirdService.getWeather(),
+            weather:    await this.ctx.service.publicService.thirdService.getWeather(info.cid),
             freePhoto: photographyCount,       //免费拍照次数
             freeSight: tourCount,  //免费观光次数
             picture:     cfgSpot.picture,
