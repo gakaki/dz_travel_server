@@ -178,7 +178,7 @@ class TravelService extends Service {
             friend: null,
             isInviter: false,
             present: present,
-            roadMap: [],
+            roadMap: null,
             acceleration: acceleration,
             changeRouteing: false,
             modifyEventDate: null,
