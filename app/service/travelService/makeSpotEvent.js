@@ -20,7 +20,7 @@ class MakeSpotEvent {
         let quests          = QuestRepo.filterTourQuests({ cid: this.cid, weather: this.weatherId, today: this.today, itemSpecial: this.itemSpecial, spotId: this.spotid });
        // let index = quests.find(n => n.id == 401111);
        // console.log("有没有马祖？？？？？", index);
-         console.log(quests);
+       //  console.log(quests);
         //根据权重进行 随机 这里暂时偷懒为了快点出来先
          /* 需要补逻辑
     3、通用观光事件：在所有城市观光都可以触发的事件；
