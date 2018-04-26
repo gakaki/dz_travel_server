@@ -1172,7 +1172,7 @@ class TourService extends Service {
         info.lastestEvent                                             = events.length > 0 ? events[0] : null;
 
         let spots                                                     = currentCity['roadMap'];
-        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp  <= timeNow );
+        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
             info.freshSpots                                           = true;
         }
