@@ -14,8 +14,8 @@ class Point {
 
     //坐标算法
     static distance(a, b) {
-        console.log("坐标");
-        console.log(a.x,b.x);
+     //   console.log("坐标");
+     //   console.log(a.x,b.x);
         if (!a || !b || (!a.x && a.x != 0) || (!b.x && b.x !=0) || (!a.y && a.y !=0 ) || (!b.y && b.y != 0)) {
             return
 
@@ -24,7 +24,7 @@ class Point {
          let vLat = Math.abs(a.y - b.y);
 
 
-        console.log(vLat,vLon);
+      //  console.log(vLat,vLon);
 
         return Math.sqrt(Math.pow(vLon, 2) + Math.pow(vLat, 2));
     }
@@ -175,22 +175,22 @@ class ShortPath {
                points = pArr;
            }
        }
-        console.log(points);
+       // console.log(points);
         let ids = [...points.keys()];
         //去掉 id0 的点
       //  ids.splice(0,1);
         let perms = permutator(ids);
-        console.log(perms.length);
+    //    console.log(perms.length);
         let roadValues = [];
         perms.forEach((pids, idx) => {
-            console.log(this.startPos);
+         //   console.log(this.startPos);
             let value = Point.distance(this.startPos, points[pids[0]]);
-            console.log(value);
+         //   console.log(value);
             //  console.log(this.startPos)
           //  console.log(points[pids[0]])
           //  console.log(value)
             for (let j = 0; j < pids.length - 1; j++) {
-                console.log(points[pids[j]]);
+         //       console.log(points[pids[j]]);
                 value += Point.distance(points[pids[j]], points[pids[j + 1]]);
             }
 
@@ -201,7 +201,7 @@ class ShortPath {
         });
 
         // console.log(perms);
-         console.log(roadValues);
+        // console.log(roadValues);
 
         let min = roadValues[0];
         let minIdx = 0;
