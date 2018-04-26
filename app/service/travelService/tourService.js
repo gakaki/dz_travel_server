@@ -346,7 +346,7 @@ class TourService extends Service {
         //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
-        this.logger.info(needUpdate)
+        //this.logger.info(needUpdate)
         if(needUpdate) {
             await this.updatePlayerProgress(currentCity, uid, spotId);
         }
@@ -1338,8 +1338,8 @@ class TourService extends Service {
 
       //  }else{
             let map = roadMap.filter(n => n.endtime && n.endtime <= new Date().getTime());
-            this.logger.info(map);
-       //     this.logger.info(map.length);
+        //    this.logger.info(map);
+            this.logger.info(map.length);
             if(map.length == travelConfig.City.Get(currentCity.cid).scenicspot.length) {
                 for(let i = 0; i < roadMap.length; i++) {
                     roadMap[i].index = -1;
@@ -1367,7 +1367,7 @@ class TourService extends Service {
                     }
 
                     this.logger.info(lastspot);
-                    this.logger.info(map);
+          //          this.logger.info(map);
                     map.push(lastspot);
                 }
 
