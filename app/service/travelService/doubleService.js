@@ -42,7 +42,7 @@ class DoubleService extends Service {
             info.nickName = ui.nickName;
             info.avatarUrl = ui.avatarUrl;
         }
-
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]",visit);
         if (visit) {
             let cid = visit.cid;
             outw = await this.ctx.service.publicService.thirdService.getWeather(cid);

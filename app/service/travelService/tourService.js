@@ -19,8 +19,7 @@ class TourService extends Service {
     async findAnotherPlayer(myUid){
         let curCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: myUid });
         if(!curCity) {
-            this.ctx.session.info.code = apis.Code.NOT_FOUND;
-            this.ctx.session.info.submit();
+            throw new Error("not found currentcity table");
             return;
         }
         let friendId        = curCity['friend'];
@@ -80,7 +79,7 @@ class TourService extends Service {
         }
 
         let hasCome = info.present;
-        if(!currentCity.roadMap) {
+        if(!currentCity.roadMap.length) {
             for ( let spot_id of  cityConfig.scenicspot ){
 
                 let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
