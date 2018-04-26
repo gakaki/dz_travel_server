@@ -323,10 +323,10 @@ class TourService extends Service {
                 await this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(uid, currentCity.cid);
                 if(hascome) {
                     //增加积分
-                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTAGAIN).value);
+                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTAGAIN).value, "againTravel");
                 }else{
                     //增加积分
-                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value);
+                    await this.ctx.service.travelService.integralService.add(uid, travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTPOINT).value, "firstTravel");
                 }
 
                 //更新里程数
@@ -519,7 +519,7 @@ class TourService extends Service {
             //第一次获得这种明信片，获得积分
             let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.spotId, cid: cid });
             if(count == 1) {
-                this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+                this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value, "firstPostcard");
             }
             this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(info.uid, cid);
             // sysGiveLog表记录
@@ -588,7 +588,7 @@ class TourService extends Service {
                 return;
             }
             //消耗金币
-            this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'travel');
+            this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + travelConfig.Item.GOLD]: - cost }, 'tour');
             info.freeSight = 0;
         }
 
@@ -898,12 +898,17 @@ class TourService extends Service {
         rentItems[cfg.id] = 1;
         //扣钱
         let money = cfg.price;
-        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: -money }, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: -money }, 'rentItem');
         //加道具
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: info.ui.uid }, { rentItems });
         this.logger.info(`租用道具${cfg.id}成功`);
 
-
+        await this.ctx.model.TravelModel.RentItemLog.create({
+            uid: info.ui.uid,
+            cid: curCity.cid,
+            rentId: cfg.id,
+            createDate: new Date(),
+        });
 
         if(cfg.type == apis.RentItem.CAMERA) {
             if(cfg.value == -1) {
@@ -1019,7 +1024,7 @@ class TourService extends Service {
             return;
         }
 
-        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'travel');
+        await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD]: -cost }, 'PostcardBuy');
 
         ui = info.ui = await this.ctx.model.PublicModel.User.findOne({uid: ui.uid});
         //加明信片
@@ -1037,7 +1042,7 @@ class TourService extends Service {
         //第一次获得这种明信片，获得积分
         let count = await this.ctx.model.TravelModel.Postcard.count({ uid: info.uid, ptid: info.ptid, cid: cfg.cityid });
         if(count == 1) {
-            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value);
+            this.ctx.service.travelService.integralService.add(info.uid, travelConfig.Parameter.Get(travelConfig.Parameter.POSTCARDPOINT).value, "firstPostcard");
         }
         this.ctx.service.travelService.rankService.updateCompletionDegreeRecord(ui.uid, cfg.cityid);
         this.logger.info(`购买明信片成功`);
@@ -1087,7 +1092,7 @@ class TourService extends Service {
              efficiency = efficiency || 0;
             reward = reward || 0;
             //上个城市的评分奖励
-            this.ctx.service.travelService.integralService.add(selfInfo.uid, reward);
+            this.ctx.service.travelService.integralService.add(selfInfo.uid, reward, "efficiency");
             //更新足迹表
             await this.queryTaskProgress(selfInfo.uid, curCity);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
@@ -1418,7 +1423,7 @@ class TourService extends Service {
         if(!Number(info.planedAllTracked)) {
             //扣钱
             modify = - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
-            await this.ctx.service.publicService.itemService.itemChange(info.uid, { ["items." + travelConfig.Item.GOLD ]: modify });
+            await this.ctx.service.publicService.itemService.itemChange(info.uid, { ["items." + travelConfig.Item.GOLD ]: modify }, "modifyRourte");
            // await this.ctx.service.publicService.rewardService.gold(info.uid, -1 * travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value);
            // info.goldNum = ui.items[travelConfig.Item.GOLD] - travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value;
         }

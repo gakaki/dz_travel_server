@@ -112,7 +112,7 @@ class TravelService extends Service {
 
         }
         //道具更新
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, cost);
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, cost, "flyTicket");
         if (ui.isFirst) {
             this.logger.info("首次飞行");
             await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isFirst: false } });

@@ -154,7 +154,7 @@ class StrategyService extends Service {
        //每日点赞金币上限
        if(count * travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value < travelConfig.Parameter.Get(travelConfig.Parameter.THUMLIMIT).value) {
            //被点赞的人获得金币
-           this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value });
+           this.ctx.service.publicService.itemService.itemChange(info.ui.uid, { ["items." + travelConfig.Item.GOLD]: travelConfig.Parameter.Get(travelConfig.Parameter.THUMBUPGOLD).value }, "like");
            //通知被赞人
            let type = comment.type;
            let id = comment.travel_tips;

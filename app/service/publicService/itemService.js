@@ -2,7 +2,7 @@ const Service = require('egg').Service;
 
 
 class ItemService extends Service {
-    async itemChange(uid, delta, appName = "travel") {
+    async itemChange(uid, delta, type, appName = "travel") {
         for (let indexs in delta) {
             let daddup = delta[indexs] > 0 ? delta[indexs] : 0;
             let dcost = delta[indexs] > 0 ? 0 : -delta[indexs]; // cost统计时按照正数统计
@@ -23,6 +23,7 @@ class ItemService extends Service {
                         index: index,
                         appName: appName,
                         delta: delta[indexs],
+                        type: type,
                         time: new Date(),
 
                     });

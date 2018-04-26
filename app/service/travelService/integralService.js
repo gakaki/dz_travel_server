@@ -73,7 +73,7 @@ class IntegralService extends Service {
      * @param uid 玩家uid
      * @param num 增加的数量
      * */
-    async add(uid, num) {
+    async add(uid, num, type) {
         let userModel = this.ctx.model.PublicModel.User;
         let ui = await userModel.findOne({ uid: uid });
         if (ui) {
@@ -84,7 +84,7 @@ class IntegralService extends Service {
 
             //update user data
             //await userModel.update({uid: uid}, {$set: {items: ui.items}});
-            this.ctx.service.publicService.itemService.itemChange(uid, { ["items." + sheets.Item.POINT]: num });
+            this.ctx.service.publicService.itemService.itemChange(uid, { ["items." + sheets.Item.POINT]: num }, type);
             //update integral data
             let integralRM = this.ctx.model.TravelModel.IntegralRecord;
             await integralRM.update({uid: uid}, { $set: { integral: all, updateDate: new Date() } }, { upsert: true });
@@ -147,7 +147,7 @@ class IntegralService extends Service {
                 sent: false,
                 createDate: new Date()
             });
-            await this.ctx.service.publicService.itemService.itemChange(ui.uid, {["items." + sheets.Item.POINT]: -item.integral}, 'travel');
+            await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + sheets.Item.POINT]: -item.integral }, '"integralExchange"');
 
         }else{
             res.code = apis.Code.COUNT_OVER;
