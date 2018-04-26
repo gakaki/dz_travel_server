@@ -18,9 +18,10 @@ class Shop {
     prop name:string
     //兑换该商品所需积分
     prop integral:string
+    //兑换规则
+    prop desc:string
     //是否已经有兑换码,如果有返回
     prop exchangeCode:string
-
 }
 
 //积分商店信息
@@ -32,6 +33,11 @@ api IntegralShop {
     //兑换的商品
     output shops:Shop[]
 
+}
+
+api ShopDetail {
+    require id:string
+    output shop:Shop
 }
 
 //商店兑换物品详情
