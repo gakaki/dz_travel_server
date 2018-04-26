@@ -262,6 +262,7 @@ class TourService extends Service {
 
     //更新玩家游玩进度
     async updatePlayerProgress(currentCity, uid, spotId) {
+        this.logger.info("更新玩家游玩进度");
         let cityConfig = travelConfig.City.Get(currentCity.cid);
         let roadMaps = currentCity.roadMap;
         for(let spot of roadMaps) {
@@ -269,12 +270,12 @@ class TourService extends Service {
             let isOver = false;
             let hascome = false;
             if(spot.index != -1) {
-                if(!spot.tracked) {
+                if(!spot.roundTracked) {
                     if(spot.endtime <= new Date().getTime()) {
-                        spot.tracked = true;
+                        spot.roundTracked = true;
                     }
                 }
-                if(spot.tracked) {
+                if(spot.roundTracked) {
                     if(spotId) {
                         if(spotId == spot.id) {
                             update = true;
@@ -282,7 +283,9 @@ class TourService extends Service {
                             //break;
                         }
                     }else {
+                        this.logger.info("需要更新游玩进度");
                         let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
+                        this.logger.info(footPrints);
                         let count = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, scenicspot: spot.name });
                         if(!footPrints) {
                             update = true;
@@ -337,8 +340,9 @@ class TourService extends Service {
         //let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let cid = currentCity.cid;
         let cityConfig = travelConfig.City.Get(cid);
+        this.logger.info(needUpdate)
         if(needUpdate) {
-            await this.updatePlayerProgress(currentCity, uid, needUpdate, spotId);
+            await this.updatePlayerProgress(currentCity, uid, spotId);
         }
 
         let parterTour = 0;
