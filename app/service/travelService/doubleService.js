@@ -42,16 +42,19 @@ class DoubleService extends Service {
             info.nickName = ui.nickName;
             info.avatarUrl = ui.avatarUrl;
         }
-        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]",visit);
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]", isFly, invitee);
         if (visit) {
+            this.logger.info("我想要效率评分.....");
             let cid = visit.cid;
             outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
             info.location = cid;
-            if(isFly && invitee && visit.roadMap) {
-                let self = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
-                let efficiencyReward = await this.service.travelService.tourService.leavetour(self);
-                info.score = efficiencyReward.score;
-                info.reward = efficiencyReward.reward;
+            if(isFly && invitee) {
+                // let self = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
+                // let efficiencyReward = await this.service.travelService.tourService.leavetour(self);
+                // info.score = efficiencyReward.score;
+                // info.reward = efficiencyReward.reward;
+                 info.score = visit.efficiency || 0;
+                 info.reward = visit.reward || 0;
             }
         }
         info.gold = info.ui.items[travelConfig.Item.GOLD];

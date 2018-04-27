@@ -251,6 +251,7 @@ class MakeRoadMap {
 
 
          diffTime = 60000;//test
+         // diffTime = 10000;//test
 
         let mileage = Math.round(short_path.getMileage(travelMap));
         console.log("经纬距离 ：" + mileage);

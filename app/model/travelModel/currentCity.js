@@ -10,7 +10,8 @@ module.exports = app => {
         present: { type: Boolean, default: false },
        // sspid: { type: String }, //景点id
         //progress: { type: Number }, //完成度？
-       // efficiency: { type: Number }, //效率评分，根据规划的路径与最短路径比值计算 ???可能不用入库
+        efficiency: { type: Number }, //上个城市的效率评分，
+        reward: { type: Number }, //上个城市效率评分奖励
         friend: { type: String, default: null }, //默认单人旅行
         rentItems: { type: JSON },
         photographyCount: { type: Number, default: 0 }, //城市拍照次数 前2次免费
