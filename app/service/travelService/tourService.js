@@ -37,7 +37,7 @@ class TourService extends Service {
         let partener        = {
             uid:   friendId,
             nickName: partnetObj.nickName,
-            gender:1,//性别
+            gender:partnetObj.gender,//性别
             img:partnetObj.avatarUrl,//头像地址
             isInviter:!isInviter //是否是邀请者 被邀请者当然是和邀请者相反咯
         }
@@ -1063,6 +1063,7 @@ class TourService extends Service {
     async leavetour(selfInfo) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: selfInfo.uid });
         if(!curCity) {
+            this.logger.info(selfInfo.uid + " 城市不存在。。。。", curCity);
             return null;
         }
         let short_path = new ShortPath(curCity.cid);

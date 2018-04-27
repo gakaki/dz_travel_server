@@ -207,6 +207,7 @@ class TravelService extends Service {
         this.ctx.service.travelService.specialityService.clearMySpePrice(info.uid);
         //双人旅行
         if (fui) {
+            this.logger.info("双人旅行++++++++++++++++++++++++");
             flyRecord.friend = fui.uid;
             currentCity.friend = fui.uid;
             currentCity.isInviter = true;
@@ -221,7 +222,8 @@ class TravelService extends Service {
             await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $addToSet: { friendList: fui.uid } });
             let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: fui.uid });
             if(fvisit) {
-                await this.service.travelService.tourService.leavetour(fui.uid);
+                this.logger.info("好友离开城市..............", fui);
+                await this.service.travelService.tourService.leavetour(fui);
             }
 
             for (let rentItem of travelConfig.shops) {
@@ -252,9 +254,11 @@ class TravelService extends Service {
             await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
 
             this.ctx.service.travelService.specialityService.clearMySpePrice(fui.uid);
-        }/*else{
-            currentCity.efficiency = 0;
-        }*/
+        }else{
+            if(lastCity.friend) {
+                await this.ctx.model.TravelModel.CurrentCity.update({ uid: lastCity.friend }, { friend: null }, { upsert: true });
+            }
+        }
 
         //添加飞行记录
         await this.ctx.model.TravelModel.FlightRecord.create(flyRecord);

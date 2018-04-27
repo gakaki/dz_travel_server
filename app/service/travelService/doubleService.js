@@ -42,12 +42,13 @@ class DoubleService extends Service {
             info.nickName = ui.nickName;
             info.avatarUrl = ui.avatarUrl;
         }
-        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]", visit);
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]", isFly, invitee);
         if (visit) {
-            if(isFly && invitee && visit.roadMap) {
-                let cid = visit.cid;
-                outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
-                info.location = cid;
+            this.logger.info("我想要效率评分.....");
+            let cid = visit.cid;
+            outw = await this.ctx.service.publicService.thirdService.getWeather(cid);
+            info.location = cid;
+            if(isFly && invitee) {
                 // let self = await this.ctx.model.PublicModel.User.findOne({ uid: info.uid });
                 // let efficiencyReward = await this.service.travelService.tourService.leavetour(self);
                 // info.score = efficiencyReward.score;
