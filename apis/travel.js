@@ -115,6 +115,8 @@ class Code{
     
     static get ISCHANGING() { return -147;}
     
+    static get EXCHANGE_OVER() { return -148;}
+    
     static get UNKNOWN() { return -1000;}
     
     static get EXCEPTION() { return -999;}
@@ -1096,7 +1098,7 @@ class Shop {
         //prop type: string
         this.exchangeCode = null;
     
-        //prop type: boolean
+        //prop type: number
         this.remaining = null;
     
         

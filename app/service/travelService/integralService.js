@@ -14,17 +14,6 @@ class IntegralService extends Service {
         let date = new Date().format("yyyy-MM-dd");
         let shops = await this.ctx.model.TravelModel.ExchangeItem.find({ ifShow: 1 });
 
-        // if(!shops.length && sheets.exchanges) {
-        //     shops = sheets.exchanges;
-        //     for (let i = 0; i < shops.length; i++) {
-        //         shops[i].createDate = new Date();
-        //         shops[i].remaining = shops[i].num;
-        //         shops[i].time1 = new Date(shops[i].time1);
-        //         shops[i].time2 = new Date(shops[i].time2);
-        //         shops[i].codes = shops[i].code || [];
-        //         await this.ctx.model.TravelModel.ExchangeItem.create(shops[i]);
-        //     }
-        // }
         shops = shops.filter(v=>{
             return new Date() >= v.time1 && new Date() <= v.time2
         })
@@ -160,8 +149,8 @@ class IntegralService extends Service {
         let code = null;
 
         if(item.type == 2) {
-            if(!codes.length) {
-                res.code = apis.Code.ITEM_MAX;
+            if(!codes.length || item.remaining == 0) {
+                res.code = apis.Code.EXCHANGE_OVER;
                 this.logger.info("全部兑换完毕 ");
                 return;
             }
@@ -182,9 +171,14 @@ class IntegralService extends Service {
         }
 
         if (item.type == 1) {
-            if(!ui.address){
+            if(!ui.address) {
                 res.code = apis.Code.NEED_ADDRESS;
                 this.logger.info('未填地址，返回');
+                return;
+            }
+            if(item.remaining == 0) {
+                res.code = apis.Code.EXCHANGE_OVER;
+                this.logger.info("全部兑换完毕 ");
                 return;
             }
             code = res.exchangeCode = 1;
@@ -211,7 +205,7 @@ class IntegralService extends Service {
             await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + sheets.Item.POINT]: -item.integral }, '"integralExchange"');
 
         }else{
-            res.code = apis.Code.COUNT_OVER;
+            res.code = apis.Code.EXCHANGE_OVER;
             return;
         }
 

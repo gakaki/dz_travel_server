@@ -69,10 +69,13 @@ class UserService extends Service {
         if (uid) {
             let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: uid});
             this.logger.info("第三方登陆 ：" + JSON.stringify(sdkui));
+            let third = false;
             if (!sdkui) {
                 this.logger.error("尝试无效的第三方登陆");
-                result.info = null;
-                return result;
+                // result.info = null;
+                // return result;
+            }else{
+                third = true;
             }
 
             // 因为以后登陆仅仅通过sid，所以安全问题能得以提高
@@ -84,7 +87,7 @@ class UserService extends Service {
 
             if (!ui) {
                 // 自动注册
-                ui = await this.register(uid, info, true, appName);
+                ui = await this.register(uid, info, third, appName, shareUid);
                 let sid = this.GEN_SID(ui.pid);
                 this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
                 this.recruitSid(sid, ui.pid);
@@ -140,7 +143,7 @@ class UserService extends Service {
         result.sid = ses.sid;
         result.info = ui;
 
-        shareUid && uid != shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
+
 
         return result;
     }
@@ -234,7 +237,7 @@ class UserService extends Service {
     }
 
     // @third 是否是第三方登陆
-    async register(uid, info, third, appName) {
+    async register(uid, info, third, appName, shareUid) {
         // 生成pid
 
         let pid = await this.app.redis.incr("travel_userid");
@@ -286,6 +289,8 @@ class UserService extends Service {
             appName: appName,
             createDate: new Date(),
         });
+
+        shareUid && uid != shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
 
         return ui;
     }

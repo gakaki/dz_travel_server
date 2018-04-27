@@ -46,7 +46,10 @@ class FriendService extends Service {
                 friendList.push(paruid)
             }
             let cityFriends = this.findSameCityFriends(friendList, cid, (travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value - friends.length));
-            friends = friends.concat(cityFriends);
+            if(cityFriends.length) {
+                friends = friends.concat(cityFriends);
+            }
+
         }
         return friends;
     }

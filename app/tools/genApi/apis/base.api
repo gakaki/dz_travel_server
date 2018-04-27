@@ -95,6 +95,8 @@ enum Code {
     const ISTRAVELLING = -146
     //正在修改路线中
     const ISCHANGING = -147
+    //兑换完毕
+    const EXCHANGE_OVER = -148
 
     const UNKNOWN = -1000
     // 遇到了未处理的异常

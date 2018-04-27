@@ -13,12 +13,20 @@ class UserController extends Controller {
         let result = {
             data: {}
         };
-        if ( !info || !appName ||(!sid && !uid )) {
+        if ( !appName ||(!sid && !uid )) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let rs = await this.service.publicService.userService.login(uid,sid,appName,shareUid,JSON.parse(info));
+        let userInfo = {};
+        if(!info) {
+            userInfo = {
+                nickName: uid,
+            }
+        }else{
+            userInfo = JSON.parse(info);
+        }
+        let rs = await this.service.publicService.userService.login(uid,sid,appName,shareUid,userInfo);
     //    ctx.logger.info(rs);
         if (rs.info != null) {
             result.code = 0;

@@ -119,12 +119,12 @@ class PlayerService extends Service {
         }
         info.ticket = flyTickets;
         //当前为双人旅行时，自动取消组队
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
-        if(visit) {
-            if(visit.friend) {
-                await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ info.uid, visit.friend ] }, { $set: { friend: null } }, { multi: true });
-            }
-        }
+        // let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        // if(visit) {
+        //     if(visit.friend) {
+        //         await this.ctx.model.TravelModel.CurrentCity.update({ uid: [ info.uid, visit.friend ] }, { $set: { friend: null } }, { multi: true });
+        //     }
+        // }
     }
 
     async getMessage(info, ui, type) {
@@ -150,7 +150,7 @@ class PlayerService extends Service {
     }
 
     async clearMsg(info, ui, msg) {
-       let r = await this.ctx.model.TravelModel.UserMsg.update({ createDate: { $lte: msg.createDate } }, { $set: { isRead: true } }, { multi: true });
+       let r = await this.ctx.model.TravelModel.UserMsg.update({ uid: ui.uid, createDate: { $lte: msg.createDate } }, { $set: { isRead: true } }, { multi: true });
         this.logger.info(r);
     }
 
