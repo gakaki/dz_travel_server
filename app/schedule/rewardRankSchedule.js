@@ -22,7 +22,7 @@ class RewardRankSchedule extends Subscription {
         let createDate = new Date();
         for(let completionDegree of completionDegreeRankList) {
             let reward = this.ctx.service.travelService.rankService.getReward(apis.RankType.THUMBS, completionDegree.rank);
-            this.ctx.publicService.itemService.itemChange(completionDegree.uid, { ["items." + travelConfig.Item.GOLD]: reward }, "rank");
+            this.ctx.service.publicService.itemService.itemChange(completionDegree.uid, { ["items." + travelConfig.Item.GOLD]: reward }, "rank");
             await this.ctx.model.TravelModel.UserMsg.create({
                 uid: completionDegree.uid,
                 mid: "msg" + travelConfig.Message.RANKMESSAGE + createDate.format("yyyyMMddhhmmss") + completionDegree.rank,
@@ -48,7 +48,7 @@ class RewardRankSchedule extends Subscription {
         let content = travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).content;
         for(let foot of footRankList) {
             let reward = this.ctx.service.travelService.rankService.getReward(apis.RankType.FOOT, foot.rank);
-            this.ctx.publicService.itemService.itemChange(foot.uid, { ["items." + travelConfig.Item.GOLD]: reward }, "rank");
+            this.ctx.service.publicService.itemService.itemChange(foot.uid, { ["items." + travelConfig.Item.GOLD]: reward }, "rank");
             await this.ctx.model.TravelModel.UserMsg.create({
                 uid: foot.uid,
                 mid: "msg" + travelConfig.Message.RANKMESSAGE + createDate.format("yyyyMMddhhmmss") + foot.rank,
