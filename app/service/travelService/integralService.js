@@ -150,7 +150,7 @@ class IntegralService extends Service {
 
         if(item.type == 2) {
             if(!codes.length || item.remaining == 0) {
-                res.code = apis.Code.ITEM_MAX;
+                res.code = apis.Code.EXCHANGE_OVER;
                 this.logger.info("全部兑换完毕 ");
                 return;
             }
@@ -177,7 +177,7 @@ class IntegralService extends Service {
                 return;
             }
             if(item.remaining == 0) {
-                res.code = apis.Code.ITEM_MAX;
+                res.code = apis.Code.EXCHANGE_OVER;
                 this.logger.info("全部兑换完毕 ");
                 return;
             }
@@ -205,7 +205,7 @@ class IntegralService extends Service {
             await this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + sheets.Item.POINT]: -item.integral }, '"integralExchange"');
 
         }else{
-            res.code = apis.Code.COUNT_OVER;
+            res.code = apis.Code.EXCHANGE_OVER;
             return;
         }
 
