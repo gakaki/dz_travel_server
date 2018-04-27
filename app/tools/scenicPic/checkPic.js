@@ -7,17 +7,17 @@ const sheets = require('../../../sheets/travel')
 let files = {};
 let result = {};
 let rootDir = path.join(config.picBaseDir, config.picDirName);
-recFile(rootDir);
+// recFile(rootDir);
+// compare();
 
-compare();
+lownamePic(rootDir)
 
 function recFile(f) {
     let st = fs.statSync(f);
     if (st.isFile()) {
         let key = path.join(config.picDirName, f.split(config.picDirName)[1]).replace(/\\+/g, '/')
         files[key] = 1;
-    }
-    else {
+    } else {
         //directory
         fs.readdirSync(f).every(ff => {
             let subFl = path.join(f, ff);
@@ -33,8 +33,7 @@ function compare() {
         let pic = s.picture;
         if (files[pic]) {
             files[pic]++;
-        }
-        else {
+        } else {
             //rec lack of picture
             result[pic] = true;
         }
@@ -57,7 +56,33 @@ function compare() {
     str += '\n\n\n没用上的资源:\n'
     str += exts.join('\n');
 
-    fs.appendFileSync(config.outFile, str, {flag:'w'})
+    fs.appendFileSync(config.outFile, str, { flag: 'w' })
 
     console.log(`统计结果已经导出到${config.outFile}`)
+}
+
+//将资源里jingdian下的图片后缀名都改为小写
+function lownamePic(f) {
+    let st = fs.statSync(f);
+    if (st.isFile()) {
+        let dirNm = path.dirname(f);
+        let exNm = path.extname(f).toLowerCase();
+
+        let flNm = path.basename(f).split('.')[0];
+
+        let newfl = path.join(dirNm, `${flNm}${exNm}`);
+
+        if (f != newfl) {
+            console.log('rename fl>>', f);
+            fs.renameSync(f, newfl);
+
+        }
+    } else {
+        //directory
+        fs.readdirSync(f).every(ff => {
+            let subFl = path.join(f, ff);
+            lownamePic(subFl);
+            return true;
+        })
+    }
 }

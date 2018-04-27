@@ -10,7 +10,7 @@ module.exports = {
         type: 'worker', // all 指定所有的 worker 都需要执行
         interval: '1h', //2个小时
        // disable: true,
-       // immediate: true, //配置了该参数为 true 时，这个定时任务会在应用启动并 ready 后立刻执行一次这个定时任务。
+        //immediate: true, //配置了该参数为 true 时，这个定时任务会在应用启动并 ready 后立刻执行一次这个定时任务。
     },
     async task(ctx) {
         ctx.logger.info("每一个小时更新一次天气");
@@ -19,9 +19,14 @@ module.exports = {
         let weathers = "晴";
         for(let city of citys) {
             if(city.city) {
+                ctx.logger.info("城市名 ：" + city.city);
                 let key = "weather" + Math.round(city.id / segment);
                 try {
-                    let meteorological = await weather(city.city, ctx.app);
+                    let wcity = city.city;
+                    if(wcity == "基隆") {
+                        wcity = "台北"
+                    }
+                    let meteorological = await weather(wcity, ctx.app);
                     weathers = meteorological.now.cond_txt;
                 }catch(err) {
                     ctx.logger.error(err);
