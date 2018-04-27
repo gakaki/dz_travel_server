@@ -255,7 +255,7 @@ class TravelService extends Service {
 
             this.ctx.service.travelService.specialityService.clearMySpePrice(fui.uid);
         }else{
-            if(lastCity.friend) {
+            if(lastCity && lastCity.friend) {
                 await this.ctx.model.TravelModel.CurrentCity.update({ uid: lastCity.friend }, { friend: null }, { upsert: true });
             }
         }

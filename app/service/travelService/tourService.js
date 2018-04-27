@@ -1215,8 +1215,8 @@ class TourService extends Service {
         let events                                                    = currentEvents['events'];
         events                                                        = events.filter( r => r.triggerDate <= timeNow && r.received == false  );
         this.logger.info("事件数量 ",events.length);
-        info.newEvent                                                 = events && events.length > 0 ? true : false;
-        info.lastestEvent                                             = events.length > 0 ? events[0] : null;
+        info.newEvent                                                 =  events && events.length >= 1 ? true : false;
+        info.latestEvent                                               = events && events.length >= 1 ? events[0] : null;
 
         let spots                                                     = currentCity['roadMap'];
         let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
