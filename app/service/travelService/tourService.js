@@ -374,13 +374,13 @@ class TourService extends Service {
 
         //查找走过的景点数
         let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, cid: cid, scenicspot: { $ne: null } });
-        this.logger.info("查找走过的景点数" , sCount);
+        this.logger.info("查找走过的景点数", sCount);
         //查找拍照
         let photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, cid: cid });
-        this.logger.info("查找拍照" , photoCount);
+        this.logger.info("查找拍照", photoCount);
         //观光
         let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, cid: cid, subType: { $in: [ 3, 4 ] } });
-        this.logger.info("观光" , tourCount);
+        this.logger.info("观光", tourCount);
 
 
 
@@ -400,8 +400,19 @@ class TourService extends Service {
         }
 
         if(currentCity.friend) {
+            let parterS = await this.ctx.model.TravelModel.Footprints.count({ uid: currentCity.friend, cid: cid, scenicspot: { $ne: null } });
             parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
             parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
+
+            let sNumber = Math.min(sCount, parterS);
+            if(sNumber < travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
+                sCount = 0;
+                sTask = false;
+            }else{
+                sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
+                sTask = true;
+            }
+
             if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
                 parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
 
