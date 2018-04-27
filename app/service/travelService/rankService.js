@@ -84,13 +84,15 @@ class RankService extends Service {
      * */
     async updateFootRecord(uid) {
         this.logger.info("更新点亮表");
-       // let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid, lighten: true });
-        //this.logger.info(cityLight);
-        //if(cityLight) {
-            await this.ctx.model.TravelModel.FootRecord.update(
-                { uid: uid },
-                { $set: { uid: uid, updateDate: new Date() }, $inc: { lightCityNum: 1, weekLightCityNum: 1 } },
-                { upsert: true }
+        let cityLight = await this.ctx.model.TravelModel.CityLightLog.count({ uid: uid, lighten: true });
+        let thisMonday = utils.getMonday();
+        let weekCityLight = await this.ctx.model.TravelModel.CityLightLog.count({ uid: uid, lighten: true, createDate: { $gte: thisMonday } });
+
+
+        await this.ctx.model.TravelModel.FootRecord.update(
+            { uid: uid },
+            { $set: { uid: uid, updateDate: new Date(), lightCityNum: cityLight, weekLightCityNum: weekCityLight } },
+            { upsert: true }
             );
 
             // let userFoot = await this.getUserFoot(uid);
@@ -100,7 +102,7 @@ class RankService extends Service {
             //     await this.app.redis.decr(key);
             // }
             // await this.app.redis.incr(key);
-       // }
+
 
     }
 
