@@ -149,7 +149,7 @@ class IntegralService extends Service {
         let code = null;
 
         if(item.type == 2) {
-            if(!codes.length) {
+            if(!codes.length || item.remaining == 0) {
                 res.code = apis.Code.ITEM_MAX;
                 this.logger.info("全部兑换完毕 ");
                 return;
@@ -171,9 +171,14 @@ class IntegralService extends Service {
         }
 
         if (item.type == 1) {
-            if(!ui.address){
+            if(!ui.address) {
                 res.code = apis.Code.NEED_ADDRESS;
                 this.logger.info('未填地址，返回');
+                return;
+            }
+            if(item.remaining == 0) {
+                res.code = apis.Code.ITEM_MAX;
+                this.logger.info("全部兑换完毕 ");
                 return;
             }
             code = res.exchangeCode = 1;
