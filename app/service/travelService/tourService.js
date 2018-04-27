@@ -756,12 +756,10 @@ class TourService extends Service {
     async eventshow(info){
 
         this.logger.info("--==event show start==--");
-
         //这里要分离奖励 部分和 寻找答题部分
         //设置领取状态
         //spotTravelEvent 作为日志received 作为 存档表吧
         //所以查cid的cityevent表
-
         let uid                                                          = info.uid;
         let cid                                                          = info.cid;
 
@@ -789,6 +787,8 @@ class TourService extends Service {
             // return;
             info.current = 0;
             info.quest   = {};
+
+            info.hasNext = false;
             info.total   = 10;
             info.submit();
             return;
@@ -797,8 +797,9 @@ class TourService extends Service {
         let eid                                                          = event["eid"];
         let questCfg                                                     = questRepo.find(eid);
         questCfg.dealKnowledgeRow(cid);
-        let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
+
         info.id                                                          = event['dbId'];
+
         info.quest                                                       = {
             dbId                                                         : event['dbId'],
             eid                                                          : eid, //前端没有此配置表
@@ -807,14 +808,20 @@ class TourService extends Service {
             gold_used                                                    : 0,
             picture                                                      : questCfg['picture'],
             // rewards:       questCfg.getSpotRewardComment().reward,
-            rewards                                                      : row.reward,
             question                                                     : questCfg['describe'],
             answers                                                      : questCfg.answers(),
         };
+
+        if (eventsNoReceived.length > 1){
+            info.hasNext                                                 = true;
+        }
+
+        let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
+        info.rewards                                                     = row.reward,
+
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
-            let row                 = await this.rewardThanMark( uid,cid,eid);
             await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
                 $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
