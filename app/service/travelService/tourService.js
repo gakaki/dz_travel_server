@@ -1215,8 +1215,8 @@ class TourService extends Service {
         let events                                                    = currentEvents['events'];
         events                                                        = events.filter( r => r.triggerDate <= timeNow && r.received == false  );
         this.logger.info("事件数量 ",events.length);
-        info.newEvent                                                 = events && events.length > 0 ? true : false;
-        info.lastestEvent                                             = events.length > 0 ? events[0] : null;
+        info.newEvent                                                 =  events && events.length >= 1 ? true : false;
+        info.latestEvent                                               = events && events.length >= 1 ? events[0] : null;
 
         let spots                                                     = currentCity['roadMap'];
         let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
@@ -1265,8 +1265,6 @@ class TourService extends Service {
             return;
         }
         let isDobule             = currentCity["friend"] ? true : false;
-
-     //   this.logger.info(currentCity);
 
         let para                 = {
             oldLine              : currentCity.roadMap,
@@ -1322,22 +1320,7 @@ class TourService extends Service {
             }, { upsert: true });
 
          this.logger.info("更新时间没？？？？？？？", up);
-            // if ( inviteCode ){        //双人模式
-            //     let partner         = await this.findAnotherPlayer(inviteCode,uid);
-            //     if ( partner ){
-            //         let f            = new MakeEvent(para);
-            //         eventspartner    = f.eventsFormat;
-            //
-            //         await this.ctx.model.TravelModel.CityEvents.update({ uid: partner.uid }, {
-            //             $set : {
-            //                 uid : partner.uid,
-            //                 events : f.eventsFormat
-            //             }
-            //         }, { upsert: true });
-            //     }else{
-            //         this.logger.info("没有找到对应的伙伴id 有问题！",  uid );
-            //     }
-            // }
+
         }
 
         //更新 currentcity的 roadmap
@@ -1363,8 +1346,15 @@ class TourService extends Service {
                     startTime: startTime,
                     modifyEventDate: new Date(),
                 }});
-        }
 
+            let f            = new MakeEvent(para);
+            await this.ctx.model.TravelModel.CityEvents.update({ uid: currentCity.friend }, {
+                $set : {
+                    uid : currentCity.friend,
+                    events : f.eventsFormat
+                }
+            }, { upsert: true });
+        }
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
