@@ -44,7 +44,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
         while ( timeTotalMinute > 0 ) {
             //debug参数这里todo
-            let minuteLength        =  _.random(0,1); // 随机个1到2分钟的时间出来
+            let minuteLength        =  _.random(1,2); // 随机个1到2分钟的时间出来
             //这里的时间生成逻辑需要递增
             let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
 

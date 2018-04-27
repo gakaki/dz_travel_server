@@ -793,7 +793,7 @@ class TourService extends Service {
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
-            // let row                 = await this.rewardThanMark( uid,cid,eid);
+            let row                 = await this.rewardThanMark( uid,cid,eid);
             await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
                 $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
@@ -1197,6 +1197,11 @@ class TourService extends Service {
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
+        if (!currentCity.friend){
+            info.doubleState           = false;
+        }else{
+            info.doubleState           = true;
+        }
         // info.newEvent               = true;
     }
 
