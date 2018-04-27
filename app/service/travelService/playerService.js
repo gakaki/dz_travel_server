@@ -150,7 +150,7 @@ class PlayerService extends Service {
     }
 
     async clearMsg(info, ui, msg) {
-       let r = await this.ctx.model.TravelModel.UserMsg.update({ createDate: { $lte: msg.createDate } }, { $set: { isRead: true } }, { multi: true });
+       let r = await this.ctx.model.TravelModel.UserMsg.update({ uid: ui.uid, createDate: { $lte: msg.createDate } }, { $set: { isRead: true } }, { multi: true });
         this.logger.info(r);
     }
 
