@@ -13,8 +13,7 @@ module.exports = appInfo => {
     config.env = "local";
 
     const config_redis = {
-             // host: '10.1.70.106',
-           host: '127.0.0.1',
+            host: '10.1.70.106',
             port: 6379,
             password: 'redis',
             db: '0',
