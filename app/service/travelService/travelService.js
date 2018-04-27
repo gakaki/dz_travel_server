@@ -92,11 +92,19 @@ class TravelService extends Service {
 
         };
         //上个城市效率奖励
-        if(lastCity && lastCity.roadMap) {
-            let efficiencyReward = await this.service.travelService.tourService.leavetour(ui);
-             info.score = efficiencyReward.score;
-             info.reward = efficiencyReward.reward;
-            if(ui.isNewPlayer && !fui && lastCity.startTime) {
+        if(lastCity) {
+            try {
+                let efficiencyReward = await this.service.travelService.tourService.leavetour(ui);
+                lastCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
+                info.score = efficiencyReward ? efficiencyReward.score : lastCity.efficiency;
+                info.reward = efficiencyReward ? efficiencyReward.reward : lastCity.reward;
+            }catch (e) {
+                this.logger.error(e);
+                info.score = 0;
+                info.reward = 0;
+            }
+
+            if(ui.isNewPlayer && !fui && (lastCity.efficiency || lastCity.efficiency == 0)) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
         }
@@ -212,6 +220,9 @@ class TravelService extends Service {
             //更新好友
             await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $addToSet: { friendList: fui.uid } });
             let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: fui.uid });
+            if(fvisit) {
+                await this.service.travelService.tourService.leavetour(fui.uid);
+            }
 
             for (let rentItem of travelConfig.shops) {
                 if(fui.playTimes && fui.playTimes < travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
