@@ -12,6 +12,7 @@ module.exports = app => {
         //progress: { type: Number }, //完成度？
         efficiency: { type: Number }, //上个城市的效率评分，
         reward: { type: Number }, //上个城市效率评分奖励
+        isGet: { type: Boolean, default: false }, //是否已经 获得过本次的评分奖励
         friend: { type: String, default: null }, //默认单人旅行
         rentItems: { type: JSON },
         photographyCount: { type: Number, default: 0 }, //城市拍照次数 前2次免费
