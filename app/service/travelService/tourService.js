@@ -176,7 +176,7 @@ class TourService extends Service {
     }
 
 
-    async taskInfo(userId){
+    async taskInfo(userId) {
         let uid                           = userId;
         let currentCity                   = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         let roadMaps                      = currentCity.roadMap;
@@ -297,12 +297,13 @@ class TourService extends Service {
                     }else {
                         this.logger.info("需要更新游玩进度");
                         let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
-                        this.logger.info(footPrints);
+                      //  this.logger.info(footPrints);
                         let count = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, scenicspot: spot.name });
                         if(!footPrints) {
                             update = true;
                         }
                         if(count > 0) {
+                            this.logger.info(spot.name + '已经来过了。。。');
                             hascome = true;
                         }
 
@@ -1105,10 +1106,13 @@ class TourService extends Service {
     async leavetour(selfInfo) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: selfInfo.uid });
         if(!curCity) {
-            this.logger.info(selfInfo.uid + " 城市不存在。。。。", curCity);
+            this.logger.info(selfInfo.uid + " 城市不存在。。。。");
             return null;
         }
         if(curCity.isGet) {
+            await this.queryTaskProgress(selfInfo.uid, curCity);
+            //上个城市的评分奖励
+            this.ctx.service.travelService.integralService.add(selfInfo.uid, (curCity.reward || 0), "efficiency");
             await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [], isGet: false } });
             return;
         }
@@ -1118,7 +1122,7 @@ class TourService extends Service {
         let planMap = [];
         for(let planS of plan) {
             if(planS.index != -1) {
-                if(planS.tracked || planS.endtime <= new Date().getTime()) {
+                if(planS.tracked || (planS.endtime && planS.endtime <= new Date().getTime())) {
                     planMap.push(planS);
                     //real[planS.index] = planS.id;
                 }
@@ -1455,6 +1459,7 @@ class TourService extends Service {
                     efficiency = efficiency || 0;
                     reward = reward || 0;
                     isGet = true;
+
                     await this.ctx.model.TravelModel.Efficiency.update({ fid: currentCity.fid, cid: currentCity.cid, uid: info.uid },
                         { $set: { fid: currentCity.fid, cid: currentCity.cid, uid: info.uid, efficiency: efficiency, reward: reward, createDate: new Date() } },
                         { upsert: true });
