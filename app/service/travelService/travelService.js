@@ -107,6 +107,9 @@ class TravelService extends Service {
             if(ui.isNewPlayer && !fui && (lastCity.efficiency || lastCity.efficiency == 0)) {
                 await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
             }
+            if(lastCity.friend) {
+                await this.ctx.model.TravelModel.CurrentCity.update({ uid: lastCity.friend }, { friend: null }, { upsert: true });
+            }
         }
 
 
@@ -224,8 +227,12 @@ class TravelService extends Service {
             if(fvisit) {
                 this.logger.info("好友离开城市..............", fui);
                 await this.service.travelService.tourService.leavetour(fui);
+                if(fvisit.friend) {
+                    await this.ctx.model.TravelModel.CurrentCity.update({ uid: fvisit.friend }, { friend: null }, { upsert: true });
+                }
             }
 
+            currentCity.present = false;
             for (let rentItem of travelConfig.shops) {
                 if(fui.playTimes && fui.playTimes < travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
                     if(rentItem.id == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARID).value) {
@@ -254,10 +261,6 @@ class TravelService extends Service {
             await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
 
             this.ctx.service.travelService.specialityService.clearMySpePrice(fui.uid);
-        }else{
-            if(lastCity && lastCity.friend) {
-                await this.ctx.model.TravelModel.CurrentCity.update({ uid: lastCity.friend }, { friend: null }, { upsert: true });
-            }
         }
 
         //添加飞行记录
