@@ -31,27 +31,29 @@ class FriendService extends Service {
      * @return {Promise<Array>}
      */
     async findMySameCityFriends(friendList, cid, uid, paruid) {
-        if(paruid) {
-            let index = friendList.findIndex(n => n == paruid);
-            if(index > -1) {
-                friendList = friendList.splice(index, 1);
-            }
-        }
+        // if(paruid) {
+        //     let index = friendList.findIndex(n => n == paruid);
+        //     if(index > -1) {
+        //         friendList = friendList.splice(index, 1);
+        //     }
+        // }
         let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList, cid: cid.toString() });
         let friends = await this.getUsersInfo(friendCurrentCitys);
+        this.logger.info(friends);
         if (friends.length < travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value) {
             // 人员不足的时候同城市的来几个
             friendList.push(uid);
-            if(paruid) {
-                friendList.push(paruid)
-            }
-            let cityFriends = this.findSameCityFriends(friendList, cid, (travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value - friends.length));
+            // if(paruid) {
+            //     friendList.push(paruid)
+            // }
+            let cityFriends = await this.findSameCityFriends(friendList, cid, (travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value - friends.length));
+            this.logger.info(cityFriends);
             if(cityFriends.length) {
                 friends = friends.concat(cityFriends);
             }
 
         }
-        return friends;
+        return friends.filter(n => n.uid != uid && n.uid != paruid);
     }
 
     /**

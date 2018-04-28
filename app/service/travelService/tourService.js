@@ -46,15 +46,15 @@ class TourService extends Service {
     async tourindexinfo(info, ui) {
 
         let uid                                                      = info.uid;
-        let cid                                                      = parseInt(info.cid);
+
        // this.ctx.session.info                                        = info;
 
         info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
 
 
-
-
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        let cid                                                      = currentCity.cid;
         let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
             info.code                                                = apis.Code.PARAMETER_NOT_MATCH;
@@ -68,7 +68,7 @@ class TourService extends Service {
         let lng             = cityConfig['coordinate'][0];
         let lat             = cityConfig['coordinate'][1];
 
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+       ;
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
@@ -136,6 +136,8 @@ class TourService extends Service {
         }
         let upset = {
             roadMap: info.spots,
+            changeRouteing:false,
+
         };
 
         if(hasCome) {
@@ -1084,6 +1086,10 @@ class TourService extends Service {
             this.logger.info(selfInfo.uid + " 城市不存在。。。。", curCity);
             return null;
         }
+        if(curCity.isGet) {
+            await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [], isGet: false } });
+            return;
+        }
         let short_path = new ShortPath(curCity.cid);
         let plan = curCity.roadMap;
         let real = [];
@@ -1209,6 +1215,7 @@ class TourService extends Service {
             currentEvents                                             = {events :[]}
         }
 
+        let changeRouteing = currentCity.changeRouteing;
         this.logger.info("预存的事件数量", currentEvents.events.length);
         let cid                                                       = currentCity.cid;
         let timeNow                                                   = new Date().getTime();
@@ -1241,7 +1248,12 @@ class TourService extends Service {
             info.doubleState           = false;
         }else{
             info.doubleState           = true;
+            let fcurrentCity  = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend  });
+            if(fcurrentCity.changeRouteing) {
+                changeRouteing = true;
+            }
         }
+        info.changeRouteing = changeRouteing;
         // info.newEvent               = true;
     }
 
@@ -1381,6 +1393,9 @@ class TourService extends Service {
 
         let roadMap = currentCity.roadMap;
         let hasOver = false;
+        let efficiency = currentCity.efficiency || 0;
+        let reward = currentCity.reward || 0;
+        let isGet = currentCity.isGet;
       //  if(!spotsAllTracked) {
 
       //  }else{
@@ -1388,7 +1403,12 @@ class TourService extends Service {
         //    this.logger.info(map);
             this.logger.info(map.length);
             if(map.length == travelConfig.City.Get(currentCity.cid).scenicspot.length) {
+                 roadMap = utils.multisort(roadMap,
+                    (a, b) => a.index - b.index
+                    );
+                 let real = [];
                 for(let i = 0; i < roadMap.length; i++) {
+                    real.push(roadMap[i].id);
                     roadMap[i].index = -1;
                     roadMap[i].startime = "";
                     roadMap[i].endtime = "";
@@ -1400,6 +1420,32 @@ class TourService extends Service {
                     roadMap[i].arriveStampYMDHMS = "";
                 }
                 currentCity.startTime = null;
+                if(!isGet) {
+                    let short_path = new ShortPath(currentCity.cid);
+                    let path = short_path.travelShortDistance(real);
+                    let shortDistance = short_path.shortPath(real).min;
+                    //上个城市走的实际景点数
+                    let lastSN = real.length;
+                    this.logger.info("走过的景点数 " + lastSN);
+                    this.logger.info("最短路径 " + shortDistance);
+                    this.logger.info("我规划的路径 " + path);
+                    efficiency = parseFloat((shortDistance / path * 10).toFixed(1));
+                    reward = Math.floor(efficiency * lastSN * travelConfig.Parameter.Get(travelConfig.Parameter.SCOREREWARD).value / 100);
+                    efficiency = efficiency || 0;
+                    reward = reward || 0;
+                    isGet = true;
+                    await this.ctx.model.TravelModel.Efficiency.update({ fid: currentCity.fid, cid: currentCity.cid, uid: info.uid },
+                        { $set: { fid: currentCity.fid, cid: currentCity.cid, uid: info.uid, efficiency: efficiency, reward: reward, createDate: new Date() } },
+                        { upsert: true });
+                    if(isDouble) {
+                        await this.ctx.model.TravelModel.Efficiency.update({ fid: currentCity.fid, cid: currentCity.cid, uid: currentCity.friend },
+                            { $set: { fid: currentCity.fid, cid: currentCity.cid, uid: currentCity.friend, efficiency: efficiency, reward: reward, createDate: new Date() } },
+                            { upsert: true });
+                    }
+                }
+
+
+
             }else{
                 let needMap = utils.multisort(map,
                     (a, b) => a.index - b.index
@@ -1481,6 +1527,9 @@ class TourService extends Service {
                 roadMap  : roadMap,
                 modifyEventDate : new Date(),
                 startTime: currentCity.startTime,
+                efficiency: efficiency,
+                reward: reward,
+                isGet: isGet,
             }});
         if(isDouble) {
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -1489,6 +1538,9 @@ class TourService extends Service {
                     roadMap: roadMap,
                     modifyEventDate: new Date(),
                     startTime: currentCity.startTime,
+                    efficiency: efficiency,
+                    reward: reward,
+                    isGet: isGet,
                 }});
         }
     }
@@ -1520,6 +1572,7 @@ class TourService extends Service {
 
         }
     }
+
 }
 
 
