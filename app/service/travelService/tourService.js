@@ -970,17 +970,19 @@ class TourService extends Service {
                         myRouteMap.push(pMap.id);
                     }
 
+                    let isSingle = curCity.friend ? false : true;
                     if(myRouteMap.length > 0) {
                         let para = {
                             oldLine: curCity.roadMap,
                             line: myRouteMap,
                             cid: curCity.cid,
                             isNewPlayer: info.ui.isNewPlayer,
+                            isSingle: isSingle,
                             rentItems: rentItems,
                             startTime: curCity.startTime,
-                            weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
-                            today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
-                            itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+                          //  weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+                         //   today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+                         //   itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
                         };
 
                         let rm = new MakeRoadMap(para);
@@ -1262,8 +1264,8 @@ class TourService extends Service {
     async setrouter(info, ui){
         let uid                  = info.uid;
      //   let cid                  = info.cid;
-        let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        let today                = 0;
+      //  let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
+     //   let today                = 0;
         //设置的路线
         let lines                = JSON.parse(info.line);
         //判断是否是第一次设置路线
@@ -1283,11 +1285,12 @@ class TourService extends Service {
             line                 : lines,
             cid                  : cid,
             isNewPlayer          : ui.isNewPlayer,
+            isSingle             : !isDobule,
             rentItems            : currentCity.rentItems,
             startTime            : currentCity.startTime,
-            weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
-            today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
-            itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
+         //   weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+         //   today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
+        //    itemSpecial          : 0  //这轮配置表里没有出现数据 留着下回做逻辑
         };
 
         let rm                   = new MakeRoadMap(para);
@@ -1303,7 +1306,7 @@ class TourService extends Service {
             }
         }
 
-        para['timeTotalHour']    = rm.timeTotalHour;
+       // para['timeTotalHour']    = rm.timeTotalHour;
 
         let acceleration = rm.acceleration;
         let startTime = currentCity.startTime;
