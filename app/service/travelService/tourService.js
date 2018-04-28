@@ -364,8 +364,8 @@ class TourService extends Service {
             await this.updatePlayerProgress(currentCity, uid, spotId);
         }
 
-        let parterTour = 0;
-        let parterPhoto = 0;
+        let parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+        let parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
 
         //景点任务
         let sTask = false;
@@ -374,64 +374,78 @@ class TourService extends Service {
         //拍照任务
         let pTask = false;
 
+        let hasLight = true;
+        let sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
+        let photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+        let tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+        let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid });
+        if(!cityLight) {
+            hasLight = false;
+            //查找走过的景点数
+             sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, cid: cid, fid: currentCity.fid, scenicspot: { $ne: null } });
+            this.logger.info("查找走过的景点数", sCount);
+            //查找拍照
+             photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, cid: cid });
+            this.logger.info("查找拍照", photoCount);
+            //观光
+             tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, cid: cid, subType: { $in: [ 3, 4 ] } });
+            this.logger.info("观光", tourCount);
 
-        //查找走过的景点数
-        let sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, cid: cid, scenicspot: { $ne: null } });
-        this.logger.info("查找走过的景点数", sCount);
-        //查找拍照
-        let photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, cid: cid });
-        this.logger.info("查找拍照", photoCount);
-        //观光
-        let tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, cid: cid, subType: { $in: [ 3, 4 ] } });
-        this.logger.info("观光", tourCount);
 
 
-
-        if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
-            sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
-            sTask = true;
-        }
-
-        if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-            tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
-            tTask = true
-        }
-
-        if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-            photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
-            pTask = true;
-        }
-
-        if(currentCity.friend) {
-            let parterS = await this.ctx.model.TravelModel.Footprints.count({ uid: currentCity.friend, cid: cid, scenicspot: { $ne: null } });
-            parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
-            parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
-
-            let sNumber = Math.min(sCount, parterS);
-            if(sNumber < travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
-                sCount = 0;
-                sTask = false;
-            }else{
+            if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
                 sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
                 sTask = true;
             }
 
-            if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-                parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
-
-            }else{
-                tTask = false;
+            if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
+                tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+                tTask = true
             }
-            if(parterPhoto >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-                parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
-            }else{
-                pTask = false;
+
+            if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
+                photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+                pTask = true;
+            }
+
+        }
+
+        if(currentCity.friend) {
+            let fCurrentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
+            await this.updatePlayerProgress(fCurrentCity, currentCity.friend, spotId);
+            let fcityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: currentCity.friend, cid: cid });
+            if(!fcityLight) {
+                hasLight = false;
+                let parterS = await this.ctx.model.TravelModel.Footprints.count({ uid: currentCity.friend, cid: cid, fid: currentCity.fid, scenicspot: { $ne: null } });
+                parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
+                parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
+
+                let sNumber = Math.min(sCount, parterS);
+                this.logger.info("双人旅行任务呀。。。。", sCount, parterS);
+                if(sNumber < travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
+                    sCount = sNumber;
+                    sTask = false;
+                }else{
+                    sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
+                    sTask = true;
+                }
+                this.logger.info("实际的双人旅行任务呀。。。。", sCount);
+                if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
+                    parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+
+                }else{
+                    tTask = false;
+                }
+                if(parterPhoto >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
+                    parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+                }else{
+                    pTask = false;
+                }
             }
         }
 
-        if(sTask && tTask && pTask) {
+        if(!hasLight && sTask && tTask && pTask) {
             //查找是否已经点亮
-            let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: uid, cid: cid });
             this.logger.info("是否已经点亮");
             if(!cityLight) {
                 this.logger.info("创建点亮表");
