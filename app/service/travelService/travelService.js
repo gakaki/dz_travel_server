@@ -226,6 +226,7 @@ class TravelService extends Service {
                 await this.service.travelService.tourService.leavetour(fui);
             }
 
+            currentCity.present = false;
             for (let rentItem of travelConfig.shops) {
                 if(fui.playTimes && fui.playTimes < travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
                     if(rentItem.id == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARID).value) {

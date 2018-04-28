@@ -68,16 +68,16 @@ class TourService extends Service {
         let lng             = cityConfig['coordinate'][0];
         let lat             = cityConfig['coordinate'][1];
 
-       ;
+
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
-        if(!currentCity.present && currentCity.friend) {
-            let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
-            if(fcity) {
-                info.present = fcity.present;
-            }
-        }
+        // if(!currentCity.present && currentCity.friend) {
+        //     let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
+        //     if(fcity) {
+        //         info.present = fcity.present;
+        //     }
+        // }
        // info.others                                                  = await this.ctx.service.publicService.friendService.findMySameCityFriends(friendList, cid);
         let hasCome = info.present;
         if(!currentCity.roadMap || !currentCity.roadMap.length) {
@@ -1231,16 +1231,16 @@ class TourService extends Service {
             info.freshSpots                                           = true;
         }
 
-        let spotsAllTrackedNum = spots.filter(  r =>  r.endtime && r.endtime  <= new Date().getTime() ) ? spots.filter(  r =>  r.endtime && r.endtime  <= new Date().getTime() ).length : 0;
+        let spotsAllTrackedNum = spots.filter(  r =>  r.tracked || (r.arriveStamp && r.arriveStamp  <= timeNow) ).length;
         this.logger.info(spotsAllTrackedNum)
         this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
         info.spotsTracked                                             = spotsHasArrived ? spotsHasArrived.length : 0;
         let citySpotsLength                                           = travelConfig.City.Get(cid).scenicspot.length;
         info.spotsAllTracked                                          = spotsAllTrackedNum == citySpotsLength;
         this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
-        if ( info.spotsTracked == citySpotsLength){
-            info.spotsTracked                                         = 0;
-        }
+        // if ( info.spotsTracked == citySpotsLength){
+        //     info.spotsTracked                                         = 0;
+        // }
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
