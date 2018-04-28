@@ -1,0 +1,77 @@
+import ../base.api
+
+
+//开始旅行
+api TestStartGame{
+    //机票类型
+    require type:TicketType
+    //目的地城市id
+    require cid:number
+    //花费的金币
+    require cost:number
+    //邀请码
+    optional inviteCode:string
+    //赠送机票id
+    optional tid:string
+
+    //返回上次旅行的得分
+    output score:number
+    //返回奖励积分
+    output reward:number
+}
+
+//进入城市的经典页面  用户开始该城市的旅游
+api TestTourIndexInfo{
+    //城市id
+    require cid:number
+    //双人模式 邀请码
+    require inviteCode:string
+
+    output weather:number
+    //里程数
+    output mileage:number
+    //该城市的spot景点列表
+    output spots:Spot[]
+    //任务完成度信息
+    output task:TourTask
+    //起点
+    output startPos:object
+    //其他玩家头像，为图片url数组
+    output others:string[]
+    output display: number //人物的表现形式
+    output present: boolean//第二次進入的城市贈送豪華車
+    output startTime: number //开始时间
+    output partener:Partener//组队者信息,非组队模式下传空
+}
+
+
+api TestSetRouter {
+    require cid:string
+    require line:array//景点id数组,每次传的都市完整的路线（包含已走过的）
+
+    //设置后景点数组
+    output spots:RouterSpot[]//不包括起点
+    output startTime: number //起点开始时间
+    output display: number //交通工具
+
+}
+
+//游玩界面轮询
+api TestPlayLoop {
+    output newEvent:boolean  //是否有新事件
+    output latestEvent:Quest //直接传送出新的事件了
+    output freshSpots:boolean //是否要刷新景点状态列表，一些事件、装备，双人模式下一方修改了路线等，会影响景点的到达时间
+    output spotsTracked:number//有几个到达了
+    output spotsAllTracked:boolean//是否已经把地图上所有的景点都走过了
+    output doubleState:boolean//双人模式下对方是否取消了双人旅行
+    output changeRouteing:boolean//是否正在修改路线
+}
+
+api TestFreshSpots {
+    //最新景点数组
+    output spots:RouterSpot[]
+    output display: number //人物的表现形式
+    //任务完成度信息
+    output task:TourTask
+    output mileage: number //里程数
+}

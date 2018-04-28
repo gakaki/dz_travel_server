@@ -1259,9 +1259,9 @@ class TourService extends Service {
 
 
     //第一次点击开始游玩按钮
-    async setrouter(info){
+    async setrouter(info, ui){
         let uid                  = info.uid;
-        let cid                  = info.cid;
+     //   let cid                  = info.cid;
         let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
         let today                = 0;
         //设置的路线
@@ -1269,20 +1269,20 @@ class TourService extends Service {
         //判断是否是第一次设置路线
         let currentCity          = await this.ctx.model.TravelModel.CurrentCity.findOne({
             'uid'        : uid,
-            'cid'        : cid
         });
 
         if(!currentCity){
             info.code = apis.Code.NO_CURRENTCITY;
             return;
         }
+        let cid                  = currentCity.cid;
         let isDobule             = currentCity["friend"] ? true : false;
 
         let para                 = {
             oldLine              : currentCity.roadMap,
             line                 : lines,
             cid                  : cid,
-            isNewPlayer          : info.ui.isNewPlayer,
+            isNewPlayer          : ui.isNewPlayer,
             rentItems            : currentCity.rentItems,
             startTime            : currentCity.startTime,
             weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑

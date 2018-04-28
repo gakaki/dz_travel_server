@@ -121,6 +121,15 @@ module.exports = app => {
     router.get('/speciality/buyspe', controller.travelController.specialityController.buy);
     router.get('/speciality/sellspe', controller.travelController.specialityController.sell);
 
+
+
+
+    router.get('/test/teststartgame', controller.testController.testController.testfly);
+    router.get('/test/testtourindexinfo', controller.testController.testController.testtourindex);
+    router.get('/test/testsetrouter', controller.testController.testController.testsetroute);
+    router.get('/test/testplayloop', controller.testController.testController.testplayloop);
+    router.get('/test/testfreshspots', controller.testController.testController.testfreshspots);
+
   
     
 
