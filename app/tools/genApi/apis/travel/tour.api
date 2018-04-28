@@ -265,5 +265,6 @@ api PlayLoop {
     output spotsTracked:number//有几个到达了
     output spotsAllTracked:boolean//是否已经把地图上所有的景点都走过了
     output doubleState:boolean//双人模式下对方是否取消了双人旅行
+    output changeRouteing:boolean//是否正在修改路线
 }
 

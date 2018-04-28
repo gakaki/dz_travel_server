@@ -46,15 +46,15 @@ class TourService extends Service {
     async tourindexinfo(info, ui) {
 
         let uid                                                      = info.uid;
-        let cid                                                      = parseInt(info.cid);
+
        // this.ctx.session.info                                        = info;
 
         info.partener                                                = await this.findAnotherPlayer(uid);
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
 
 
-
-
+        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        let cid                                                      = currentCity.cid;
         let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
             info.code                                                = apis.Code.PARAMETER_NOT_MATCH;
@@ -68,7 +68,7 @@ class TourService extends Service {
         let lng             = cityConfig['coordinate'][0];
         let lat             = cityConfig['coordinate'][1];
 
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+       ;
 
         //this.logger.info(currentCity);
         info.present = currentCity.present;
@@ -136,6 +136,8 @@ class TourService extends Service {
         }
         let upset = {
             roadMap: info.spots,
+            changeRouteing:false,
+
         };
 
         if(hasCome) {
@@ -1242,6 +1244,7 @@ class TourService extends Service {
         }else{
             info.doubleState           = true;
         }
+        info.changeRouteing = currentCity.changeRouteing;
         // info.newEvent               = true;
     }
 

@@ -51,7 +51,7 @@ class FriendService extends Service {
             }
 
         }
-        return friends;
+        return friends.filter(n => n.uid != uid && n.uid != paruid);
     }
 
     /**

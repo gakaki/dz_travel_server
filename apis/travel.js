@@ -1931,9 +1931,10 @@ class PlayLoop extends Base {
         this._spotsTracked = null;
         this._spotsAllTracked = null;
         this._doubleState = null;
+        this._changeRouteing = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","latestEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState"];
+        this.resFields = ["newEvent","latestEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState","changeRouteing"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
@@ -1953,6 +1954,9 @@ class PlayLoop extends Base {
     //server output, type: boolean//双人模式下对方是否取消了双人旅行
     get doubleState() {return this._doubleState}
     set doubleState(v) {this._doubleState = v}
+    //server output, type: boolean//是否正在修改路线
+    get changeRouteing() {return this._changeRouteing}
+    set changeRouteing(v) {this._changeRouteing = v}
     static Init(ctx, checkLogin = false) {
         let o = new PlayLoop();
         o.ctx = ctx;
