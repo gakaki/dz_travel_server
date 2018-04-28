@@ -1211,6 +1211,7 @@ class TourService extends Service {
             currentEvents                                             = {events :[]}
         }
 
+        let changeRouteing = currentCity.changeRouteing;
         this.logger.info("预存的事件数量", currentEvents.events.length);
         let cid                                                       = currentCity.cid;
         let timeNow                                                   = new Date().getTime();
@@ -1243,8 +1244,12 @@ class TourService extends Service {
             info.doubleState           = false;
         }else{
             info.doubleState           = true;
+            let fcurrentCity  = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend  });
+            if(fcurrentCity.changeRouteing) {
+                changeRouteing = true;
+            }
         }
-        info.changeRouteing = currentCity.changeRouteing;
+        info.changeRouteing = changeRouteing;
         // info.newEvent               = true;
     }
 
