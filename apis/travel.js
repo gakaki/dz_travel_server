@@ -191,6 +191,8 @@ class Code{
     
     static get USER_CANCEL_TEAM() { return 11003;}
     
+    static get DISABLE_SET_ROUTER() { return 11004;}
+    
 }
 class RentItem{
     
