@@ -1361,19 +1361,21 @@ class TourService extends Service {
         }
         if(!startTime) {
             startTime                = new Date();
-            // 第一次生成的时候修改事件 后面修改的时候不改了
-            let e                    = new MakeEvent(para);
+        }
 
+        let cityEventRow = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid });
+        if ( cityEventRow.events && cityEventRow.events.length <= 0 ){ //没有事件那么就生成
+            let e                    = new MakeEvent(para);
             //更新events表
-           let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
+            let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
                 $set : {
                     uid : uid,
                     events : e.eventsFormat
+
                 }
             }, { upsert: true });
 
-         this.logger.info("更新时间没？？？？？？？", up);
-
+            this.logger.info("更新时间没？？？？？？？", up);
         }
 
         //更新 currentcity的 roadmap
