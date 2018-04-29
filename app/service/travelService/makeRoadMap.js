@@ -247,10 +247,7 @@ class MakeRoadMap {
             }
         }
 
-        //diffTime = 30 * 1000//test
-
-
-         diffTime = 60000;//test
+         diffTime = 4 * 2 * 60 * 1000; //4小时 2分钟 * 60秒 x  x 1000 毫秒
          // diffTime = 10000;//test
 
         let mileage = Math.round(short_path.getMileage(travelMap));

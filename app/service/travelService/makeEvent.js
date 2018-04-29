@@ -42,9 +42,13 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let timeTotalMinute = this.timeTotalHour * 60;
         let timestamp       = new Date().getTime();
 
+        //默认先生成一条
+        let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
+        eventRows.push(dbRow);
+
         while ( timeTotalMinute > 0 ) {
             //debug参数这里todo
-            let minuteLength        =  _.random(0,1); // 随机个1到2分钟的时间出来
+            let minuteLength        =  _.random(5,15); // 随机个1到2分钟的时间出来
             //这里的时间生成逻辑需要递增
             let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
 
