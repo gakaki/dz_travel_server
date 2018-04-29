@@ -212,7 +212,7 @@ class MakeRoadMap {
 
         //TODO 测试数据正式服改回来
         //timeHour = timeHour / 60;
-
+        timeHour   = timeHour / 4;
 
         if (this.rentItems) {
             let shortTime = [];
