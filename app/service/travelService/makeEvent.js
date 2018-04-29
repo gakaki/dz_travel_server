@@ -46,7 +46,22 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
         eventRows.push(dbRow);
 
-        while ( timeTotalMinute > 0 ) {
+
+        // while ( timeTotalMinute > 0 ) {
+        //     //debug参数这里todo
+        //     let minuteLength        =  _.random(5,15); // 随机个1到2分钟的时间出来
+        //     //这里的时间生成逻辑需要递增
+        //     let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
+        //
+        //     let dbRow               = this.genSingleEventNonSpot( triggerTimeStamp );
+        //     eventRows.push(dbRow);
+        //     timeTotalMinute = timeTotalMinute - minuteLength;
+        //
+        //     //循环生成新的事件
+        //     timestamp               = triggerTimeStamp;
+        // }
+
+        for ( let i= 0; i < 400; i++){
             //debug参数这里todo
             let minuteLength        =  _.random(5,15); // 随机个1到2分钟的时间出来
             //这里的时间生成逻辑需要递增
@@ -54,11 +69,22 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
             let dbRow               = this.genSingleEventNonSpot( triggerTimeStamp );
             eventRows.push(dbRow);
-            timeTotalMinute = timeTotalMinute - minuteLength;
-
             //循环生成新的事件
             timestamp               = triggerTimeStamp;
         }
+        // while ( timeTotalMinute > 0 ) {
+        //     //debug参数这里todo
+        //     let minuteLength        =  _.random(5,15); // 随机个1到2分钟的时间出来
+        //     //这里的时间生成逻辑需要递增
+        //     let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
+        //
+        //     let dbRow               = this.genSingleEventNonSpot( triggerTimeStamp );
+        //     eventRows.push(dbRow);
+        //     timeTotalMinute = timeTotalMinute - minuteLength;
+        //
+        //     //循环生成新的事件
+        //     timestamp               = triggerTimeStamp;
+        // }
         //创建数据库吧
         this.events = eventRows;
         //将事件发生顺序写入数据库
