@@ -1361,10 +1361,6 @@ class TourService extends Service {
         }
         if(!startTime) {
             startTime                = new Date();
-        }
-
-        // let cityEventRow = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid });
-        // if ( !cityEventRow || !cityEventRow.events || cityEventRow.events.length <= 0 ){ //没有事件那么就生成
             let e                    = new MakeEvent(para);
             //更新events表
             let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
@@ -1376,6 +1372,21 @@ class TourService extends Service {
             }, { upsert: true });
 
             this.logger.info("更新时间没？？？？？？？", up);
+        }
+
+        // let cityEventRow = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid });
+        // if ( !cityEventRow || !cityEventRow.events || cityEventRow.events.length <= 0 ){ //没有事件那么就生成
+        // let e                    = new MakeEvent(para);
+        // //更新events表
+        // let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
+        //     $set : {
+        //         uid : uid,
+        //         events : e.eventsFormat
+        //
+        //     }
+        // }, { upsert: true });
+        //
+        // this.logger.info("更新时间没？？？？？？？", up);
         // }
 
         //更新 currentcity的 roadmap
