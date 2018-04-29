@@ -170,6 +170,7 @@ enum Code {
     const  NO_DB_ROW  =   11001  //没有对应的数据库行
     const  NO_CFG_ROW =   11002  //没有对应的配置表行
     const USER_CANCEL_TEAM = 11003 //玩家取消组队
+    const DISABLE_SET_ROUTER = 11004 //禁止玩家修改路线
 }
 
 enum RentItem {
