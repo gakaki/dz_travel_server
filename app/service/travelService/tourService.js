@@ -1254,7 +1254,7 @@ class TourService extends Service {
         if (!currentEvents ) {
             currentEvents                                             = {events :[]}
         }
-        info.debug                                                    = currentEvents.events.slice(0,3);
+
         let changeRouteing = currentCity.changeRouteing;
         this.logger.info("预存的事件数量", currentEvents.events.length);
         let cid                                                       = currentCity.cid;
@@ -1361,33 +1361,20 @@ class TourService extends Service {
         }
         if(!startTime) {
             startTime                = new Date();
+            // 第一次生成的时候修改事件 后面修改的时候不改了
             let e                    = new MakeEvent(para);
+
             //更新events表
-            let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
+           let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
                 $set : {
                     uid : uid,
                     events : e.eventsFormat
-
                 }
             }, { upsert: true });
 
-            this.logger.info("更新时间没？？？？？？？", up);
-        }
+         this.logger.info("更新时间没？？？？？？？", up);
 
-        // let cityEventRow = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid });
-        // if ( !cityEventRow || !cityEventRow.events || cityEventRow.events.length <= 0 ){ //没有事件那么就生成
-        // let e                    = new MakeEvent(para);
-        // //更新events表
-        // let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
-        //     $set : {
-        //         uid : uid,
-        //         events : e.eventsFormat
-        //
-        //     }
-        // }, { upsert: true });
-        //
-        // this.logger.info("更新时间没？？？？？？？", up);
-        // }
+        }
 
         //更新 currentcity的 roadmap
         await this.ctx.model.TravelModel.CurrentCity.update({
