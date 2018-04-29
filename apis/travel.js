@@ -1924,9 +1924,10 @@ class PlayLoop extends Base {
         this._spotsAllTracked = null;
         this._doubleState = null;
         this._changeRouteing = null;
+        this._debug = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["newEvent","latestEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState","changeRouteing"];
+        this.resFields = ["newEvent","latestEvent","freshSpots","spotsTracked","spotsAllTracked","doubleState","changeRouteing","debug"];
     }
     //server output, type: boolean
     get newEvent() {return this._newEvent}
@@ -1949,6 +1950,9 @@ class PlayLoop extends Base {
     //server output, type: boolean//是否正在修改路线
     get changeRouteing() {return this._changeRouteing}
     set changeRouteing(v) {this._changeRouteing = v}
+    //server output, type: KV[]
+    get debug() {return this._debug}
+    set debug(v) {this._debug = v}
     static Init(ctx, checkLogin = false) {
         let o = new PlayLoop();
         o.ctx = ctx;

@@ -1254,7 +1254,7 @@ class TourService extends Service {
         if (!currentEvents ) {
             currentEvents                                             = {events :[]}
         }
-
+        info.debug                                                    = currentEvents.events.slice(0,3);
         let changeRouteing = currentCity.changeRouteing;
         this.logger.info("预存的事件数量", currentEvents.events.length);
         let cid                                                       = currentCity.cid;
