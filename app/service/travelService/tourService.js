@@ -1364,7 +1364,7 @@ class TourService extends Service {
         }
 
         let cityEventRow = await this.ctx.model.TravelModel.CityEvents.findOne({ uid: uid });
-        if ( cityEventRow.events && cityEventRow.events.length <= 0 ){ //没有事件那么就生成
+        if ( !cityEventRow || !cityEventRow.events || cityEventRow.events.length <= 0 ){ //没有事件那么就生成
             let e                    = new MakeEvent(para);
             //更新events表
             let up = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
