@@ -82,7 +82,7 @@ class TourController extends Controller {
             info.submit();
             return;
         }
-        await this.service.travelService.tourService.setrouter(info);
+        await this.service.travelService.tourService.setrouter(info, info.ui);
 
         info.submit();
     }

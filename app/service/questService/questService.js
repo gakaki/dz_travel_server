@@ -1,4 +1,4 @@
-const QuestRepoInstance = require("./questRepo");
+const questRepo = require("./questRepo");
 const Service = require('egg').Service;
 const utils = require("../../utils/utils");
 const travelConfig  = require("../../../sheets/travel");
@@ -6,12 +6,6 @@ const apis           = require('../../../apis/travel');
 const appUtil        = require("../../utils/constant");
 
 class QuestService extends Service{
-    async getEvent(row_id) {
-        const row       =  QuestRepoInstance.find(row_id);
-        this.logger.info(row.length);
-        // this.logger.info('event_rows1', row);
-        return row;
-    }
 
     async reqenterspot(info) {
         //https://local.ddz2018.com/tour/reqenterspot?sid=1000001&uid=1000001&spotId=100101&cid=1
