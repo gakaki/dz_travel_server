@@ -371,7 +371,8 @@ class PlayerService extends Service {
                         id: pt.pscid,
                         url: travelConfig.Postcard.Get(pt.ptid).picture,
                     };
-                    let firstChat = postcardChat.firstMsg;
+                    let pchats = await this.ctx.model.TravelModel.PostcardChat.find({ pscid: postcardChat.pscid }).sort({ createDate: -1 });
+                    let firstChat = pchats[0];
                     let sender = await this.ctx.model.PublicModel.User.findOne({ uid: firstChat.sender });
                     postcardBriefDetail.lastestLiveMessage = {
                         id: firstChat.chatid,
@@ -393,6 +394,7 @@ class PlayerService extends Service {
 
                 }
             }
+           // this.logger.info(proPostcards);
             for(let city of citys) {
                 let postcardInfo = {
                     cid: Number(city),
@@ -485,6 +487,19 @@ class PlayerService extends Service {
             //let senderNickName = sender.nickName;
             let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
             let content = context.replace("s%", ui.nickName).replace("a%", pcard.province).replace("b%", pcard.city);
+            if(content.indexOf("上海省") > -1) {
+                content = content.replace("上海省", "");
+            }else if(content.indexOf("北京省") > -1) {
+                content = content.replace("北京省", "");
+            }else if(content.indexOf("天津省") > -1) {
+                content = content.replace("天津省", "");
+            }else if(content.indexOf("重庆省") > -1) {
+                content = content.replace("重庆省", "");
+            }else if(content.indexOf("香港省") > -1) {
+                content = content.replace("香港省", "");
+            }else if(content.indexOf("澳门省") > -1) {
+                content = content.replace("澳门省", "");
+            }
             if(senderid != info.uid) {
                 await this.ctx.model.TravelModel.UserMsg.create({
                     uid: senderid,
