@@ -207,6 +207,79 @@ class TourController extends Controller {
         info.submit();
     }
 
+    //正在开发的事件
+    async eventshowtest(ctx){
+        let info             = apis.EventShow.Init(ctx);
+        let uid              = info.uid;
+        let currentCity      = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        if(!currentCity) {
+            info.code        = apis.Code.NO_CURRENTCITY;
+            return;
+        }
+        let cid              = currentCity.cid;
+        let cityEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({
+            uid              : uid
+        });
+        let eventsNoReceived = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,10);
+        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
+
+        let KEY_EVENTSHOW    = `eventShow:${uid}`;
+        let eventShow        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        let eventShowLength  = eventShow.length;
+
+        if ( eventsNoReceived.length > 0){
+            let needAddLength = eventsNoReceived.length - eventShowLength;
+            if (needAddLength > 0){
+                for( let i = 0; i < needAddLength ; i++ ){
+                    let e = eventsNoReceived[i];
+                    await this.app.redis.zadd( KEY_EVENTSHOW , e.triggerDate, e.dbId.toString() );
+                }
+            }
+        }
+
+        let item_first       = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
+        if ( item_first && item_first.length == 1 ){
+            await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
+        }
+        // let elength         = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1).length
+        ctx.body = JSON.stringify( { item_first });
+        return ctx.body;
+
+        // database get all events
+// get all events not received
+// into  the container for the counter
+// if click 1 event show than counter -1 pop one event than add to received
+// else add data to container
+// need a list view to show all the event list
+
+        //
+        //
+        // let fakeCalcCurrIndex = ( eReceivedCount ) => {
+        //     let current    = 0;
+        //     if ( eReceivedCount <= 0 ){
+        //         current    = 1;
+        //     }else{
+        //         current    = eReceivedCount >= 10 ? 10 : eReceivedCount ;
+        //     }
+        //     let total      = 10;
+        //     current        = total - current;
+        //     if (current <= 1) current = 1;
+        //     console.log(`[debug] current index is ${current}/10`);
+        //     return  current;
+        // }
+        //
+        // fakeCalcCurrIndex(-1);   // 2/10
+        // fakeCalcCurrIndex(0);   // 2/10;
+        //
+        // fakeCalcCurrIndex(1);   // 2/10
+        // fakeCalcCurrIndex(2);   // 2/10
+        // fakeCalcCurrIndex(3);   // 2/10
+        // fakeCalcCurrIndex(10);  //10
+        // fakeCalcCurrIndex(11);  //10
+
+
+        info.submit();
+    }
 
     // 轮询的时候告诉我要刷新哪个
     async freshspots(ctx) {
