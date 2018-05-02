@@ -13,7 +13,7 @@ class QuestRepo {
         let rows = travelConfig.events;
 
         // // .filter(  e=> e.describe.indexOf("s%") < 0 )
-        rows     = rows.filter( e => e.probability != 0 && e.describe.indexOf("s%") < 0);
+        // rows     = rows.filter( e => e.probability != 0 && e.describe.indexOf("s%") < 0);
         return rows;
     }
 

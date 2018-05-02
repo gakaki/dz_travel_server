@@ -853,8 +853,9 @@ class TourService extends Service {
             info.hasNext                                                 = true;
         }
 
-        let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
-        info.rewards                                                     = row.reward,
+
+        let city                                                         = travelConfig.City.Get(cid);
+        info.rewards                                                     = questCfg.getSpotRewardComment(city.city);
 
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
@@ -862,6 +863,10 @@ class TourService extends Service {
             await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
                 $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
+
+            let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
+            info.rewards                                                     = row.reward
+
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT ) {
@@ -1492,6 +1497,7 @@ class TourService extends Service {
                     );
                 let lastspot = needMap.pop();
                 let lastindex = -1;
+                this.logger.info(lastspot);
                 if(lastspot) {
                     if(lastspot.startime) {
                         lastindex = lastspot.index + 1;
@@ -1499,9 +1505,10 @@ class TourService extends Service {
                         hasOver = true;
                     }
 
-                    this.logger.info(lastspot);
           //          this.logger.info(map);
                     map.push(lastspot);
+                }else{
+                    lastindex = 0;
                 }
 
                 if(hasOver) {
