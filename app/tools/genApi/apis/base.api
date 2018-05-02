@@ -429,6 +429,18 @@ class Base{
                     this._timestampD = Date.now()/1000  - req.timestamp;
                     wx.setStorageSync('sid', this.SID);
                     suc(req);
+                }).catch(()=>{
+                    wx.clearStorageSync('sid');
+                    wx.clearStorageSync('uid');
+                    Base.UID = '';
+                    Base.SID = '';
+                    wx.login({
+                        success: res => {
+                            console.log('login')
+                            this.AUTHED = false;
+                            this.UserAuth(res.code, suc);
+                        }
+                    })
                 });
             }
         });
