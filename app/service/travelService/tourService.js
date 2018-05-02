@@ -1492,6 +1492,7 @@ class TourService extends Service {
                     );
                 let lastspot = needMap.pop();
                 let lastindex = -1;
+                this.logger.info(lastspot);
                 if(lastspot) {
                     if(lastspot.startime) {
                         lastindex = lastspot.index + 1;
@@ -1499,9 +1500,10 @@ class TourService extends Service {
                         hasOver = true;
                     }
 
-                    this.logger.info(lastspot);
           //          this.logger.info(map);
                     map.push(lastspot);
+                }else{
+                    lastindex = 0;
                 }
 
                 if(hasOver) {
