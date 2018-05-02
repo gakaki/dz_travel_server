@@ -31,7 +31,7 @@ class TourController extends Controller {
         let cid           = info.cid;
         let uid           = info.uid;
 
-        let userInfo      = await ctx.service.publicService.userService.findUserBySid(uid);
+      //  let userInfo      = await ctx.service.publicService.userService.findUserBySid(uid);
         let weatherId     = await this.ctx.service.publicService.thirdService.getWeather(cid);
         //需要check下面的
         let friends       = await this.ctx.service.publicService.friendService.findMyFriends(uid,cid);
@@ -52,7 +52,7 @@ class TourController extends Controller {
 
      
         let user_info     = ctx.session.ui;
-        await this.service.travelService.tourService.fillIndexInfo(info,user_info);
+      //  await this.service.travelService.tourService.fillIndexInfo(info,user_info);
         info.firstPlay    = user_info.firstPlay;
 
         info.submit();
@@ -196,8 +196,8 @@ class TourController extends Controller {
     async answerquest(ctx){
         let info            = apis.AnswerQuest.Init(ctx);
         await this.ctx.service.travelService.tourService.answerquest(info);
-        let user_info       = ctx.session.ui;
-        await this.service.travelService.travelService.fillIndexInfo(info,user_info);
+       // let user_info       = ctx.session.ui;
+      //  await this.service.travelService.travelService.fillIndexInfo(info,user_info);
         info.submit();
     }
     //点开显示随机事件

@@ -84,8 +84,8 @@ class SpecialityService extends Service {
                 if (needFreshPrice) {
 
                     let curCityId = curCity ? curCity.cid : 1;//等待取真实的当前所在城市Id...., 如果在特产出产地卖出，则售价为买入价的九折（折扣读表）
-                    this.logger.info(curCity);
-                    this.logger.info(s);
+                 //   this.logger.info(curCity);
+                 //   this.logger.info(s);
                     let price = 0;
                     if (s.cid == curCityId) {
                         price = parseInt(s.price * sheets.Parameter.Get(sheets.Parameter.LOCALSALE).value / 100);
