@@ -810,7 +810,7 @@ class TourService extends Service {
             uid                                                          : uid
         });
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime());
-        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived);
+        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
 
         info.current                                                     = MakeEvent.fakeCalcCurrIndex(eventsReceived.length,eventsReceived.length);
