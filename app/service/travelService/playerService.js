@@ -496,9 +496,9 @@ class PlayerService extends Service {
             }else if(content.indexOf("重庆省") > -1) {
                 content = content.replace("重庆省", "");
             }else if(content.indexOf("香港省") > -1) {
-                content = content.replace("香港省", "");
+                content = content.replace("香港省", "").replace("香港市", "香港行政区");
             }else if(content.indexOf("澳门省") > -1) {
-                content = content.replace("澳门省", "");
+                content = content.replace("澳门省", "").replace("澳门市", "澳门行政区");
             }
             if(senderid != info.uid) {
                 await this.ctx.model.TravelModel.UserMsg.create({
