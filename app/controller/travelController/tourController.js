@@ -3,6 +3,7 @@ const apis              = require("../../../apis/travel");
 const travelConfig      = require("../../../sheets/travel");
 const ScenicPos         = require('../../../sheets/scenicpos');
 const QuestRepoInstance = require("../../service/questService/questRepo");
+const _                 = require("lodash");
 
 let tour = new Map();
 let userLines = new Map();
@@ -220,32 +221,43 @@ class TourController extends Controller {
         let cityEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid              : uid
         });
-        let eventsNoReceived = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,10);
+        let eventsNoReceived = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,11);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
         let KEY_EVENTSHOW    = `eventShow:${uid}`;
         let eventShow        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
         let eventShowLength  = eventShow.length;
 
-        if ( eventsNoReceived.length > 0){
-            let needAddLength = eventsNoReceived.length - eventShowLength;
-            if (needAddLength > 0){
-                for( let i = 0; i < needAddLength ; i++ ){
-                    let e = eventsNoReceived[i];
-                    await this.app.redis.zadd( KEY_EVENTSHOW , e.triggerDate, e.dbId.toString() );
-                }
-            }
-        }
+        let diff             = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
+
+        diff.forEach(async (e) => {
+            let r = eventsNoReceived.find( row => row.dbId.toString() == e );
+            await this.app.redis.zadd( KEY_EVENTSHOW , r.triggerDate, r.dbId.toString() );
+        });
 
         let item_first       = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
         if ( item_first && item_first.length == 1 ){
             await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
         }
-        // let elength         = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1).length
-        ctx.body = JSON.stringify( { item_first });
+
+        let event            = eventsNoReceived.find( e=> e.dbId.toString() == item_first[0] );
+        if ( event ){
+            await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
+                $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
+            });  await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
+                $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
+            });
+        }
+
+        ctx.body = JSON.stringify( {
+            'current' : eventShowLength,
+            'total'  : 10,
+            'events' : event
+
+        });
         return ctx.body;
 
-        // database get all events
+// database get all events
 // get all events not received
 // into  the container for the counter
 // if click 1 event show than counter -1 pop one event than add to received

@@ -799,7 +799,6 @@ class TourService extends Service {
         //所以查cid的cityevent表
         let uid                                                          = info.uid;
 
-
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         if(!currentCity) {
             info.code = apis.Code.NO_CURRENTCITY;
@@ -809,15 +808,32 @@ class TourService extends Service {
         let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid                                                          : uid
         });
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime());
-        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,11);
         let eventsReceived    = cityEvents.events.filter( x => x.received == true );
+        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
-        info.current                                                     = MakeEvent.fakeCalcCurrIndex(eventsReceived.length,eventsReceived.length);
+        let KEY_EVENTSHOW    = `eventShow:${uid}`;
+        let eventShow        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        let eventShowLength  = eventShow.length;
+        let diff             = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
+
+        diff.forEach(async (e) => {
+            let r = eventsNoReceived.find( row => row.dbId.toString() == e );
+            await this.app.redis.zadd( KEY_EVENTSHOW , r.triggerDate, r.dbId.toString() );
+        });
+
+        let item_first       = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
+        if ( item_first && item_first.length == 1 ){
+            await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
+        }
+
+        info.current                                                     = eventShowLength ;
         info.total                                                       = 10;
         let event                                                        = null;
         if (eventsNoReceived.length >= 0)
-            event                                                        = eventsNoReceived[0];
+            // event                                                        = eventsNoReceived[0];
+            event                                                        = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
+
         if ( !event ) {
             // info.code                                                    = apis.Code.NOT_FOUND;
             // info.submit();
@@ -1411,6 +1427,11 @@ class TourService extends Service {
                 }
             }, { upsert: true });
         }
+
+
+        //清理 redis key
+        let KEY_EVENTSHOW    = `eventShow:${uid}`;
+        await this.app.redis.del(KEY_EVENTSHOW);
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
