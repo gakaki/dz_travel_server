@@ -11,6 +11,7 @@ module.exports = app => {
     router.get('/user/login', controller.publicController.userController.login);
     router.get('/user/changeitem', controller.publicController.userController.changeitem);
     router.get('/user/getiteminfo', controller.publicController.userController.getiteminfo);
+    router.get('/user/online', controller.publicController.userController.online);
 
     router.get('/weChat/auth', controller.weChatController.weChatController.auth);
     router.get('/weChat/minapppay', controller.weChatController.weChatController.minapppay);
@@ -21,6 +22,9 @@ module.exports = app => {
 
 
     router.get('/weChat/sendmockid', controller.weChatController.weChatController.getmockid);
+
+
+    router.get('/user/getiteminfo', controller.publicController.userController.getiteminfo);
 
 
 
@@ -124,8 +128,8 @@ module.exports = app => {
     router.get('/speciality/buyspe', controller.travelController.specialityController.buy);
     router.get('/speciality/sellspe', controller.travelController.specialityController.sell);
 
-
-
+    //查询当前在线人数 10分钟
+    router.get('/analysis/onlineuser', controller.travelController.specialityController.sell);
 
     router.get('/test/teststartgame', controller.testController.testController.testfly);
     router.get('/test/testtourindexinfo', controller.testController.testController.testtourindex);

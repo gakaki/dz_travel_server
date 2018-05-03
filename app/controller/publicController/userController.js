@@ -71,9 +71,6 @@ class UserController extends Controller {
     }
 
 
-    async getformid(ctx) {
-
-    }
 
     async changeitem(ctx) {
         const {uid, itemId, count, appName} = ctx.query;
@@ -97,6 +94,21 @@ class UserController extends Controller {
         await this.service.publicService.itemService.itemChange(ui.uid, cost, "artificial");
     }
 
+    async online(ctx){
+        let min             = 10 * 60 * 1000; //10分钟之前的算是不活跃用户 需要发送消息通知
+        let ago             = Date.now() - min;
+        let users_offline   = await ctx.app.redis.zrangebyscore('online', "-inf", ago );        //这个是当前不活跃的用户 10分钟之前的所有用户标记为离线用户
+        let users_online    = await ctx.app.redis.zrangebyscore('online', ago , Date.now() ); //这个是当前活跃用户
+        let users_all       = await ctx.app.redis.zrangebyscore('online', "-inf", "+inf" );
+        let users_all2      = await ctx.app.redis.zrange('online', "0", "-1" );
+        ctx.body        = {
+            'online'         : users_online,
+            'offline'        : users_offline,
+            'all'            : users_all,
+            'all2'           : users_all2
+        }
+        return ctx.body;
+    }
 
 }
 

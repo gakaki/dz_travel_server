@@ -6,6 +6,7 @@ module.exports = appInfo => {
     // use for cookie sign key, should change to your own and keep security
     config.keys = appInfo.name + '_1518087334696_5975';
 
+
     // add your config here
     config.session = {
         key: 'EGG_SESS',
@@ -24,6 +25,6 @@ module.exports = appInfo => {
     config.file = fs.readFileSync(__dirname + "/apiclient_cert.p12");
 
 
-    config.middleware = ["routerControl"];
+    config.middleware = ["routerGlobalUserOnlineRecord","routerControl"];
     return config;
 };
