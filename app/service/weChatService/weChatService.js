@@ -397,6 +397,77 @@ class WeChatService extends Service {
         return true;
     }
 
+
+    async freshAccess_token() {
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.config.appid}&secret=${this.config.appsecret}`, {
+                method: "GET",
+                dataType: "json",
+            });
+            let access_token = result.data.access_token;
+            this.logger.info(access_token);
+            await this.app.redis.set("wechatAccessToken", access_token);
+            return access_token;
+        }catch (e) {
+            this.logger.error(e);
+        }
+    }
+
+    async sendTemplateMessage(uid) {
+        let access_token = await this.app.redis.get("wechatAccessToken");
+        if(!access_token) {
+            access_token = this.freshAccess_token();
+        }
+        let formId = await this.getFormId(uid);
+        if(formId) {
+            try {
+                let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=${access_token}`, {
+                    method: "POST",
+                    dataType: "json",
+                    data: {
+                        touser: uid,
+                        template_id: "qr69hjrAqvs5IMiZj7f6-tJ1Ochav0mMlRLIDNRciLU",
+                        form_id: formId,
+                        data: {
+                            keyword1: {
+                                value: "339208499",
+                                color: "#173177",
+                            },
+                            keyword2: {
+                                value: "2015年01月05日 12:30",
+                                color: "#173177",
+                            },
+                        },
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'charset': 'UTF-8',
+                    },
+
+                });
+
+                this.logger.info(result);
+
+                if(result.data.errcode != constant.Code.OK) {
+                    this.sendTemplateMessage(uid);
+                }
+            }catch (e) {
+                this.logger.info(e);
+            }
+        }
+
+
+    }
+    async getFormId(uid) {
+        let formIds = await this.ctx.model.WeChatModel.TemplateMessage.find({ uid: uid, canUseNumber: { $gt: 0 } });
+        if(formIds.length) {
+            let formId = formIds.shift();
+            await this.ctx.model.WeChatModel.TemplateMessage.update({ uid: uid, canUseNumber: { $gt: 0 } }, { $inc: { canUseNumber: -1 } });
+            return formId;
+        }
+        return null;
+    }
+
 }
 
 

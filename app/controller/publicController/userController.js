@@ -70,6 +70,11 @@ class UserController extends Controller {
 
     }
 
+
+    async getformid(ctx) {
+
+    }
+
     async changeitem(ctx) {
         const {uid, itemId, count, appName} = ctx.query;
         let result = {};

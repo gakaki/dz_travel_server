@@ -2,7 +2,7 @@ const Controller = require('egg').Controller;
 const constant = require("../../utils/constant");
 const utils = require("../../utils/utils");
 const travelConfig = require("../../../sheets/travel");
-
+const apis = require("../../../apis/travel");
 
 class WeChatController extends Controller {
     async auth(ctx) {
@@ -142,6 +142,17 @@ class WeChatController extends Controller {
         result.code = constant.Code.OK;
         ctx.body = result;
     }
+
+    async getmockid(ctx) {
+        let info = apis.SendMockId.Init(ctx);
+        let formId = info.formId;
+        let uid = info.uid;
+        this.logger.info("获得的formId", formId);
+        await this.ctx.model.WeChatModel.TemplateMessage.create({ uid: uid, formId: formId, createDate: new Date() });
+        info.submit();
+
+    }
+
 
 }
 

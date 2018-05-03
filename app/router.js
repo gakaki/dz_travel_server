@@ -20,6 +20,9 @@ module.exports = app => {
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
 
 
+    router.get('/weChat/sendmockid', controller.weChatController.weChatController.getmockid);
+
+
 
     router.get('/player/playerinfo', controller.travelController.playerController.showplayerinfo);
     router.get('/player/lookticket', controller.travelController.playerController.showflyticket);
