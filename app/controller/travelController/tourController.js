@@ -232,7 +232,6 @@ class TourController extends Controller {
         let KEY_EVENTSHOW    = `eventShow:${uid}`;
         let eventShow        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
         let eventShowLength  = eventShow.length;
-
         let diff             = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
 
         diff.forEach(async (e) => {
@@ -241,21 +240,26 @@ class TourController extends Controller {
         });
 
         let item_first       = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
+        eventShowLength                                                  = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
         if ( item_first && item_first.length == 1 ){
             await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
         }
 
-        let event            = eventsNoReceived.find( e=> e.dbId.toString() == item_first[0] );
-        if ( event ){
-            await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
-                $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
-            });  await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
-                $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
-            });
+        let event                                                        = null;
+        if (eventsNoReceived.length >= 0){
+            event                                                        = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
         }
 
+        if ( event ){
+            await this.ctx.model.TravelModel.CityEvents.update( { uid    : uid , 'events.dbId': event.dbId } , {
+                $set: {
+                    'events.$.received': true, 'events.$.receivedDate': new Date().getTime()
+                }
+            });
+        };
+
         ctx.body = JSON.stringify( {
-            'current' : eventShowLength + 1,
+            'current' : eventShowLength,
             'total'  : 10,
             'events' : event
 
@@ -268,33 +272,6 @@ class TourController extends Controller {
 // if click 1 event show than counter -1 pop one event than add to received
 // else add data to container
 // need a list view to show all the event list
-
-        //
-        //
-        // let fakeCalcCurrIndex = ( eReceivedCount ) => {
-        //     let current    = 0;
-        //     if ( eReceivedCount <= 0 ){
-        //         current    = 1;
-        //     }else{
-        //         current    = eReceivedCount >= 10 ? 10 : eReceivedCount ;
-        //     }
-        //     let total      = 10;
-        //     current        = total - current;
-        //     if (current <= 1) current = 1;
-        //     console.log(`[debug] current index is ${current}/10`);
-        //     return  current;
-        // }
-        //
-        // fakeCalcCurrIndex(-1);   // 2/10
-        // fakeCalcCurrIndex(0);   // 2/10;
-        //
-        // fakeCalcCurrIndex(1);   // 2/10
-        // fakeCalcCurrIndex(2);   // 2/10
-        // fakeCalcCurrIndex(3);   // 2/10
-        // fakeCalcCurrIndex(10);  //10
-        // fakeCalcCurrIndex(11);  //10
-
-
         info.submit();
     }
 

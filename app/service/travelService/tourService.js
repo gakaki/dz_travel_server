@@ -809,7 +809,6 @@ class TourService extends Service {
             uid                                                          : uid
         });
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,11);
-        let eventsReceived    = cityEvents.events.filter( x => x.received == true );
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
         let KEY_EVENTSHOW    = `eventShow:${uid}`;
@@ -823,25 +822,21 @@ class TourService extends Service {
         });
 
         let item_first       = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
+        eventShowLength                                                  = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
         if ( item_first && item_first.length == 1 ){
             await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
+
         }
 
-        eventShowLength                                                  = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
-        info.current                                                     = eventShowLength ? eventShowLength : 0;
+        info.current                                                     = eventShowLength;
         info.total                                                       = 10;
         let event                                                        = null;
-        if (eventsNoReceived.length >= 0)
-            // event                                                        = eventsNoReceived[0];
+        if (eventsNoReceived.length >= 0){
             event                                                        = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
-
+        }
         if ( !event ) {
-            // info.code                                                    = apis.Code.NOT_FOUND;
-            // info.submit();
-            // return;
             info.current = 0;
             info.quest   = {};
-
             info.hasNext = false;
             info.total   = 10;
             info.submit();
