@@ -221,6 +221,11 @@ class TourController extends Controller {
         let cityEvents       = await this.ctx.model.TravelModel.CityEvents.findOne({
             uid              : uid
         });
+        if (!cityEvents){
+            info.code        = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
         let eventsNoReceived = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,11);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
@@ -250,7 +255,7 @@ class TourController extends Controller {
         }
 
         ctx.body = JSON.stringify( {
-            'current' : eventShowLength,
+            'current' : eventShowLength + 1,
             'total'  : 10,
             'events' : event
 

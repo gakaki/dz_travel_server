@@ -827,7 +827,8 @@ class TourService extends Service {
             await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
         }
 
-        info.current                                                     = eventShowLength ;
+        eventShowLength                                                  = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
+        info.current                                                     = eventShowLength ? eventShowLength : 0;
         info.total                                                       = 10;
         let event                                                        = null;
         if (eventsNoReceived.length >= 0)
