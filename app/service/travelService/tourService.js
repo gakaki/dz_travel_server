@@ -789,6 +789,64 @@ class TourService extends Service {
         info.submit();
     }
 
+    // play loop 和 eventshow 共享的 事件处理的代码
+    async _knowEvent( uid ){
+        this.logger.info("--==knowEvent==--");
+
+        let currentCity        = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        if(!currentCity) {
+            this.logger.info("城市没找到");
+            throw new Error("NOT FOUND CURRENTCITY 城市没找到");
+            return;
+        }
+        let cid                = currentCity.cid;
+        let cityEvents         = await this.ctx.model.TravelModel.CityEvents.findOne({
+            uid                : uid
+        });
+        let timeNow            = new Date().getTime();
+        this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,11);
+        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
+
+        let KEY_EVENTSHOW      = `eventShow:${uid}`;
+        let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        let diff             = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
+
+        diff.forEach(async (e) => {
+            let r = eventsNoReceived.find( row => row.dbId.toString() == e );
+            await this.app.redis.zadd( KEY_EVENTSHOW , r.triggerDate, r.dbId.toString() );
+        });
+
+        let item_first         = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
+        let eventShowLength    = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
+        if ( item_first && item_first.length == 1 ){
+            await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
+
+        }
+
+        let event              = null;
+        if (eventsNoReceived.length >= 0){
+            event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
+        }
+        let hasNext            = false;
+        if (eventsNoReceived && eventsNoReceived.length > 1){
+            hasNext            = true;
+        }
+        let newEvent           = false;
+        if ( event ){
+            newEvent           = true;
+        }
+        return {
+            'current'          : eventShowLength,
+            'total'            : 10,
+            'event'            : event,
+            'newEvent'         : newEvent,
+            'latestEvent'      : event,
+            'hasNext'          : hasNext,
+            'currentCity'      : currentCity,
+            'timeNow'          : timeNow
+        }
+    }
     // 游玩 事件查看 http://127.0.0.1:7001/tour/eventshow?uid=1000001&cid=1
     async eventshow(info){
 
@@ -797,47 +855,19 @@ class TourService extends Service {
         //设置领取状态
         //spotTravelEvent 作为日志received 作为 存档表吧
         //所以查cid的cityevent表
+        let cid                                                          = info.cid;
         let uid                                                          = info.uid;
+        let knowEvent                                                    = await this._knowEvent(uid);
+        info.current                                                     = knowEvent.current;
+        info.total                                                       = knowEvent.total;
+        info.hasNext                                                     = knowEvent.hasNext;
+        info.event                                                       = knowEvent.event;
+        let  event                                                       = knowEvent.event;
+        let currentCity                                                  = knowEvent.currentCity;
 
-        let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
-        if(!currentCity) {
-            info.code = apis.Code.NO_CURRENTCITY;
-            return;
-        }
-        let cid                                                          = currentCity.cid;
-        let cityEvents                                                   = await this.ctx.model.TravelModel.CityEvents.findOne({
-            uid                                                          : uid
-        });
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= new Date().getTime()).slice(0,11);
-        this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
-
-        let KEY_EVENTSHOW    = `eventShow:${uid}`;
-        let eventShow        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
-        let eventShowLength  = eventShow.length;
-        let diff             = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
-
-        diff.forEach(async (e) => {
-            let r = eventsNoReceived.find( row => row.dbId.toString() == e );
-            await this.app.redis.zadd( KEY_EVENTSHOW , r.triggerDate, r.dbId.toString() );
-        });
-
-        let item_first       = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
-        eventShowLength                                                  = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
-        if ( item_first && item_first.length == 1 ){
-            await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
-
-        }
-
-        info.current                                                     = eventShowLength;
-        info.total                                                       = 10;
-        let event                                                        = null;
-        if (eventsNoReceived.length >= 0){
-            event                                                        = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
-        }
         if ( !event ) {
             info.current = 0;
             info.quest   = {};
-            info.hasNext = false;
             info.total   = 10;
             info.submit();
             return;
@@ -848,7 +878,6 @@ class TourService extends Service {
         questCfg.dealKnowledgeRow(cid);
 
         info.id                                                          = event['dbId'];
-
         info.quest                                                       = {
             dbId                                                         : event['dbId'],
             eid                                                          : eid, //前端没有此配置表
@@ -861,9 +890,7 @@ class TourService extends Service {
             answers                                                      : questCfg.answers(),
         };
 
-        if (eventsNoReceived.length > 1){
-            info.hasNext                                                 = true;
-        }
+
 
 
         let city                                                         = travelConfig.City.Get(cid);
@@ -922,29 +949,7 @@ class TourService extends Service {
         return spotRewardComment.reward;
     }
 
-    //观光??
-    async tour(info, ui) {
-        // info typeof apis.IndexInfo
-     //   info.isFirst = ui.isFirst;
-   //     info.gold = ui.items[travelConfig.Item.GOLD];
-   //     let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: ui.uid});
-   //     info.season = await this.ctx.service.publicService.thirdService.getSeason();
-   //     let outw = 1;
-    //    if (visit && visit.cid) {
-    //        let weather = await this.ctx.service.publicService.thirdService.getWeather(travelConfig.City.Get(visit.cid));
-     //       for (let we of travelConfig.weathers) {
-     //           if (we.weather == weather) {
-     //               outw = we.id;
-     //               break;
-     //           }
-      //      }
-      //      info.location = visit.cid;
-      //  }
-      //  info.weather = outw;
-      //  info.playerCnt = await this.app.redis.get("travel_userid");
-     //   info.friends = ui.friendList;
-     //   info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
-    }
+
 
     async rentprop(info) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
@@ -1259,10 +1264,10 @@ class TourService extends Service {
     //轮询访问地址
     async playloop(info){
 
-        let uid                                                       = info.uid;
+        let uid                                                        = info.uid;
+
         let currentCity                                               = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
         if (!currentCity ) {
-            this.logger.info("城市没找到");
             info.code                                                 = apis.Code.NOT_FOUND;
             info.submit();
             return;
@@ -1272,16 +1277,14 @@ class TourService extends Service {
             currentEvents                                             = {events :[]}
         }
 
-        let changeRouteing = currentCity.changeRouteing;
-        this.logger.info("预存的事件数量", currentEvents.events.length);
-        let cid                                                       = currentCity.cid;
-        let timeNow                                                   = new Date().getTime();
-        let events                                                    = currentEvents['events'];
-        events                                                        = events.filter( r => r.triggerDate <= timeNow && r.received == false  );
-        this.logger.info("事件数量 ",events.length);
-        info.newEvent                                                 =  events && events.length >= 1 ? true : false;
-        info.latestEvent                                               = events && events.length >= 1 ? events[0] : null;
+        let changeRouteing                                            = currentCity.changeRouteing;
 
+        let cid                                                       = currentCity.cid;
+        let knowEvent                                                 = await this._knowEvent(uid);
+        info.newEvent                                                 = knowEvent.newEvent;
+        info.latestEvent                                              = knowEvent.latestEvent;
+        let timeNow                                                   = knowEvent.timeNow;
+        
         let spots                                                     = currentCity['roadMap'];
         let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
         if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
@@ -1302,15 +1305,15 @@ class TourService extends Service {
         this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         // info.spotsPlaned         = currentCity['friend'] != "0" && currentCity['roadMap'].length > 0 ? true : false;
         if (!currentCity.friend){
-            info.doubleState           = false;
+            info.doubleState                                          = false;
         }else{
-            info.doubleState           = true;
-            let fcurrentCity  = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend  });
+            info.doubleState                                          = true;
+            let fcurrentCity                                          = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend  });
             if(fcurrentCity.changeRouteing) {
-                changeRouteing = true;
+                changeRouteing                                        = true;
             }
         }
-        info.changeRouteing = changeRouteing;
+        info.changeRouteing                                           = changeRouteing;
         // info.newEvent               = true;
     }
 
