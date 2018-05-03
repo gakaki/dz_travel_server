@@ -129,6 +129,7 @@ module.exports = app => {
     router.get('/test/testsetrouter', controller.testController.testController.testsetroute);
     router.get('/test/testplayloop', controller.testController.testController.testplayloop);
     router.get('/test/testfreshspots', controller.testController.testController.testfreshspots);
+    router.get('/test/dev', controller.travelController.tourController.eventshowtest);
 
   
     

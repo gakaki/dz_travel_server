@@ -17,45 +17,58 @@ describe('test tour services', () => {
     //     return app.ready();
     // });
 
-    it('test userSpots',  async (done) => {
-        const ctx       = app.mockContext();
-        let info        = apis.TourIndexInfo.Init(ctx);
-        info.cid        = 1;
-        ctx.session     = {  'ui': { 'uid':'12321312' , 'pid': '123123123' } };
-        let user_info   = ctx.session.ui;
-        await ctx.service.travelService.tourService.userSpots(info,user_info);
+    it('test userSpots', async (done) => {
+        const ctx = app.mockContext();
+        let info = apis.TourIndexInfo.Init(ctx);
+        info.cid = 1;
+        ctx.session = {'ui': {'uid': '12321312', 'pid': '123123123'}};
+        let user_info = ctx.session.ui;
+        await ctx.service.travelService.tourService.userSpots(info, user_info);
 
-        console.log( info ,user_info ,1 );
+        console.log(info, user_info, 1);
 
     });
 
-    it('test 弹出框中的事件page数字 05/10',  async (done) => {
-        const ctx       = app.mockContext();
+    it('test 弹出框中的事件page数字 05/10', async (done) => {
+        const ctx = app.mockContext();
 
-        let res         = calcPageCount()
+        let res = calcPageCount()
         console.log(res);
 
-        assert( res == '0');
+        assert(res == '0');
 
 
     });
 
 
-    it('test 测试单人游玩中的playloop逻辑',  async (done) => {
+    it('test 测试单人游玩中的playloop逻辑', async (done) => {
+        const ctx = app.mockContext();
+        let info = apis.PlayLoop.Init(ctx);
+        info.uid = "ov5W35XwjECAWGq0UK3omMfu9nak";
+        let res = await ctx.service.travelService.tourService.playloop(info);
+        console.log(res);
+        assert(res == '0');
+    });
+
+
+    it('test 测试单人游玩中的playloop逻辑', async (done) => {
+        const ctx = app.mockContext();
+        let info = apis.PlayLoop.Init(ctx);
+        info.uid = "ov5W35XwjECAWGq0UK3omMfu9nak";
+        let res = await ctx.service.travelService.tourService.playloop(info);
+        console.log(res);
+        assert(res == '0');
+    });
+
+    it('test 测试游玩中的eventshow 事件数量逻辑 eventshow',  async (done) => {
         const ctx       = app.mockContext();
         let info        = apis.PlayLoop.Init(ctx);
         info.uid        = "ov5W35XwjECAWGq0UK3omMfu9nak";
-        let res         = await ctx.service.travelService.tourService.playloop(info);
+        let res         = await ctx.service.travelService.tourService.eventshow(info);
         console.log(res);
         assert( res == '0');
-    });
 
 
-    it('test 测试单人游玩中的playloop逻辑',  async (done) => {
-        const ctx       = app.mockContext();
-        let info        = apis.PlayLoop.Init(ctx);
-        info.uid        = "ov5W35XwjECAWGq0UK3omMfu9nak";
-        let res         = await ctx.service.travelService.tourService.playloop(info);
-        console.log(res);
-        assert( res == '0');
+
     });
+});
