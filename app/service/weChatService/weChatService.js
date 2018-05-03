@@ -113,8 +113,9 @@ class WeChatService extends Service {
                             nonceStr: nonce.NonceAlDig(10),
                             package: "prepay_id=" + prepay_id,
                             signType: "MD5",
-                            timeStamp: parseInt(new Date().getTime() / 1000).toString()
+                            timeStamp: parseInt(new Date().getTime() / 1000).toString(),
                         };
+                    that.ctx.model.WeChatModel.TemplateMessage.create({ uid: ui.uid, formId: prepay_id, canUserNumber: 3, createDate: new Date() });
                     let field = utils.ToMap(returnParam);
                     that.logger.info("准备返回给客户端的数据 ：" + JSON.stringify(returnParam));
                     returnParam.paySign = that.doSignaturePay(field, that.config.pubkey);
@@ -427,6 +428,7 @@ class WeChatService extends Service {
                     data: {
                         touser: uid,
                         template_id: "qr69hjrAqvs5IMiZj7f6-tJ1Ochav0mMlRLIDNRciLU",
+                        page: "index",
                         form_id: formId,
                         data: {
                             keyword1: {
