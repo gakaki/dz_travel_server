@@ -1057,6 +1057,10 @@ class TourService extends Service {
                     await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
 
 
+                    //加入redis 用来后期排序到达事件 发送微信小程序通知
+                    let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
+                    await this.adduserarrivedtime( finalEndTime , uid );
+
                 }
             }
         }
@@ -1326,12 +1330,7 @@ class TourService extends Service {
         // info.newEvent               = true;
     }
 
-    // //通知用户已经到达终点 微信小程序通知
-    // async notifyuserarrived( uid , endTime ){
-    //
-    //    let weather              = await this.ctx.service.wechatService.wechatService.sendTemplateMessage( uid , endTime );
-    //
-    // }
+
     //第一次点击开始游玩按钮
     async setrouter(info, ui){
         let uid                  = info.uid;

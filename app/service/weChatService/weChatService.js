@@ -413,7 +413,7 @@ class WeChatService extends Service {
         }
     }
 
-    async sendTemplateMessage(uid , endTime = 0) {
+    async sendTemplateMessage(uid) {
         let access_token = await this.app.redis.get("wechatAccessToken");
         if(!access_token) {
             access_token = this.freshAccess_token();
