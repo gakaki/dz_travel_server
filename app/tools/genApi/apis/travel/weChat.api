@@ -15,3 +15,8 @@ api Minapppay {
     require payCount:number
     output payload:Payload
 }
+
+api SendMockId {
+    //formId
+    require formId:string
+}
