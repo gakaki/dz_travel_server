@@ -452,10 +452,9 @@ class WeChatService extends Service {
 
                 });
 
-                this.logger.info(result);
-
                 if(result.data.errcode != constant.Code.OK) {
-                    this.sendTemplateMessage(uid);
+                    this.logger.error("当前formid " + formId, result);
+                    await this.sendTemplateMessage(uid, template);
                 }
             }catch (e) {
                 this.logger.info(e);
@@ -465,11 +464,11 @@ class WeChatService extends Service {
 
     }
     async getFormId(uid) {
-        let formIds = await this.ctx.model.WeChatModel.TemplateMessage.find({ uid: uid, canUseNumber: { $gt: 0 } });
-        if(formIds.length) {
-            let formId = formIds.shift();
-            await this.ctx.model.WeChatModel.TemplateMessage.update({ uid: uid, canUseNumber: { $gt: 0 } }, { $inc: { canUseNumber: -1 } });
-            return formId;
+        let templateMessages = await this.ctx.model.WeChatModel.TemplateMessage.find({ uid: uid, canUseNumber: { $gt: 0 } });
+        if(templateMessages.length) {
+            let templateMessage = templateMessages.shift();
+            await this.ctx.model.WeChatModel.TemplateMessage.update({ uid: uid, formId: templateMessage.formId, canUseNumber: { $gt: 0 } }, { $inc: { canUseNumber: -1 } });
+            return templateMessage.formId;
         }
         return null;
     }

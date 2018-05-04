@@ -68,13 +68,13 @@ class UserService extends Service {
         let ui = null;
         if (uid) {
             let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: uid});
-            this.logger.info("第三方登陆 ：" + JSON.stringify(sdkui));
             let third = false;
             if (!sdkui) {
-                this.logger.error("尝试无效的第三方登陆");
+                this.logger.error(uid + " 尝试无效的第三方登陆");
                 // result.info = null;
                 // return result;
             }else{
+                this.logger.info("第三方登陆 ：" + JSON.stringify(sdkui));
                 third = true;
             }
 

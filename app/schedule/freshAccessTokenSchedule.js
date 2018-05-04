@@ -6,6 +6,7 @@ class FreshAccessTokenSchedule extends Subscription {
         return {
             type: 'worker', // 一个 worker 执行
             interval: '7000s',
+            immediate: true,
         };
     }
 

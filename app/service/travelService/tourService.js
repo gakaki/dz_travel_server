@@ -804,6 +804,9 @@ class TourService extends Service {
             uid                : uid
         });
         let timeNow            = new Date().getTime();
+        if(!cityEvents) {
+            cityEvents = { events: [] };
+        }
         this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
@@ -1072,6 +1075,7 @@ class TourService extends Service {
         }catch(e){
             throw new Error(e);
         }
+      //  this.logger.info(c.KEY_USER_ARRIVE_TIME,finalEndTime);
     }
 
     async rentedprop(info) {

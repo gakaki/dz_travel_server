@@ -5,9 +5,9 @@ module.exports = appInfo => {
     // add your config here
     config.mongoose = {
         //预览
-       // url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
+        url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
         //现网
-        url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp1e2587818be0d41156-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
+        //url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp1e2587818be0d41156-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
     };
 
     config.env = "prod";
@@ -57,8 +57,8 @@ module.exports = appInfo => {
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
-    //config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
-    config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
+    config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
+    //config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
 
     config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
     config.weatherusername = "HE1804101712021052";
