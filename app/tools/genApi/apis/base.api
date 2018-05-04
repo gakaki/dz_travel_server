@@ -428,6 +428,17 @@ class Base{
                     this.SID = req.sid;
                     this._timestampD = Date.now()/1000  - req.timestamp;
                     wx.setStorageSync('sid', this.SID);
+
+                    let referrer = new Base();
+                    referrer.action = 'weChat.minappreferrer';
+                    referrer.reqFields = [ 'referrerInfo' ];
+                    referrer.referrerInfo = app.globalData.referrerInfo
+                    console.log(referrer)
+                    referrer.fetch().then(() => {
+                        console.log('send referrer suc')
+                    }).catch(() => {
+                        console.log('send referrer fail')
+                    })
                     suc(req);
                 }).catch(()=>{
                     wx.clearStorageSync('sid');
