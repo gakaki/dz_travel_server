@@ -49,11 +49,35 @@ class ThirdService extends Service {
 
 
     getHoliday(date = new Date()) {
-       //   date = new Date("2018-5-1");
+         //TODO 测试日期
+          date = new Date("2018-6-1");
          //this.logger.info(date);
          let holidays = holiday(date);
          this.logger.info('holiday', holidays);
-        return holidays
+         if(holidays.length > 0) {
+             let holiday = holidays[0];
+             switch (holiday) {
+                 case '元旦':
+                     return holiday;
+                 case "除夕":
+                     return holiday;
+                 case "春节":
+                     return holiday;
+                 case "清明":
+                     return holiday;
+                 case "劳动":
+                     return "劳动节";
+                 case "端午":
+                     return "端午节";
+                 case "中秋":
+                     return "中秋节";
+                 case '国庆':
+                     return "国庆节";
+                 default:
+                     return null;
+             }
+         }
+        return null;
     }
 
     async getRandomTicket(uid, localcid) {

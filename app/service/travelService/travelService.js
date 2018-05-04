@@ -32,11 +32,11 @@ class TravelService extends Service {
         let dcost = travelConfig.Parameter.Get(travelConfig.Parameter.DOUBLETICKETPRICE).value;
         let rcost = travelConfig.Parameter.Get(travelConfig.Parameter.RANDOMTICKETPRICE).value;
         let multiple = travelConfig.Parameter.Get(travelConfig.Parameter.BUSYSEASON).value;
-        if (holiday.length > 0) {
+        if (holiday) {
             cost = cost * multiple;
             dcost = dcost * multiple;
             rcost = rcost * multiple;
-            info.holiday = holiday[0] + "节";
+            info.holiday = holiday;
         }
         let cid = null;
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({uid: info.uid});
