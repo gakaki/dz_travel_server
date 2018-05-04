@@ -3,6 +3,17 @@ const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
 const timeUtil              = require("../../utils/time");
 const mongoose              = require('mongoose');
+
+// 基于优先级的概率选择抽奖
+class ProrityLottery {
+    constructor(){
+        
+    }
+    loterry(){
+        let randomEl = _.shuffle(quests)[0];
+        return randomEl;
+    }
+}
 class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
     constructor( obj ){
@@ -115,21 +126,28 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     }
 
     randomQuest(option){
-        let quests = QuestRepo.filterQuests(
+        let quests = QuestRepo.filterTourQuests(
             {
-                 cid :       option.cid,
-                // weather:    this.weather,           //天气
-                // today:      this.today,             //特定日期
-                // itemSpecial:this.itemSpecial,       //特定道具
+                cid: this.cid,
+                weather: this.weather,
+                today: this.toaday,
+                itemSpecial: this.itemSpecial,
+                spotId: this.spotId
             }
         );
-        //根据权重进行 随机 这里暂时偷懒为了快点出来先
-        let randomEl = _.shuffle(quests)[0];
+        
+        //根据权重a进a行 随机 这里a暂时偷懒为了快点出来先
+        let rl       = new ProrityLottery();
+        rl.cid       = this.cid;
+        
+        let randomEl = rl.loterry();
+
         return randomEl;
     }
+
     randomQuestForDebug(option){
         let quests      = QuestRepo.quests.filter( e  => (
-            (e.belong == option.cid || !e.belong) &&
+            (e.belong == option.cid || !e.belong) &&a
             (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY) &&
             // (e.type  == e.EventTypeKeys.QA_NO_NEED_RESULT ||  e.trigger_type == e.EventTypeKeys.QA_NEED_RESULT)
             e.type == e.EventTypeKeys.COMMON
@@ -140,16 +158,6 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     }
 
 
-    static fakeCalcCurrIndex (dbReceivedCount , dbNonReceivedCount ) { //倒计时计算
-        if (dbReceivedCount <= 0)   dbReceivedCount = 0;
-        if (dbNonReceivedCount <= 0)   dbNonReceivedCount = 0;
-
-        let total                                                    = 10;
-        let current                                                  = dbReceivedCount >= total ? 0 : total - dbReceivedCount ;
-        if ( dbNonReceivedCount >= 1 && current <= 1 ) current = 1;
-        console.log(`[debug] current  is ${current}/${total} , receivedCount is ${dbReceivedCount} , noReceivedCount is ${dbNonReceivedCount}`);
-        return  current;
-    }
 }
 
 module.exports = MakeEvent;

@@ -29,22 +29,8 @@ class QuestRepo {
         let quest = new Quest(row);
         this.quests.push(quest)
     }
-    update(quest){}
-    remove(quest){}
-    query(specification){}
 
-
-    filterQuests(option){
-         return this.quests.filter( e  => (
-            (e.belong == option.cid || !e.belong) &&
-            (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY)
-        ));
-            // e.cid                == option.cid &&
-            // e.condition3_weather == option.weather &&
-            // e.condition3_date    == option.today &&
-            // e.condition4_        == option.itemSpecial &&
-            //表示为游玩事件
-    }
+    // 过滤需要的数据©
     filterTourQuests(option) {
 
         return this.quests.filter( e  => {
@@ -60,7 +46,8 @@ class QuestRepo {
             let conditionTime = false;
             let today = option.today;
             let timetype = e.condition2_date[0];
-            if(Number(timetype)) {
+
+            if( today && Number(timetype)) {
                 //1 表示阳历 2 表示阴历
                 let start = new Date(today.getFullYear() + "-" + e.condition2_date[1]);
                 let end = today;
@@ -131,8 +118,12 @@ class QuestRepo {
            }
         });
     }
-
 }
 
 module.exports = new QuestRepo();
 
+// let rows   = new QuestRepo().filterTourQuests({
+//     cid : 3 // 上海
+// });
+
+// console.log(rows);

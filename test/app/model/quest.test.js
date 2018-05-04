@@ -14,7 +14,7 @@ const uuid          = require("uuid");
 const MakeEvent     = require('../../../app/service/travelService/makeEvent');
 
 // 测试双人旅行
-describe('test 测试quest类', () => {
+describe('test 测试随机事件的 类', () => {
 
     it('生成 事件 含有知识点的  ',  async () => {
 
@@ -51,7 +51,11 @@ describe('test 测试quest类', () => {
     });
 
     it('测试 CityRepo ScenpoRepo 和 specialRepo的 random 4 函数',  async () => {
-        let c = cityRepo.random4();
+        let option = {
+            cid : cid || 0,
+
+        };
+        let c = questRepo.filterQuests(option);
         assert(c.length == 4);
         c     = scenicspotRepo.random4()
         assert(c.length == 4);
@@ -60,7 +64,15 @@ describe('test 测试quest类', () => {
     });
 
 
-    
+    it('测试 CityRepo 2 开头 type为2的 特定城市的随机事件',  async () => {
+        let cid = 3; //上海
+
+        let rows   = questRepo.filterTourQuests({
+            cid : 3 // 上海
+        });
+
+        console.log(rows);
+    });
 
 
 //

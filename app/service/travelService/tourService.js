@@ -765,7 +765,6 @@ class TourService extends Service {
             let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid);
             //回答正确 给予正确奖励
             info.correct      = true;
-            //info.rewards      = questCfg.getSpotRewardComment();
             info.rewards      = spotRewardComment;
         }
         else if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
@@ -773,7 +772,6 @@ class TourService extends Service {
             let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid);
             //回答正确 给予正确奖励
             info.correct      = true;
-            //info.rewards      = questCfg.getSpotRewardComment();
             info.rewards      = spotRewardComment;
         }
 
