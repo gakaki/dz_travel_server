@@ -26,5 +26,12 @@ module.exports = appInfo => {
 
 
     config.middleware = ["routerGlobalUserOnlineRecord","routerControl"];
+
+
+    config.REDISKEY = {
+        KEY_USER_ARRIVE_TIME : 'arrive_time',
+
+
+    }
     return config;
 };

@@ -394,17 +394,17 @@ class TourService extends Service {
 
 
             if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
-                sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
+               // sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
                 sTask = true;
             }
 
             if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-                tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+              //  tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
                 tTask = true
             }
 
             if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-                photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+               // photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
                 pTask = true;
             }
 
@@ -431,13 +431,13 @@ class TourService extends Service {
                 }
                 this.logger.info("实际的双人旅行任务呀。。。。", sCount);
                 if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-                    parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+                  //  parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
 
                 }else{
                     tTask = false;
                 }
                 if(parterPhoto >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-                    parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+                   // parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
                 }else{
                     pTask = false;
                 }
@@ -805,7 +805,7 @@ class TourService extends Service {
         });
         let timeNow            = new Date().getTime();
         this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,11);
+        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
         let KEY_EVENTSHOW      = `eventShow:${uid}`;
@@ -952,6 +952,7 @@ class TourService extends Service {
 
 
     async rentprop(info) {
+        let uid     = info.uid;
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
         if (curCity.rentItems[info.rentId] > 0) {
             this.logger.info(`道具${info.rentId}已经租赁了，无需重复租赁`);
@@ -1050,9 +1051,16 @@ class TourService extends Service {
                                 outPMap.push(newRoadMap[index]);
                             }
                         }
+                        await this.adduserarrivedtime( rm.getFinalEndTime() , uid);
                     }
                     //修改路线
                     await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
+
+
+                    //加入redis 用来后期排序到达事件 发送微信小程序通知
+                    let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
+                    await this.adduserarrivedtime( finalEndTime , uid );
+
                 }
             }
         }
@@ -1060,6 +1068,11 @@ class TourService extends Service {
         //此处需要通知事件逻辑层，来检测一下是否需要根据新道具来更新事件。。。。
     }
 
+    //加入redis 用来后期排序到达事件 发送微信小程序通知
+    async adduserarrivedtime( finalEndTime , uid ) {
+        let c = this.ctx.app.config.REDISKEY;
+        await this.ctx.app.redis.zadd(c.KEY_USER_ARRIVE_TIME, finalEndTime , uid );
+    }
 
     async rentedprop(info) {
         let curCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.ui.uid});
@@ -1353,6 +1366,8 @@ class TourService extends Service {
 
         let rm                   = new MakeRoadMap(para);
 
+
+
         let newRoadMap           = rm.linesFormat;
         let outPMap = [];
         for(let roadMap of currentCity.roadMap){
@@ -1407,6 +1422,12 @@ class TourService extends Service {
                 modifyEventDate: new Date(),
         }});
 
+
+        //加入redis 用来后期排序到达事件 发送微信小程序通知
+        let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
+        await this.adduserarrivedtime( finalEndTime , uid );
+
+
         if(isDobule) {
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : currentCity.friend,
@@ -1425,11 +1446,14 @@ class TourService extends Service {
                     events : f.eventsFormat
                 }
             }, { upsert: true });
+
+            //加入redis 用来后期排序到达事件 发送微信小程序通知
+            await this.adduserarrivedtime( finalEndTime , currentCity.friend );
         }
 
 
         //清理 redis key
-        let KEY_EVENTSHOW    = `eventShow:${uid}`;
+        let KEY_EVENTSHOW        = `eventShow:${uid}`;
         await this.app.redis.del(KEY_EVENTSHOW);
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
@@ -1453,6 +1477,8 @@ class TourService extends Service {
             return
         }
 
+
+
       //  let spotsAllTracked = Number(info.spotsAllTracked);
 
         let roadMap = currentCity.roadMap;
@@ -1471,6 +1497,7 @@ class TourService extends Service {
                     (a, b) => a.index - b.index
                     );
                  let real = [];
+
                 for(let i = 0; i < roadMap.length; i++) {
                     real.push(roadMap[i].id);
                     roadMap[i].index = -1;
@@ -1567,6 +1594,8 @@ class TourService extends Service {
                         }else{
                             roadMap[i].startime = "";
                         }
+
+
                     }
                 }
         }
@@ -1587,6 +1616,8 @@ class TourService extends Service {
 
         info.spots = roadMap;
         info.goldNum = ui.items[travelConfig.Item.GOLD] + modify;
+
+
         await this.ctx.model.TravelModel.CurrentCity.update({
             'uid'        : info.uid,
         },{ $set: {
@@ -1598,6 +1629,12 @@ class TourService extends Service {
                 reward: reward,
                 isGet: isGet,
             }});
+
+
+        //加入redis 用来后期排序到达事件 发送微信小程序通知
+        let finalEndTime = Math.max(...roadMap.map(o => o.endtime));
+        await this.adduserarrivedtime( finalEndTime , info.uid );
+
         if(isDouble) {
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : currentCity.friend,
@@ -1609,6 +1646,8 @@ class TourService extends Service {
                     reward: reward,
                     isGet: isGet,
                 }});
+
+            await this.adduserarrivedtime( finalEndTime , currentCity.friend );
         }
     }
 

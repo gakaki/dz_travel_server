@@ -486,19 +486,21 @@ class PlayerService extends Service {
             let sender = await this.ctx.model.PublicModel.User.findOne({ uid: senderid });
             //let senderNickName = sender.nickName;
             let context = travelConfig.Message.Get(travelConfig.Message.POSTCARDMESSAGE).content;
-            let content = context.replace("s%", ui.nickName).replace("a%", pcard.province).replace("b%", pcard.city);
-            if(content.indexOf("上海省") > -1) {
-                content = content.replace("上海省", "");
-            }else if(content.indexOf("北京省") > -1) {
-                content = content.replace("北京省", "");
-            }else if(content.indexOf("天津省") > -1) {
-                content = content.replace("天津省", "");
-            }else if(content.indexOf("重庆省") > -1) {
-                content = content.replace("重庆省", "");
-            }else if(content.indexOf("香港省") > -1) {
-                content = content.replace("香港省", "").replace("香港市", "香港行政区");
-            }else if(content.indexOf("澳门省") > -1) {
-                content = content.replace("澳门省", "").replace("澳门市", "澳门行政区");
+            let content = context.replace("s%", ui.nickName);
+            if(pcard.province == "上海") {
+                content = content.replace("a%", "上海");
+            }else if(pcard.province == "北京") {
+                content = content.replace("a%", "北京");
+            }else if(pcard.province == "天津") {
+                content = content.replace("a%", "天津");
+            }else if(pcard.province == "重庆") {
+                content = content.replace("a%", "重庆");
+            }else if(pcard.province == "香港") {
+                content = content.replace("a%", "香港行政区");
+            }else if(pcard.province == "澳门") {
+                content = content.replace("a%", "澳门行政区");
+            }else{
+                content = content.replace("a%", pcard.province + pcard.city);
             }
             if(senderid != info.uid) {
                 await this.ctx.model.TravelModel.UserMsg.create({

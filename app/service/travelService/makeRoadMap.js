@@ -16,6 +16,7 @@ class MakeRoadMap {
         this.isSingle       = obj.isSingle || 1; //默认单人旅行
         this.cid            = obj.cid || 0;
         this.startTime      =obj.startTime || 0;
+        this.finalEndTime   = 0; //终点到达的时间
 
         this.lines = []; //所有线路容器
         this.linesFormat = []; //返回给前端用的
@@ -25,6 +26,7 @@ class MakeRoadMap {
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
         this.formatOutput();      // 输出最后的结果
+
     }
 
 
@@ -75,8 +77,6 @@ class MakeRoadMap {
         let timeHumanPreLineHour = all_time / (6 - 1);       //一段line 4.8小时
         // 正常走路时间
         this.timeHumanPreLineHour = timeHumanPreLineHour;
-
-
     }
 
     calcTimeTotal() {
@@ -157,11 +157,14 @@ class MakeRoadMap {
             isStart: true, //是否起点
         };
         this.spotsCfg.unshift(spotsCityStart);
-
-
-
     }
 
+    //获得最后的时间 思路就是计算所有路程段获得最晚时间那个
+    getFinalEndTime(){    //计算最长的那个
+        this.finalEndTime = Math.max(...this.lines.map(o => o.timeEnd));
+        console.log("达到时间finalEndTime " + new Date(this.finalEndTime));
+        return this.finalEndTime;
+    }
 
     setLines() {
         let linesTotal = [];
@@ -265,6 +268,7 @@ class MakeRoadMap {
             spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
             spotEnd['mileage'] = mileage;
 
+
         }else{
             let nextStart = spotStart['endtime'];
             if(spotStart['endtime'] <= now) {
@@ -277,8 +281,13 @@ class MakeRoadMap {
             spotEnd['endtime'] = spotStart['startime'] + diffTime;
             spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
             spotEnd['mileage'] = mileage;
+
+
         }
+
+
         console.log("达到时间 " + new Date(spotEnd['endtime']));
+
 
         let line = {
             // distance    : dis,
@@ -300,6 +309,7 @@ module.exports = MakeRoadMap;
 
 
 // let objParametes   = {
+//     oldLine        : [],
 //     line           : [100107,100102,100109],
 //     cid            : 101,
 //     weather        : 0,
@@ -311,6 +321,7 @@ module.exports = MakeRoadMap;
 // console.log(er.lines);
 // console.log(er.timeTotalHour);
 // console.log(er.linesFormat);
+// console.log(er.getFinalEndTime());
 
 
 // console.log(new Date() /1000 * 1000);
