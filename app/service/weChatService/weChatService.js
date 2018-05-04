@@ -48,6 +48,7 @@ class WeChatService extends Service {
             //  price:1,
             goods: good,
             pid: ui.pid,
+            uid: ui.uid,
             type: "recharge",
             orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
@@ -414,7 +415,7 @@ class WeChatService extends Service {
         }
     }
 
-    async sendTemplateMessage(uid) {
+    async sendTemplateMessage(uid, template) {
         let access_token = await this.app.redis.get("wechatAccessToken");
         if(!access_token) {
             access_token = this.freshAccess_token();
@@ -422,22 +423,25 @@ class WeChatService extends Service {
         let formId = await this.getFormId(uid);
         if(formId) {
             try {
+                let notic = travelConfig.Notice.Get(travelConfig.Notice.TRIPOVER);
+                let city = travelConfig.City.Get(template.cid);
+                let context = notic.keyword2[0].replace("s%", city.province + city.city + template.spot);
                 let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=${access_token}`, {
                     method: "POST",
                     dataType: "json",
                     data: {
                         touser: uid,
-                        template_id: "qr69hjrAqvs5IMiZj7f6-tJ1Ochav0mMlRLIDNRciLU",
+                        template_id: "qr69hjrAqvs5IMiZj7f6-nco5lI8Rsw8xnyifOSMcts",
                         page: "index",
                         form_id: formId,
                         data: {
                             keyword1: {
-                                value: "339208499",
-                                color: "#173177",
+                                value: template.spot,
+                              //  color: "#173177",
                             },
                             keyword2: {
-                                value: "2015年01月05日 12:30",
-                                color: "#173177",
+                                value: context,
+                              //  color: "#173177",
                             },
                         },
                     },
