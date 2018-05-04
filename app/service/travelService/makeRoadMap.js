@@ -5,6 +5,7 @@ const ScenicPos = require("../../../sheets/scenicpos");
 const timeUtil = require("../../utils/time");
 const apis = require("../../../apis/travel");
 const ShortPath = require("../pathService/shortPath");
+const configDebug  = require('../../../debug/debug');
 
 // 生成路线
 class MakeRoadMap {
@@ -161,9 +162,14 @@ class MakeRoadMap {
 
     //获得最后的时间 思路就是计算所有路程段获得最晚时间那个
     getFinalEndTime(){    //计算最长的那个
-        this.finalEndTime = Math.max(...this.lines.map(o => o.timeEnd));
+        this.finalEndTime = getFinalEndTimeByRoadMap( this.lines );
         console.log("达到时间finalEndTime " + new Date(this.finalEndTime));
         return this.finalEndTime;
+    }
+    
+    static getFinalEndTimeByRoadMap( lines ){
+       let finalEndTime = _.max(_.map(lines,o => o.endtime)) ;
+       return finalEndTime;
     }
 
     setLines() {
@@ -252,6 +258,10 @@ class MakeRoadMap {
 
          // diffTime = 4 * 60 * 1000; //4小时 * 60分种 x  x 1000 毫秒
          // diffTime = 10000;//test
+
+        if ( configDebug.SHORTROADMAP ){
+            diffTime   = 3 * 1000; //30 秒
+        }
 
         let mileage = Math.round(short_path.getMileage(travelMap));
         console.log("经纬距离 ：" + mileage);

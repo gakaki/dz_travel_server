@@ -3,14 +3,15 @@ const travelConfig          = require("../../../sheets/travel");
 const QuestRepo             = require("../questService/questRepo");
 const timeUtil              = require("../../utils/time");
 const mongoose              = require('mongoose');
-
+const configDebug           = require('../../../debug/debug');
 // 基于优先级的概率选择抽奖
 class ProrityLottery {
-    constructor(){
-        
+    constructor( quests , cid ){
+        this.quests  = quests;
+        this.cid     = cid;
     }
     loterry(){
-        let randomEl = _.shuffle(quests)[0];
+        let randomEl = _.shuffle(this.quests)[0];
         return randomEl;
     }
 }
@@ -57,24 +58,15 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
         eventRows.push(dbRow);
 
-
-        // while ( timeTotalMinute > 0 ) {
-        //     //debug参数这里todo
-        //     let minuteLength        =  _.random(5,15); // 随机个1到2分钟的时间出来
-        //     //这里的时间生成逻辑需要递增
-        //     let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
-        //
-        //     let dbRow               = this.genSingleEventNonSpot( triggerTimeStamp );
-        //     eventRows.push(dbRow);
-        //     timeTotalMinute = timeTotalMinute - minuteLength;
-        //
-        //     //循环生成新的事件
-        //     timestamp               = triggerTimeStamp;
-        // }
-
         for ( let i= 0; i < 400; i++){
-            //debug参数这里todo
             let minuteLength        =  _.random( 1 ,4); // 随机个1到2分钟的时间出来
+
+            if (configDebug.EVENTGEN){
+                minuteLength        =  _.random( 0 , 0);
+            }
+            // if ( this.ctx.debug ){
+            //     throw new Error("debug");
+            // }
             //这里的时间生成逻辑需要递增
             let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
 
@@ -138,8 +130,8 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         
         //根据权重a进a行 随机 这里a暂时偷懒为了快点出来先
         let rl       = new ProrityLottery();
+        rl.quests    = quests;
         rl.cid       = this.cid;
-        
         let randomEl = rl.loterry();
 
         return randomEl;

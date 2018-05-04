@@ -885,16 +885,10 @@ class TourService extends Service {
             describe                                                     : questCfg.describeFormat(cid),
             gold_used                                                    : 0,
             picture                                                      : questCfg['picture'],
-            // rewards:       questCfg.getSpotRewardComment().reward,
             question                                                     : questCfg['describe'],
             answers                                                      : questCfg.answers(),
         };
 
-
-
-
-        let city                                                         = travelConfig.City.Get(cid);
-        info.rewards                                                     = questCfg.getSpotRewardComment(city.city);
 
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
@@ -903,8 +897,8 @@ class TourService extends Service {
                 $set                                                     : {'events.$.received' : true , 'events.$.receivedDate' : new Date().getTime() }
             });
 
-            let row                                                          = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
-            info.rewards                                                     = row.reward
+            info.quest.rewards                             = await this.rewardThanMark( uid,cid,eid,currentCity.fid);
+            this.logger.info(">>>>>>>>>>>>>",info.quest.rewards);
 
         }else if ( questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ) {
             //在anserquest接口里领奖励
@@ -1051,15 +1045,14 @@ class TourService extends Service {
                                 outPMap.push(newRoadMap[index]);
                             }
                         }
-                        await this.adduserarrivedtime( rm.getFinalEndTime() , uid);
+                        await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , uid);
                     }
                     //修改路线
                     await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
 
 
                     //加入redis 用来后期排序到达事件 发送微信小程序通知
-                    let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
-                    await this.adduserarrivedtime( finalEndTime , uid );
+                    await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , uid );
 
                 }
             }
@@ -1070,8 +1063,15 @@ class TourService extends Service {
 
     //加入redis 用来后期排序到达事件 发送微信小程序通知
     async adduserarrivedtime( finalEndTime , uid ) {
+        if (!uid || !finalEndTime){
+            throw new Error(`uid finalEndTime 不符合规范！ ${uid} ${finalEndTime}`);
+        }
         let c = this.ctx.app.config.REDISKEY;
-        await this.ctx.app.redis.zadd(c.KEY_USER_ARRIVE_TIME, finalEndTime , uid );
+        try{
+            await this.ctx.app.redis.zadd(c.KEY_USER_ARRIVE_TIME, finalEndTime , uid );
+        }catch(e){
+            throw new Error(e);
+        }
     }
 
     async rentedprop(info) {
@@ -1407,7 +1407,7 @@ class TourService extends Service {
                 }
             }, { upsert: true });
 
-         this.logger.info("更新时间没？？？？？？？", up);
+            this.logger.info("更新时间没？？？？？？？", up);
 
         }
 
@@ -1424,13 +1424,8 @@ class TourService extends Service {
 
 
         //加入redis 用来后期排序到达事件 发送微信小程序通知
-        let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
-
-
-        this.logger.info(finalEndTime);
-
+        let finalEndTime = MakeRoadMap.getFinalEndTimeByRoadMap(outPMap);
         await this.adduserarrivedtime( finalEndTime , uid );
-
 
         if(isDobule) {
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -1636,7 +1631,7 @@ class TourService extends Service {
 
 
         //加入redis 用来后期排序到达事件 发送微信小程序通知
-        let finalEndTime = Math.max(...roadMap.map(o => o.endtime));
+        let finalEndTime = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);
         await this.adduserarrivedtime( finalEndTime , info.uid );
 
         if(isDouble) {
