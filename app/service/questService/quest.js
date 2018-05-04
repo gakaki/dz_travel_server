@@ -186,7 +186,7 @@ class Quest extends TreeNode {
         }
         // 景点随机
         else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
-            itemNames   = items.map(e => e.scenicspot);
+            itemNames               = items.map(e => e.scenicspot);
             this.picture            = rightItem.picture;
             this.answer             = rightItem.scenicspot;
         }

@@ -9,6 +9,7 @@ class ProrityLottery {
     constructor( quests , cid ){
         this.quests  = quests;
         this.cid     = cid;
+
     }
     loterry(){
         let randomEl = _.shuffle(this.quests)[0];
@@ -65,9 +66,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             if (configDebug.EVENTGEN){
                 minuteLength        =  _.random( 0 , 0);
             }
-            // if ( this.ctx.debug ){
-            //     throw new Error("debug");
-            // }
+
             //这里的时间生成逻辑需要递增
             let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
 
@@ -77,27 +76,14 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             timestamp               = triggerTimeStamp;
         }
         // while ( timeTotalMinute > 0 ) {
-        //     //debug参数这里todo
-        //     let minuteLength        =  _.random(5,15); // 随机个1到2分钟的时间出来
-        //     //这里的时间生成逻辑需要递增
-        //     let triggerTimeStamp    = this.get_trigger_date( timestamp , minuteLength );
-        //
-        //     let dbRow               = this.genSingleEventNonSpot( triggerTimeStamp );
-        //     eventRows.push(dbRow);
-        //     timeTotalMinute = timeTotalMinute - minuteLength;
-        //
-        //     //循环生成新的事件
-        //     timestamp               = triggerTimeStamp;
-        // }
+
         //创建数据库吧
         this.events = eventRows;
-        //将事件发生顺序写入数据库
-        // await this.ctx.model.CurrentCity.create(eventRows);
     }
 
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
-        let quest        = this.randomQuest(this.cid);
+        let quest        = this.randomQuest();
         // quest            = this.randomQuestForDebug(this.cid);
 
         let questDbRow   = {
@@ -118,23 +104,42 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         return trigger_date;
     }
 
-    randomQuest(option){
+    randomQuest(){
         //随机出现random quest
         let quests = QuestRepo.filterRandomQuests(
             {
                 cid: this.cid,
                 weather: this.weather,
-                today: this.toaday,
+                today: this.today,
                 itemSpecial: this.itemSpecial,
                 spotId: this.spotId
             }
         );
-        
-        //根据权重a进a行 随机 这里a暂时偷懒为了快点出来先
-        let rl       = new ProrityLottery();
-        rl.quests    = quests;
-        rl.cid       = this.cid;
-        let randomEl = rl.loterry();
+
+
+        let totalProbility  = _.sum(quests.map( q => parseInt(q.probability) ));
+        let randomNum       = _.random(1, totalProbility);
+
+        let prev            = 0;
+        let randomEl        = null;
+        for ( let q of quests ){
+            if (!q.probability){
+                throw new Error("注意配置表的probilitiy出错了注意！");
+                continue;
+            }
+
+            let nextValue   = prev + q.probability;
+            if ( randomNum  >= prev && randomNum < nextValue ){
+                randomEl    = q; //落入该奖品区间
+                break;
+            }
+            prev = nextValue ;
+        }
+
+        // let rl       = new ProrityLottery();
+        // rl.quests    = quests;
+        // rl.cid       = this.cid;
+        // let randomEl = rl.loterry();
 
         return randomEl;
     }
@@ -157,14 +162,16 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 module.exports = MakeEvent;
 
 
-// // // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
+// // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
 // let objParametes   = {
-//     timeTotalHour  : 14,
+//     timeTotalHour  : 1,
 //     cid            : 101,
 //     weather        : 0,
 //     today          : 0,
 //     itemSpecial    : 0
 // };
 // let er              = new MakeEvent(objParametes);
-// console.log(er.eventsFormat);
+// // console.log(er.eventsFormat);
+// let el              = er.randomQuest();
+// console.log(el.probability,  el.describe);
 

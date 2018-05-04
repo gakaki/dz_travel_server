@@ -50,8 +50,15 @@ class QuestRepo {
     filterFirst(option) {
 
         return this.quests.filter( e  => {
+
+            let conditionProbility = true;
+            if (e.probability <= 0){ //触发几率为0的时候要去除
+                conditionProbility = false;
+            }
+
             let conditionBelong = false;
             //console.log(e.belong);
+
             if(e.belong == option.cid || !e.belong || e.belong == option.spotId) {
                 conditionBelong = true;
             }
@@ -127,7 +134,7 @@ class QuestRepo {
                 conditionM = true;
             }
 
-            if(conditionBelong && conditionTime && conditionWeather && conditionCar && conditionM) {
+            if( conditionProbility && conditionBelong && conditionTime && conditionWeather && conditionCar && conditionM) {
            // if(conditionBelong && conditionType && conditionTime && conditionWeather && conditionCar && conditionM) {
               // console.log(e.belong);
                return e

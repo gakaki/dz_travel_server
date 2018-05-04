@@ -25,7 +25,7 @@ describe('test 测试随机事件的 类', () => {
 
     it('检测缺少picture字段的  ',  async () => {
         let row         = questRepo.quests.filter( e=>  e.picture == "" || e.picture == null );
-        assert(row.length > 0);
+        assert(row.length > 0 , row.length);
     });
 
     it('测试 必然触发的和有前置事件的 居然暂时不做了',  async () => {
