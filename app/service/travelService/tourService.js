@@ -807,6 +807,11 @@ class TourService extends Service {
         if(!cityEvents) {
             cityEvents = { events: [] };
         }
+
+        // 如果到达终点了之后 事件不会无限增加的 因为没有时间增加 自然不应该有增加事件了
+        let roadMap           = currentCity.roadMap;
+        let finalEndTime      = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);//所有路程的终点
+
         this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
@@ -838,6 +843,11 @@ class TourService extends Service {
         let newEvent           = false;
         if ( event ){
             newEvent           = true;
+        }
+
+        if ( new Date().getTime() >= finalEndTime ){ // 已经到达终点了
+            newEvent           = false;
+            hasNext            = false;
         }
         return {
             'current'          : eventShowLength,
