@@ -806,6 +806,9 @@ class TourService extends Service {
             uid                : uid
         });
         let timeNow            = new Date().getTime();
+        if(!cityEvents) {
+            cityEvents = { events: [] };
+        }
         this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
@@ -1073,6 +1076,7 @@ class TourService extends Service {
     //加入redis 用来后期排序到达事件 发送微信小程序通知
     async adduserarrivedtime( finalEndTime , uid ) {
         let c = this.ctx.app.config.REDISKEY;
+      //  this.logger.info(c.KEY_USER_ARRIVE_TIME,finalEndTime);
         await this.ctx.app.redis.zadd(c.KEY_USER_ARRIVE_TIME, finalEndTime , uid );
     }
 
@@ -1429,7 +1433,7 @@ class TourService extends Service {
         let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
 
 
-        this.logger.info(finalEndTime);
+       // this.logger.info(finalEndTime);
 
         await this.adduserarrivedtime( finalEndTime , uid );
 

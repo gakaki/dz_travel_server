@@ -54,6 +54,12 @@ class RankService extends Service {
         return await this.ctx.model.TravelModel.IntegralRecord.find({ uid: friendList }).sort({ integral: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
     }
 
+
+    async getUserFriendScoreRank(friendList, uid) {
+       let rankList = await this.ctx.model.TravelModel.IntegralRecord.find({ uid: friendList }).sort({ integral: -1, updateDate: 1 });
+        return rankList.findIndex(n => n.uid == uid) + 1;
+    }
+
     /**
      * 更新一次足迹榜单
      *
@@ -140,6 +146,10 @@ class RankService extends Service {
         return await this.ctx.model.TravelModel.FootRecord.find({ uid: friendList }).sort({ lightCityNum: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
     }
 
+    async getUserFriendFootRank(friendList, uid) {
+        let footsList = await this.ctx.model.TravelModel.FootRecord.find({ uid: friendList }).sort({ lightCityNum: -1, updateDate: 1 });
+        return footsList.findIndex(n => n.uid == uid) + 1;
+    }
 
     /**
      *
@@ -323,6 +333,27 @@ class RankService extends Service {
         );
         return out.slice((page - 1) * limit, page * limit);
     }
+
+    async getUserFriendCompletionDegreeRank(friendList, uid) {
+        let out = [];
+        //let outFriendList = friendList.slice((page - 1) * limit, page * limit);
+        for(let friend of friendList) {
+            let friendCom = await this.getUserCompletionDegree(friend);
+            if(!friendCom) {
+                friendCom = {
+                    uid: friend,
+                    completionDegree: 0,
+                    weekCompletionDegree: 0,
+                }
+            }
+            out.push(friendCom);
+        }
+        out = utils.multisort(out,
+            (a, b) => b.completionDegree - a.completionDegree
+        );
+        return out.findIndex(n => n.uid == uid) + 1;
+    }
+
     /**
      * 获取榜单奖励
      * @param type 榜单类别

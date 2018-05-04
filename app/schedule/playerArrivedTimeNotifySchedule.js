@@ -17,7 +17,7 @@ class PlayerArrivedTimeNotifySchedule extends Subscription {
          let now                  = Date.now();
          let ago                  = now - min;
          let c                    = await this.config.REDISKEY;
-         let needNotifyUserIds    = await this.app.redis.zrangebyscore(c.KEY_USER_ARRIVE_TIME, "-inf", "+inf" );
+         let needNotifyUserIds    = await this.app.redis.zrangebyscore(c.KEY_USER_ARRIVE_TIME, "-inf", ago );
 
          this.logger.info( " needNotifyUserIds " , needNotifyUserIds );
 
@@ -33,7 +33,9 @@ class PlayerArrivedTimeNotifySchedule extends Subscription {
             if(!lastSpot) {
                 continue;
             }
-            await this.ctx.service.weChatService.weChatService.sendTemplateMessage( uid ,{ cid: lastSpot.cid, spot: lastSpot.name});
+           // if(lastSpot.endtime && lastSpot.endtime <= now) {
+                await this.ctx.service.weChatService.weChatService.sendTemplateMessage( uid ,{ cid: lastSpot.cid, spot: lastSpot.name});
+          //  }
             //zrem 删除已发送的
             await this.app.redis.zrem(c.KEY_USER_ARRIVE_TIME,uid);
         }
