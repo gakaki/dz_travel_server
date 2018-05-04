@@ -432,7 +432,7 @@ class WeChatService extends Service {
                     data: {
                         touser: uid,
                         template_id: "qr69hjrAqvs5IMiZj7f6-nco5lI8Rsw8xnyifOSMcts",
-                        page: "index",
+                        page: "pages/index/index",
                         form_id: formId,
                         data: {
                             keyword1: {
