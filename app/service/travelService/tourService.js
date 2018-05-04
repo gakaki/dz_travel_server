@@ -96,6 +96,8 @@ class TourService extends Service {
                     isStart                                          : false,
                     tracked                                          : false, //是否经过了 等下从数据库比对
                     roundTracked                                     : false,//当前轮是否经过
+                    startime                                         : 0,
+                    endtime                                          : 0,
                  //   index       : spotsConfig['index'],
                     trackedNo                                        : 0, //用户自己走的顺序
                     name                                             : spotsConfig['scenicspot'],
@@ -113,12 +115,12 @@ class TourService extends Service {
             for(let spot of roadMaps) {
                 if(spot.index != -1) {
                     if(!spot.tracked) {
-                        if(spot.endtime <= new Date().getTime()) {
+                        if(spot.endtime && spot.endtime <= new Date().getTime()) {
                             spot.tracked                             = true;
                             spot.countdown                           = 0
                         }
                     }else{
-                        if(spot.endtime <= new Date().getTime()) {
+                        if(spot.endtime && spot.endtime <= new Date().getTime()) {
                             spot.roundTracked = true;
                             spot.countdown                               = 0
                         }
@@ -185,14 +187,14 @@ class TourService extends Service {
         for(let spot of roadMaps) {
             if(spot.index != -1) {
                 if(!spot.tracked) {
-                    if(spot.endtime <= new Date().getTime()) {
+                    if(spot.endtime && spot.endtime <= new Date().getTime()) {
                         spot.tracked      = true;
                         spot.countdown    = 0;
                     }
                 }
 
                 if(spot.tracked) {
-                    if(spot.endtime <= new Date().getTime()) {
+                    if(spot.endtime && spot.endtime <= new Date().getTime()) {
                         spot.roundTracked      = true;
                         spot.countdown    = 0;
                     }
@@ -282,7 +284,7 @@ class TourService extends Service {
             let hascome = false;
             if(spot.index != -1) {
                 if(!spot.roundTracked) {
-                    if(spot.endtime <= new Date().getTime()) {
+                    if(spot.endtime && spot.endtime <= new Date().getTime()) {
                         spot.roundTracked = true;
                         needUpdate = true;
                     }
@@ -394,17 +396,17 @@ class TourService extends Service {
 
 
             if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
-               // sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
+                sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
                 sTask = true;
             }
 
             if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-              //  tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+                tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
                 tTask = true
             }
 
             if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-               // photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+                photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
                 pTask = true;
             }
 
@@ -431,13 +433,13 @@ class TourService extends Service {
                 }
                 this.logger.info("实际的双人旅行任务呀。。。。", sCount);
                 if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-                  //  parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+                    parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
 
                 }else{
                     tTask = false;
                 }
                 if(parterPhoto >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-                   // parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+                    parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
                 }else{
                     pTask = false;
                 }
@@ -1423,6 +1425,10 @@ class TourService extends Service {
 
         //加入redis 用来后期排序到达事件 发送微信小程序通知
         let finalEndTime = Math.max(...outPMap.map(o => o.endtime));
+
+
+        this.logger.info(finalEndTime);
+
         await this.adduserarrivedtime( finalEndTime , uid );
 
 
@@ -1499,8 +1505,8 @@ class TourService extends Service {
                 for(let i = 0; i < roadMap.length; i++) {
                     real.push(roadMap[i].id);
                     roadMap[i].index = -1;
-                    roadMap[i].startime = "";
-                    roadMap[i].endtime = "";
+                    roadMap[i].startime = 0;
+                    roadMap[i].endtime = 0;
                     roadMap[i].tracked = true;
                     roadMap[i].roundTracked = false;
                     roadMap[i].mileage = 0;
@@ -1565,8 +1571,8 @@ class TourService extends Service {
                             roadMap[i].roundTracked = true;
                         }else{
                             roadMap[i].index = -1;
-                            roadMap[i].startime = "";
-                            roadMap[i].endtime = "";
+                            roadMap[i].startime = 0;
+                            roadMap[i].endtime = 0;
                             roadMap[i].mileage = 0;
                             roadMap[i].countdown = 0;
                             roadMap[i].arriveStamp = "";
@@ -1581,16 +1587,16 @@ class TourService extends Service {
                         if(haswalkindex != -1) {
                             roadMap[i].tracked = true;
                             roadMap[i].roundTracked = true;
-                        }else if(index != lastindex){
+                        }else if(index != lastindex) {
                             roadMap[i].index = -1;
-                            roadMap[i].startime = "";
-                            roadMap[i].endtime = "";
+                            roadMap[i].startime = 0;
+                            roadMap[i].endtime = 0;
                             roadMap[i].mileage = 0;
                             roadMap[i].countdown = 0;
                             roadMap[i].arriveStamp = "";
                             roadMap[i].arriveStampYMDHMS = "";
                         }else{
-                            roadMap[i].startime = "";
+                            roadMap[i].startime = 0;
                         }
 
 
