@@ -18,7 +18,20 @@ class MakeSpotEvent {
     async genEvent(){
         // 事件类型为3 ，4 并且根据三个条件和最后的概率进行生成
         let quests          = QuestRepo.filterTourQuests({ cid: this.cid, weather: this.weatherId, today: this.today, itemSpecial: this.itemSpecial, spotId: this.spotid });
-       // let index = quests.find(n => n.id == 401111);
+
+        let totalProbability = 0;
+        for(let quest of quests) {
+            totalProbability += quest.probability;
+            quest.pro = totalProbability;
+        }
+
+        let random = Math.random() * totalProbability;
+
+
+
+        let randomEl = quests.filter(n => n.pro <= random);
+
+        // let index = quests.find(n => n.id == 401111);
        // console.log("有没有马祖？？？？？", index);
        //  console.log(quests);
         //根据权重进行 随机 这里暂时偷懒为了快点出来先
@@ -40,8 +53,10 @@ class MakeSpotEvent {
         1：不拥有医药箱
         2 拥有自驾车 */
 
-        let randomEl        = _.shuffle(quests)[0];
-        this.event          = randomEl;
+     //   let randomEl        = _.shuffle(quests)[0];
+        let e = randomEl.length ? randomEl.pop() : _.shuffle(quests)[0];
+
+        this.event          = e;
     }
    
 }

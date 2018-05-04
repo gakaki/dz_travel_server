@@ -122,7 +122,7 @@ class MakeRoadMap {
                 o.roundTracked = false;
                 o.index = index;
                 o.startime = "";
-                o.endtime = "";
+                o.endtime = 0;
                 let [lng, lat] = cfg["coordinate"];
                 o.lng = lng;
                 o.lat = lat;
@@ -151,7 +151,7 @@ class MakeRoadMap {
             roundTracked: true,  //起点肯定默认就到达了
             index: 0,     //这个index 有必要吗
             startime: this.startTime ? this.startTime.getTime() : 0,    //开始时间
-            endtime: "",    //结束时间
+            endtime: 0,    //结束时间
             lng: lng,
             lat: lat,
             isStart: true, //是否起点
