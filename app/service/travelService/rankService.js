@@ -324,12 +324,15 @@ class RankService extends Service {
                     uid: friend,
                     completionDegree: 0,
                     weekCompletionDegree: 0,
+                    updateDate: new Date(),
                 }
             }
+            this.logger.info(friendCom);
             out.push(friendCom);
         }
         out = utils.multisort(out,
-            (a, b) => b.completionDegree - a.completionDegree
+            (a, b) => b.completionDegree - a.completionDegree,
+            (a, b) => a.updateDate - b.updateDate
         );
         return out.slice((page - 1) * limit, page * limit);
     }
@@ -344,12 +347,14 @@ class RankService extends Service {
                     uid: friend,
                     completionDegree: 0,
                     weekCompletionDegree: 0,
+                    updateDate: new Date(),
                 }
             }
             out.push(friendCom);
         }
         out = utils.multisort(out,
-            (a, b) => b.completionDegree - a.completionDegree
+            (a, b) => b.completionDegree - a.completionDegree,
+            (a, b) => a.updateDate - b.updateDate
         );
         return out.findIndex(n => n.uid == uid) + 1;
     }
