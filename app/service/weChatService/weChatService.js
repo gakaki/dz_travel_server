@@ -455,6 +455,15 @@ class WeChatService extends Service {
                 if(result.data.errcode != constant.Code.OK) {
                     this.logger.error("当前formid " + formId, result);
                     await this.sendTemplateMessage(uid, template);
+                }else{
+                    await this.ctx.model.PublicModel.UserTemplateMessage.create({
+                        uid: uid,
+                        formId: formId,
+                        templateId: "qr69hjrAqvs5IMiZj7f6-nco5lI8Rsw8xnyifOSMcts",
+                        keyword1: template.spot,
+                        keyword2: context,
+                        createDate: new Date(),
+                    })
                 }
             }catch (e) {
                 this.logger.info(e);

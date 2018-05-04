@@ -216,8 +216,8 @@ class PlayerService extends Service {
       let postcards = await this.ctx.model.TravelModel.Postcard.aggregate([
           { $match: { uid: ui.uid } },
           { $sort: { createDate: -1 } },
-          { $group: { _id: "$province", collectPostcardNum: { $sum: 1 }, citys: { $push: { cid: "$cid" } }, pcards: { $push: { ptid: "$ptid", createDate: "$createDate" } } } },
-          { $project: { _id: 0, province: "$_id", collectPostcardNum: 1, citys: 1, pcards: 1 } },
+          { $group: { _id: "$province", citys: { $push: { cid: "$cid" } }, pcards: { $push: { ptid: "$ptid", createDate: "$createDate" } } } },
+          { $project: { _id: 0, province: "$_id", citys: 1, pcards: 1 } },
             ]);
 
       let postcardInfos = [];
@@ -227,10 +227,17 @@ class PlayerService extends Service {
         //  let citys = postcard.citys;
         //  this.logger.info(citys);
           let postcardnum = 0;
+          let pcards = postcard.pcards;
+          let ptSet = new Set();
+          for(let pcard of pcards) {
+              if(!ptSet.has(pcard.ptid)) {
+                  ptSet.add(pcard.ptid);
+              }
+          }
           let postcardInfo = {
               url: travelConfig.Postcard.Get(postcard.pcards[0].ptid).picture,
               province: postcard.province,
-              collectPostcardNum: postcard.collectPostcardNum,
+              collectPostcardNum: ptSet.size,
           };
           let provinces = travelConfig.finds;
           for(let province of provinces) {

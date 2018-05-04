@@ -113,8 +113,9 @@ class TravelController extends Controller {
                 info.submit();
                 return
             }
+            dInfo = await this.app.redis.hgetall(info.inviteCode);
             dInfo.isFly = 1;
-            await this.app.redis.hmset(info.inviteCode,dInfo);
+            await this.app.redis.hmset(info.inviteCode, dInfo);
             fid = dInfo.invitee;
             fui = await this.ctx.model.PublicModel.User.findOne({uid: fid});
             if(!fui) {
