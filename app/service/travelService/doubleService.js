@@ -42,7 +42,7 @@ class DoubleService extends Service {
             info.nickName = ui.nickName;
             info.avatarUrl = ui.avatarUrl;
         }
-        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]", isFly, invitee);
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> [dobuleInfo]", isFly, ui.uid, info.uid);
         if (visit) {
             this.logger.info("我想要效率评分.....");
             let cid = visit.cid;
