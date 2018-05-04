@@ -136,11 +136,46 @@ class TourService extends Service {
 
             info.task                                                = this.taskInfo(uid);
         }
+
+
         let upset = {
             roadMap: info.spots,
             changeRouteing:false,
 
         };
+
+        let rentItems = currentCity.rentItems;
+        let acceleration = currentCity.acceleration;
+        let speeds = [];
+        info.display = 0;
+        for(let car of travelConfig.shops) {
+            if(car.type == apis.RentItem.CAR) {
+                if(rentItems[car.id]) {
+                    speeds.push(car);
+                }
+            }
+        }
+
+        if(currentCity.friend) {
+            let fCurrent = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
+            let friendRentItems = fCurrent.rentItems;
+            for(let car of travelConfig.shops) {
+                if(car.type == apis.RentItem.CAR) {
+                    if(friendRentItems[car.id]) {
+                        speeds.push(car);
+                    }
+                }
+            }
+        }
+        if(speeds.length) {
+            let maxSpeed = Math.max(...speeds.map(n => n.value));
+            let max = speeds.find(n => n.value == maxSpeed);
+            if(maxSpeed > acceleration) {
+                upset.acceleration = max.value;
+            }
+            info.display = max.id;
+        }
+
 
         if(hasCome) {
             upset.present = false;
@@ -156,19 +191,7 @@ class TourService extends Service {
 
 
 
-        let acceleration = currentCity.acceleration;
-        info.display = 0;
 
-        if(acceleration) {
-            for(let car of travelConfig.shops) {
-                if(car.type == apis.RentItem.CAR) {
-                    if(car.value == acceleration) {
-                        info.display                                 = car.id;
-                        break;
-                    }
-                }
-            }
-        }
 
 
 
@@ -1058,14 +1081,17 @@ class TourService extends Service {
                                 outPMap.push(newRoadMap[index]);
                             }
                         }
-                        await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , uid);
+                      //  await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , uid);
                     }
                     //修改路线
                     await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
 
 
                     //加入redis 用来后期排序到达事件 发送微信小程序通知
-                    await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , uid );
+                    for(let userid of needChange) {
+                        await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , userid );
+                    }
+
 
                 }
             }
