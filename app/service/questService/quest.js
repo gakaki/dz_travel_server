@@ -164,19 +164,19 @@ class Quest extends TreeNode {
 
         // 特产随机
         if (this.topic == this.KnowledgeKeys.SPECIALITY) { //1
-             items      = specialityRepo.random4ByCity(currentCid);
+             items      = specialityRepo.random4ByCityMoreRange(currentCid);
          }
         // 景点随机
         else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
-             items      = scenicspotRepo.random4ByCity(currentCid);
+             items      = scenicspotRepo.random4ByCityMoreRange(currentCid);
         }
         // 城市随机
         else if (this.topic == this.KnowledgeKeys.CITY) { //3
-             items       = cityRepo.random4ByCity(currentCid);
+             items       = cityRepo.random4ByCityMoreRange(currentCid);
         }
 
         //this.describe 里的%s其实全都是城市的意思
-        let rightItem               = items.pop();
+        let rightItem               = items.shift();
 
         // 特产随机
         if (this.topic == this.KnowledgeKeys.SPECIALITY) { //1

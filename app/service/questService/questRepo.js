@@ -141,9 +141,20 @@ module.exports = new QuestRepo();
 // let rows   = new QuestRepo().filterTourQuests({
 //     cid : 3 // 上海
 // });
-
-// console.log(rows);
-let q    = new QuestRepo();
-let cfg  = q.find("201374");
-let comment = cfg.getSpotRewardComment();
-console.log(comment);
+//
+// // console.log(rows);
+// let q    = new QuestRepo();
+// let cfg  = q.find("130061");
+// let cid  = 3;
+// // cfg.dealKnowledgeRow(cid);
+// // let describe = cfg.describeFormat(cid);
+// // let answers = cfg.answers();
+// // console.log(describe,answers);
+//
+//
+// cfg  = q.find("130040");
+// cid  = 3;
+// cfg.dealKnowledgeRow(cid);
+// describe = cfg.describeFormat(cid);
+// answers = cfg.answers();
+// console.log(describe,answers,cfg.picture);

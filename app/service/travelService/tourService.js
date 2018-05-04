@@ -1103,7 +1103,9 @@ class TourService extends Service {
     //加入redis 用来后期排序到达事件 发送微信小程序通知
     async adduserarrivedtime( finalEndTime , uid ) {
         if (!uid || !finalEndTime){
-            throw new Error(`uid finalEndTime 不符合规范！ ${uid} ${finalEndTime}`);
+            // throw new Error(`uid finalEndTime 不符合规范！ ${uid} ${finalEndTime}`);
+            this.logger.error(`uid finalEndTime 不符合规范！ ${uid} ${finalEndTime}`);
+            return;
         }
         let c = this.ctx.app.config.REDISKEY;
         try{
