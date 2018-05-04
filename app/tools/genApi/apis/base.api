@@ -433,7 +433,6 @@ class Base{
                     referrer.action = 'weChat.minappreferrer';
                     referrer.reqFields = [ 'referrerInfo' ];
                     referrer.referrerInfo = app.globalData.referrerInfo
-                    console.log(referrer)
                     referrer.fetch().then(() => {
                         console.log('send referrer suc')
                     }).catch(() => {
