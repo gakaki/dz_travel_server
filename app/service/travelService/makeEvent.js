@@ -4,18 +4,7 @@ const QuestRepo             = require("../questService/questRepo");
 const timeUtil              = require("../../utils/time");
 const mongoose              = require('mongoose');
 const configDebug           = require('../../../debug/debug');
-// 基于优先级的概率选择抽奖
-class ProrityLottery {
-    constructor( quests , cid ){
-        this.quests  = quests;
-        this.cid     = cid;
 
-    }
-    loterry(){
-        let randomEl = _.shuffle(this.quests)[0];
-        return randomEl;
-    }
-}
 class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
     constructor( obj ){
@@ -84,7 +73,9 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
         let quest        = this.randomQuest();
-        // quest            = this.randomQuestForDebug(this.cid);
+        if (configDebug.QUESTRANDOM){
+            quest        = this.randomQuestForDebug(this.cid);
+        }
 
         let questDbRow   = {
             dbId            : mongoose.Types.ObjectId(),
@@ -135,15 +126,10 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             }
             prev = nextValue ;
         }
-
-        // let rl       = new ProrityLottery();
-        // rl.quests    = quests;
-        // rl.cid       = this.cid;
-        // let randomEl = rl.loterry();
-
         return randomEl;
     }
 
+    //纯用来测试的哦注意哦
     randomQuestForDebug(option){
         let quests      = QuestRepo.quests.filter( e  => (
             (e.belong == option.cid || !e.belong) &&a
@@ -161,17 +147,35 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
 module.exports = MakeEvent;
 
-
-// // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
-// let objParametes   = {
-//     timeTotalHour  : 1,
-//     cid            : 101,
-//     weather        : 0,
-//     today          : 0,
-//     itemSpecial    : 0
+//100次测试生成抽奖的概率计算查看
+// let countMap = {}
+// for(let i=0 ; i < 100; i ++ ){
+//     let objParametes   = {
+//         timeTotalHour: 1,
+//         cid: 101,
+//         weather: 0,
+//         today: 0,
+//         itemSpecial: 0
+//     }
+//     let er              = new MakeEvent(objParametes);
+//     let el              = er.randomQuest();
+//     // console.log(el.probability,  el.describe);
+//
+//     if (!countMap[el.probability]){
+//         countMap[el.probability] = [];
+//     }
+//     countMap[el.probability].push(el);
 // };
-// let er              = new MakeEvent(objParametes);
-// // console.log(er.eventsFormat);
-// let el              = er.randomQuest();
-// console.log(el.probability,  el.describe);
+//
+// for ( let k in countMap){
+//     // console.log (k,countMap[k]);
+//     countMap[k] = countMap[k].length;
+// }
+// console.log(countMap);
+
+// https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
+
+
+
+
 
