@@ -394,17 +394,17 @@ class TourService extends Service {
 
 
             if(sCount >= travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value) {
-                sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
+               // sCount = travelConfig.Parameter.Get(travelConfig.Parameter.SCENICSPOTNUMBER).value;
                 sTask = true;
             }
 
             if(tourCount >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-                tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+              //  tourCount = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
                 tTask = true
             }
 
             if(photoCount >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-                photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+               // photoCount = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
                 pTask = true;
             }
 
@@ -431,13 +431,13 @@ class TourService extends Service {
                 }
                 this.logger.info("实际的双人旅行任务呀。。。。", sCount);
                 if(parterTour >= travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value) {
-                    parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
+                  //  parterTour = travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value;
 
                 }else{
                     tTask = false;
                 }
                 if(parterPhoto >= travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value) {
-                    parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
+                   // parterPhoto = travelConfig.Parameter.Get(travelConfig.Parameter.PHOTOGRAGH).value;
                 }else{
                     pTask = false;
                 }
