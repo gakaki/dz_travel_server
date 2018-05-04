@@ -119,7 +119,8 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     }
 
     randomQuest(option){
-        let quests = QuestRepo.filterTourQuests(
+        //随机出现random quest
+        let quests = QuestRepo.filterRandomQuests(
             {
                 cid: this.cid,
                 weather: this.weather,

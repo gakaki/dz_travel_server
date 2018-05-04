@@ -308,6 +308,9 @@ class Quest extends TreeNode {
                                 str = str + " 背包已满";
                             }
                        // }
+                        if ( !rewardRow['n'] ){
+                            str         = `${typeName}${itemName}+1`;
+                        }
                         break;
                     case "5": //明信片  明信片随机所以无所谓了
                         str             = `明信片 +` + rewardRow['n'];

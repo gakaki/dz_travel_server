@@ -30,8 +30,24 @@ class QuestRepo {
         this.quests.push(quest)
     }
 
-    // 过滤需要的数据©
-    filterTourQuests(option) {
+    filterRandomQuests(option){
+        let quests = this.filterFirst(option);
+        quests     = quests.filter( e => (
+            e.trigger_type == e.TriggerTypeKeys.RANDOM_COMMON ||
+            e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY)
+        );
+        return quests;
+    }
+    filterTourQuests(option){
+        let quests = this.filterFirst(option);
+        quests     = quests.filter( e => (
+            e.trigger_type == e.TriggerTypeKeys.TOUR_COMMON ||
+            e.trigger_type == e.TriggerTypeKeys.TOUR_CITY)
+        );
+        return quests;
+    }
+    // 过滤需要的数据
+    filterFirst(option) {
 
         return this.quests.filter( e  => {
             let conditionBelong = false;
@@ -39,10 +55,10 @@ class QuestRepo {
             if(e.belong == option.cid || !e.belong || e.belong == option.spotId) {
                 conditionBelong = true;
             }
-            let conditionType = false;
-            if(e.trigger_type == e.TriggerTypeKeys.TOUR_COMMON || e.trigger_type == e.TriggerTypeKeys.TOUR_CITY) {
-                conditionType = true;
-            }
+            // let conditionType = false;
+            // if(e.trigger_type == e.TriggerTypeKeys.TOUR_COMMON || e.trigger_type == e.TriggerTypeKeys.TOUR_CITY) {
+            //     conditionType = true;
+            // }
             let conditionTime = false;
             let today = option.today;
             let timetype = e.condition2_date[0];
@@ -111,11 +127,11 @@ class QuestRepo {
                 conditionM = true;
             }
 
-
-           if(conditionBelong && conditionType && conditionTime && conditionWeather && conditionCar && conditionM) {
+            if(conditionBelong && conditionTime && conditionWeather && conditionCar && conditionM) {
+           // if(conditionBelong && conditionType && conditionTime && conditionWeather && conditionCar && conditionM) {
               // console.log(e.belong);
                return e
-           }
+            }
         });
     }
 }
@@ -127,3 +143,7 @@ module.exports = new QuestRepo();
 // });
 
 // console.log(rows);
+let q    = new QuestRepo();
+let cfg  = q.find("201374");
+let comment = cfg.getSpotRewardComment();
+console.log(comment);
