@@ -29,8 +29,8 @@ class DoubleService extends Service {
 
     async doubleInfo(info, ui, isFly, invitee) {
         let holiday = this.ctx.service.publicService.thirdService.getHoliday();
-        if (holiday.length > 0) {
-            info.holiday = holiday[0] + "节";
+        if (holiday) {
+            info.holiday = holiday;
         }
         let outw = 1;
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
