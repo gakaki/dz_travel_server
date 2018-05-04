@@ -111,8 +111,14 @@ class TourService extends Service {
                 spot_map[spot_id]                                    = row;
             }
         }else{
+            let isNewCity = false;
+            let spotsSet = new Set(cityConfig.scenicspot);
             let roadMaps                                             = currentCity.roadMap;
             for(let spot of roadMaps) {
+                if(!spotsSet.has(spot.id)){
+                    isNewCity = true;
+                    break;
+                }
                 if(spot.index != -1) {
                     if(!spot.tracked) {
                         if(spot.endtime && spot.endtime <= new Date().getTime()) {
@@ -129,18 +135,51 @@ class TourService extends Service {
                 }
                 spot_map[spot.id]                                    = spot;
             }
-            info.spots                                               = roadMaps;
-            if(currentCity.startTime) {
-                info.startTime                                           = currentCity.startTime.getTime();
-            }
 
-            info.task                                                = this.taskInfo(uid);
+            if(isNewCity){
+                for ( let spot_id of  cityConfig.scenicspot ){
+
+                    let spotsConfig                                      = travelConfig.Scenicspot.Get(spot_id);
+                    let xy                                               = ScenicPos.Get(spot_id);
+
+                    if ( spotsConfig == null ) continue;
+
+                    let row                                              = {
+                        id                                               : spot_id,
+                        cid                                              : cid,
+                        x                                                : xy.x,
+                        y                                                : xy.y,
+                        isStart                                          : false,
+                        tracked                                          : false, //是否经过了 等下从数据库比对
+                        roundTracked                                     : false,//当前轮是否经过
+                        startime                                         : 0,
+                        endtime                                          : 0,
+                        //   index       : spotsConfig['index'],
+                        trackedNo                                        : 0, //用户自己走的顺序
+                        name                                             : spotsConfig['scenicspot'],
+                        desc                                             : spotsConfig['description'],
+                        building                                         : spotsConfig['building'],
+                        index                                            : -1,
+                    }
+                    info.spots.push(row);
+                    //info.startCoordinate = spotsConfig.coordinate;
+
+                    spot_map[spot_id]                                    = row;
+                }
+                info.startTime = new Date();
+            }else{
+                info.spots                                               = roadMaps;
+                if(currentCity.startTime) {
+                    info.startTime                                           = currentCity.startTime.getTime();
+                }
+            }
+          //  info.task                                                = this.taskInfo(uid);
         }
 
 
         let upset = {
             roadMap: info.spots,
-            changeRouteing:false,
+            changeRouteing: false,
 
         };
 
@@ -410,10 +449,10 @@ class TourService extends Service {
              sCount = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, cid: cid, fid: currentCity.fid, scenicspot: { $ne: null } });
             this.logger.info("查找走过的景点数", sCount);
             //查找拍照
-             photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, cid: cid });
+             photoCount = await this.ctx.model.TravelModel.PhotoLog.count({ uid: uid, cid: cid, fid: currentCity.fid });
             this.logger.info("查找拍照", photoCount);
             //观光
-             tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, cid: cid, subType: { $in: [ 3, 4 ] } });
+             tourCount = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: uid, cid: cid, fid: currentCity.fid, subType: { $in: [ 3, 4 ] } });
             this.logger.info("观光", tourCount);
 
 
@@ -467,6 +506,9 @@ class TourService extends Service {
                     pTask = false;
                 }
             }
+        }else{
+            parterTour = 0;
+            parterPhoto = 0;
         }
 
         if(!hasLight && sTask && tTask && pTask) {

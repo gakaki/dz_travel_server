@@ -83,7 +83,7 @@ class TravelService extends Service {
     }
 
 
-    async visit(info, ui, lastCity, fui, dInfo) {
+    async visit(info, ui, lastCity, fui) {
         let cid = info.cid;
         let ttype = info.type;
         let cost = {
@@ -230,11 +230,6 @@ class TravelService extends Service {
                 if(fvisit.friend) {
                     await this.ctx.model.TravelModel.CurrentCity.update({ uid: fvisit.friend }, { friend: null }, { upsert: true });
                 }
-                if(!dInfo) {
-                    dInfo = await this.app.redis.hgetall(info.inviteCode);
-                }
-                dInfo.isFly = 1;
-                await this.app.redis.hmset(info.inviteCode, dInfo);
             }
 
             currentCity.present = false;

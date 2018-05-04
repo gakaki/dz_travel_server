@@ -99,9 +99,8 @@ class TravelController extends Controller {
             }
 
         }
-        let dInfo = null;
         if (info.inviteCode) {
-            dInfo = await this.app.redis.hgetall(info.inviteCode);
+            let dInfo = await this.app.redis.hgetall(info.inviteCode);
             if(!dInfo || !dInfo.code) {
                 this.logger.info("房间不存在");
                 info.code = apis.Code.ROOM_EXPIRED;
@@ -114,6 +113,9 @@ class TravelController extends Controller {
                 info.submit();
                 return
             }
+            dInfo = await this.app.redis.hgetall(info.inviteCode);
+            dInfo.isFly = 1;
+            await this.app.redis.hmset(info.inviteCode, dInfo);
             fid = dInfo.invitee;
             fui = await this.ctx.model.PublicModel.User.findOne({uid: fid});
             if(!fui) {
@@ -127,7 +129,7 @@ class TravelController extends Controller {
         this.logger.info("飞机起飞喽   ", info.inviteCode);
         this.logger.info(fid);
 
-        await this.service.travelService.travelService.visit(info, ui, currentCity, fui, dInfo);
+        await this.service.travelService.travelService.visit(info, ui, currentCity, fui);
 
         info.submit();
     }
