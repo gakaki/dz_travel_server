@@ -262,7 +262,7 @@ class MakeRoadMap {
          // diffTime = 10000;//test
 
         if ( configDebug.SHORTROADMAP ){
-            diffTime   = 1 * 60 * 1000; //30 秒
+            diffTime   = 1 * 10 * 1000; //30 秒
         }
 
         let mileage = Math.round(short_path.getMileage(travelMap));

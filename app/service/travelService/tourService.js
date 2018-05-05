@@ -877,6 +877,7 @@ class TourService extends Service {
         let roadMap           = currentCity.roadMap;
         let finalEndTime      = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);//所有路程的终点
 
+        this.logger.info(finalEndTime);
         this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
         let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
@@ -898,22 +899,47 @@ class TourService extends Service {
         }
 
         let event              = null;
-        if (eventsNoReceived.length >= 0){
-            event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
-        }
+
         let hasNext            = false;
+
+        let newEvent           = false;
+        if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
+            this.logger.info("达到终点？？？？")
+            if(eventShowLength > 0 ){
+                newEvent           = true;
+                hasNext            = false;
+                if (eventsNoReceived.length > 0){
+                    event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
+                }
+            }else{
+                newEvent           = false;
+                hasNext            = false;
+            }
+
+        }else{
+            this.logger.error("........................");
+            if (eventsNoReceived.length > 0){
+                event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
+            }
+        }
         if (eventsNoReceived && eventsNoReceived.length > 1){
             hasNext            = true;
         }
-        let newEvent           = false;
         if ( event ){
             newEvent           = true;
         }
-
-        if ( new Date().getTime() >= finalEndTime ){ // 已经到达终点了
-            newEvent           = false;
-            hasNext            = false;
+        if(eventShowLength > 1){
+            hasNext = true
+        }else{
+            hasNext = false;
         }
+        if(!finalEndTime) {
+            eventShowLength = 0;
+            event = null;
+            newEvent = false;
+            hasNext = false
+        }
+        this.logger.info(eventShowLength, event, newEvent,hasNext);
         return {
             'current'          : eventShowLength,
             'total'            : 10,
