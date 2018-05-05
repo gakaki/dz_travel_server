@@ -17,10 +17,38 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         this.itemSpecial    = obj.itemSpecial || 0;
         this.spotId         = obj.spotId || 0;
 
+
+
+        this.questsSet      = new Set();
+        this.quests         = this.getQuestsPool()
+
+        this.allProbility   = this.quests.map( q => q.probability).filter(n => true);
+        this.totalProbility = this.allProbility.reduce((sum, x) => sum + x);
+
+        this.questsView     = [];
         this.events         = []; //最后生成的随机事件
         this.eventsFormat   = [];
         this.genEventNonSpot();  // 生成事件(非景点)
         this.formatEvents();
+    }
+
+    //根据 contructor中的obj 筛选配置表中存入池中  随机出现random quest
+    getQuestsPool(){
+        //根据参数筛选出的quest repo表过滤过的内容
+        let quests = QuestRepo.filterRandomQuests(
+            {
+                cid: this.cid,
+                weather: this.weather,
+                today: this.today,
+                itemSpecial: this.itemSpecial,
+                spotId: this.spotId
+            }
+        );
+        // 从小到大排序权重
+        quests     = quests.sort( (a,b) => {
+            return a.probability - b.probability;
+        });
+        return quests;
     }
 
     async formatEvents(){
@@ -47,10 +75,18 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         //默认先生成一条
         let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
         eventRows.push(dbRow);
+        if (configDebug.EVENTGENINIITAL)
+        {
+            for (let i=0 ; i< 10 ;i ++ ){
+                let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
+                eventRows.push(dbRow);
+            }
+        }
 
-        //这里暂时不根据时间来生成时间了
-        for ( let i= 0; i < 400; i++){
-            let minuteLength        =  _.random( 1 ,4); // 随机个1到2分钟的时间出来
+
+        //这里暂时不根据时间来生成时间了      11 * 60 / 2  假设走完一个城市8小时走完  每2分钟触发一个事件 240个
+        for ( let i= 0; i < 330; i++){
+            let minuteLength        =  _.ceil(_.random(1, 5, true), 2) // 随机个1到5分钟的时间出来 4.xx
 
             if (configDebug.EVENTGEN){
                 minuteLength        =  _.random( 0 , 0);
@@ -70,12 +106,12 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         this.events = eventRows;
     }
 
+
+
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
-        let quest        = this.randomQuest();
-        if (configDebug.QUESTRANDOM){
-            quest        = this.randomQuestForDebug(this.cid);
-        }
+        let quest        = this.randomeOne();
+        this.questsView.push(quest);
 
         let questDbRow   = {
             dbId            : mongoose.Types.ObjectId(),
@@ -95,25 +131,27 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         return trigger_date;
     }
 
+    randomeOne(){
+        let quest        = this.randomQuest();
+        if (configDebug.QUESTRANDOM){
+            quest        = this.randomQuestForDebug(this.cid);
+        }
+        // if ( this.questsSet.has(quest) || !quest || !quest.id ){
+        //     // console.log("tmpset added 数据重复了 继续抽");
+        //     quest        = this.randomeOne();
+        // }else{
+        //     this.questsSet.add(quest)
+        // }
+        return quest;
+    }
     randomQuest(){
-        //随机出现random quest
-        let quests = QuestRepo.filterRandomQuests(
-            {
-                cid: this.cid,
-                weather: this.weather,
-                today: this.today,
-                itemSpecial: this.itemSpecial,
-                spotId: this.spotId
-            }
-        );
 
-
-        let totalProbility  = _.sum(quests.map( q => parseInt(q.probability) ));
-        let randomNum       = _.random(1, totalProbility);
-
-        let prev            = 0;
-        let randomEl        = null;
-        for ( let q of quests ){
+        let totalProbility      = 0;
+        let allProbility        = 0;
+        let randomNum           = this.getRandomInt(1, this.totalProbility);
+        let prev                = 0;
+        let randomEl            = null;
+        for ( let q of this.quests ){
             if (!q.probability){
                 throw new Error("注意配置表的probilitiy出错了注意！");
                 continue;
@@ -128,7 +166,9 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         }
         return randomEl;
     }
-
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
     //纯用来测试的哦注意哦
     randomQuestForDebug(option){
         let quests      = QuestRepo.quests.filter( e  => (
@@ -143,35 +183,53 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     }
 
 
+
 }
 
 module.exports = MakeEvent;
 
-//100次测试生成抽奖的概率计算查看
-// let countMap = {}
-// for(let i=0 ; i < 100; i ++ ){
-//     let objParametes   = {
-//         timeTotalHour: 1,
-//         cid: 101,
-//         weather: 0,
-//         today: 0,
-//         itemSpecial: 0
-//     }
-//     let er              = new MakeEvent(objParametes);
-//     let el              = er.randomQuest();
-//     // console.log(el.probability,  el.describe);
 //
-//     if (!countMap[el.probability]){
-//         countMap[el.probability] = [];
-//     }
-//     countMap[el.probability].push(el);
-// };
 //
-// for ( let k in countMap){
-//     // console.log (k,countMap[k]);
-//     countMap[k] = countMap[k].length;
-// }
-// console.log(countMap);
+// // var users = [
+// //     { 'user': 'fred',   'age': 48 },
+// //     { 'user': 'barney', 'age': 36 },
+// //     { 'user': 'fred',   'age': 42 },
+// //     { 'user': 'barney', 'age': 34 }
+// // ];
+// // users = users.sort( (a,b) => {
+// //     return a.age < b.age;
+// // });
+// //
+// // console.log(users);
+// // console.log(_.ceil(_.random(1, 5, true), 2))
+// // return;
+//
+// // 100次测试生成抽奖的概率计算查看 上海的
+//
+let objParametes   = {
+    cid:3,
+    timeTotalHour: 1,
+    weather: 0,
+    today: 0,
+    itemSpecial: 0
+}
+let questGroupBy        =  QuestRepo.groupBy(objParametes);
+let countMap = {}
+console.time('test');
+for ( let i = 0 ; i < 1 ; i++){
+    let er              = new MakeEvent(objParametes);
+    console.log(er.eventsFormat.length);
+    let el              = er.questsView;
+    let probs           = el.map( e => e.probability);
+    let group           = _.groupBy(probs);
+    for (let k in group){
+        group[k] = group[k].length;
+    }
+   console.log(group);
+}
+
+console.timeEnd('test');
+
 
 // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
 

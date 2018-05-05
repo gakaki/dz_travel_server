@@ -1,9 +1,21 @@
 const  apis = require("../../../apis/travel");
-
+const _     = require("lodash");
 const travelConfig = require("../../../sheets/travel");
 const Quest        = require("./quest");
 const calendar = require("lunar-calendar");
 class QuestRepo {
+
+    groupBy(option){
+
+        let quests          = this.filterRandomQuests(option);
+        let questsGroupBy   = _.groupBy( quests , (e) => {
+            return e.probability;
+        });
+
+        // console.log(questsGroupBy);
+        return questsGroupBy;
+    }
+
     find(row_id) {
         return this.quests.find( e  => e.id == row_id );
     }
