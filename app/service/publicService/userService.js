@@ -264,7 +264,7 @@ class UserService extends Service {
 
         //TODO 测试多给点钱。正式服改回来
        // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000000 }, "origin");
+        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000 }, "origin");
 
         //进入积分榜单
         await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {

@@ -1082,8 +1082,10 @@ class TourService extends Service {
         }
 
         let myRouteMap = [];
+        let max = curCity.acceleration;
         if(cfg.type == apis.RentItem.CAR) {
             if(curCity.acceleration < cfg.value) {
+                max = cfg.value;
                 let outPMap = [];
                 let planMap = [];
                 if(curCity.roadMap) {
@@ -1100,7 +1102,17 @@ class TourService extends Service {
                         myRouteMap.push(pMap.id);
                     }
 
-                    let isSingle = curCity.friend ? false : true;
+                    let isSingle =  false ;
+                    if(curCity.friend) {
+                        isSingle = true;
+                        let pCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend });
+                        if(pCity) {
+                            let pmax = pCity.acceleration;
+                            if(max <= pmax) {
+                                return;
+                            }
+                        }
+                    }
                     if(myRouteMap.length > 0) {
                         let para = {
                             oldLine: curCity.roadMap,
@@ -1108,7 +1120,8 @@ class TourService extends Service {
                             cid: curCity.cid,
                             isNewPlayer: info.ui.isNewPlayer,
                             isSingle: isSingle,
-                            rentItems: rentItems,
+                            //rentItems: rentItems,
+                            acceleration: max,
                             startTime: curCity.startTime,
                           //  weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
                          //   today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
@@ -1126,7 +1139,7 @@ class TourService extends Service {
                       //  await this.adduserarrivedtime( MakeRoadMap.getFinalEndTimeByRoadMap(outPMap) , uid);
                     }
                     //修改路线
-                    await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: cfg.value, modifyEventDate: new Date() } }, { multi: true });
+                    await this.ctx.model.TravelModel.CurrentCity.update({ uid: needChange }, { $set: { roadMap: outPMap, acceleration: max, modifyEventDate: new Date() } }, { multi: true });
 
 
                     //加入redis 用来后期排序到达事件 发送微信小程序通知
@@ -1433,7 +1446,15 @@ class TourService extends Service {
             return;
         }
         let cid                  = currentCity.cid;
-        let isDobule             = currentCity["friend"] ? true : false;
+        let   isDobule             = false;
+        let acceleration = currentCity.acceleration;
+        // if(currentCity.friend) {
+        //      isDobule             = true;
+        //     let pCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend })
+        //
+        //
+        // }
+
 
         let para                 = {
             oldLine              : currentCity.roadMap,
@@ -1441,7 +1462,8 @@ class TourService extends Service {
             cid                  : cid,
             isNewPlayer          : ui.isNewPlayer,
             isSingle             : !isDobule,
-            rentItems            : currentCity.rentItems,
+           // rentItems            : currentCity.rentItems,
+            acceleration         : acceleration,
             startTime            : currentCity.startTime,
          //   weather              : 0, //这轮配置表里没有出现数据 留着下回做逻辑
          //   today                : 0, //这轮配置表里没有出现数据 留着下回做逻辑
@@ -1465,7 +1487,7 @@ class TourService extends Service {
 
        // para['timeTotalHour']    = rm.timeTotalHour;
 
-        let acceleration = rm.acceleration;
+
         let startTime = currentCity.startTime;
         info.display = 0;
         if(acceleration) {

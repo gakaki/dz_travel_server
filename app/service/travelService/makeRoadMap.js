@@ -22,7 +22,8 @@ class MakeRoadMap {
         this.lines = []; //所有线路容器
         this.linesFormat = []; //返回给前端用的
 
-        this.rentItems      = obj.rentItems || 0;
+       // this.rentItems      = obj.rentItems || 0;
+        this.acceleration      = obj.acceleration || 0;
        // this.clacSpeed();        // 时间配置
         this.setSpotsCfg();
         this.calcTimeTotal();    // 计算和返回line的时间点
@@ -223,24 +224,25 @@ class MakeRoadMap {
         //timeHour = timeHour / 60;
         timeHour   = timeHour / 4;
 
-        if (this.rentItems) {
-            let shortTime = [];
-            for (let rentItem in this.rentItems) {
-                if (this.rentItems[rentItem]) {
-                    let item = travelConfig.Shop.Get(rentItem);
-                    if (item && item.type == apis.RentItem.CAR) {
-                        shortTime.push(item.value);
-                    }
-                }
-            }
-
-            let max = 0;
-            if(shortTime.length > 0) {
-                max = Math.max(...shortTime);
-                timeHour = timeHour * ((100 - max) / 100);
-            }
-            this.acceleration = max;
-        }
+        // if (this.rentItems) {
+        //     let shortTime = [];
+        //     for (let rentItem in this.rentItems) {
+        //         if (this.rentItems[rentItem]) {
+        //             let item = travelConfig.Shop.Get(rentItem);
+        //             if (item && item.type == apis.RentItem.CAR) {
+        //                 shortTime.push(item.value);
+        //             }
+        //         }
+        //     }
+        //
+        //     let max = 0;
+        //     if(shortTime.length > 0) {
+        //         max = Math.max(...shortTime);
+        //
+        //     }
+        //     this.acceleration = max;
+        // }
+        timeHour = timeHour * ((100 - this.acceleration) / 100);
         console.log("道具加速", timeHour);
         let diffTime = Math.floor(timeHour * 60 * 60 * 1000);
         if(this.isSingle && this.isNewPlayer) {
@@ -260,7 +262,7 @@ class MakeRoadMap {
          // diffTime = 10000;//test
 
         if ( configDebug.SHORTROADMAP ){
-            diffTime   = 2 * 60 * 1000; //30 秒
+            diffTime   = 1 * 60 * 1000; //30 秒
         }
 
         let mileage = Math.round(short_path.getMileage(travelMap));
