@@ -4,7 +4,7 @@ module.exports = app => {
     app.beforeStart(async () => {
         // 应用会等待这个函数执行完成才启动
         app.redis.setnx("travel_userid", 1000);
-        mongoose.set('debug', true);
+        // mongoose.set('debug', true);
 
             // let shops = sheets.exchanges;
             // for (let i = 0; i < shops.length; i++) {
