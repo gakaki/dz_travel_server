@@ -165,3 +165,10 @@ module.exports = new QuestRepo();
 // describe = cfg.describeFormat(cid);
 // answers = cfg.answers();
 // console.log(describe,answers,cfg.picture);
+//
+// cfg  = q.find("202962");
+// cid  = 3;
+// cfg.dealKnowledgeRow(cid);
+// describe = cfg.describeFormat(cid);
+// answers = cfg.answers();
+// console.log(describe,answers,cfg.picture);
