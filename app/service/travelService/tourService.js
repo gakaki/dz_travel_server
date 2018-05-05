@@ -1448,12 +1448,10 @@ class TourService extends Service {
         let cid                  = currentCity.cid;
         let   isDobule             = false;
         let acceleration = currentCity.acceleration;
-        // if(currentCity.friend) {
-        //      isDobule             = true;
-        //     let pCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend })
-        //
-        //
-        // }
+        if(currentCity.friend) {
+             isDobule             = true;
+           // let pCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend })
+        }
 
 
         let para                 = {
