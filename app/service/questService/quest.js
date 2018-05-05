@@ -42,7 +42,12 @@ class Quest extends TreeNode {
         this.trigger_type   = d.subtype;    //
         // this.loc_name       = d['loc_name']; //地点中文
 
-        this.belong         =  d.belong;     //事件归属
+
+
+        this.belong         = d.belong;     //事件归属
+        //注意坑爹的belong 里居然同时包含了 cid和spotid2个数值 需要判断了
+        this.dealCityAndSpotConfig();
+
         this.type           =  d.type;       //事件触发的景点或城市，通用事件填0
 
         this.EventTypeKeys =  { //事件触发类型
@@ -130,6 +135,25 @@ class Quest extends TreeNode {
             let typeId      = rewardRow['k'];
             let itemIdOrVal = rewardRow['v'];
             this.rewardKV[typeId] = itemIdOrVal;
+        }
+    }
+
+    dealCityAndSpotConfig() {
+        this.configCity = null;
+        this.cid = 0;
+        this.configSpot = null;
+        this.spotId = 0;
+        if (this.belong > 0) {
+            let configCity = travelsConfig.City.Get(this.belong);
+            if (configCity) {
+                this.configCity = configCity;
+                this.cid = this.belong;
+            }
+            let configSpot = travelsConfig.Scenicspot.Get(this.belong);
+            if (configSpot) {
+                this.configSpot = configSpot;
+                this.spotId = this.belong;
+            }
         }
     }
 
