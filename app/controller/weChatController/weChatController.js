@@ -52,14 +52,14 @@ class WeChatController extends Controller {
             return;
         }
 
-        let goods=travelConfig.Pay.Get(goodsId);
-        if(!goods){
+        let goods = travelConfig.Pay.Get(goodsId);
+        if(!goods) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-       // let money = (goods.pay)*100;
-        let money = 1;
+        let money = (goods.pay) * 100;
+        //let money = 1;
         this.logger.info("我拿到的钱数:" + money);
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName);
     }

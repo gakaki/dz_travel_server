@@ -481,7 +481,7 @@ class TourService extends Service {
             if(!fcityLight) {
                 hasLight = false;
                 let parterS = await this.ctx.model.TravelModel.Footprints.count({ uid: currentCity.friend, cid: cid, fid: currentCity.fid, scenicspot: { $ne: null } });
-                parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, isTour: true });
+                parterTour = await this.ctx.model.TravelModel.SpotTravelEvent.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid, subType: { $in: [ 3, 4 ] } });
                 parterPhoto = await this.ctx.model.TravelModel.PhotoLog.count({ uid: currentCity.friend, fid: currentCity.fid, cid: cid });
 
                 let sNumber = Math.min(sCount, parterS);
@@ -917,7 +917,6 @@ class TourService extends Service {
             }
 
         }else{
-            this.logger.error("........................");
             if (eventsNoReceived.length > 0){
                 event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
             }
