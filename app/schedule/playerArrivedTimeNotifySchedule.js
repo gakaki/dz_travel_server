@@ -1,5 +1,5 @@
 const Subscription = require('egg').Subscription;
-
+const KEY_USER_ONLINE = `online`;
 class PlayerArrivedTimeNotifySchedule extends Subscription {
     // 通过 schedule 属性来设置定时任务的执行间隔等配置
     static get schedule() {
@@ -17,17 +17,27 @@ class PlayerArrivedTimeNotifySchedule extends Subscription {
          let now                  = Date.now();
          let ago                  = now - min;
          let c                    = await this.config.REDISKEY;
-         let needNotifyUserIds    = await this.app.redis.zrangebyscore(c.KEY_USER_ARRIVE_TIME, "-inf", ago );
+         let needNotifyUserIds    = await this.app.redis.zrangebyscore(c.KEY_USER_ARRIVE_TIME, "-inf", now );
+         let notOnlineUserIds     = await this.app.redis.zrangebyscore(KEY_USER_ONLINE, "-inf", ago );
 
-         this.logger.info( " needNotifyUserIds " , needNotifyUserIds );
+        // let needSet = new Set(needNotifyUserIds);
+         let notOnlieSet = new Set(notOnlineUserIds);
+         let noticUserIds = new Set(needNotifyUserIds.filter(x => notOnlieSet.has(x)));
 
-         for( let uid of needNotifyUserIds ){
+
+
+         this.logger.info( " noticUserIds " , noticUserIds );
+
+         for( let uid of noticUserIds ){
              this.logger.info( " PlayerArrivedTimeNotifySchedule " , uid );
             let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
             if(!currentCity) {
                 continue;
             }
             let roadMap = currentCity.roadMap;
+            if(!roadMap) {
+                continue
+            }
             let lastSpotIndex = Math.max(...roadMap.map(n => n.index));
             let lastSpot = roadMap.find(n => n.index == lastSpotIndex);
             if(!lastSpot) {

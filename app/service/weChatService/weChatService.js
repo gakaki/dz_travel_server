@@ -418,7 +418,7 @@ class WeChatService extends Service {
     async sendTemplateMessage(uid, template) {
         let access_token = await this.app.redis.get("wechatAccessToken");
         if(!access_token) {
-            access_token = this.freshAccess_token();
+            access_token = await this.freshAccess_token();
         }
         let formId = await this.getFormId(uid);
         if(formId) {
@@ -453,9 +453,18 @@ class WeChatService extends Service {
                 });
 
                 if(result.data.errcode != constant.Code.OK) {
-                    this.logger.error("当前formid " + formId, result);
+                    this.logger.info(result);
+              //      this.logger.error("当前formid " + formId, result);
+                    if(result.data.errcode == 40001) {
+                        await this.freshAccess_token();
+                    }
+                    if(result.data.errcode == 41028) {
+                        await this.ctx.model.WeChatModel.TemplateMessage.update({ uid: uid, formId: formId, canUseNumber: { $gt: 0 } }, { $inc: { canUseNumber: -1 } });
+                    }
                     await this.sendTemplateMessage(uid, template);
+
                 }else{
+                    await this.ctx.model.WeChatModel.TemplateMessage.update({ uid: uid, formId: formId, canUseNumber: { $gt: 0 } }, { $inc: { canUseNumber: -1 } });
                     await this.ctx.model.PublicModel.UserTemplateMessage.create({
                         uid: uid,
                         formId: formId,
@@ -476,7 +485,6 @@ class WeChatService extends Service {
         let templateMessages = await this.ctx.model.WeChatModel.TemplateMessage.find({ uid: uid, canUseNumber: { $gt: 0 } });
         if(templateMessages.length) {
             let templateMessage = templateMessages.shift();
-            await this.ctx.model.WeChatModel.TemplateMessage.update({ uid: uid, formId: templateMessage.formId, canUseNumber: { $gt: 0 } }, { $inc: { canUseNumber: -1 } });
             return templateMessage.formId;
         }
         return null;
