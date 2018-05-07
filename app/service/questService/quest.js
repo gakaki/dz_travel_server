@@ -161,11 +161,11 @@ class Quest extends TreeNode {
     hasSpecialTopic(){
         return  this.describeOringal.indexOf("%s") < 0 || this.describeOringal.indexOf("s%") < 0 ;
     }
+
+
+
     //生成带topic的quest 需要传入cid spotId等
     dealKnowledgeRow( currentCid = null , spotId = null ) {
-        if (this.topic == 0) {
-            return;
-        }
 
         let cfgCity, cfgSpot = null;
         if (!currentCid) {
@@ -177,18 +177,31 @@ class Quest extends TreeNode {
             cfgSpot = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
         }
 
+
+        let currentCityName = cfgCity.city;
+        let replaceStr   = /s%/gi;
+
+        this.describe    = this.describeOringal.replace(replaceStr ,currentCityName ); //可以处理多个哦
+        if (this.topic <= 0) {
+            return;
+        }
+
         if (!this.hasSpecialTopic()) {
             // console.log(this.eid,this.describe);
             return;
         } else {
-            console.log(this.id, this.describe);
+            // console.log(this.id, this.describe);
         }
         let itemPic   = null;
         let itemNames = [];
         let items     = null;
 
+
+        /// 随机答案answer
         // 特产随机
-        if (this.topic == this.KnowledgeKeys.SPECIALITY) { //1
+        if (this.topic == this.KnowledgeKeys.SPECIALITY ||
+            this.id  == '130070' //xx特产在哪个城市 by cid
+        ) { //1
              items      = specialityRepo.random4ByCityMoreRange(currentCid);
          }
         // 景点随机
@@ -196,40 +209,65 @@ class Quest extends TreeNode {
              items      = scenicspotRepo.random4ByCityMoreRange(currentCid);
         }
         // 城市随机
-        else if (this.topic == this.KnowledgeKeys.CITY) { //3
+        else if (this.topic == this.KnowledgeKeys.CITY  ) {
              items       = cityRepo.random4ByCityMoreRange(currentCid);
         }
 
         //this.describe 里的%s其实全都是城市的意思
-        let rightItem               = items.shift();
+        let rightItem                   = items.shift();
+        if( this.picture.match(/s%/gi) ){ //如果有s% 说明是要被替换掉的
+            this.picture                = rightItem.picture;
+        }else{
+            this.picture                = this.picture;
+        }
 
+        /// 随机答案answer 剩下三个为错误的答案wrong1 wrong2 wrong3
         // 特产随机
-        if (this.topic == this.KnowledgeKeys.SPECIALITY) { //1
+        if (this.topic == this.KnowledgeKeys.SPECIALITY ) { //1
             itemNames               = items.map(e => e.specialityname);
-            this.picture            = rightItem.picture;
             this.answer             = rightItem.specialityname;
         }
         // 景点随机
         else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
             itemNames               = items.map(e => e.scenicspot);
-            this.picture            = rightItem.picture;
             this.answer             = rightItem.scenicspot;
         }
         // 城市随机
-        else if (this.topic == this.KnowledgeKeys.CITY) { //3
+        else if (this.topic == this.KnowledgeKeys.CITY ) {
             itemNames               = items.map(e => e.city);
-            this.picture            = rightItem.picture;
             this.answer             = rightItem.city;
+        }
+
+        // 130070 '拼三鲜是以下哪个地区的特产？' [ '延边', '三沙', '四平', '榆林' ] '11.jpg'
+        if( this.id == '130070'){
+            let describeRightItems  = specialityRepo.random4ByCityMoreRange(currentCid);
+            let describeRightItem   = describeRightItems.pop();
+            this.describe           = this.describeOringal.replace(replaceStr ,describeRightItem.specialityname ); //可以处理多个哦
+
+            //答案是城市 ，，3个错误的城市和一个正确的城市
+            let cityItems           = cityRepo.random4ByCityMoreRange(describeRightItem.cityid);
+            let rightCityItem       = cityItems.pop();
+            this.answer             = rightCityItem.city;
+            itemNames               = cityItems.map(e => e.city)
+        }
+
+        //景点位于哪个城市
+        if( this.id == '130080'){
+            let describeRightItems  = scenicspotRepo.random4ByCityMoreRange(currentCid);
+            let describeRightItem   = describeRightItems.pop();
+            this.describe           = this.describeOringal.replace(replaceStr ,describeRightItem.scenicspot ); //可以处理多个哦
+
+            //答案是城市 ，，3个错误的城市和一个正确的城市
+            let cityItems           = cityRepo.random4ByCityMoreRange(describeRightItem.cityid);
+            let rightCityItem       = cityItems.pop();
+            this.answer             = rightCityItem.city;
+            itemNames               = cityItems.map(e => e.city)
         }
 
         let [wrong1, wrong2, wrong3] = _.shuffle(itemNames);
         this.wrong1 = wrong1;
         this.wrong2 = wrong2;
         this.wrong3 = wrong3;
-
-        let currentCityName = cfgCity.city;
-        let replaceStr   = "s%";
-        this.describe    = this.describeOringal.replace(replaceStr ,currentCityName );
     }
 
     toString() {

@@ -157,12 +157,13 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
+
 // let rows   = new QuestRepo().filterTourQuests({
 //     cid : 3 // 上海
 // });
 //
 // // console.log(rows);
-// let q    = new QuestRepo();
+//
 // let cfg  = q.find("130061");
 // let cid  = 3;
 // // cfg.dealKnowledgeRow(cid);
@@ -174,18 +175,77 @@ module.exports = new QuestRepo();
 // cid  = 3;
 // cfg.dealKnowledgeRow(cid);
 // answers = cfg.answers();
-// console.log(describe,answers,cfg.picture);
+// console.log(cfg.describe,answers,cfg.picture);
 //
 // cfg  = q.find("202962");
 // cid  = 3;
 // cfg.dealKnowledgeRow(cid);
 // answers = cfg.answers();
-// console.log(describe,answers,cfg.picture);
+// console.log(cfg.describe,answers,cfg.picture);
+
+let cid  = 3;
+let q    = new QuestRepo();
+let rowIds = [
+//      '130010',
+//      '130020',
+//      '130030',
+//      '130040',
+//      '130050',
+//      '130060',
+//      '130061',
+//      '130070',
+//      '130080',
+//      '130200',
+//      '130201',//
+// // let q    = new QuestRepo();
+// // let rowIds = [
+// //      '130010',
+// //      '130020',
+// //      '130030',
+// //      '130040',
+//       '130050',
+//       '130060'
+// //      '130061',
+
+// //      '130200',
+// //      '130201',
+// //      '130202',
+// //      '130203',
+// //      '130204',
+// //      '130205',
+// //      '130206',
+// //      '130207',
+// //      '130208',
+// //      '130209',
+// // ];
+// // let cid  = 3;
+// // for ( let id of rowIds ){
+// //     let cfg  = q.find(id);
+// //     cfg.dealKnowledgeRow(cid);
+// //     answers = cfg.answers();
+// //     console.log(cfg.id,cfg.describe,answers,cfg.picture);
+// // }
+//      '130202',
+//      '130203',
+//      '130204',
+//      '130205',
+//      '130206',
+//      '130207',
+//      '130208',
+//      '130209',
+];
+
+// for ( let id of rowIds ){
+//     let cfg  = q.find(id);
+//     cfg.dealKnowledgeRow(cid);
+//     answers = cfg.answers();
+//     console.log(cfg.id,cfg.describe,answers,cfg.picture);
+// }
 
 
-// cfg  = q.find("130020");
-// cid  = 327; //乌鲁木齐
-// cfg.dealKnowledgeRow(cid);
-// describe = cfg.describeFormat(cid);
-// answers = cfg.answers();
-// console.log(describe,answers,cfg.picture);
+// for ( let id of ['130070','130080'] ){
+//     let cfg  = q.find(id);
+//     cfg.dealKnowledgeRow(cid);
+//     answers = cfg.answers();
+//     console.log(cfg.id,cfg.describe,answers,cfg.picture);
+// }
