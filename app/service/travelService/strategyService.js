@@ -8,7 +8,7 @@ class StrategyService extends Service {
        let page = info.page ? Number(info.page) : 1;
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
        let tsinfos = await this.ctx.model.TravelModel.Comment.aggregate([
-           { $match: { cid: info.cityId, type: Number(info.type) } },
+           { $match: { cid: info.cityId, type: Number(info.type), canWatch: true } },
            { $group: { _id: { travel_tips: "$travel_tips" }, score: { $sum: "$grade" }, commentNum: { $sum: 1 } } },
            { $project: { _id: 0, travel_tip: "$_id.travel_tips", totalScore: "$score", commentNum: "$commentNum" } },
        ]);
@@ -52,7 +52,7 @@ class StrategyService extends Service {
    async getComments(info) {
        let page = info.page ? Number(info.page) : 1;
        let limit = info.limit ? Number(info.limit) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
-       let comments = await this.ctx.model.TravelModel.Comment.find({ cid: info.cityId, type: Number(info.type), travel_tips: info.postId }).sort("-likes").skip((page - 1) * limit).limit(limit);
+       let comments = await this.ctx.model.TravelModel.Comment.find({ cid: info.cityId, type: Number(info.type), travel_tips: info.postId, canWatch: true }).sort("-likes").skip((page - 1) * limit).limit(limit);
        let outcomments = [];
        if(info.type == apis.PostType.JINGDIAN) {
            info.content = travelConfig.Scenicspot.Get(info.postId).description;

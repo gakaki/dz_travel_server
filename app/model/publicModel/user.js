@@ -32,6 +32,7 @@ module.exports = app => {
         address: { type: String },
         hasPlay: { type: Boolean, default: false }, //是否体验过新手引导了指游玩界面
         playTimes: { type: Number, default: travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value }, //第二次城市游玩送车
+        isFrozen: { type: Boolean, default: false }, //是否被冻结
     });
 
     return mongoose.model('User', UserSchema);
