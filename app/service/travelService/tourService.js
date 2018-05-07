@@ -1127,9 +1127,9 @@ class TourService extends Service {
                         myRouteMap.push(pMap.id);
                     }
 
-                    let isSingle =  false ;
+                    let isSingle = true;
                     if(curCity.friend) {
-                        isSingle = true;
+                        isSingle = false;
                         let pCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: curCity.friend });
                         if(pCity) {
                             let pmax = pCity.acceleration;
