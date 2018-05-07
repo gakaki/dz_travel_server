@@ -212,6 +212,7 @@ class TravelService extends Service {
           //  photographySpots: [],
             tourCount: travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value,
         };
+
         let footprint = {
             uid: ui.uid,
             fid: flyid.toString(),
@@ -265,7 +266,7 @@ class TravelService extends Service {
 
             }
             if(fui.playTimes == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
-                await this.ctx.model.PublicModel.User.update({ uid: info.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
+                await this.ctx.model.PublicModel.User.update({ uid: fui.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
             }
             flyRecord.uid = fui.uid;
             flyRecord.friend = ui.uid;
