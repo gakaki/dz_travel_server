@@ -39,10 +39,12 @@ class ItemService extends Service {
                     this.logger.info(`用户道具 ${index} 更新成功 ${delta[indexs]}`);
                 }else{
                     this.logger.error(`道具 ${index} 更新失败, 准备更新的数量 ${delta[indexs]}`);
+                    return false;
                 }
 
             } catch (err) {
                 this.logger.error("道具更新失败 ：" + err);
+                return false;
             }
 
 

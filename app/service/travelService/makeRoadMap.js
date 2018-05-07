@@ -14,7 +14,7 @@ class MakeRoadMap {
         this.oldLine      = obj.oldLine;
         this.spotIds        = obj.line || [];
         this.isNewPlayer    = obj.isNewPlayer || 0; //新手引导路途加速
-        this.isSingle       = obj.isSingle || 1; //默认单人旅行
+        this.isSingle       = obj.isSingle; //默认单人旅行
         this.cid            = obj.cid || 0;
         this.startTime      =obj.startTime || 0;
         this.finalEndTime   = 0; //终点到达的时间

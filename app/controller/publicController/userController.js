@@ -75,7 +75,7 @@ class UserController extends Controller {
     async changeitem(ctx) {
         const {uid, itemId, count, appName} = ctx.query;
         let result = {};
-        if (!uid || !itemId || !count) {
+        if (!uid || !itemId || !count || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
@@ -87,11 +87,12 @@ class UserController extends Controller {
             return;
         }
         let cost = {
-            ["items." + itemId]: Number(count)
+            ["items." + itemId]: Number(count),
         };
        // await ctx.model.PublicModel.User.update({uid: uid, appName: appName}, {$inc: cost});
 
-        await this.service.publicService.itemService.itemChange(ui.uid, cost, "artificial");
+        let update = await this.service.publicService.itemService.itemChange(ui.uid, cost, "artificial");
+        ctx.body = update ? "更新成功" : "更新失败";
     }
 
     async online(ctx){
