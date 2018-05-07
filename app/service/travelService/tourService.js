@@ -518,7 +518,7 @@ class TourService extends Service {
                 this.logger.info("创建点亮表");
                 await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid },{ uid: uid, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                 //更新足迹榜记录
-                await this.ctx.service.travelService.rankService.updateFootRecord(uid);
+                this.ctx.service.travelService.rankService.updateFootRecord(uid);
             }
             if(currentCity.friend) {
                 let cityLight = await this.ctx.model.TravelModel.CityLightLog.findOne({ uid: currentCity.friend, cid: cid });
@@ -527,7 +527,7 @@ class TourService extends Service {
                     this.logger.info("创建点亮表");
                     await this.ctx.model.TravelModel.CityLightLog.update({ uid: uid, cid: cid }, { uid: currentCity.friend, cid: cid, province: cityConfig.province, lighten: true, createDate: new Date() }, { upsert: true });
                     //更新足迹榜记录
-                    await this.ctx.service.travelService.rankService.updateFootRecord(currentCity.friend);
+                     this.ctx.service.travelService.rankService.updateFootRecord(currentCity.friend);
                 }
             }
         }
@@ -1337,13 +1337,13 @@ class TourService extends Service {
             //更新足迹表
             await this.queryTaskProgress(selfInfo.uid, curCity);
           //  this.updatePlayerProgress(curCity, selfInfo.uid);
-
+            await this.ctx.model.TravelModel.Efficiency.update({ fid: curCity.fid, cid: curCity.cid, uid: selfInfo.uid },
+                { $set: { fid: curCity.fid, cid: curCity.cid, uid: selfInfo.uid, efficiency: efficiency, reward: reward, createDate: new Date() } },
+                { upsert: true });
         }
 
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [], efficiency: efficiency, reward: reward } });
-        await this.ctx.model.TravelModel.Efficiency.update({ fid: curCity.fid, cid: curCity.cid, uid: selfInfo.uid },
-            { $set: { fid: curCity.fid, cid: curCity.cid, uid: selfInfo.uid, efficiency: efficiency, reward: reward, createDate: new Date() } },
-            { upsert: true });
+
         return {
             score: efficiency,
             reward: reward,
@@ -1494,9 +1494,6 @@ class TourService extends Service {
         };
 
         let rm                   = new MakeRoadMap(para);
-
-
-
         let newRoadMap           = rm.linesFormat;
         let outPMap = [];
         for(let roadMap of currentCity.roadMap){

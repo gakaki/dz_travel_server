@@ -93,6 +93,14 @@ class TravelService extends Service {
         };
         //上个城市效率奖励
         if(lastCity) {
+            let tourCity = false;
+            let maps = lastCity.roadMap;
+            for(let map of maps) {
+                if(map.index != -1) {
+                    tourCity = true;
+                    break;
+                }
+            }
             try {
                 let efficiencyReward = await this.service.travelService.tourService.leavetour(ui);
                 lastCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
@@ -104,9 +112,17 @@ class TravelService extends Service {
                 info.reward = 0;
             }
 
-            if(ui.isNewPlayer && !fui && (lastCity.efficiency || lastCity.efficiency == 0)) {
-                await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
+
+
+            if(ui.isNewPlayer) {
+                //本次单飞 并且 上次有规划
+                let flyRecord = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: lastCity.fid });
+                if(!fui && tourCity && !flyRecord.isDoublue) {
+                    await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $set: { isNewPlayer: false } });
+                }
+
             }
+
             if(lastCity.friend) {
                 await this.ctx.model.TravelModel.CurrentCity.update({ uid: lastCity.friend }, { friend: null }, { upsert: true });
             }
@@ -196,6 +212,7 @@ class TravelService extends Service {
           //  photographySpots: [],
             tourCount: travelConfig.Parameter.Get(travelConfig.Parameter.TOURNUMBER).value,
         };
+
         let footprint = {
             uid: ui.uid,
             fid: flyid.toString(),
@@ -249,7 +266,7 @@ class TravelService extends Service {
 
             }
             if(fui.playTimes == travelConfig.Parameter.Get(travelConfig.Parameter.SENDCARTRY).value) {
-                await this.ctx.model.PublicModel.User.update({ uid: info.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
+                await this.ctx.model.PublicModel.User.update({ uid: fui.uid, playTimes: { $gt: 0 } }, { $inc: { playTimes: -1 } })
             }
             flyRecord.uid = fui.uid;
             flyRecord.friend = ui.uid;

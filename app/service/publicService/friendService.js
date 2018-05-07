@@ -91,14 +91,17 @@ class FriendService extends Service {
         let friends = [];
         for(let user of users) {
             let friendInfo = await this.ctx.model.PublicModel.User.findOne({ uid: user.uid });
-            let friend = {
-                uid: friendInfo.uid,
-                nickName: friendInfo.nickName,
-                avatarUrl: friendInfo.avatarUrl,
-                cid: user.cid,
-                cityName: travelConfig.City.Get(user.cid).city,
-            };
-            friends.push(friend);
+            if(friendInfo) {
+                let friend = {
+                    uid: friendInfo.uid,
+                    nickName: friendInfo.nickName,
+                    avatarUrl: friendInfo.avatarUrl,
+                    cid: user.cid,
+                    cityName: travelConfig.City.Get(user.cid).city,
+                };
+                friends.push(friend);
+            }
+
         }
         return friends;
     }
