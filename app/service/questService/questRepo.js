@@ -166,7 +166,6 @@ module.exports = new QuestRepo();
 // let cfg  = q.find("130061");
 // let cid  = 3;
 // // cfg.dealKnowledgeRow(cid);
-// // let describe = cfg.describeFormat(cid);
 // // let answers = cfg.answers();
 // // console.log(describe,answers);
 //
@@ -174,12 +173,18 @@ module.exports = new QuestRepo();
 // cfg  = q.find("130040");
 // cid  = 3;
 // cfg.dealKnowledgeRow(cid);
-// describe = cfg.describeFormat(cid);
 // answers = cfg.answers();
 // console.log(describe,answers,cfg.picture);
 //
 // cfg  = q.find("202962");
 // cid  = 3;
+// cfg.dealKnowledgeRow(cid);
+// answers = cfg.answers();
+// console.log(describe,answers,cfg.picture);
+
+
+// cfg  = q.find("130020");
+// cid  = 327; //乌鲁木齐
 // cfg.dealKnowledgeRow(cid);
 // describe = cfg.describeFormat(cid);
 // answers = cfg.answers();

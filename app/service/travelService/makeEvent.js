@@ -77,7 +77,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         eventRows.push(dbRow);
         if (configDebug.EVENTGENINIITAL)
         {
-            for (let i=0 ; i< 10 ;i ++ ){
+            for (let i=0 ; i< 9 ;i ++ ){
                 let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
                 eventRows.push(dbRow);
             }
@@ -171,22 +171,19 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     }
     //纯用来测试的哦注意哦
     randomQuestForDebug(option){
-        let quests      = QuestRepo.quests.filter( e  => (
-            (e.belong == option.cid || !e.belong) &&a
-            (e.trigger_type  == e.TriggerTypeKeys.RANDOM_COMMON ||  e.trigger_type == e.TriggerTypeKeys.RANDOM_CITY) &&
-            // (e.type  == e.EventTypeKeys.QA_NO_NEED_RESULT ||  e.trigger_type == e.EventTypeKeys.QA_NEED_RESULT)
-            e.type == e.EventTypeKeys.COMMON
-        ));
-        //根据权重进行 随机 这里暂时偷懒为了快点出来先
+        let quests      = QuestRepo.quests.filter( e  => parseInt( e.id) <= 130080 && parseInt( e.id) >= 130010);
+         quests      = QuestRepo.quests.filter( e  =>  e.id == "130020" );
         let randomEl    = _.shuffle(quests)[0];
         return randomEl;
     }
 
 
-
 }
 
 module.exports = MakeEvent;
+
+
+
 
 //
 //
@@ -206,29 +203,28 @@ module.exports = MakeEvent;
 //
 // // 100次测试生成抽奖的概率计算查看 上海的
 //
-let objParametes   = {
-    cid:3,
-    timeTotalHour: 1,
-    weather: 0,
-    today: 0,
-    itemSpecial: 0
-}
-let questGroupBy        =  QuestRepo.groupBy(objParametes);
-let countMap = {}
-console.time('test');
-for ( let i = 0 ; i < 1 ; i++){
-    let er              = new MakeEvent(objParametes);
-    console.log(er.eventsFormat.length);
-    let el              = er.questsView;
-    let probs           = el.map( e => e.probability);
-    let group           = _.groupBy(probs);
-    for (let k in group){
-        group[k] = group[k].length;
-    }
-   console.log(group);
-}
-
-console.timeEnd('test');
+// let objParametes   = {
+//     cid:3,
+//     timeTotalHour: 1,
+//     weather: 0,
+//     today: 0,
+//     itemSpecial: 0
+// }
+// let questGroupBy        =  QuestRepo.groupBy(objParametes);
+// let countMap = {}
+// console.time('test');
+// for ( let i = 0 ; i < 1 ; i++){
+//     let er              = new MakeEvent(objParametes);
+//     console.log(er.eventsFormat.length);
+//     let el              = er.questsView;
+//     let probs           = el.map( e => e.probability);
+//     let group           = _.groupBy(probs);
+//     for (let k in group){
+//         group[k] = group[k].length;
+//     }
+//    console.log(group);
+// }
+// console.timeEnd('test');
 
 
 // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart

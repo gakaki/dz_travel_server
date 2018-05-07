@@ -985,10 +985,10 @@ class TourService extends Service {
             dbId                                                         : event['dbId'],
             eid                                                          : eid, //前端没有此配置表
             type                                                         : questCfg.type,
-            describe                                                     : questCfg.describeFormat(cid),
+            describe                                                     : questCfg.describe,
             gold_used                                                    : 0,
             picture                                                      : questCfg['picture'],
-            question                                                     : questCfg['describe'],
+            question                                                     : questCfg.describe,
             answers                                                      : questCfg.answers(),
         };
 
