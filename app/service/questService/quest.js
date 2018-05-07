@@ -80,7 +80,8 @@ class Quest extends TreeNode {
         };
 
         this.id             = d.id;
-        this.describe       = d.describe;   //事件描述 '以下特产中，哪个是s%的特产？',
+        this.describe       = d.describe; //describe 字段是作为最后替换掉 s%的
+        this.describeOringal =  d.describe; //事件描述 '以下特产中，哪个是s%的特产？',
         this.trigger_type   = d.subtype;    //事件触发类型
                                             // 1、通用城市事件：在所有城市游玩都可以触发的事件；
                                             // 2、特定城市事件：在特定城市游玩才能触发的事件；
@@ -158,7 +159,7 @@ class Quest extends TreeNode {
     }
 
     hasSpecialTopic(){
-        return  this.describe.indexOf("%s") < 0 || this.describe.indexOf("s%") < 0 ;
+        return  this.describeOringal.indexOf("%s") < 0 || this.describeOringal.indexOf("s%") < 0 ;
     }
     //生成带topic的quest 需要传入cid spotId等
     dealKnowledgeRow( currentCid = null , spotId = null ) {
@@ -228,8 +229,7 @@ class Quest extends TreeNode {
 
         let currentCityName = cfgCity.city;
         let replaceStr   = "s%";
-        this.describe    = this.describe.replace(replaceStr ,currentCityName );
-
+        this.describe    = this.describeOringal.replace(replaceStr ,currentCityName );
     }
 
     toString() {
@@ -239,33 +239,33 @@ class Quest extends TreeNode {
         return res;
     }
 
-    describeFormat(currentCid=null,spotId=null){
-        let res = "";
-        let replaceStr = "s%";
-        if ( this.describe && this.describe.indexOf(replaceStr) >= 0 ){
-
-            let c        = null;
-            let s        = null;
-
-            if ( currentCid ){
-                 c      = travelsConfig.City.Get(currentCid);
-            }
-            if ( spotId ){
-                 s      = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
-            }
-
-            if ( s ){
-                res     = this.describe.replace(replaceStr,s.scenicspot);
-            }
-            if ( c ){
-                res     = this.describe.replace(replaceStr,c.city);
-            }
-        }
-        else{
-            res =  this.describe;
-        }
-        return res;
-    }
+    // describeFormat(currentCid=null,spotId=null){
+    //     let res = "";
+    //     let replaceStr = "s%";
+    //     if ( this.describe && this.describe.indexOf(replaceStr) >= 0 ){
+    //
+    //         let c        = null;
+    //         let s        = null;
+    //
+    //         if ( currentCid ){
+    //              c      = travelsConfig.City.Get(currentCid);
+    //         }
+    //         if ( spotId ){
+    //              s      = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
+    //         }
+    //
+    //         if ( s ){
+    //             res     = this.describe.replace(replaceStr,s.scenicspot);
+    //         }
+    //         if ( c ){
+    //             res     = this.describe.replace(replaceStr,c.city);
+    //         }
+    //     }
+    //     else{
+    //         res =  this.describe;
+    //     }
+    //     return res;
+    // }
 
     answers(){
         let answers   = [ this.answer, this.wrong1, this.wrong2, this.wrong3 ];
@@ -281,7 +281,7 @@ class Quest extends TreeNode {
         //let reward   = this.reward;
         let reward   = getReward;
 
-        let totalStr = `${this.describe} `;
+        let totalStr = `${this.describeOringal} `;
         let stmtArr  = [];
 
         if ( !reward ){              //若外部reward为空 那么设置为本类的reward
