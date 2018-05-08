@@ -20,7 +20,6 @@ class UserService extends Service {
                     let _sid = this.GEN_SID(loginUser.pid);
                     this.recruitSid(_sid, loginUser.pid);
                     this.logger.info("老用户刷新SID ：" + _sid);
-
                     await this.ctx.model.PublicModel.User.update({ pid: loginUser.pid, appName: appName }, {
                         $set: {
                             nickName: info.nickName,
@@ -60,6 +59,13 @@ class UserService extends Service {
                 }
             }
 
+
+            if(shareUid && uid != shareUid && result.info) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: result.info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: result.info.uid }, { $addToSet: { friendList: shareUid } });
+                }
+            }
 
             return result;
 
@@ -291,6 +297,13 @@ class UserService extends Service {
         });
 
         shareUid && uid != shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
+
+        if(shareUid && uid != shareUid) {
+            let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: uid } });
+            if(update.nModified) {
+                await this.ctx.model.PublicModel.User.update({ uid: uid }, { $addToSet: { friendList: shareUid } });
+            }
+        }
 
         return ui;
     }
