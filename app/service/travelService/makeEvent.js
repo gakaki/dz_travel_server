@@ -172,7 +172,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     //纯用来测试的哦注意哦
     randomQuestForDebug(option){
         let quests      = QuestRepo.quests.filter( e  => parseInt( e.id) <= 130080 && parseInt( e.id) >= 130010);
-         quests      = QuestRepo.quests.filter( e  =>  e.id == "130020" );
+         // quests      = QuestRepo.quests.filter( e  =>  e.id == "130020" || e.id == "");
         let randomEl    = _.shuffle(quests)[0];
         return randomEl;
     }

@@ -2476,6 +2476,7 @@ class PartnerInfo extends Base {
         
     
         this._inviteCode = null;
+        this._playerUid = null;
         this._nickName = null;
         this._avatarUrl = null;
         this._gold = null;
@@ -2490,11 +2491,14 @@ class PartnerInfo extends Base {
         this._reward = null;
         this.requireFileds = ["inviteCode"];
         this.reqFields = ["inviteCode"];
-        this.resFields = ["nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly","score","reward"];
+        this.resFields = ["playerUid","nickName","avatarUrl","gold","season","weather","cid","location","holiday","parLocation","isFly","score","reward"];
     }
     //client input, require, type: string
     get inviteCode() {return this._inviteCode}
     set inviteCode(v) {this._inviteCode = v}
+    //server output, type: string
+    get playerUid() {return this._playerUid}
+    set playerUid(v) {this._playerUid = v}
     //server output, type: string
     get nickName() {return this._nickName}
     set nickName(v) {this._nickName = v}

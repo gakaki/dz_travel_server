@@ -39,6 +39,7 @@ class DoubleService extends Service {
             if(pvisit) {
                 info.parLocation = pvisit.cid;
             }
+            info.playerUid = ui.uid;
             info.nickName = ui.nickName;
             info.avatarUrl = ui.avatarUrl;
         }

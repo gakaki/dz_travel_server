@@ -87,6 +87,7 @@ api DeleteCode{
 api PartnerInfo{
     //邀请码
     require inviteCode:string
+    output playerUid:string
     //返回昵称
     output nickName:string
     //返回头像
