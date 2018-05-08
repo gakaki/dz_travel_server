@@ -22,6 +22,7 @@ module.exports = app => {
 
 
     router.get('/weChat/sendmockid', controller.weChatController.weChatController.getmockid);
+    router.get('/weChat/getgoods', controller.weChatController.weChatController.getgoods);
 
 
     router.get('/user/getiteminfo', controller.publicController.userController.getiteminfo);
