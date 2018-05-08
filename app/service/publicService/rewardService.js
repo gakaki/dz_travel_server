@@ -14,7 +14,94 @@ const postcardRepo  = require('../configService/postcardRepo');
 
 // 专门处理各种奖励服务
 class RewardService extends Service{
+    //错误奖励
+    async erroreward( uid , cid , eid ) {
+        let eventCfg        = questRepo.find(eid);
+        if( !eventCfg ){
+            throw new Error({
+                code: apis.Code.PARAMETER_NOT_MATCH,
+                message: "事件不存在" + eid
+            });
+        }
+        if (eventCfg.errorreward == 0){
+            this.logger.info("error reword is zero not used");
+            return false;
+        }
 
+        this.logger.info("--== RewardService Reward method ==--");
+        this.logger.info("event  eid id ", eventCfg.eid ,eventCfg.type );
+
+        let reward = [];
+
+        for ( let k in eventCfg.errorewardKV) {
+
+            let  v = eventCfg.errorewardKV[k];
+            if ( k == eventCfg.RewardType.GOLD){ // 金币
+                if(await this.gold( uid , Number(v))){
+                    reward.push(
+                        {
+                            k:k,
+                            v:v
+                        }
+                    )
+                }
+            }
+            if ( k == eventCfg.RewardType.TIME){// 城市总时间
+                if(await this.time( uid , cid , eid ,  v )){
+                    reward.push(
+                        {
+                            k:k,
+                            v:v
+                        }
+                    )
+                }
+
+            }
+            if ( k == eventCfg.RewardType.POSTCARD){// 明信片
+                if(await this.postcard( uid , cid , v )) {
+                    reward.push(
+                        {
+                            k:k,
+                            v:v,
+                            n:1
+                        }
+                    )
+                }
+            }
+            if ( k == eventCfg.RewardType.Speciality){ //特产
+                this.logger.info(v);
+                if(await this.speciality( uid , cid ,v )) {
+                    reward.push(
+                        {
+                            k:k,
+                            v:v,
+                            n:1
+                        }
+                    )
+                }else{
+                    reward.push(
+                        {
+                            k:k,
+                            v:v,
+                            n:0,
+                        }
+                    )
+                }
+            }
+            if ( k == eventCfg.RewardType.POINT){ // 点数
+                if(await this.integral( uid, Number(v) )){
+                    reward.push(
+                        {
+                            k:k,
+                            v:v
+                        }
+                    )
+                }
+            }
+        }
+
+        return reward;
+    }
     async reward( uid , cid , eid ) {
         let eventCfg        = questRepo.find(eid);
         if( !eventCfg ){
@@ -98,6 +185,13 @@ class RewardService extends Service{
 
         return reward;
     }
+
+
+
+
+
+
+
     // 奖励金钱
     async gold( uid , num = 0 ) {
         await this.ctx.service.publicService.itemService.itemChange( uid,  {["items."+travelConfig.Item.GOLD] :  num }, "event");

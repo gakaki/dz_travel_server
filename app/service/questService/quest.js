@@ -22,8 +22,6 @@ class TreeNode {
     }
 }
 
-
-
 //事件（或者叫任务）类 有前后置关系 所以做成树状
 class Quest extends TreeNode {
 
@@ -137,6 +135,13 @@ class Quest extends TreeNode {
             let itemIdOrVal = rewardRow['v'];
             this.rewardKV[typeId] = itemIdOrVal;
         }
+
+        this.errorewardKV        = {};
+        for (let er of this.errorreward) {
+            let typeId      = er['k'];
+            let itemIdOrVal = er['v'];
+            this.errorewardKV[typeId] = itemIdOrVal;
+        }
     }
 
     dealCityAndSpotConfig() {
@@ -158,165 +163,77 @@ class Quest extends TreeNode {
         }
     }
 
-    hasSpecialTopic(){
-        return  this.describeOringal.indexOf("%s") < 0 || this.describeOringal.indexOf("s%") < 0 ;
+
+    // 景点错误奖励语句
+    getSpotErrorRewardComment(spotName,getReward){
+        let reward   = getReward;
+
+        let totalStr = `${this.describeOringal} `;
+        let stmtArr  = [];
+
+        if ( !reward ){              //若外部reward为空 那么设置为本类的reward
+            reward   = this.errorreward;
+        }
+        for (let rewardRow of reward) {
+
+            let typeId      = rewardRow['k'];
+            let itemIdOrVal = rewardRow['v'];
+
+            let typeName    = this.RewardKey[typeId];
+            let itemCount   = 1;
+            let itemName    = "";
+
+            let str         = "";
+            switch(typeId) {
+                case "1": //金币
+                    str = '金币';
+
+                    if( itemIdOrVal < 0){
+                        str         =str + `-`;
+                    }else{
+                        str             =str + `+`;
+                    }
+
+                    str             = str + `${Math.abs(itemIdOrVal)}`;
+                    break;
+                case "2": //积分
+                    str = '积分';
+                    str             = str + `+`;
+                    str             = str + `${Math.abs(itemIdOrVal)}`;
+                    break;
+                case "3": //时间  据说观光的时间是没有的所以不管了
+                    itemCount       = itemIdOrVal;
+                    str             = `增加路程${typeName}${itemIdOrVal}分钟`;
+                    break;
+                case "4": //特产
+                    itemCount       = itemIdOrVal;
+                    let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
+                    itemName        = speciality.specialityname;
+                    str         = `${typeName}${itemName} +` + rewardRow['n'];
+                    if(!rewardRow['n']) {
+                        str = str + " 背包已满";
+                    }
+                    if ( !rewardRow['n'] ){
+                        str         = `${typeName}${itemName}+1`;
+                    }
+                    break;
+                case "5": //明信片  明信片随机所以无所谓了
+                    str             = `明信片 +` + rewardRow['n'];
+                    break;
+            }
+            stmtArr.unshift(str);
+        }
+        let index = totalStr.indexOf("s%");
+        if(index != -1) {
+            totalStr =totalStr.replace("s%", spotName);
+        }
+        return {
+            desc: totalStr,
+            reward: stmtArr.join(" ").trim(),
+        };
     }
-
-
-
-    //生成带topic的quest 需要传入cid spotId等
-    dealKnowledgeRow( currentCid = null , spotId = null ) {
-
-        let cfgCity, cfgSpot = null;
-        if (!currentCid) {
-            currentCid = 1;
-        }
-        cfgCity = travelsConfig.City.Get(currentCid);
-
-        if (spotId) {
-            cfgSpot = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
-        }
-
-
-        let currentCityName = cfgCity.city;
-        let replaceStr   = /s%/gi;
-
-        this.describe    = this.describeOringal.replace(replaceStr ,currentCityName ); //可以处理多个哦
-        if (this.topic <= 0) {
-            return;
-        }
-
-        if (!this.hasSpecialTopic()) {
-            // console.log(this.eid,this.describe);
-            return;
-        } else {
-            // console.log(this.id, this.describe);
-        }
-        let itemPic   = null;
-        let itemNames = [];
-        let items     = null;
-
-
-        /// 随机答案answer
-        // 特产随机
-        if (this.topic == this.KnowledgeKeys.SPECIALITY ||
-            this.id  == '130070' //xx特产在哪个城市 by cid
-        ) { //1
-             items      = specialityRepo.random4ByCityMoreRange(currentCid);
-         }
-        // 景点随机
-        else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
-             items      = scenicspotRepo.random4ByCityMoreRange(currentCid);
-        }
-        // 城市随机
-        else if (this.topic == this.KnowledgeKeys.CITY  ) {
-             items       = cityRepo.random4ByCityMoreRange(currentCid);
-        }
-
-        //this.describe 里的%s其实全都是城市的意思
-        let rightItem                   = items.shift();
-        if( this.picture.match(/s%/gi) ){ //如果有s% 说明是要被替换掉的
-            this.picture                = rightItem.picture;
-        }else{
-            this.picture                = this.picture;
-        }
-
-        /// 随机答案answer 剩下三个为错误的答案wrong1 wrong2 wrong3
-        // 特产随机
-        if (this.topic == this.KnowledgeKeys.SPECIALITY ) { //1
-            itemNames               = items.map(e => e.specialityname);
-            this.answer             = rightItem.specialityname;
-        }
-        // 景点随机
-        else if (this.topic == this.KnowledgeKeys.SCENICSPOT) { //2
-            itemNames               = items.map(e => e.scenicspot);
-            this.answer             = rightItem.scenicspot;
-        }
-        // 城市随机
-        else if (this.topic == this.KnowledgeKeys.CITY ) {
-            itemNames               = items.map(e => e.city);
-            this.answer             = rightItem.city;
-        }
-
-        // 130070 '拼三鲜是以下哪个地区的特产？' [ '延边', '三沙', '四平', '榆林' ] '11.jpg'
-        if( this.id == '130070'){
-            let describeRightItems  = specialityRepo.random4ByCityMoreRange(currentCid);
-            let describeRightItem   = describeRightItems.pop();
-            this.describe           = this.describeOringal.replace(replaceStr ,describeRightItem.specialityname ); //可以处理多个哦
-
-            //答案是城市 ，，3个错误的城市和一个正确的城市
-            let cityItems           = cityRepo.random4ByCityMoreRange(describeRightItem.cityid);
-            let rightCityItem       = cityItems.pop();
-            this.answer             = rightCityItem.city;
-            itemNames               = cityItems.map(e => e.city)
-        }
-
-        //景点位于哪个城市
-        if( this.id == '130080'){
-            let describeRightItems  = scenicspotRepo.random4ByCityMoreRange(currentCid);
-            let describeRightItem   = describeRightItems.pop();
-            this.describe           = this.describeOringal.replace(replaceStr ,describeRightItem.scenicspot ); //可以处理多个哦
-
-            //答案是城市 ，，3个错误的城市和一个正确的城市
-            let cityItems           = cityRepo.random4ByCityMoreRange(describeRightItem.cityid);
-            let rightCityItem       = cityItems.pop();
-            this.answer             = rightCityItem.city;
-            itemNames               = cityItems.map(e => e.city)
-        }
-
-        let [wrong1, wrong2, wrong3] = _.shuffle(itemNames);
-        this.wrong1 = wrong1;
-        this.wrong2 = wrong2;
-        this.wrong3 = wrong3;
-    }
-
-    toString() {
-        let res = `${this.id} ${this.describe} 
-        答案为: ${this.answer}
-        错误为: ${this.wrong1},${this.wrong2},${this.wrong3}`;
-        return res;
-    }
-
-    // describeFormat(currentCid=null,spotId=null){
-    //     let res = "";
-    //     let replaceStr = "s%";
-    //     if ( this.describe && this.describe.indexOf(replaceStr) >= 0 ){
-    //
-    //         let c        = null;
-    //         let s        = null;
-    //
-    //         if ( currentCid ){
-    //              c      = travelsConfig.City.Get(currentCid);
-    //         }
-    //         if ( spotId ){
-    //              s      = travelsConfig.Scenicspot.Get(spotId);        //这一条还没有测试过
-    //         }
-    //
-    //         if ( s ){
-    //             res     = this.describe.replace(replaceStr,s.scenicspot);
-    //         }
-    //         if ( c ){
-    //             res     = this.describe.replace(replaceStr,c.city);
-    //         }
-    //     }
-    //     else{
-    //         res =  this.describe;
-    //     }
-    //     return res;
-    // }
-
-    answers(){
-        let answers   = [ this.answer, this.wrong1, this.wrong2, this.wrong3 ];
-        answers       = answers.filter(n => n);
-
-        if (!answers || answers.length <= 0) return null;
-        return  _.shuffle( answers )
-    }
-
     // 景点奖励语句
     getSpotRewardComment(spotName,getReward){
-        // let hourStr  = moment(datetime).format("HH:mm")
-        //let reward   = this.reward;
         let reward   = getReward;
 
         let totalStr = `${this.describeOringal} `;
@@ -334,8 +251,6 @@ class Quest extends TreeNode {
                 let itemCount   = 1;
                 let itemName    = "";
 
-                // console.log(typeId,itemIdOrVal,typeName,itemCount,itemName);
-
                 let str         = "";
                 switch(typeId) {
                     case "1": //金币
@@ -352,8 +267,6 @@ class Quest extends TreeNode {
                     case "2": //积分
                         str = '积分';
                         str             = str + `+`;
-                       // if( itemIdOrVal < 0)
-                            str      //   = str + `-`;
                         str             = str + `${Math.abs(itemIdOrVal)}`;
                         break;
                     case "3": //时间  据说观光的时间是没有的所以不管了
@@ -364,12 +277,10 @@ class Quest extends TreeNode {
                         itemCount       = itemIdOrVal;
                         let speciality  = travelsConfig.Speciality.Get(itemIdOrVal);
                         itemName        = speciality.specialityname;
-                       // if(isGet) {
                             str         = `${typeName}${itemName} +` + rewardRow['n'];
                             if(!rewardRow['n']) {
                                 str = str + " 背包已满";
                             }
-                       // }
                         if ( !rewardRow['n'] ){
                             str         = `${typeName}${itemName}+1`;
                         }
@@ -384,15 +295,9 @@ class Quest extends TreeNode {
         if(index != -1) {
             totalStr =totalStr.replace("s%", spotName);
         }
-        //有待完善
-        // let finalStr =  totalStr + stmtArr.join(" ");
-        if(this.answer){ //如果是问答题的配置表就不显示了 意思是
-            // finalStr = "";
-        }
         return {
             desc: totalStr,
             reward: stmtArr.join(" ").trim(),
-            // finalStr: finalStr,
         };
     }
 

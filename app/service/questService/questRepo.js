@@ -31,9 +31,15 @@ class QuestRepo {
 
     constructor() {
         let rows    = this.fetchRows();
+        rows        = rows.filter( e => {
+            if ( e.id != 130070 && e.id != 130080 && e.probability > 0 )
+            {
+                return e;
+            }
+        });
 
         this.quests = []
-        for(let row of rows){
+        for(let row of rows){//
             this._add(row)
         }
     }
@@ -67,6 +73,7 @@ class QuestRepo {
             if (e.probability <= 0){ //触发几率为0的时候要去除
                 conditionProbility = false;
             }
+
 
             let conditionBelong = false;
             //console.log(e.belong);
@@ -157,95 +164,4 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
-
-// let rows   = new QuestRepo().filterTourQuests({
-//     cid : 3 // 上海
-// });
-//
-// // console.log(rows);
-//
-// let cfg  = q.find("130061");
-// let cid  = 3;
-// // cfg.dealKnowledgeRow(cid);
-// // let answers = cfg.answers();
-// // console.log(describe,answers);
-//
-//
-// cfg  = q.find("130040");
-// cid  = 3;
-// cfg.dealKnowledgeRow(cid);
-// answers = cfg.answers();
-// console.log(cfg.describe,answers,cfg.picture);
-//
-// cfg  = q.find("202962");
-// cid  = 3;
-// cfg.dealKnowledgeRow(cid);
-// answers = cfg.answers();
-// console.log(cfg.describe,answers,cfg.picture);
-
-let cid  = 3;
-let q    = new QuestRepo();
-let rowIds = [
-//      '130010',
-//      '130020',
-//      '130030',
-//      '130040',
-//      '130050',
-//      '130060',
-//      '130061',
-//      '130070',
-//      '130080',
-//      '130200',
-//      '130201',//
-// // let q    = new QuestRepo();
-// // let rowIds = [
-// //      '130010',
-// //      '130020',
-// //      '130030',
-// //      '130040',
-//       '130050',
-//       '130060'
-// //      '130061',
-
-// //      '130200',
-// //      '130201',
-// //      '130202',
-// //      '130203',
-// //      '130204',
-// //      '130205',
-// //      '130206',
-// //      '130207',
-// //      '130208',
-// //      '130209',
-// // ];
-// // let cid  = 3;
-// // for ( let id of rowIds ){
-// //     let cfg  = q.find(id);
-// //     cfg.dealKnowledgeRow(cid);
-// //     answers = cfg.answers();
-// //     console.log(cfg.id,cfg.describe,answers,cfg.picture);
-// // }
-//      '130202',
-//      '130203',
-//      '130204',
-//      '130205',
-//      '130206',
-//      '130207',
-//      '130208',
-//      '130209',
-];
-
-// for ( let id of rowIds ){
-//     let cfg  = q.find(id);
-//     cfg.dealKnowledgeRow(cid);
-//     answers = cfg.answers();
-//     console.log(cfg.id,cfg.describe,answers,cfg.picture);
-// }
-
-
-// for ( let id of ['130070','130080'] ){
-//     let cfg  = q.find(id);
-//     cfg.dealKnowledgeRow(cid);
-//     answers = cfg.answers();
-//     console.log(cfg.id,cfg.describe,answers,cfg.picture);
-// }
+// let n = new QuestRepo();
