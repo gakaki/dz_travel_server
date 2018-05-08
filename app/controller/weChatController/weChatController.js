@@ -1,3 +1,5 @@
+const configDebug = require("../../../debug/debug");
+
 const Controller = require('egg').Controller;
 const constant = require("../../utils/constant");
 const utils = require("../../utils/utils");
@@ -59,9 +61,17 @@ class WeChatController extends Controller {
             return;
         }
         let money = (goods.pay) * 100;
-        //let money = 1;
+        if (configDebug.WECHATPAY){
+             money = 1;
+        }
+
         this.logger.info("我拿到的钱数:" + money);
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName);
+    }
+
+
+    async getgoods(ctx) {
+        ctx.body = travelConfig.pays;
     }
 
     async minappwithdraw(ctx) {

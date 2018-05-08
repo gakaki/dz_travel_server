@@ -4,7 +4,7 @@ const apis = require('../../../apis/travel');
 module.exports = class IntegralShopController extends Controller {
     async integralshop(ctx) {
         let info = await apis.IntegralShop.Init(ctx, true);
-        if(!info.uid) {
+        if(!info.ui) {
             return;
         }
         await ctx.service.travelService.integralService.getInfo(info, info.ui);
@@ -13,7 +13,7 @@ module.exports = class IntegralShopController extends Controller {
 
     async shopdetail(ctx) {
         let info = await apis.ShopDetail.Init(ctx, true);
-        if(!info.uid) {
+        if(!info.ui) {
             return;
         }
         await ctx.service.travelService.integralService.shopDetail(info, info.ui);
@@ -22,7 +22,7 @@ module.exports = class IntegralShopController extends Controller {
 
     async exchangedetail(ctx) {
         let info = await apis.ExchangeDetail.Init(ctx, true);
-        if(!info.uid) {
+        if(!info.ui) {
             return;
         }
         await ctx.service.travelService.integralService.exchangeDetail(info);
@@ -31,7 +31,7 @@ module.exports = class IntegralShopController extends Controller {
 
     async exchangeshop(ctx) {
         let info = await apis.ExchangeShop.Init(ctx, true);
-        if(!info.uid) {
+        if(!info.ui) {
             return;
         }
         await ctx.service.travelService.integralService.exchange(info, info.ui);
@@ -40,7 +40,7 @@ module.exports = class IntegralShopController extends Controller {
 
     async getuserlocation(ctx) {
         let info = await apis.GetUserLocation.Init(ctx, true);
-        if(!info.uid) {
+        if(!info.ui) {
             return;
         }
         await ctx.service.travelService.playerService.getMailAddress(info, info.ui);
@@ -55,7 +55,7 @@ module.exports = class IntegralShopController extends Controller {
 
     async exchangeDeadline(ctx) {
         let info = await apis.ExchangeDeadline.Init(ctx, true);
-        if(!info.uid) {
+        if(!info.ui) {
             return;
         }
         await ctx.service.travelService.integralService.exchangeDeadline(info);

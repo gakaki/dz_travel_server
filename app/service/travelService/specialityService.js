@@ -24,7 +24,7 @@ class SpecialityService extends Service {
         //read specialitys
         let spes = await Promise.all(cityCfg.speciality.map(async (id) => {
             let o = sheets.Speciality.Get(id);
-            let sps = await this.ctx.model.TravelModel.Speciality.findOne({spid: id});
+            let sps = await this.ctx.model.TravelModel.Speciality.findOne({uid: info.ui.uid, spid: id});
 
             if (o) {
                 let s = new apis.Speciality();

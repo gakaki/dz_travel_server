@@ -32,6 +32,9 @@ module.exports = () => {
                 }
             }
         }
+        if(url.indexOf("shopdone") != -1) {
+            await next()
+        }
 
     };
 };

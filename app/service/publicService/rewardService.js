@@ -238,7 +238,7 @@ class RewardService extends Service{
             province: city.province,
             city:city.city,
             ptid:cfgId,
-            pscid:"postcard" + uid +new Date().getTime(),
+            pscid:"postcard" + postCard.type + uid +new Date().getTime(),
             type: postCard.type,                   //明信片类型
             createDate:dateNow      //创建时间
         });
