@@ -122,11 +122,13 @@ class TourService extends Service {
                 if(spot.index != -1) {
                     if(!spot.tracked) {
                         if(spot.endtime && spot.endtime <= new Date().getTime()) {
+                            spot.roundTracked = true;
                             spot.tracked                             = true;
                             spot.countdown                           = 0
                         }
                     }else{
                         if(spot.endtime && spot.endtime <= new Date().getTime()) {
+                            this.logger.info(">>>>>>>>>>>没进来？？？")
                             spot.roundTracked = true;
                             spot.countdown                               = 0
                         }
@@ -250,6 +252,7 @@ class TourService extends Service {
             if(spot.index != -1) {
                 if(!spot.tracked) {
                     if(spot.endtime && spot.endtime <= new Date().getTime()) {
+                        spot.roundTracked      = true;
                         spot.tracked      = true;
                         spot.countdown    = 0;
                     }

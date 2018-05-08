@@ -32,8 +32,8 @@ module.exports = () => {
                 }
             }
         }
-        else {
-            await next();
+        if(url.indexOf("shopdone") != -1 || url.indexOf('ios') != -1) {
+            await next()
         }
 
     };

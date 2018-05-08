@@ -239,7 +239,7 @@ class TravelService extends Service {
 
 
             //更新好友
-            await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $addToSet: { friendList: fui.uid } });
+          //  await this.ctx.model.PublicModel.User.update({ uid: ui.uid }, { $addToSet: { friendList: fui.uid } });
             let fvisit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: fui.uid });
             if(fvisit) {
                 this.logger.info("好友离开城市..............", fui);
@@ -275,7 +275,7 @@ class TravelService extends Service {
             currentCity.friend = ui.uid;
             currentCity.isInviter = false;
             footprint.uid = fui.uid;
-            await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
+           // await this.ctx.model.PublicModel.User.update({ uid: fui.uid }, { $addToSet: { friendList: ui.uid } });
 
             this.ctx.service.travelService.specialityService.clearMySpePrice(fui.uid);
         }

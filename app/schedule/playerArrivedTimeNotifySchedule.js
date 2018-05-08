@@ -43,6 +43,9 @@ class PlayerArrivedTimeNotifySchedule extends Subscription {
             if(!lastSpot) {
                 continue;
             }
+            if(lastSpot.endtime && lastSpot.endtime > now) {
+                continue;
+            }
            // if(lastSpot.endtime && lastSpot.endtime <= now) {
                 await this.ctx.service.weChatService.weChatService.sendTemplateMessage( uid ,{ cid: lastSpot.cid, spot: lastSpot.name});
           //  }
