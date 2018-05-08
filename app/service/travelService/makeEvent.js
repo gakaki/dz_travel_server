@@ -108,7 +108,9 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             wrongs          : [],
             answer          : "",
             picture         : "",
-            questionTitle   : ""
+            questionTitle   : "",
+            sended          : false,
+            sendedTime      : null
         };
 
         let questAnswer  = new QuestAnswer(quest.id,this.cid);

@@ -893,7 +893,26 @@ class TourService extends Service {
 
         this.logger.info(finalEndTime);
         this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
-        let eventsNoReceived  = cityEvents.events.filter( x => x.received == false && x.triggerDate <= timeNow ).slice(0,10);
+
+        let dbEvents            = cityEvents.events;
+        let eventsNoReceivedAll = dbEvents.filter( x => x.received == false && x.triggerDate <= timeNow && x.sended == false )
+        // let dbIds               = eventsNoReceivedAll.map( e => e.dbId );
+        dbEvents.forEach( e => {
+            if ( e.received == false && e.triggerDate <= timeNow && e.sended == false){
+                e.sended = true;
+                e.sendedTime = new Date().getTime()
+            }
+        });
+        // await this.ctx.model.TravelModel.CityEvents.update(
+        //     { uid:uid , 'events.dbId': { $in : dbIds } } ,
+        //     { $set : {'events.$.sended' : true} },
+        //     { multi : true }
+        // );
+        await this.ctx.model.TravelModel.CityEvents.update(
+            { uid:uid } ,
+            { $set : {'events' : dbEvents} },
+        );
+        let eventsNoReceived    = eventsNoReceivedAll.slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
         let KEY_EVENTSHOW      = `eventShow:${uid}`;
