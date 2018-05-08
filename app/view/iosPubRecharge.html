@@ -17,7 +17,7 @@
 					<img src="public/img/gold{{item.id}}.png" alt="金币" class="gold-icon">
 				</div>
 				<div class="g-count">${{item.gold}}</div>
-				<div class="money" id="pay-item-{{item.id}}">
+				<div class="money" id="pay-item-{{item.id}}" onclick="toRecharge({{item.id}})">
 					<b class="m-count">{{item.pay}}</b>
 					<b class="yuan">元</b>
 				</div>
@@ -26,5 +26,10 @@
 			
 		</div>
 	</div>
+	<script>
+		function toRecharge(id) {
+			
+		}
+	</script>
 </body>
 </html>

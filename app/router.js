@@ -19,6 +19,7 @@ module.exports = app => {
     router.get('/weChat/minappreferrer', controller.weChatController.weChatController.minappreferrer);
     router.get('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
+    router.post('/wepub', controller.weChatController.weChatController.wepub);
 
 
     router.get('/weChat/sendmockid', controller.weChatController.weChatController.getmockid);

@@ -164,15 +164,14 @@ class WeChatController extends Controller {
 
     }
 
-    async iosRechargePage(ctx) {
-        this.logger.info('aaaaaaaaaaaaaaa')
-        await ctx.render('iosPubRecharge.html', {items: sheets.pays})
+    //公众号token验证
+    async wepub(ctx) {
+        await this.ctx.service.weChatService.weChatService.wepub(ctx);
     }
 
-    getPayItems(ctx) {
-        let info = apis.getPayItems.Init(ctx);
-        this.ctx.service.weChatService.wepubService.getPayItems(info);
-        info.submit();
+    async iosRechargePage(ctx) {
+        this.logger.info('access ios recharge page')
+        await ctx.render('iosPubRecharge.html', {items: sheets.pays})
     }
 
 }

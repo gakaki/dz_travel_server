@@ -490,9 +490,22 @@ class WeChatService extends Service {
         return null;
     }
 
-    //获取充值金币配表
-    getPayItems(info) {
-        info.items = sheet.pays;
+    async wepub(ctx) {
+        let {signature, timestamp, nonce, echostr} = ctx.query;
+        let token = this.config.wepubToken;
+        let arr = [token, timestamp, nonce];
+        arr.sort();
+        
+        let hashcode = utils.Sha1(arr.join(''));
+        this.logger.info('wepub hash',hashcode);
+        if (hashcode == signature) {
+            this.logger.info('wepub token signature ok')
+            ctx.body = echostr;
+        }
+        else {
+            ctx.body = '';
+        }
+        
     }
 
 }

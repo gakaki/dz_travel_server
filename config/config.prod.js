@@ -63,5 +63,8 @@ module.exports = appInfo => {
     config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
     config.weatherusername = "HE1804101712021052";
 
+    config.wepubToken = "wxappPUBodaoh5";
+    config.wepubASEKey = "BZ2AXtbkYoN2wr7K46os9WqfcoK6AhEin1QyDllK0Lo";
+
     return config;
 };
