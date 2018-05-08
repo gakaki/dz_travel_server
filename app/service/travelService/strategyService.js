@@ -86,7 +86,7 @@ class StrategyService extends Service {
    }
 
    async sendComment(info) {
-       let comid = "com" + new Date().getTime();
+       let comid = "com" + info.ui.uid + new Date().getTime();
        let date = new Date();
 
        let context = info.content;

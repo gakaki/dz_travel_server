@@ -64,6 +64,11 @@ class WeChatController extends Controller {
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName);
     }
 
+
+    async getgoods(ctx) {
+        ctx.body = travelConfig.pays;
+    }
+
     async minappwithdraw(ctx) {
         this.logger.info("我要提现");
         let result = {};

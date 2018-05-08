@@ -456,7 +456,27 @@ class Base{
         });
 
     }
-
+    func client static ReAuth(resolve) {
+        if (this.LOGINED) return;
+        wx.openSetting({
+            success: res => {
+                wx.checkSession({
+                    success: () => {
+                        this.AUTHED = true;
+                        this.UserLogin(resolve)
+                    },
+                    fail: res => {
+                        wx.login({
+                            success: res => {
+                                this.AUTHED = false;
+                                this.UserAuth(res.code, resolve);
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    }
     func client static get servertime() {
         return ( Date.now()/1000-this._timestampD) * 1000
     }
@@ -513,7 +533,7 @@ class Ws {
 
     func client static listen(wsReceiveCls, cb, ctx) {
         if (!this._listenings) {
-            console.error('ws has not inited');
+            console.warn('ws has not inited');
             return;
         }
         let action = wsReceiveCls.name.toLowerCase();
@@ -529,7 +549,7 @@ class Ws {
 
     func client static unlisten(wsReceiveCls, cb, ctx) {
         if (!this._listenings) {
-            console.error('ws has not inited');
+            console.warn('ws has not inited');
             return;
         }
         let action = wsReceiveCls.name.toLowerCase();
@@ -581,7 +601,7 @@ class Http {
 
     func client static listen(apiCls, cb, ctx, interval = 300, preFetch = null) {
         if (!this._listenings) {
-            console.error('Http loop has not inited');
+            console.warn('Http loop has not inited');
             this.init();
             return;
         }
@@ -600,7 +620,7 @@ class Http {
 
     func client static unlisten(apiCls, cb, ctx) {
         if (!this._listenings) {
-            console.error('Http loop has not inited');
+            console.warn('Http loop has not inited');
             return;
         }
         let action = apiCls.name.toLowerCase();

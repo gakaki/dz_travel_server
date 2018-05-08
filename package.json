@@ -9,7 +9,7 @@
     "dz-kue": "file:dz-kue",
     "egg": "^2.7.1",
     "egg-logger": "^1.6.2",
-    "egg-mongoose": "^2.1.1",
+    "egg-mongoose": "^2.2.1",
     "egg-nohm": "^1.0.1",
     "egg-redis": "^1.0.2",
     "egg-scripts": "^2.6.0",
