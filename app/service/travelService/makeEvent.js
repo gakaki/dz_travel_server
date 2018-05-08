@@ -4,6 +4,7 @@ const QuestRepo             = require("../questService/questRepo");
 const timeUtil              = require("../../utils/time");
 const mongoose              = require('mongoose');
 const configDebug           = require('../../../debug/debug');
+const QuestAnswer           = require("../questService/questAnswer");
 
 class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
@@ -17,8 +18,6 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         this.itemSpecial    = obj.itemSpecial || 0;
         this.spotId         = obj.spotId || 0;
 
-
-
         this.questsSet      = new Set();
         this.quests         = this.getQuestsPool()
 
@@ -29,7 +28,6 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         this.events         = []; //最后生成的随机事件
         this.eventsFormat   = [];
         this.genEventNonSpot();  // 生成事件(非景点)
-        this.formatEvents();
     }
 
     //根据 contructor中的obj 筛选配置表中存入池中  随机出现random quest
@@ -49,21 +47,6 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             return a.probability - b.probability;
         });
         return quests;
-    }
-
-    async formatEvents(){
-        this.eventsFormat =  this.events.map( e => {
-            return {
-                dbId            : e.dbId,
-                eid             : e.eid,
-                type            : e.type,
-                received        : false,                 //似乎没有必要 是记录在另一张表内
-                triggerDate     : e.triggerDate,
-                triggerDateYHM  : e.triggerDateYHM,
-                // quest           : e.quest
-                // minuteLength    : e.minuteLength,     //似乎没有必要
-            }
-        })
     }
 
     async genEventNonSpot(){
@@ -104,6 +87,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
         //创建数据库吧
         this.events = eventRows;
+        this.eventsFormat = this.events;
     }
 
 
@@ -119,10 +103,22 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             eid             : quest.id,
             received        : false,
             type            : quest.type,
-            triggerDateYHM  : timeUtil.formatYMDHMS(triggerDateTimeStamp)
-            // minuteLength    : minuteLength,
-            // quest           : quest
+            triggerDateYHM  : timeUtil.formatYMDHMS(triggerDateTimeStamp),
+            answers         : [],
+            wrongs          : [],
+            answer          : "",
+            picture         : "",
+            questionTitle   : ""
         };
+
+        let questAnswer  = new QuestAnswer(quest.id,this.cid);
+        if ( quest.type == quest.EventTypeKeys.QA_NO_NEED_RESULT || quest.type == quest.EventTypeKeys.QA_NEED_RESULT ){
+            questDbRow['answers']          = questAnswer.answers;       //答案组 有错误答案
+            questDbRow['wrongs']           = questAnswer.wrongs;        //错误答案
+            questDbRow['answer']           = questAnswer.answer;        //正确答案
+            questDbRow['picture']          = questAnswer.picture;       //图片
+            questDbRow['questionTitle']    = questAnswer.questionTitle; //问题title
+        }
         return questDbRow;
     }
 
@@ -135,6 +131,9 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let quest        = this.randomQuest();
         if (configDebug.QUESTRANDOM){
             quest        = this.randomQuestForDebug(this.cid);
+        }
+        if (configDebug.QUESTSPECIFIC){
+            quest        = QuestRepo.find("130050");
         }
         // if ( this.questsSet.has(quest) || !quest || !quest.id ){
         //     // console.log("tmpset added 数据重复了 继续抽");
@@ -225,7 +224,6 @@ module.exports = MakeEvent;
 //    console.log(group);
 // }
 // console.timeEnd('test');
-
 
 // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
 

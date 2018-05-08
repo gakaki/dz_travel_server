@@ -5,6 +5,8 @@ const utilsTime     = require("../../utils/time");
 const apis          = require("../../../apis/travel");
 const constant      = require('../../utils/constant');
 const questRepo     = require('../questService/questRepo');
+const QuestAnswer   = require('../questService/questAnswer');
+
 const MakeRoadMap   = require("./makeRoadMap");
 const MakeEvent     = require("./makeEvent");
 const MakeSpotEvent = require("./makeSpotEvent");
@@ -799,6 +801,11 @@ class TourService extends Service {
 
         let eid           = row['events'][0]['eid'];
         let received      = row['events'][0]['received'];
+        let answerRightDb = row['events'][0]['answer'];
+        let answersDb     = row['events'][0]['answers'];
+        let picture       = row['events'][0]['picture'];
+        let wrongs        = row['events'][0]['wrongs'];
+
         // if(received == true) //说明已经领取过了不能再次领取
         // {
         //     info.code = apis.Code.EXCEED_COUNT;
@@ -827,12 +834,16 @@ class TourService extends Service {
         //回答 问题 正确 和 无须回答问题的2个类型 都给予奖励
         if (questCfg.type == questCfg.EventTypeKeys.QA_NO_NEED_RESULT ){
             //给予奖励写入数据库
-            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid);
+            let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid , answerRightDb == answer);
             //回答正确 给予正确奖励
-            info.correct      = true;
+            if ( answerRightDb == answer){
+                info.correct      = true;
+            }else{
+                info.correct      = false;
+            }
             info.rewards      = spotRewardComment;
         }
-        else if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && questCfg.answer == answer ){
+        else if (questCfg.type == questCfg.EventTypeKeys.QA_NEED_RESULT && answerRightDb == answer ){
             //给予奖励写入数据库
             let spotRewardComment = await this.rewardThanMark(  uid , cid , eid ,currentCity.fid);
             //回答正确 给予正确奖励
@@ -978,18 +989,20 @@ class TourService extends Service {
 
         let eid                                                          = event["eid"];
         let questCfg                                                     = questRepo.find(eid);
-        questCfg.dealKnowledgeRow(cid);
+
+        let questAnswer                                                  = new QuestAnswer(eid,cid);
 
         info.id                                                          = event['dbId'];
         info.quest                                                       = {
             dbId                                                         : event['dbId'],
             eid                                                          : eid, //前端没有此配置表
             type                                                         : questCfg.type,
-            describe                                                     : questCfg.describe,
+            describe                                                     : event.questionTitle,
             gold_used                                                    : 0,
-            picture                                                      : questCfg['picture'],
-            question                                                     : questCfg.describe,
-            answers                                                      : questCfg.answers(),
+            picture                                                      : event.picture,
+            question                                                     : event.questionTitle,
+            answers                                                      : event.answers,
+            wrongs                                                       : event.wrongs,
         };
 
 
@@ -1013,11 +1026,11 @@ class TourService extends Service {
     }
 
     // 写入数据库获得了奖励 并给予标记
-    async rewardThanMark(  uid , cid , eid ,fid ){
+    async rewardThanMark(  uid , cid , eid ,fid ,answerIsRight = true ){
         //若是 普通的随机事件 那么直接触发获得奖励了
         let reward = await this.ctx.service.publicService.rewardService.reward(uid,cid,eid);
         //标记已经获得奖励了
-
+        let errreward = await this.ctx.service.publicService.rewardService.erroreward(uid,cid,eid);
 
         this.logger.info(`uid , cid , eid ${uid} , ${cid} , ${eid}`);
         
@@ -1025,6 +1038,11 @@ class TourService extends Service {
         let questCfg            = questRepo.find(eid);
         let city = travelConfig.City.Get(cid);
         let spotRewardComment = questCfg.getSpotRewardComment(city.city, reward);
+        let spotErrorRewardComment = questCfg.getSpotErrorRewardComment(city.city, errreward);
+
+        // 正确还是错误的奖励
+        let rewardComment       = answerIsRight ? spotRewardComment.reward : spotErrorRewardComment.reward;
+
         //添加到spotevent
         await this.ctx.model.TravelModel.SpotTravelEvent.create({
             uid: uid,
@@ -1034,7 +1052,8 @@ class TourService extends Service {
             spotId: null,
             isPhotography: false,
             isTour: true,
-            reward: spotRewardComment.reward,
+            reward: rewardComment,
+            answerIsRight: answerIsRight,
             desc: spotRewardComment.desc,
             type: questCfg.type,
             subType: questCfg.trigger_type,
@@ -1043,7 +1062,7 @@ class TourService extends Service {
             receivedDate: now,           //领取奖励时间
         });
 
-        return spotRewardComment.reward;
+        return rewardComment;
     }
 
 
