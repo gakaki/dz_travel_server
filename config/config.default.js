@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require('path')
 
 module.exports = appInfo => {
     const config = {};
@@ -32,6 +33,28 @@ module.exports = appInfo => {
         KEY_USER_ARRIVE_TIME : 'arrive_time',
 
 
+    }
+
+    config.view = {
+        mapping: {
+            '.html': 'nunjucks',
+            '.js': 'assets',
+            '.css': 'assets'
+        }
+    };
+
+    config.assets = {
+        publicPath: '/public/',
+        devServer: {
+            port: 8000,
+            env: {
+                // APP_ROOT: process.cwd() + '/app/public',
+                BROWSER: 'none',
+                ESLINT: 'none',
+                SOCKET_SERVER: 'http://127.0.0.1:8000',
+                PUBLIC_PATH: 'http://127.0.0.1:8000',
+            },
+        }
     }
     return config;
 };

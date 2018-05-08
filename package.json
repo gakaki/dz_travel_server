@@ -14,6 +14,8 @@
     "egg-redis": "^1.0.2",
     "egg-scripts": "^2.6.0",
     "egg-socket.io": "^4.0.8",
+    "egg-view-assets": "^1.1.2",
+    "egg-view-nunjucks": "^2.2.0",
     "holiday.cn": "0.0.2",
     "ioredis": "^3.2.2",
     "lunar-calendar": "^0.1.4",

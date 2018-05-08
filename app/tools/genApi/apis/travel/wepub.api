@@ -1,0 +1,9 @@
+class PayItem {
+    prop id:string
+    prop pay:number
+    prop gold:number
+}
+//获取充值物品列表
+api getPayItems {
+    output items:PayItem[]
+}

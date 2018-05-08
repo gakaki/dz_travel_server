@@ -490,6 +490,24 @@ class WeChatService extends Service {
         return null;
     }
 
+    async wepub(ctx) {
+        let {signature, timestamp, nonce, echostr} = ctx.query;
+        let token = this.config.wepubToken;
+        let arr = [token, timestamp, nonce];
+        arr.sort();
+        
+        let hashcode = utils.Sha1(arr.join(''));
+        this.logger.info('wepub hash',hashcode);
+        if (hashcode == signature) {
+            this.logger.info('wepub token signature ok')
+            ctx.body = echostr;
+        }
+        else {
+            ctx.body = '';
+        }
+        
+    }
+
 }
 
 

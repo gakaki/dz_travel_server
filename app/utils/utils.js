@@ -29,6 +29,10 @@ exports.MD5 = function (str, fmt = constant.Format.BASE64) {
     return fmt == constant.Format.BASE64 ? hdl.digest().toString("base64") : hdl.digest("hex");
 };
 
+exports.Sha1 = function(str) {
+    return crypto.createHash('sha1').update(str);
+}
+
 //对象排序
 exports.multisort = function (array, ...compairers) {
     return array.sort((a, b) => {

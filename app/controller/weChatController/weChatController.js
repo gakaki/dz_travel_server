@@ -5,6 +5,7 @@ const constant = require("../../utils/constant");
 const utils = require("../../utils/utils");
 const travelConfig = require("../../../sheets/travel");
 const apis = require("../../../apis/travel");
+const sheets = require('../../../sheets/travel')
 
 class WeChatController extends Controller {
     async auth(ctx) {
@@ -163,6 +164,15 @@ class WeChatController extends Controller {
 
     }
 
+    //公众号token验证
+    async wepub(ctx) {
+        await this.ctx.service.weChatService.weChatService.wepub(ctx);
+    }
+
+    async iosRechargePage(ctx) {
+        this.logger.info('access ios recharge page')
+        await ctx.render('iosPubRecharge.html', {items: sheets.pays})
+    }
 
 }
 

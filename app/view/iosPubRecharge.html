@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>苹果充值</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="public/css/iosPubRecharge.css">
+</head>
+<body>
+	<div class="con">
+		<div class="head">
+			<img class="head-img" src="public/img/lianzi.png">
+		</div>
+		<div class="recharge-info">
+			{% for item in items %}
+			<div class="item">
+				<div class="item-img">
+					<img src="public/img/gold{{item.id}}.png" alt="金币" class="gold-icon">
+				</div>
+				<div class="g-count">${{item.gold}}</div>
+				<div class="money" id="pay-item-{{item.id}}" onclick="toRecharge({{item.id}})">
+					<b class="m-count">{{item.pay}}</b>
+					<b class="yuan">元</b>
+				</div>
+			</div>
+			{% endfor %}
+			
+		</div>
+	</div>
+	<script>
+		function toRecharge(id) {
+			
+		}
+	</script>
+</body>
+</html>
