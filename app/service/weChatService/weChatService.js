@@ -490,6 +490,11 @@ class WeChatService extends Service {
         return null;
     }
 
+    //获取充值金币配表
+    getPayItems(info) {
+        info.items = sheet.pays;
+    }
+
 }
 
 

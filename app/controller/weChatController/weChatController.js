@@ -153,6 +153,11 @@ class WeChatController extends Controller {
 
     }
 
+    getPayItems(ctx) {
+        let info = apis.getPayItems.Init(ctx);
+        this.ctx.service.weChatService.wepubService.getPayItems(info);
+        info.submit();
+    }
 
 }
 
