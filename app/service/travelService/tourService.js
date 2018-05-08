@@ -618,7 +618,7 @@ class TourService extends Service {
         }
 
         if(canGet) {
-            let postcardId = "postcard" + ui.pid + info.spotId + new Date().getTime();
+            let postcardId = "postcard" + ui.pid + cfgPostcard.type + new Date().getTime();
             await this.ctx.model.TravelModel.Postcard.create({
                 uid: ui.uid,
                 cid: cid,
@@ -1258,9 +1258,9 @@ class TourService extends Service {
             country: city.country,
             province: city.province,
             city: city.city,
-            ptid: info.ptid,  //明信片配表ID 不唯一
-            pscid: Date.now().toString(), //明信片专有ID  唯一
-            type: city.type, //明信片类型
+            ptid: info.ptid, //明信片配表ID 不唯一
+            pscid: "postcard" + ui.pid + cfg.type + Date.now().toString(), //明信片专有ID  唯一
+            type: cfg.type, //明信片类型
             createDate: new Date(),
         });
         //第一次获得这种明信片，获得积分
