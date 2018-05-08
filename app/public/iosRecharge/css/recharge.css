@@ -1,0 +1,90 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+
+.con{
+	width: 100%;
+}
+
+.head{
+	width: 100%;
+	height: 260px;
+	background: url('../img/bg.png') 0 0 no-repeat;
+	background-size: cover;
+}
+
+.head-img{
+	width: 100%;
+	height: 88px;
+	background-size: cover;
+}
+
+.recharge-info{
+	display: flex;
+	width: 712px;
+	margin: 0 auto;
+	flex-wrap: wrap;
+	display: -webkit-flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.item{
+	width: 217px;
+	height: 280px;
+	background-color: #fff;
+	border-radius: 20px;
+	margin: 40px 30px 0 0;
+	display: flex;
+	display: -webkit-flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	box-shadow: 0 3px 6px 2px rgba(0,0,0,0.1);
+}
+
+.item-img{
+	width: 217px;
+	height: 155px;
+	display: flex;
+	display: -webkit-flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.gold-icon{
+	width: 154px;
+	height: 128px;
+	background-size: cover;
+}
+
+.g-count{
+	font: bold 34px  'Microsoft YaHei';
+}
+
+.money{
+	color:bold 34px 'Microsoft YaHei';
+	width:144px;
+	height:52px;
+	background-color:#fc6161;
+	border-radius:30px;
+	margin-top:15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.m-count{
+	font:bold 32px  'Microsoft YaHei';
+}
+
+.yuan{
+	font:bold 32px 'Microsoft YaHei';
+	margin-left:5px;
+
+}
+
+.nomr{
+	margin-right: 0;
+}
