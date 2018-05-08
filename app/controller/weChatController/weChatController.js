@@ -3,6 +3,7 @@ const constant = require("../../utils/constant");
 const utils = require("../../utils/utils");
 const travelConfig = require("../../../sheets/travel");
 const apis = require("../../../apis/travel");
+const sheets = require('../../../sheets/travel')
 
 class WeChatController extends Controller {
     async auth(ctx) {
@@ -156,6 +157,11 @@ class WeChatController extends Controller {
         await this.ctx.model.WeChatModel.TemplateMessage.create({ uid: uid, formId: formId, createDate: new Date() });
         info.submit();
 
+    }
+
+    async iosRechargePage(ctx) {
+        this.logger.info('aaaaaaaaaaaaaaa')
+        await ctx.render('iosPubRecharge.html', {items: sheets.pays})
     }
 
     getPayItems(ctx) {

@@ -140,7 +140,8 @@ module.exports = app => {
     router.get('/test/dev', controller.travelController.tourController.eventshowtest);
 
   
-    
+    //ios充值页面
+  router.get('/iosrecharge', controller.weChatController.weChatController.iosRechargePage);
 
     //io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

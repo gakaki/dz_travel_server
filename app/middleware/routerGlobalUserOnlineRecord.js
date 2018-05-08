@@ -32,6 +32,9 @@ module.exports = () => {
                 }
             }
         }
+        else {
+            await next();
+        }
 
     };
 };
