@@ -406,6 +406,40 @@ class WeChatService extends Service {
     }
 
 
+    async freshAuthAccessToken() {
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubid}`, {
+                method: "GET",
+                dataType: "json",
+            });
+
+            this.logger.info(result);
+
+        }catch (e) {
+            this.logger.error(e);
+        }
+    }
+
+
+
+    async getuserinfo(uid) {
+        this.logger.info("获取用户信息。。。。。");
+        let access_token = await this.freshAccess_token();
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${uid}&lang=zh_CN`, {
+                method: "GET",
+                dataType: "json",
+            });
+
+            this.logger.info(result);
+
+        }catch (e) {
+            this.logger.error(e);
+        }
+
+    }
+
+
     async freshAccess_token() {
         try {
             let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.config.appid}&secret=${this.config.appsecret}`, {
