@@ -136,6 +136,14 @@ class IntegralService extends Service {
             return;
         }
 
+        if(item.integralLimit) {
+            if(myIntegral < item.integralLimit) {
+                res.code = apis.Code.NEED_INTEGRAL;
+                this.logger.info('要求积分不足，返回');
+                return;
+            }
+        }
+
 
         let rank = await this.ctx.service.travelService.rankService.getUserScoreRank(ui.uid);
         if(!rank || rank > item.ranking) {
@@ -143,6 +151,7 @@ class IntegralService extends Service {
             this.logger.info('排名不符合要求，返回');
             return;
         }
+
 
         let exchangeItems = await this.ctx.model.TravelModel.ExchangeRecord.find({ uid: ui.uid, exId: res.id });
         let codes = item.codes || [];

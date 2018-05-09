@@ -7,6 +7,7 @@ const xml2js = require('xml2js');
 const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 const travelConfig = require("../../../sheets/travel");
+const WXBizDataCrypt = require('./WXBizDataCrypt');
 
 class WeChatService extends Service {
     async auth(sdkAuth) {

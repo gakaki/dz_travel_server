@@ -9,7 +9,7 @@ class UserController extends Controller {
         this.logger.info("我要登陆");
 
 
-        const {sid, uid,info,appName,shareUid,test} = ctx.query;
+        const { sid, uid, info, appName, shareUid, test } = ctx.query;
         let result = {
             data: {}
         };
@@ -31,7 +31,7 @@ class UserController extends Controller {
         }else{
             userInfo = JSON.parse(info);
         }
-        let rs = await this.service.publicService.userService.login(uid,sid,appName,shareUid,userInfo);
+        let rs = await this.service.publicService.userService.login(uid, sid, appName, shareUid, userInfo);
     //    ctx.logger.info(rs);
         if (rs.info != null) {
             result.code = 0;

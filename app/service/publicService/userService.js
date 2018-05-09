@@ -3,7 +3,7 @@ const Service = require('egg').Service;
 const constant = require('../../utils/constant');
 const crypto = require("crypto");
 const travelConfig = require("../../../sheets/travel");
-
+const WXBizDataCrypt = require("../weChatService/WXBizDataCrypt");
 
 class UserService extends Service {
 
@@ -12,6 +12,11 @@ class UserService extends Service {
         let result = {};
         //老用户登陆
         if (sid) {
+            let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({ userid: uid });
+            if(!sdkui.sessionKey) {
+                result.info = null;
+                return result;
+            }
             let authUi = await this.collect(sid, appName);
             if (authUi == null) {
                 let loginUser = await this.ctx.model.PublicModel.User.findOne({ uid: uid, appName: appName });
@@ -59,6 +64,15 @@ class UserService extends Service {
                 }
             }
 
+          //  let iv = "r7BXXKkLb8qrSNn05n0qiA==";
+           // this.logger.info(vi.length);
+           // this.logger.info(uid.length);
+
+            let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
+
+            let data = pc.decryptData(info.encryptedData, info.iv);
+
+            this.logger.info("解密的数据", data);
 
             if(shareUid && uid != shareUid && result.info) {
                 let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: result.info.uid } });
