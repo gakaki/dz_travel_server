@@ -178,7 +178,11 @@ class WeChatController extends Controller {
 
     async iosRechargePage(ctx) {
         this.logger.info('access ios recharge page')
-        await ctx.render('iosPubRecharge.html', {items: sheets.pays})
+        await ctx.render('iosPubRecharge.html', {items: sheets.pays , appid: this.config.pubid})
+    }
+
+    async wepubTxt(ctx) {
+        await this.service.weChatService.weChatService.wepubTxt(ctx);
     }
 
 }

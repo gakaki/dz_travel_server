@@ -36,10 +36,12 @@ module.exports = appInfo => {
     }
 
     config.view = {
+        root: path.join(appInfo.baseDir, 'app/public'),
         mapping: {
             '.html': 'nunjucks',
             '.js': 'assets',
-            '.css': 'assets'
+            '.css': 'assets',
+            '.txt': 'assets'
         }
     };
 
