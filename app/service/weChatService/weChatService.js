@@ -495,9 +495,9 @@ class WeChatService extends Service {
         return null;
     }
 
-    wepub(ctx) {
+    async wepub(ctx) {
         this.logger.info('got wepub token check request')
-        parseString(ctx.body, (data, err) => {
+        await parseString(ctx.body, (data, err) => {
 
             this.logger.info('got wepub', ctx.query, ctx.body, data)
             let {signature, timestamp, nonce, echostr} = data;
