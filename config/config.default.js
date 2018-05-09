@@ -47,6 +47,7 @@ module.exports = appInfo => {
         publicPath: '/public/',
         devServer: {
             port: 8000,
+            command: 'wepub dev',
             env: {
                 // APP_ROOT: process.cwd() + '/app/public',
                 BROWSER: 'none',
@@ -54,6 +55,7 @@ module.exports = appInfo => {
                 SOCKET_SERVER: 'http://127.0.0.1:8000',
                 PUBLIC_PATH: 'http://127.0.0.1:8000',
             },
+            debug: true
         }
     }
     return config;
