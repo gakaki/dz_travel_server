@@ -409,7 +409,7 @@ class WeChatService extends Service {
 
     async freshAuthAccessToken() {
         try {
-            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubid}`, {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubsecret}`, {
                 method: "GET",
                 dataType: "json",
             });
