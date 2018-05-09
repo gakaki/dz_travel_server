@@ -977,7 +977,7 @@ class TourService extends Service {
         this.app.getLogger('debugLogger').info(" [debug] item_first ",item_first);
         this.app.getLogger('debugLogger').info(" [debug] event ",event);
 
-        return {
+        let res =  {
             'current'          : eventShowLength,
             'total'            : 10,
             'event'            : event,
@@ -987,6 +987,15 @@ class TourService extends Service {
             'currentCity'      : currentCity,
             'timeNow'          : timeNow
         }
+        this.app.getLogger('debugLogger').info(" [debug] 最终数量 ", {
+            'current'          : eventShowLength,
+            'total'            : 10,
+            'event'            : event,
+            'newEvent'         : newEvent,
+            'hasNext'          : hasNext,
+            'timeNow'          : timeNow
+        });
+        return res;
      }
     // 游玩 事件查看 http://127.0.0.1:7001/tour/eventshow?uid=1000001&cid=1
     async eventshow(info){
