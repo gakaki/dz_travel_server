@@ -185,6 +185,10 @@ class WeChatController extends Controller {
         await this.service.weChatService.weChatService.wepubTxt(ctx);
     }
 
+    async wepublogin(ctx) {
+        await this.service.weChatService.weChatService.wepublogin(ctx);
+    }
+
 }
 
 module.exports = WeChatController;

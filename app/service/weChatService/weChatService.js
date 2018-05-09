@@ -554,6 +554,17 @@ class WeChatService extends Service {
         ctx.body = wepubMp;
     }
 
+    async wepublogin(ctx) {
+        let router = 'wepub/access/token';
+        let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
+        let scope = 'snsapi_base';
+        let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
+        this.ctx.redirect(url);
+    }
+
+    async wepubAccessToken(ctx) {
+
+    }
 }
 
 

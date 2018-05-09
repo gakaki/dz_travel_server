@@ -42,23 +42,26 @@
 	</div>
 </div>
 <script>
-    window.onload = function (){
-        let appId = document.getElementById('appid').value;
-        let rootUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
-        let wxPar = {
-            appid : appId,
-            redirect_url : 'https://tt.ddz2018.com/wepubrecharge',
-            response_type: 'code',
-            scope: 'snsapi_base',
-            state: '123'
-        }
-        console.log(wxPar.scope,wxPar.appid,encodeURIComponent(wxPar.redirect_url))
-        let reqUrl = rootUrl + '?appid=' + wxPar.appid + '&redirect_uri=' + encodeURIComponent(wxPar.redirect_url) + '&response_type=' + wxPar.response_type + '&scope=' + wxPar.scope + '&state=' + wxPar.state + '#wechat_redirect'
-        console.log(reqUrl)
-        Ajax.get(reqUrl, function(res) {
-            console.log(res)
-        })
+    onload = function () {
+        Ajax.get('/wepublogin');
     }
+    // window.onload = function (){
+    //     let appId = document.getElementById('appid').value;
+    //     let rootUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
+    //     let wxPar = {
+    //         appid : appId,
+    //         redirect_url : 'https://tt.ddz2018.com/wepubrecharge',
+    //         response_type: 'code',
+    //         scope: 'snsapi_base',
+    //         state: '123'
+    //     }
+    //     console.log(wxPar.scope,wxPar.appid,encodeURIComponent(wxPar.redirect_url))
+    //     let reqUrl = rootUrl + '?appid=' + wxPar.appid + '&redirect_uri=' + encodeURIComponent(wxPar.redirect_url) + '&response_type=' + wxPar.response_type + '&scope=' + wxPar.scope + '&state=' + wxPar.state + '#wechat_redirect'
+    //     console.log(reqUrl)
+    //     Ajax.get(reqUrl, function(res) {
+    //         console.log(res)
+    //     })
+    // }
 
     var Ajax={
         get: function(url, fn) {
@@ -69,7 +72,7 @@
                 // readyState == 4说明请求已完成
                 if (xhr.readyState == 4 && xhr.status == 200 || xhr.status == 304) {
                     // 从服务器获得数据
-                    fn.call(this, xhr.responseText);
+                    fn && fn.call(this, xhr.responseText);
                 }
             };
             xhr.send();
@@ -82,7 +85,7 @@
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-                    fn.call(this, xhr.responseText);
+                    fn && fn.call(this, xhr.responseText);
                 }
             };
             xhr.send(data);
