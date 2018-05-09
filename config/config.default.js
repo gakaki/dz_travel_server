@@ -56,5 +56,12 @@ module.exports = appInfo => {
             },
         }
     }
+
+    //app.getLogger('debugLogger') / ctx.getLogger('debugLogger')
+    config.customLogger =  {
+        debugLogger: {
+            file: path.join(appInfo.root, 'logs/debug/debug.log'),
+        },
+    };
     return config;
 };
