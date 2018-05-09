@@ -32,7 +32,7 @@ module.exports = () => {
                 }
             }
         }
-        if(url.indexOf("shopdone") != -1 || url.indexOf('ios') != -1) {
+        if(url.indexOf("shopdone") != -1 || url.indexOf('wepub') != -1) {
             await next()
         }
 
