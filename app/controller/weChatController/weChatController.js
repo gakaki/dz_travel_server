@@ -42,7 +42,7 @@ class WeChatController extends Controller {
         this.logger.info("我要付款");
         let result = {};
         const { sid, payCount, goodsId, appName, type } = ctx.query;
-        this.logger.info(ctx.query)
+      //  this.logger.info(ctx.query)
         if (!sid || !payCount || !goodsId || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
@@ -62,7 +62,7 @@ class WeChatController extends Controller {
             return;
         }
         let money = (goods.pay) * 100;
-        if (configDebug.WECHATPAY){
+        if (configDebug.WECHATPAY) {
              money = 1;
         }
 
@@ -71,6 +71,11 @@ class WeChatController extends Controller {
         this.logger.info("支付途径" + type);
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName, type);
     }
+
+    wechatsubscriptionpay(ctx) {
+
+    }
+
 
 
     async getgoods(ctx) {
@@ -173,7 +178,7 @@ class WeChatController extends Controller {
 
     async iosRechargePage(ctx) {
         this.logger.info('access ios recharge page')
-        await ctx.render('iosPubRecharge.html', {items: sheets.pays})
+        await ctx.render('iosPubRecharge.html', {items: sheets.pays , appid: this.config.pubid})
     }
 
     async wepubTxt(ctx) {

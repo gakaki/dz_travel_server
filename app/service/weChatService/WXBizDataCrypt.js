@@ -18,16 +18,15 @@ WXBizDataCrypt.prototype.decryptData = function(encryptedData, iv) {
     decipher.setAutoPadding(true);
     var decoded = decipher.update(encryptedData, 'binary', 'utf8');
     decoded += decipher.final('utf8');
-      console.log(decoded)
     decoded = JSON.parse(decoded);
 
   } catch (err) {
-      console.log(err);
-      throw new Error('Illegal Buffer')
+
+      throw new Error('Illegal Buffer', err)
   }
 
   if (decoded.watermark.appid !== this.appId) {
-    throw new Error('Illegal Buffer')
+    throw new Error('Illegal Buffer', decoded)
   }
 
   return decoded

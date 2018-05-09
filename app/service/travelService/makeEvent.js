@@ -56,7 +56,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         let timestamp       = new Date().getTime();
 
         //默认先生成一条
-        let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
+        let dbRow                       = this.genSingleEventNonSpot( new Date().getTime() );
         eventRows.push(dbRow);
         if (configDebug.EVENTGENINIITAL)
         {
@@ -71,7 +71,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             let minuteLength        =  _.ceil(_.random(1, 5, true), 2) // 随机个1到5分钟的时间出来 4.xx
 
             if (configDebug.EVENTGENTimeShort){
-                minuteLength        =  _.random( 0 , 1);
+                minuteLength        =  _.random( 0.25 , 1 );
             }
 
             //这里的时间生成逻辑需要递增
