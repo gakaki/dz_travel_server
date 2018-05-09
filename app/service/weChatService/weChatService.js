@@ -8,6 +8,7 @@ const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 const travelConfig = require("../../../sheets/travel");
 const WXBizDataCrypt = require('./WXBizDataCrypt');
+const wepubMp = "3jnwYg9gBdJVQYtM"//require('fs').readFileSync('../../public/MP_verify_3jnwYg9gBdJVQYtM.txt', 'utf8')
 
 class WeChatService extends Service {
     async auth(sdkAuth) {
@@ -547,6 +548,10 @@ class WeChatService extends Service {
             ctx.body = '';
         }
         
+    }
+
+    async wepubTxt(ctx) {
+        ctx.body = wepubMp;
     }
 
 }
