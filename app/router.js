@@ -21,6 +21,7 @@ module.exports = app => {
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/wepub', controller.weChatController.weChatController.wepub);
     router.get('/wepub', controller.weChatController.weChatController.wepub);
+    router.get('/*.txt', controller.weChatController.weChatController.wepubTxt)
     //ios充值页面
     router.get('/wepubrecharge', controller.weChatController.weChatController.iosRechargePage);
 

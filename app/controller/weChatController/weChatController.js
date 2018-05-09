@@ -176,6 +176,10 @@ class WeChatController extends Controller {
         await ctx.render('iosPubRecharge.html', {items: sheets.pays})
     }
 
+    async wepubTxt(ctx) {
+        await this.service.weChatService.weChatService.wepubTxt(ctx);
+    }
+
 }
 
 module.exports = WeChatController;
