@@ -929,9 +929,9 @@ class TourService extends Service {
                 await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
             }
         }
-        if (redisEventLength >= 10){  //若 redis中发现大于10个了那么trim掉
-            await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,10,-1);
-        }
+        // if (redisEventLength >= 10){  //若 redis中发现大于10个了那么trim掉
+        //     await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,10,-1);
+        // }
 
         let event              =   null;
         if ( item_first ){
@@ -972,7 +972,6 @@ class TourService extends Service {
         }
 
         this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",redisEventLength);
-        this.app.getLogger('debugLogger').info(" [debug] item_first ",item_first);
         this.app.getLogger('debugLogger').info(" [debug] event ",event);
 
         let res =  {
