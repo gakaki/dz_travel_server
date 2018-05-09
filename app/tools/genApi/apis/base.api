@@ -419,12 +419,12 @@ class Base{
 
                 //fetch srv
                 req.info = info.userInfo;
+                req.info.encryptedData = info.encryptedData;
                 req.fetch().then(()=>{
                     this.AUTHED = true;
                     this.LOGINED = true;
                     this.shareUid = null;
 
-                    req.info.encryptedData = req.encryptedData;
                     app.globalData.userInfo = req.info;
                     this.SID = req.sid;
                     this._timestampD = Date.now()/1000  - req.timestamp;
