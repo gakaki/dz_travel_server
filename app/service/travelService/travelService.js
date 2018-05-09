@@ -295,27 +295,61 @@ class TravelService extends Service {
         let limit = info.length ? Number(info.length) : travelConfig.Parameter.Get(travelConfig.Parameter.COUNTLIMIT).value;
         let allLogs = await this.ctx.model.TravelModel.Footprints.aggregate([
             { $match: { uid: ui.uid } },
-            { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: { $dateToString: { format: "%Y-%m-%d", date: "$createDate" } } }, scenicSpots: { $push: "$scenicspot" } } },
+            { $group: { _id: { year: { $dateToString: { format: "%Y", date: "$createDate" } }, fid: "$fid", date: "$createDate", city: "$city" }, scenicSpots: { $push: "$scenicspot" } } },
             { $sort: { "_id.date": -1 } },
-            { $group: { _id: { year: "$_id.year", fid: "$_id.fid" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
+            { $group: { _id: { year: "$_id.year", fid: "$_id.fid", city: "$_id.city" }, scenicSpots: { $push: { time: "$_id.date", spots: "$scenicSpots" } } } },
             { $sort: { "_id.fid": -1 } },
-            { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", scenicSpots: 1 } },
+            { $project: { _id: 0, year: "$_id.year", fid: "$_id.fid", city: "$_id.city", scenicSpots: 1 } },
         ]).sort({ year: -1 });
         //this.logger.info(JSON.stringify(allLogs));
         let outLog = [];
         let year = new Date().getFullYear();
         //allLogs = allLogs.slice((page - 1) * limit, page * limit);
         for(let i = 0; i < allLogs.length; i++) {
-            this.logger.info(allLogs[i].fid);
-            let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
-            if(fly) {
+         //   this.logger.info(allLogs[i].fid);
+           // let fly = await this.ctx.model.TravelModel.FlightRecord.findOne({ fid: allLogs[i].fid });
+          //  if(fly) {
                 let onelog = {
-                    city: travelConfig.City.Get(fly.destination).city,
-                    time: fly.createDate.format("yyyy-MM-dd"),
-                    scenicSpots: allLogs[i].scenicSpots,
+                   // city: travelConfig.City.Get(fly.destination).city,
+                 //   city: allLogs[i].city,
+                 //   time: fly.createDate.format("yyyy-MM-dd"),
                     // year : allLogs[i].year,
                 };
+                let spots = [];
+                let onespot = {
+                    spots: [],
+                };
+                let arrivetime = null;
+                let scenicSpots = allLogs[i].scenicSpots;
+                scenicSpots = utils.multisort(scenicSpots, (a, b) => a.time - b.time);
+               // this.logger.info(scenicSpots);
+                for(let spot of scenicSpots) {
+                    let time = spot.time.format("yyyy-MM-dd");
+                   // this.logger.info(spot.spots[0]);
+                    if(!spot.spots[0]) {
+                        onelog.time = time;
+                        onelog.city = allLogs[i].city;
+                        arrivetime = time;
+                        onespot.time = time;
+                        spots.push(onespot);
+                        continue;
+                    }
 
+                 //   this.logger.info(time, arrivetime);
+                    if(time != arrivetime) {
+                        onespot = {
+                            time: time,
+                            spots: spot.spots,
+                        };
+                        arrivetime = time;
+                        spots.push(onespot);
+                    }else{
+                        onespot.spots.push(spot.spots[0]);
+                    }
+
+                }
+
+                onelog.scenicSpots = spots;
                 //  this.logger.info(onelog);
 
                 if(i == 0) {
@@ -326,13 +360,15 @@ class TravelService extends Service {
                         onelog.year = allLogs[i].year;
                         year = allLogs[i].year
                     }else{
-                        delete outLog[i - 1].year;
+                        if(outLog[i - 1].year) {
+                            delete outLog[i - 1].year;
+                        }
                         onelog.year = allLogs[i].year;
                         year = allLogs[i].year
                     }
                 }
                 outLog.push(onelog);
-            }
+          //  }
         }
         info.allLogs = outLog.slice((page - 1) * limit, page * limit).reverse();
     }
