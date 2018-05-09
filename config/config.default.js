@@ -48,12 +48,12 @@ module.exports = appInfo => {
         devServer: {
             port: 8000,
             env: {
-                // APP_ROOT: process.cwd() + '/app/public',
                 BROWSER: 'none',
                 ESLINT: 'none',
                 SOCKET_SERVER: 'http://127.0.0.1:8000',
                 PUBLIC_PATH: 'http://127.0.0.1:8000',
             },
+            debug: true
         }
     }
 

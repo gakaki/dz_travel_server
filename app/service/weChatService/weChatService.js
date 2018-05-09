@@ -7,6 +7,7 @@ const xml2js = require('xml2js');
 const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 const travelConfig = require("../../../sheets/travel");
+const WXBizDataCrypt = require('./WXBizDataCrypt');
 
 class WeChatService extends Service {
     async auth(sdkAuth) {
@@ -26,7 +27,7 @@ class WeChatService extends Service {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
             let r = await this.ctx.model.WeChatModel.SdkUser.update({userid: auResult.data.openid},
-                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName}},
+                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key } },
                 {upsert: true});
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;
@@ -37,7 +38,7 @@ class WeChatService extends Service {
     }
 
 
-    async minAppPay(ui, payCount, good, appName) {
+    async minAppPay(ui, payCount, good, appName, type) {
         let result = {
             data: {}
         };
@@ -66,8 +67,13 @@ class WeChatService extends Service {
 
 
         await this.ctx.model.WeChatModel.RechargeRecord.create(payInfo);
+        let appid = this.config.appid;
+        if(type) {
+            appid = this.config.pubid
+        }
+
         let wuo = {
-            appid: this.config.appid,
+            appid: appid,
             body: payInfo.desc,
             mch_id: this.config.pubmchid,
             nonce_str: nonce.NonceAlDig(10),
@@ -491,20 +497,25 @@ class WeChatService extends Service {
     }
 
     async wepub(ctx) {
-        let {signature, timestamp, nonce, echostr} = ctx.query;
-        let token = this.config.wepubToken;
-        let arr = [token, timestamp, nonce];
-        arr.sort();
-        
-        let hashcode = utils.Sha1(arr.join(''));
-        this.logger.info('wepub hash',hashcode);
-        if (hashcode == signature) {
-            this.logger.info('wepub token signature ok')
-            ctx.body = echostr;
-        }
-        else {
-            ctx.body = '';
-        }
+        this.logger.info('got wepub token check request')
+        await parseString(ctx.body, (data, err) => {
+
+            this.logger.info('got wepub', ctx.query, ctx.body, data)
+            let {signature, timestamp, nonce, echostr} = data;
+            let token = this.config.wepubToken;
+            let arr = [token, timestamp, nonce];
+            arr.sort();
+            
+            let hashcode = utils.Sha1(arr.join(''));
+            this.logger.info('wepub hash',hashcode);
+            if (hashcode == signature) {
+                this.logger.info('wepub token signature ok')
+                ctx.body = echostr;
+            }
+            else {
+                ctx.body = '';
+            }
+        })
         
     }
 
