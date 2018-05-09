@@ -72,7 +72,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             let minuteLength        =  _.ceil(_.random(1, 5, true), 2) // 随机个1到5分钟的时间出来 4.xx
 
             if (configDebug.EVENTGEN){
-                minuteLength        =  _.random( 0 , 0);
+                minuteLength        =  _.random( 0 , 1);
             }
 
             //这里的时间生成逻辑需要递增
@@ -108,7 +108,9 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             wrongs          : [],
             answer          : "",
             picture         : "",
-            questionTitle   : ""
+            questionTitle   : "",
+            sended          : false,
+            sendedTime      : null
         };
 
         let questAnswer  = new QuestAnswer(quest.id,this.cid);
