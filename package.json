@@ -21,6 +21,7 @@
     "lunar-calendar": "^0.1.4",
     "mocha": "^5.1.1",
     "moment": "^2.22.1",
+    "pandora": "^1.8.18",
     "request": "^2.85.0",
     "tenpay": "^2.1.4",
     "weather-china": "^0.0.3",
@@ -48,6 +49,9 @@
     "node": ">=8.9.0"
   },
   "scripts": {
+    "pandoradev":"pandora dev",
+    "pandorastart":"pandora start --name dashboard `pandora-dashboard-dir`",
+    "pandorastop":"pandora stop",
     "start": "egg-scripts start --daemon --ignore-stderr   --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem",
     "stop": "egg-scripts stop --title=egg-server-server",
     "dev": "egg-bin dev  --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
