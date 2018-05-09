@@ -261,15 +261,19 @@ class MakeRoadMap {
          // diffTime = 4 * 60 * 1000; //4小时 * 60分种 x  x 1000 毫秒
          // diffTime = 10000;//test
 
-        if ( configDebug.SHORTROADMAP  ){
+        if ( configDebug.SHORTROADMAP1){
+            diffTime   = 1 * 1 * 1000; //1 秒一个景点
+        }
+        if ( configDebug.SHORTROADMAP10  ){
             diffTime   = 1 * 10 * 1000; //10 秒一个景点
         }
         if ( configDebug.SHORTROADMAP30){
             diffTime   = 1 * 30 * 1000; //30 秒一个景点
         }
-        if ( configDebug.SHORTROADMAP1){
-            diffTime   = 1 * 1 * 1000; //1 秒一个景点
+        if ( configDebug.SHORTROADMAP60){
+            diffTime   = 1 * 60 * 1000; //60 秒一个景点
         }
+
         let mileage = Math.round(short_path.getMileage(travelMap));
         console.log("经纬距离 ：" + mileage);
 
