@@ -424,6 +424,7 @@ class Base{
                     this.LOGINED = true;
                     this.shareUid = null;
 
+                    req.info.encryptedData = req.encryptedData;
                     app.globalData.userInfo = req.info;
                     this.SID = req.sid;
                     this._timestampD = Date.now()/1000  - req.timestamp;

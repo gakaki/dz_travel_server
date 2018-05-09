@@ -869,7 +869,7 @@ class TourService extends Service {
     }
 
     // play loop 和 eventshow 共享的 事件处理的代码
-    async _knowEvent( uid ){
+    async _knowEvent( uid , isEventShow = false){
         this.logger.info("--==knowEvent==--");
 
         let currentCity        = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
@@ -886,63 +886,64 @@ class TourService extends Service {
         if(!cityEvents) {
             cityEvents = { events: [] };
         }
-
-        // 如果到达终点了之后 事件不会无限增加的 因为没有时间增加 自然不应该有增加事件了
         let roadMap           = currentCity.roadMap;
         let finalEndTime      = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);//所有路程的终点
-
-        this.logger.info(finalEndTime);
-        this.logger.info(" [debug] 预存的事件数量", cityEvents.events.length);
+        this.app.getLogger('debugLogger').info(" [debug] 最后预计达到的时间", finalEndTime);
+        this.app.getLogger('debugLogger').info(" [debug] 预存的事件数量", cityEvents.events.length);
 
         let dbEvents            = cityEvents.events;
         let eventsNoReceivedAll = dbEvents.filter( x => x.received == false && x.triggerDate <= timeNow && x.sended == false )
-        // let dbIds               = eventsNoReceivedAll.map( e => e.dbId );
+        let eventsNoReceived    = eventsNoReceivedAll.slice(0,10);
         dbEvents.forEach( e => {
             if ( e.received == false && e.triggerDate <= timeNow && e.sended == false){
                 e.sended = true;
                 e.sendedTime = new Date().getTime()
             }
         });
-        // await this.ctx.model.TravelModel.CityEvents.update(
-        //     { uid:uid , 'events.dbId': { $in : dbIds } } ,
-        //     { $set : {'events.$.sended' : true} },
-        //     { multi : true }
-        // );
         await this.ctx.model.TravelModel.CityEvents.update(
             { uid:uid } ,
             { $set : {'events' : dbEvents} },
         );
-        let eventsNoReceived    = eventsNoReceivedAll.slice(0,10);
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
         let KEY_EVENTSHOW      = `eventShow:${uid}`;
         let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
-        let diff             = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
+        let diff                = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
 
-        diff.forEach(async (e) => {
+        let needAddCount        = 10 - eventShow.length;
+        let needAddRows         = diff.slice(0,needAddCount)
+
+        needAddRows.forEach(async (e) => {
             let r = eventsNoReceived.find( row => row.dbId.toString() == e );
             await this.app.redis.zadd( KEY_EVENTSHOW , r.triggerDate, r.dbId.toString() );
         });
 
+        this.app.getLogger('debugLogger').info(" [debug] diff的事件数量 ",diff.length);
+        this.app.getLogger('debugLogger').info(" [debug] needAddCount的数量 ",needAddCount);
+
         let item_first         = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
         let eventShowLength    = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
         if ( item_first && item_first.length == 1 ){
-            await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
-
+            if (isEventShow == true){   //eventsshow的时候需要删除
+                await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
+            }
         }
 
-        let event              = null;
+        let event              =   null;
+        if ( item_first ){
+           event               =  dbEvents.find( e => e.dbId.toString() == item_first[0] );
+        }
 
         let hasNext            = false;
-
         let newEvent           = false;
+
         if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
             this.logger.info("达到终点？？？？")
             if(eventShowLength > 0 ){
                 newEvent           = true;
                 hasNext            = false;
                 if (eventsNoReceived.length > 0){
-                    event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
+                    event          = dbEvents.find( e => e.dbId.toString() == item_first[0] );
                 }
             }else{
                 newEvent           = false;
@@ -951,7 +952,7 @@ class TourService extends Service {
 
         }else{
             if (eventsNoReceived.length > 0){
-                event              = eventsNoReceived.find( e => e.dbId.toString() == item_first[0] );
+                event              = dbEvents.find( e => e.dbId.toString() == item_first[0] );
             }
         }
         if (eventsNoReceived && eventsNoReceived.length > 1){
@@ -971,8 +972,12 @@ class TourService extends Service {
             newEvent = false;
             hasNext = false
         }
-        this.logger.info(eventShowLength, event, newEvent,hasNext);
-        return {
+
+        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",eventShowLength);
+        this.app.getLogger('debugLogger').info(" [debug] item_first ",item_first);
+        this.app.getLogger('debugLogger').info(" [debug] event ",event);
+
+        let res =  {
             'current'          : eventShowLength,
             'total'            : 10,
             'event'            : event,
@@ -982,7 +987,16 @@ class TourService extends Service {
             'currentCity'      : currentCity,
             'timeNow'          : timeNow
         }
-    }
+        this.app.getLogger('debugLogger').info(" [debug] 最终数量 ", {
+            'current'          : eventShowLength,
+            'total'            : 10,
+            'event'            : event,
+            'newEvent'         : newEvent,
+            'hasNext'          : hasNext,
+            'timeNow'          : timeNow
+        });
+        return res;
+     }
     // 游玩 事件查看 http://127.0.0.1:7001/tour/eventshow?uid=1000001&cid=1
     async eventshow(info){
 
@@ -993,7 +1007,7 @@ class TourService extends Service {
         //所以查cid的cityevent表
         let cid                                                          = info.cid;
         let uid                                                          = info.uid;
-        let knowEvent                                                    = await this._knowEvent(uid);
+        let knowEvent                                                    = await this._knowEvent(uid ,true);
         info.current                                                     = knowEvent.current;
         info.total                                                       = knowEvent.total;
         info.hasNext                                                     = knowEvent.hasNext;
@@ -1019,12 +1033,12 @@ class TourService extends Service {
             dbId                                                         : event['dbId'],
             eid                                                          : eid, //前端没有此配置表
             type                                                         : questCfg.type,
-            describe                                                     : event.questionTitle,
+            describe                                                     : questAnswer.questionTitle,
             gold_used                                                    : 0,
-            picture                                                      : event.picture,
-            question                                                     : event.questionTitle,
-            answers                                                      : event.answers,
-            wrongs                                                       : event.wrongs,
+            picture                                                      : questAnswer.picture,
+            question                                                     : questAnswer.questionTitle,
+            answers                                                      : questAnswer.answers,
+            wrongs                                                       : questAnswer.wrongs,
         };
 
 
