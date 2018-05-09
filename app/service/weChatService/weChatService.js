@@ -26,7 +26,7 @@ class WeChatService extends Service {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
             let r = await this.ctx.model.WeChatModel.SdkUser.update({userid: auResult.data.openid},
-                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName}},
+                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key } },
                 {upsert: true});
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;
@@ -37,7 +37,7 @@ class WeChatService extends Service {
     }
 
 
-    async minAppPay(ui, payCount, good, appName) {
+    async minAppPay(ui, payCount, good, appName, type) {
         let result = {
             data: {}
         };
@@ -66,8 +66,13 @@ class WeChatService extends Service {
 
 
         await this.ctx.model.WeChatModel.RechargeRecord.create(payInfo);
+        let appid = this.config.appid;
+        if(type) {
+            appid = this.config.pubid
+        }
+
         let wuo = {
-            appid: this.config.appid,
+            appid: appid,
             body: payInfo.desc,
             mch_id: this.config.pubmchid,
             nonce_str: nonce.NonceAlDig(10),
