@@ -40,6 +40,19 @@
 		</div>
 	</div>
 	<script>
+		window.onload = function (){
+		    let rootUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
+		    let wxPar = {
+		        appid : '',
+				redirect_url : '',
+				response_type: 'code',
+				scope: 'snsapi_base',
+				state: 'STATE'
+			}
+			console.log(wxPar.scope)
+		    // Ajax.get()
+		}
+
         var Ajax={
             get: function(url, fn) {
                 // XMLHttpRequest对象用于在后台与服务器交换数据

@@ -63,5 +63,23 @@ module.exports = appInfo => {
             file: path.join(appInfo.root, 'logs/debug/debug.log'),
         },
     };
+
+    config.appid = "wx69595aa92bd81b00";
+    config.appsecret = "5ab876c69ee81a4ca83e477ac1905008";
+    config.pubid = "wx4224663bb4f0ed80";
+    config.pubsecret = "bc5fe79fbe136e9ca2521d0c5d66bd05",
+        config.pubmchid = "1494209122";
+    config.pubkey = "shanghaidouziwangluokejigongsih5";
+    config.payid = "wxfc983573261a5210";
+    config.paykey = "shanghaidouziwangluokejigongsih5";
+    config.paymchid = "1494209122";
+    config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
+    //config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
+
+    config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
+    config.weatherusername = "HE1804101712021052";
+
+    config.wepubToken = "wxappPUBodaoh5";
+    config.wepubASEKey = "BZ2AXtbkYoN2wr7K46os9WqfcoK6AhEin1QyDllK0Lo";
     return config;
 };
