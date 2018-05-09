@@ -69,8 +69,8 @@ module.exports = appInfo => {
     config.appid = "wx69595aa92bd81b00";
     config.appsecret = "5ab876c69ee81a4ca83e477ac1905008";
     config.pubid = "wx4224663bb4f0ed80";
-    config.pubsecret = "bc5fe79fbe136e9ca2521d0c5d66bd05",
-        config.pubmchid = "1494209122";
+    config.pubsecret = "bc5fe79fbe136e9ca2521d0c5d66bd05";
+    config.pubmchid = "1494209122";
     config.pubkey = "shanghaidouziwangluokejigongsih5";
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
