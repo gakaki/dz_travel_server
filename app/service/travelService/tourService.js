@@ -894,8 +894,12 @@ class TourService extends Service {
         let dbEvents            = cityEvents.events;
         let eventsNoReceivedAll = dbEvents.filter( x => x.received == false && x.triggerDate <= timeNow && x.sended == false )
         let eventsNoReceived    = eventsNoReceivedAll.slice(0,10);
+
+        this.app.getLogger('debugLogger').info(" [debug] eventsNoReceivedAll的事件数量 ",eventsNoReceivedAll.length);
+        this.app.getLogger('debugLogger').info(" [debug] eventsNoReceived的事件数量 ",eventsNoReceived.length);
+
         dbEvents.forEach( e => {
-            if ( e.received == false && e.triggerDate <= timeNow && e.sended == false){
+            if ( e.received == false && e.triggerDate <= timeNow ){
                 e.sended = true;
                 e.sendedTime = new Date().getTime()
             }
@@ -915,6 +919,7 @@ class TourService extends Service {
 
         needAddRows.forEach(async (e) => {
             let r = eventsNoReceived.find( row => row.dbId.toString() == e );
+            this.app.getLogger('debugLogger').info(" [debug] 加入事件redis ",r.dbId.toString());
             await this.app.redis.zadd( KEY_EVENTSHOW , r.triggerDate, r.dbId.toString() );
         });
 
