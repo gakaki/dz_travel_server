@@ -8,8 +8,7 @@ class UserController extends Controller {
     async login(ctx) {
         this.logger.info("我要登陆");
 
-
-        const {sid, uid,info,appName,shareUid,test} = ctx.query;
+        const { sid, uid, info, appName, shareUid, test } = ctx.query;
         let result = {
             data: {}
         };
@@ -31,7 +30,10 @@ class UserController extends Controller {
         }else{
             userInfo = JSON.parse(info);
         }
-        let rs = await this.service.publicService.userService.login(uid,sid,appName,shareUid,userInfo);
+        let now = new Date();
+     //  this.logger.info(`${uid} 本次登录开始时间 ${now}`);
+        this.app.getLogger('debugLogger').info(`${uid} 准备开始登录 ${now}`);
+        let rs = await this.service.publicService.userService.login(uid, sid, appName, shareUid, userInfo, now.getTime());
     //    ctx.logger.info(rs);
         if (rs.info != null) {
             result.code = 0;
@@ -41,6 +43,8 @@ class UserController extends Controller {
         } else {
             result.code = constant.Code.LOGIN_FAILED;
         }
+
+        this.app.getLogger('debugLogger').info(`本次登录成功总计耗时 ${Date.now() - now.getTime()} ms`);
         ctx.body = result;
     }
 

@@ -20,7 +20,9 @@ module.exports = app => {
     router.get('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/wepub', controller.weChatController.weChatController.wepub);
-
+    router.get('/wepub', controller.weChatController.weChatController.wepub);
+    //ios充值页面
+    router.get('/wepubrecharge', controller.weChatController.weChatController.iosRechargePage);
 
     router.get('/weChat/sendmockid', controller.weChatController.weChatController.getmockid);
     router.get('/weChat/getgoods', controller.weChatController.weChatController.getgoods);
@@ -141,8 +143,7 @@ module.exports = app => {
     router.get('/test/dev', controller.travelController.tourController.eventshowtest);
 
   
-    //ios充值页面
-  router.get('/iosrecharge', controller.weChatController.weChatController.iosRechargePage);
+ 
 
     //io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

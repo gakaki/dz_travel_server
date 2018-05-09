@@ -27,7 +27,7 @@ class WeChatController extends Controller {
         };
 
         let resultS = await this.service.weChatService.weChatService.auth(sdkAuth);
-        this.logger.info("授权信息" +JSON.stringify(resultS));
+        this.logger.info("授权信息" + JSON.stringify(resultS));
         if (resultS != null) {
             result.code = 0;
             result.data.uid = resultS.openid;
@@ -41,8 +41,8 @@ class WeChatController extends Controller {
     async minapppay(ctx) {
         this.logger.info("我要付款");
         let result = {};
-        const {sid, payCount, goodsId, appName} = ctx.query;
-        this.logger.info(ctx.query)
+        const { sid, payCount, goodsId, appName, type } = ctx.query;
+      //  this.logger.info(ctx.query)
         if (!sid || !payCount || !goodsId || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
@@ -62,13 +62,20 @@ class WeChatController extends Controller {
             return;
         }
         let money = (goods.pay) * 100;
-        if (configDebug.WECHATPAY){
+        if (configDebug.WECHATPAY) {
              money = 1;
         }
 
         this.logger.info("我拿到的钱数:" + money);
-        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName);
+
+        this.logger.info("支付途径" + type);
+        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName, type);
     }
+
+    wechatsubscriptionpay(ctx) {
+
+    }
+
 
 
     async getgoods(ctx) {

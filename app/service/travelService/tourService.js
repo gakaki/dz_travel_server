@@ -922,12 +922,16 @@ class TourService extends Service {
         this.app.getLogger('debugLogger').info(" [debug] needAddCount的数量 ",needAddCount);
 
         let item_first         = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
-        let eventShowLength    = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
+        let redisEventLength   = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
+
         if ( item_first && item_first.length == 1 ){
             if (isEventShow == true){   //eventsshow的时候需要删除
                 await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
             }
         }
+        // if (redisEventLength >= 10){  //若 redis中发现大于10个了那么trim掉
+        //     await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,10,-1);
+        // }
 
         let event              =   null;
         if ( item_first ){
@@ -939,21 +943,15 @@ class TourService extends Service {
 
         if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
             this.logger.info("达到终点？？？？")
-            if(eventShowLength > 0 ){
+            if(redisEventLength > 0 ){
                 newEvent           = true;
                 hasNext            = false;
-                if (eventsNoReceived.length > 0){
-                    event          = dbEvents.find( e => e.dbId.toString() == item_first[0] );
-                }
             }else{
                 newEvent           = false;
                 hasNext            = false;
             }
-
         }else{
-            if (eventsNoReceived.length > 0){
-                event              = dbEvents.find( e => e.dbId.toString() == item_first[0] );
-            }
+
         }
         if (eventsNoReceived && eventsNoReceived.length > 1){
             hasNext            = true;
@@ -961,24 +959,23 @@ class TourService extends Service {
         if ( event ){
             newEvent           = true;
         }
-        if(eventShowLength > 1){
+        if(redisEventLength > 1){
             hasNext = true
         }else{
             hasNext = false;
         }
         if(!finalEndTime) {
-            eventShowLength = 0;
+            redisEventLength = 0;
             event = null;
             newEvent = false;
             hasNext = false
         }
 
-        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",eventShowLength);
-        this.app.getLogger('debugLogger').info(" [debug] item_first ",item_first);
+        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",redisEventLength);
         this.app.getLogger('debugLogger').info(" [debug] event ",event);
 
         let res =  {
-            'current'          : eventShowLength,
+            'current'          : redisEventLength,
             'total'            : 10,
             'event'            : event,
             'newEvent'         : newEvent,
@@ -988,7 +985,7 @@ class TourService extends Service {
             'timeNow'          : timeNow
         }
         this.app.getLogger('debugLogger').info(" [debug] 最终数量 ", {
-            'current'          : eventShowLength,
+            'current'          : redisEventLength,
             'total'            : 10,
             'event'            : event,
             'newEvent'         : newEvent,

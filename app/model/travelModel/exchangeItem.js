@@ -9,6 +9,7 @@ module.exports = app => {
         time2: { type: Date },
         sort: { type: Number }, //优先级
         type: { type: Number }, //是否需要兑换地址,1为需要,2为不需要
+        integralLimit: { type: Number },
         ranking: { type: Number }, //兑换物品需要的排行
         ifLimited: { type: Number }, //是否限购
         ifShow: { type: Number }, //是否显现

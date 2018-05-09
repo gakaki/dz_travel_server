@@ -7,6 +7,7 @@ const xml2js = require('xml2js');
 const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 const travelConfig = require("../../../sheets/travel");
+const WXBizDataCrypt = require('./WXBizDataCrypt');
 
 class WeChatService extends Service {
     async auth(sdkAuth) {
@@ -26,7 +27,7 @@ class WeChatService extends Service {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
             let r = await this.ctx.model.WeChatModel.SdkUser.update({userid: auResult.data.openid},
-                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName}},
+                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key } },
                 {upsert: true});
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;
@@ -37,7 +38,7 @@ class WeChatService extends Service {
     }
 
 
-    async minAppPay(ui, payCount, good, appName) {
+    async minAppPay(ui, payCount, good, appName, type) {
         let result = {
             data: {}
         };
@@ -66,8 +67,13 @@ class WeChatService extends Service {
 
 
         await this.ctx.model.WeChatModel.RechargeRecord.create(payInfo);
+        let appid = this.config.appid;
+        if(type) {
+            appid = this.config.pubid
+        }
+
         let wuo = {
-            appid: this.config.appid,
+            appid: appid,
             body: payInfo.desc,
             mch_id: this.config.pubmchid,
             nonce_str: nonce.NonceAlDig(10),
@@ -400,6 +406,40 @@ class WeChatService extends Service {
     }
 
 
+    async freshAuthAccessToken() {
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubid}`, {
+                method: "GET",
+                dataType: "json",
+            });
+
+            this.logger.info(result);
+
+        }catch (e) {
+            this.logger.error(e);
+        }
+    }
+
+
+
+    async getuserinfo(uid) {
+        this.logger.info("获取用户信息。。。。。");
+        let access_token = await this.freshAccess_token();
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${uid}&lang=zh_CN`, {
+                method: "GET",
+                dataType: "json",
+            });
+
+            this.logger.info(result);
+
+        }catch (e) {
+            this.logger.error(e);
+        }
+
+    }
+
+
     async freshAccess_token() {
         try {
             let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.config.appid}&secret=${this.config.appsecret}`, {
@@ -491,6 +531,7 @@ class WeChatService extends Service {
     }
 
     async wepub(ctx) {
+        this.logger.info('got wepub token check', ctx.query)
         let {signature, timestamp, nonce, echostr} = ctx.query;
         let token = this.config.wepubToken;
         let arr = [token, timestamp, nonce];

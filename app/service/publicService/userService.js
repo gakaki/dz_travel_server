@@ -3,103 +3,68 @@ const Service = require('egg').Service;
 const constant = require('../../utils/constant');
 const crypto = require("crypto");
 const travelConfig = require("../../../sheets/travel");
-
+const WXBizDataCrypt = require("../weChatService/WXBizDataCrypt");
 
 class UserService extends Service {
 
-    async login(uid, sid, appName, shareUid, info) {
+    async login(uid, sid, appName, shareUid, info, time) {
+        this.app.getLogger('debugLogger').info(`进入service耗时 ${Date.now() - time} ms`);
         this.logger.info("登陆时的参数 ：" + uid + " " + sid);
         let result = {};
+        let third = false;
+        let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({ userid: uid });
+        this.app.getLogger('debugLogger').info(`查询是否是第三方登录耗时 ${Date.now() - time} ms`);
         //老用户登陆
         if (sid) {
-            let authUi = await this.collect(sid, appName);
+            if(sdkui) {
+                if(!sdkui.sessionKey || !sdkui.unionid) {
+                    result.info = null;
+                    return result;
+                }
+                third = true;
+                try {
+                    let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
+                    info = pc.decryptData(info.encryptedData, info.iv);
+                    // this.logger.info("解密的数据", info);
+                    this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
+                }catch (e) {
+                    this.logger.error(e)
+                }
+            }
+            let authUi = await this.collect(sid, appName, time);
+            this.app.getLogger('debugLogger').info(`老用户登录耗时 ${Date.now() - time} ms`);
             if (authUi == null) {
                 let loginUser = await this.ctx.model.PublicModel.User.findOne({ uid: uid, appName: appName });
                 if (loginUser != null) {
                     this.logger.info("通过openid查库 ：" + loginUser.uid + "昵称 ：" + loginUser.nickName);
                     let _sid = this.GEN_SID(loginUser.pid);
                     this.recruitSid(_sid, loginUser.pid);
+                    this.app.getLogger('debugLogger').info(`错误sid 刷新耗时 ${Date.now() - time} ms`);
                     this.logger.info("老用户刷新SID ：" + _sid);
-                    await this.ctx.model.PublicModel.User.update({ pid: loginUser.pid, appName: appName }, {
-                        $set: {
-                            nickName: info.nickName,
-                            avatarUrl: info.avatarUrl,
-                            gender: info.gender,
-                            city: info.city,
-                            province: info.province,
-                            country: info.country,
-                            lastLogin: new Date(),
-                        },
-                    });
                     result.sid = _sid;
                 }
                 result.info = loginUser;
-
             } else {
-
                 this.logger.info("老用户登陆  uid：" + authUi.uid + " 老用户的昵称 ：" + authUi.nickName);
                 if (uid && authUi.uid != uid) {
                     result.info = null;
                 } else {
-
-                    await this.ctx.model.PublicModel.User.update({ pid: authUi.pid, appName: appName }, {
-                        $set: {
-                            nickName: info.nickName,
-                            avatarUrl: info.avatarUrl,
-                            gender: info.gender,
-                            city: info.city,
-                            province: info.province,
-                            country: info.country,
-                            lastLogin: new Date(),
-                        },
-                    });
-
                     result.sid = sid;
                     result.info = authUi;
                 }
             }
-
-
             if(shareUid && uid != shareUid && result.info) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: result.info.uid } });
-                if(update.nModified) {
-                    await this.ctx.model.PublicModel.User.update({ uid: result.info.uid }, { $addToSet: { friendList: shareUid } });
+                let friendsSet = new Set(result.info.friendList);
+                if(!friendsSet.has(shareUid)) {
+                    let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: result.info.uid } });
+                    if(update.nModified) {
+                        await this.ctx.model.PublicModel.User.update({ uid: result.info.uid }, { $addToSet: { friendList: shareUid } });
+                    }
+                    this.app.getLogger('debugLogger').info(`添加分享用户 ${Date.now() - time} ms`);
                 }
             }
-
-            return result;
-
-        }
-        //第三方登陆
-        let ui = null;
-        if (uid) {
-            let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: uid});
-            let third = false;
-            if (!sdkui) {
-                this.logger.error(uid + " 尝试无效的第三方登陆");
-                // result.info = null;
-                // return result;
-            }else{
-                this.logger.info("第三方登陆 ：" + JSON.stringify(sdkui));
-                third = true;
-            }
-
-            // 因为以后登陆仅仅通过sid，所以安全问题能得以提高
-            ui = await this.ctx.model.PublicModel.User.findOne({
-                uid: uid,
-                appName: appName,
-               // third: true,
-            });
-
-            if (!ui) {
-                // 自动注册
-                ui = await this.register(uid, info, third, appName, shareUid);
-                let sid = this.GEN_SID(ui.pid);
-                this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
-                this.recruitSid(sid, ui.pid);
-            } else {
-                //更新一次userInfo
-                await this.ctx.model.PublicModel.User.update({ pid: ui.pid, appName: appName }, {
+            if(result.info) {
+                await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
                     $set: {
                         nickName: info.nickName,
                         avatarUrl: info.avatarUrl,
@@ -110,11 +75,58 @@ class UserService extends Service {
                         lastLogin: new Date(),
                     },
                 });
-                ui = await this.ctx.model.PublicModel.User.findOne({
-                    uid: uid,
-                    appName: appName,
-                    third: true,
+                result.info.nickName = info.nickName;
+                result.info.avatarUrl = info.avatarUrl;
+                this.app.getLogger('debugLogger').info(`sid 老用户信息更新耗时 ${Date.now() - time} ms`);
+            }
+            return result;
+
+        }
+        //第三方登陆
+        let ui = null;
+        if (uid) {
+            // let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: uid});
+            // let third = false;
+            // if (!sdkui) {
+            //     this.logger.error(uid + " 尝试无效的第三方登陆");
+            //     // result.info = null;
+            //     // return result;
+            // }else{
+            //     this.logger.info("第三方登陆 ：" + JSON.stringify(sdkui));
+            //     third = true;
+            // }
+
+            // 因为以后登陆仅仅通过sid，所以安全问题能得以提高
+            ui = await this.ctx.model.PublicModel.User.findOne({
+                uid: uid,
+                appName: appName,
+               // third: true,
+            });
+            this.app.getLogger('debugLogger').info(`sid不存在，uid存在查询用户信息耗时  ${Date.now() - time} ms`);
+            if (!ui) {
+                // 自动注册
+                ui = await this.register(uid, info, third, appName, shareUid, time);
+                this.app.getLogger('debugLogger').info(`注册耗时  ${Date.now() - time} ms`);
+                let sid = this.GEN_SID(ui.pid);
+                this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
+                this.recruitSid(sid, ui.pid);
+                this.app.getLogger('debugLogger').info(`注册刷新sid耗时  ${Date.now() - time} ms`);
+            } else {
+                //更新一次userInfo
+                await this.ctx.model.PublicModel.User.update({ uid: ui.uid, appName: appName }, {
+                    $set: {
+                        nickName: info.nickName,
+                        avatarUrl: info.avatarUrl,
+                        gender: info.gender,
+                        city: info.city,
+                        province: info.province,
+                        country: info.country,
+                        lastLogin: new Date(),
+                    },
                 });
+                ui.nickName = info.nickName;
+                ui.avatarUrl = info.avatarUrl;
+                this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);
             }
         }
 
@@ -126,6 +138,7 @@ class UserService extends Service {
                 ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
                 this.recruitSid(ses.sid, ui.pid);
             }
+            this.app.getLogger('debugLogger').info(`检验sid时效耗时  ${Date.now() - time} ms`);
         }
 
         //this.logger.info(JSON.stringify(ses));
@@ -218,23 +231,26 @@ class UserService extends Service {
     }
 
 
-    async collect(sid, appName) {
+    async collect(sid, appName, time) {
         let ui = await this.findUserBySid(sid);
+        this.app.getLogger('debugLogger').info(`缓存查询耗时 ${Date.now() - time} ms`);
         if (ui) {
             // 续约
             this.recruitSid(sid, ui.pid);
+            this.app.getLogger('debugLogger').info(`sid续约耗时 ${Date.now() - time} ms`);
             // 纪录访问
-            await this.ctx.model.PublicModel.UserActionRecord.create({
+            this.ctx.model.PublicModel.UserActionRecord.create({
                 pid: ui.pid,
                 appName: appName,
                 type: constant.UserActionRecordType.LOGIN,
                 data: {
                     agent: this.ctx.request.header['user-agent'],
                     host: this.ctx.request.header.host,
-                    addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", "")
+                    addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
                 },
                 createDate: new Date(),
             });
+            this.app.getLogger('debugLogger').info(`用户行为记录耗时  ${Date.now() - time} ms`);
         }else{
             this.logger.error("提供了一个错误的sid {{=it.sid}}", { sid: sid });
         }
@@ -243,7 +259,7 @@ class UserService extends Service {
     }
 
     // @third 是否是第三方登陆
-    async register(uid, info, third, appName, shareUid) {
+    async register(uid, info, third, appName, shareUid, time) {
         // 生成pid
 
         let pid = await this.app.redis.incr("travel_userid");
@@ -267,25 +283,26 @@ class UserService extends Service {
             items: items,
             lastLogin: new Date(),
         });
-
+        this.app.getLogger('debugLogger').info(`用户创建耗时  ${Date.now() - time} ms`);
         //TODO 测试多给点钱。正式服改回来
         this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
        // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000 }, "origin");
-
+        this.app.getLogger('debugLogger').info(`道具初始化耗时  ${Date.now() - time} ms`);
         //进入积分榜单
-        await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {
+         this.ctx.model.TravelModel.IntegralRecord.create({
             uid: uid,
             integral: 0,
             updateDate: new Date(),
-        }, { upsert: true });
-
+        });
+        this.app.getLogger('debugLogger').info(`积分榜单生成耗时  ${Date.now() - time} ms`);
       //  let key = "lightCity" + 0;
      //   this.app.redis.setnx(key, 0);
         //进入足迹榜
-        await this.ctx.model.TravelModel.FootRecord.update({ uid: uid }, {
+         this.ctx.model.TravelModel.FootRecord.create({
             uid: uid, //玩家uid
             updateDate: new Date(), //更新时间
-        }, { upsert: true });
+        });
+        this.app.getLogger('debugLogger').info(`足迹榜单生成  ${Date.now() - time} ms`);
         //设置点亮城市段集
      //   await this.app.redis.incr(key);
         // 日志
@@ -297,12 +314,13 @@ class UserService extends Service {
         });
 
         shareUid && uid != shareUid && await this.newUserShareReward(shareUid, travelConfig.Item.GOLD, travelConfig.Parameter.Get(travelConfig.Parameter.NEWUSERGOLD).value);
-
+        this.app.getLogger('debugLogger').info(`分享获得奖励耗时  ${Date.now() - time} ms`);
         if(shareUid && uid != shareUid) {
             let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: uid } });
             if(update.nModified) {
                 await this.ctx.model.PublicModel.User.update({ uid: uid }, { $addToSet: { friendList: shareUid } });
             }
+            this.app.getLogger('debugLogger').info(`注册加好友耗时  ${Date.now() - time} ms`);
         }
 
         return ui;
