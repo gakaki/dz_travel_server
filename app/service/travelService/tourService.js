@@ -923,10 +923,14 @@ class TourService extends Service {
 
         let item_first         = await this.app.redis.zrange(KEY_EVENTSHOW,0,0);
         let redisEventLength   = await this.app.redis.zcount(KEY_EVENTSHOW,"-inf","+inf");
+
         if ( item_first && item_first.length == 1 ){
             if (isEventShow == true){   //eventsshow的时候需要删除
                 await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
             }
+        }
+        if (redisEventLength >= 10){  //若 redis中发现大于10个了那么trim掉
+            await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,10,-1);
         }
 
         let event              =   null;
@@ -939,25 +943,15 @@ class TourService extends Service {
 
         if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
             this.logger.info("达到终点？？？？")
-
-
             if(redisEventLength > 0 ){
                 newEvent           = true;
                 hasNext            = false;
-
-                this.app.getLogger('debugLogger').info(" [debug] 已经到达终点了 ", item_first ,finalEndTime);
-                // if (eventsNoReceived.length > 0){
-                //     event          = dbEvents.find( e => e.dbId.toString() == item_first[0] );
-                // }
             }else{
                 newEvent           = false;
                 hasNext            = false;
             }
-
         }else{
-            // if (eventsNoReceived.length > 0){
-            //     event              = dbEvents.find( e => e.dbId.toString() == item_first[0] );
-            // }
+
         }
         if (eventsNoReceived && eventsNoReceived.length > 1){
             hasNext            = true;
