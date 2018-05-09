@@ -1644,6 +1644,7 @@ class TourService extends Service {
 
 
     async modifyRouter(info, ui) {
+        let uid         = info.uid;
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
         let isDouble = false;
         if(currentCity.friend) {
@@ -1817,6 +1818,8 @@ class TourService extends Service {
         let finalEndTime = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);
         await this.adduserarrivedtime( finalEndTime , info.uid );
 
+        await this.routerResetEventsNotReceived(uid);
+
         if(isDouble) {
             await this.ctx.model.TravelModel.CurrentCity.update({
                 'uid'        : currentCity.friend,
@@ -1830,9 +1833,28 @@ class TourService extends Service {
                 }});
 
             await this.adduserarrivedtime( finalEndTime , currentCity.friend );
+
+            await this.routerResetEventsNotReceived(currentCity.friend);
         }
     }
 
+    async routerResetEventsNotReceived(uid){
+        let cityEvents         = await this.ctx.model.TravelModel.CityEvents.findOne({
+            uid                : uid
+        });
+        let dbEvents           = cityEvents.events;
+        let timeNow            = new Date().getTime();
+        dbEvents.forEach( e => {
+            if ( e.received == false && e.triggerDate <= timeNow ){
+                e.sended      = false;
+                e.sendedTime  = null;
+            }
+        });
+        await this.ctx.model.TravelModel.CityEvents.update(
+            { uid:uid } ,
+            { $set : {'events' : dbEvents} },
+        );
+    }
     // 取消组队 双人变单人
     async cancelparten(info){
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
