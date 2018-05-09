@@ -8,6 +8,7 @@ const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 const travelConfig = require("../../../sheets/travel");
 const WXBizDataCrypt = require('./WXBizDataCrypt');
+const wepubMp = "3jnwYg9gBdJVQYtM"//require('fs').readFileSync('../../public/MP_verify_3jnwYg9gBdJVQYtM.txt', 'utf8')
 
 class WeChatService extends Service {
     async auth(sdkAuth) {
@@ -408,7 +409,7 @@ class WeChatService extends Service {
 
     async freshAuthAccessToken() {
         try {
-            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubid}`, {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubsecret}`, {
                 method: "GET",
                 dataType: "json",
             });
@@ -549,6 +550,21 @@ class WeChatService extends Service {
         
     }
 
+    async wepubTxt(ctx) {
+        ctx.body = wepubMp;
+    }
+
+    async wepublogin(ctx) {
+        let router = 'wepub/access/token';
+        let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
+        let scope = 'snsapi_base';
+        let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
+        this.ctx.redirect(url);
+    }
+
+    async wepubAccessToken(ctx) {
+
+    }
 }
 
 
