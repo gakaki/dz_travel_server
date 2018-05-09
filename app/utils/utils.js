@@ -30,7 +30,7 @@ exports.MD5 = function (str, fmt = constant.Format.BASE64) {
 };
 
 exports.Sha1 = function(str) {
-    return crypto.createHash('sha1').update(str);
+    return crypto.createHash('sha1').update(str).digest('hex');
 }
 
 //对象排序

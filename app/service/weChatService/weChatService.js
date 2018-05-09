@@ -497,25 +497,21 @@ class WeChatService extends Service {
     }
 
     async wepub(ctx) {
-        this.logger.info('got wepub token check request')
-        await parseString(ctx.body, (data, err) => {
-
-            this.logger.info('got wepub', ctx.query, ctx.body, data)
-            let {signature, timestamp, nonce, echostr} = data;
-            let token = this.config.wepubToken;
-            let arr = [token, timestamp, nonce];
-            arr.sort();
-            
-            let hashcode = utils.Sha1(arr.join(''));
-            this.logger.info('wepub hash',hashcode);
-            if (hashcode == signature) {
-                this.logger.info('wepub token signature ok')
-                ctx.body = echostr;
-            }
-            else {
-                ctx.body = '';
-            }
-        })
+        this.logger.info('got wepub token check', ctx.query)
+        let {signature, timestamp, nonce, echostr} = ctx.query;
+        let token = this.config.wepubToken;
+        let arr = [token, timestamp, nonce];
+        arr.sort();
+        
+        let hashcode = utils.Sha1(arr.join(''));
+        this.logger.info('wepub hash',hashcode);
+        if (hashcode == signature) {
+            this.logger.info('wepub token signature ok')
+            ctx.body = echostr;
+        }
+        else {
+            ctx.body = '';
+        }
         
     }
 
