@@ -60,7 +60,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         eventRows.push(dbRow);
         if (configDebug.EVENTGENINIITAL)
         {
-            for (let i=0 ; i< 90 ;i ++ ){
+            for (let i=0 ; i< 12 ;i ++ ){
                 let dbRow               = this.genSingleEventNonSpot( new Date().getTime() );
                 eventRows.push(dbRow);
             }
