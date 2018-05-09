@@ -4,6 +4,7 @@
 	<title>苹果充值</title>
 	<meta charset="utf-8">
 	<link rel="stylesheet" type="text/css" href="public/css/iosPubRecharge.css">
+	<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 </head>
 <body>
 	<div class="con">
@@ -11,6 +12,7 @@
 			<img class="head-img" src="public/img/lianzi.png">
 		</div>
 		<div class="recharge-info">
+			<input type="hidden" value="{{appid}}" id="appid" style="display: none">
 			{% for item in items %}
 			{% if item.id%3 == 0 %}
 			<div class="item nomr">
@@ -41,16 +43,21 @@
 	</div>
 	<script>
 		window.onload = function (){
+			let appId = document.getElementById('appid').value;
 		    let rootUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize'
 		    let wxPar = {
-		        appid : '',
-				redirect_url : '',
+		        appid : appId,
+				redirect_url : 'http://www.qq.com/login.html',
 				response_type: 'code',
 				scope: 'snsapi_base',
-				state: 'STATE'
+				state: '123'
 			}
-			console.log(wxPar.scope)
-		    // Ajax.get()
+			console.log(wxPar.scope,wxPar.appid,encodeURIComponent(wxPar.redirect_url))
+			let reqUrl = rootUrl + '?appid=' + wxPar.appid + '&redirect_uri=' + encodeURIComponent(wxPar.redirect_url) + '&response_type=' + wxPar.response_type + '&scope=' + wxPar.scope + '&state=' + wxPar.state + '#wechat_redirect'
+            console.log(reqUrl)
+			Ajax.get(reqUrl, function(res) {
+                console.log(res)
+			})
 		}
 
         var Ajax={
