@@ -33,32 +33,5 @@ module.exports = appInfo => {
         redis: config_redis
     };
 
-    config.debug = {
-        eventRandomPercents:1,
-        eventRandomTime:true
-
-    };
-
-    //事件队列
-    config.kue =  {
-        app : true,
-        agent : false,
-        client: {
-            queuePrefix: 'q',
-            redis: Object.assign( {},config_redis,{
-                    auth: 'redis',
-                    db: 1,
-                    options: {},
-                })
-        },
-    };
-
-    //app.getLogger('debugLogger') / ctx.getLogger('debugLogger')
-    config.customLogger =  {
-        debugLogger: {
-            file: path.join(appInfo.root, 'logs/debug/debug.log'),
-        },
-    };
-
     return config;
 };
