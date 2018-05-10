@@ -5,16 +5,29 @@ const travelConfig = require("../../../sheets/travel");
 //玩家个人页相关
 class PlayerController extends Controller {
     async showplayerinfo(ctx) {
-        let info = apis.PlayerInfo.Init(ctx);
-        let userId = info.uid;
-        if(info.playerUid) {
-            userId = info.playerUid;
+        let info = await apis.PlayerInfo.Init(ctx, true);
+        if(!info.ui) {
+            return
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
-        if(!ui) {
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
+        let ui = info.ui;
+        let userId = info.uid;
+
+        if (info.playerUid) {
+            userId = info.playerUid;
+            ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+            if (!ui) {
+                this.logger.info("用户不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return;
+            }
+            let friendsSet = new Set(info.ui.friendList);
+            if(!friendsSet.has(userId)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+            }
         }
         await ctx.service.travelService.playerService.showPlayerInfo(info, ui);
         //send data
@@ -22,16 +35,29 @@ class PlayerController extends Controller {
     }
 
     async travelfootprint(ctx) {
-        let info = apis.TravelFootprint.Init(ctx);
-        let userId = info.uid;
-        if(info.playerUid) {
-            userId = info.playerUid;
+        let info = await apis.TravelFootprint.Init(ctx, true);
+        if(!info.ui) {
+            return
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
-        if(!ui) {
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
+        let ui = info.ui;
+        let userId = info.uid;
+
+        if (info.playerUid) {
+            userId = info.playerUid;
+            ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+            if (!ui) {
+                this.logger.info("用户不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return;
+            }
+            let friendsSet = new Set(info.ui.friendList);
+            if(!friendsSet.has(userId)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+            }
         }
         await ctx.service.travelService.playerService.travelFootprint(info, ui);
         //send data
@@ -39,16 +65,28 @@ class PlayerController extends Controller {
     }
 
     async traveledplaces(ctx) {
-        let info = apis.TraveledPlaces.Init(ctx);
-        let userId = info.uid;
-        if(info.playerUid) {
-            userId = info.playerUid;
+        let info = await apis.TraveledPlaces.Init(ctx, true);
+        if(!info.ui) {
+            return
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
-        if(!ui) {
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
+        let ui = info.ui;
+        let userId = info.uid;
+        if (info.playerUid) {
+            userId = info.playerUid;
+            ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+            if (!ui) {
+                this.logger.info("用户不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return;
+            }
+            let friendsSet = new Set(info.ui.friendList);
+            if(!friendsSet.has(userId)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+            }
         }
         await ctx.service.travelService.playerService.traveledPlaces(info, ui);
 
@@ -163,17 +201,29 @@ class PlayerController extends Controller {
     }
 
     async showmypostcards(ctx) {
-        let info = apis.MyPostcards.Init(ctx);
-        let userId = info.uid;
-        if(info.playerUid) {
-            userId = info.playerUid;
+        let info = await apis.MyPostcards.Init(ctx, true);
+        if(!info.ui) {
+            return
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
-        if(!ui) {
-            this.logger.info("用户不存在");
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
+        let ui = info.ui;
+        let userId = info.uid;
+
+        if (info.playerUid) {
+            userId = info.playerUid;
+            ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+            if (!ui) {
+                this.logger.info("用户不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return;
+            }
+            let friendsSet = new Set(info.ui.friendList);
+            if(!friendsSet.has(userId)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+            }
         }
 
         await ctx.service.travelService.playerService.showMyPostcards(info, ui);
@@ -182,17 +232,29 @@ class PlayerController extends Controller {
     }
 
     async showcitypostcards(ctx) {
-        let info = apis.CityPostcards.Init(ctx);
-        let userId = info.uid;
-        if(info.playerUid) {
-            userId = info.playerUid;
+        let info = await apis.CityPostcards.Init(ctx, true);
+        if(!info.ui) {
+            return
         }
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
-        if(!ui) {
-            this.logger.info("用户不存在");
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
-            return;
+        let ui = info.ui;
+        let userId = info.uid;
+
+        if (info.playerUid) {
+            userId = info.playerUid;
+            ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+            if (!ui) {
+                this.logger.info("用户不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return;
+            }
+            let friendsSet = new Set(info.ui.friendList);
+            if(!friendsSet.has(userId)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+            }
         }
         await ctx.service.travelService.playerService.showCityPostcards(info,ui);
         info.submit();

@@ -95,4 +95,9 @@ const  questRepo  = require("./questRepo");
  //         console.log(qa.toString());
  // }
 
-console.log(questRepo.find(130070));
+// let cid  = 78; //测试温州的失败奖励
+// let eid  = '200116';
+// let qa   = new QuestAnser( eid , cid );
+// console.log(qa.toString());
+//
+// console.log(questRepo.find(130070));

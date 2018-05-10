@@ -95,7 +95,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
     genSingleEventNonSpot( triggerDateTimeStamp ){
 
-        let quest        = this.randomeOne();
+        let quest        = this.randomOne();
         this.questsView.push(quest);
 
         let questDbRow   = {
@@ -107,15 +107,17 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             triggerDateYHM  : timeUtil.formatYMDHMS(triggerDateTimeStamp),
             answers         : [],
             wrongs          : [],
-            answer          : "",
-            picture         : "",
-            questionTitle   : "",
+            answer          : quest.aan,
+            picture         : quest.picture,
+            questionTitle   : quest.describe,
             sended          : false,
-            sendedTime      : null
+            sendedTime      : null,
+            is_question     : false,
         };
 
         let questAnswer  = new QuestAnswer(quest.id,this.cid);
         if ( quest.type == quest.EventTypeKeys.QA_NO_NEED_RESULT || quest.type == quest.EventTypeKeys.QA_NEED_RESULT ){
+            questDbRow['is_question']      = true;                      //是否问答题
             questDbRow['answers']          = questAnswer.answers;       //答案组 有错误答案
             questDbRow['wrongs']           = questAnswer.wrongs;        //错误答案
             questDbRow['answer']           = questAnswer.answer;        //正确答案
@@ -130,7 +132,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         return trigger_date;
     }
 
-    randomeOne(){
+    randomOne(){
         let quest        = this.randomQuest();
         if (configDebug.QUESTRANDOM){
             quest        = this.randomQuestForDebug(this.cid);
@@ -141,7 +143,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
 
         // if ( this.questsSet.has(quest) || !quest || !quest.id ){
         //     // console.log("tmpset added 数据重复了 继续抽");
-        //     quest        = this.randomeOne();
+        //     quest        = this.randomOne();
         // }else{
         //     this.questsSet.add(quest)
         // }
