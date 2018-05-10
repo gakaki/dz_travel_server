@@ -264,6 +264,9 @@ class MakeRoadMap {
         if ( configDebug.SHORTROADMAP1){
             diffTime   = 1 * 1 * 1000; //1 秒一个景点
         }
+        if ( configDebug.SHORTROADMAP5){
+            diffTime   = 1 * 5 * 1000; //5 秒一个景点
+        }
         if ( configDebug.SHORTROADMAP10  ){
             diffTime   = 1 * 10 * 1000; //10 秒一个景点
         }

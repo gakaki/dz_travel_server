@@ -30,6 +30,8 @@ class QuestAnswer {
         this.dealQuestionTitle();
     }
 
+
+
     isSpecialKnowledge()
     {
         let res = parseInt(  this.quest.topic ) > 0;
@@ -74,7 +76,7 @@ class QuestAnswer {
             this.picture             = this.quest.picture;
         }
 
-
+        this.allrights               = answerAndWrongs.allrights;
         this.wrongs                  = answerAndWrongs.wrongs.filter( n => n );
         this.answers                 = _.shuffle([this.answer].concat(this.wrongs));
     }
@@ -96,7 +98,8 @@ class QuestAnswer {
         let rewardFail  = `${this.quest.getSpotErrorRewardComment().reward}`;
         let res         =
 `${this.quest.id}  问题为: ${this.questionTitle}
-        答案为: ${this.answer}
+        答案为: ${this.answer},
+     所有对的为: ${this.allrights},
         错误为: ${this.wrongs}
         answers为: ${this.answers}
         图片为: ${this.picture}

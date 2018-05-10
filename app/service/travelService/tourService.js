@@ -869,7 +869,7 @@ class TourService extends Service {
     }
 
     // play loop 和 eventshow 共享的 事件处理的代码
-    async _knowEvent( uid , isEventShow = false){
+    async eventFromDB(uid , isEventShow = false){
         this.logger.info("--==knowEvent==--");
 
         let currentCity        = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
@@ -890,15 +890,14 @@ class TourService extends Service {
         let finalEndTime      = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);//所有路程的终点
         this.app.getLogger('debugLogger').info(" [debug] 最后预计达到的时间", finalEndTime);
         this.app.getLogger('debugLogger').info(" [debug] 预存的事件数量", cityEvents.events.length);
-
+        let totalLimit          = travelConfig.Parameter.Get(travelConfig.Parameter.EVENTMAX).cfg.value;
         let dbEvents            = cityEvents.events;
         let eventsNoReceivedAll = dbEvents.filter( x => x.received == false && x.triggerDate <= timeNow && x.sended == false )
-        let eventsNoReceived    = eventsNoReceivedAll.slice(0,travelConfig.Parameter.EVENTMAX);
+        let eventsNoReceived    = eventsNoReceivedAll.slice(0,totalLimit);
 
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceivedAll的事件数量 ",eventsNoReceivedAll.length);
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceived的事件数量 ",eventsNoReceived.length);
 
-        let totalLimit          = travelConfig.Parameter.EVENTMAX;
         dbEvents.forEach( e => {
             if ( e.received == false && e.triggerDate <= timeNow ){
                 e.sended = true;
@@ -1010,7 +1009,7 @@ class TourService extends Service {
         //所以查cid的cityevent表
         let cid                                                          = info.cid;
         let uid                                                          = info.uid;
-        let knowEvent                                                    = await this._knowEvent(uid ,true);
+        let knowEvent                                                    = await this.eventFromDB(uid ,true);
         info.current                                                     = knowEvent.current;
         info.total                                                       = knowEvent.total;
         info.hasNext                                                     = knowEvent.hasNext;
@@ -1036,14 +1035,13 @@ class TourService extends Service {
             dbId                                                         : event['dbId'],
             eid                                                          : eid, //前端没有此配置表
             type                                                         : questCfg.type,
-            describe                                                     : questAnswer.questionTitle,
+            describe                                                     : event.questionTitle,
             gold_used                                                    : 0,
-            picture                                                      : questAnswer.picture,
-            question                                                     : questAnswer.questionTitle,
-            answers                                                      : questAnswer.answers,
-            wrongs                                                       : questAnswer.wrongs,
+            picture                                                      : event.picture,
+            question                                                     : event.questionTitle,
+            answers                                                      : event.answers,
+            wrongs                                                       : event.wrongs,
         };
-
 
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
@@ -1473,7 +1471,7 @@ class TourService extends Service {
         let changeRouteing                                            = currentCity.changeRouteing;
 
         let cid                                                       = currentCity.cid;
-        let knowEvent                                                 = await this._knowEvent(uid);
+        let knowEvent                                                 = await this.eventFromDB(uid);
         info.newEvent                                                 = knowEvent.newEvent;
         info.latestEvent                                              = knowEvent.latestEvent;
         let timeNow                                                   = knowEvent.timeNow;
