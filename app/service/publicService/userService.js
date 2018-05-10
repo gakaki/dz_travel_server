@@ -26,7 +26,7 @@ class UserService extends Service {
                     info = pc.decryptData(info.encryptedData, info.iv);
                     // this.logger.info("解密的数据", info);
                     this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
-                }xx
+                }
             }catch (e) {
                 this.logger.error(e)
             }
