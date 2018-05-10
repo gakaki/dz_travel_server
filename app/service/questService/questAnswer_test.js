@@ -2,12 +2,11 @@ const  QuestAnser = require("./questAnswer");
 const  questRepo  = require("./questRepo");
 
 //测试 //130010 上图是s%的哪个特产
-// let cid     = 1;
+// let cid     = 104;
 // let cfgId   = '130010';
 // for ( let i = 0 ; i < 9 ;i++){
 //     for ( let id of [cfgId] ){
-//         let cfg  = questRepo.find(id);
-//         let qa   = new QuestAnser( cfg , cid );
+//         let qa   = new QuestAnser( id , cid );
 //         console.log(qa.toString());
 //     }
 // }

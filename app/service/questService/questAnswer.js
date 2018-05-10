@@ -95,7 +95,7 @@ class QuestAnswer {
         let reward      = `${this.quest.getSpotRewardComment().reward}`;
         let rewardFail  = `${this.quest.getSpotErrorRewardComment().reward}`;
         let res         =
-            `${this.quest.id} ${this.questionTitle}
+`${this.quest.id}  问题为: ${this.questionTitle}
         答案为: ${this.answer}
         错误为: ${this.wrongs}
         answers为: ${this.answers}

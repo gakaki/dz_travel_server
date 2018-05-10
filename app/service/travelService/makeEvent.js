@@ -71,7 +71,8 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
             let minuteLength        =  _.ceil(_.random(1, 5, true), 2) // 随机个1到5分钟的时间出来 4.xx
 
             if (configDebug.EVENTGENTimeShort){
-                minuteLength        =  _.random( 0.25 , 1 );
+                // minuteLength        =  _.random( 0.25 , 1 );
+                minuteLength        =  _.random( 0, 0 );
             }
 
             //这里的时间生成逻辑需要递增
@@ -136,6 +137,7 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
         if (configDebug.QUESTSPECIFIC){
             quest        = QuestRepo.find("130050");
         }
+
         // if ( this.questsSet.has(quest) || !quest || !quest.id ){
         //     // console.log("tmpset added 数据重复了 继续抽");
         //     quest        = this.randomeOne();
@@ -171,9 +173,11 @@ class MakeEvent { //注意只有在type 1 和 2 的观光随机事件才行
     }
     //纯用来测试的哦注意哦
     randomQuestForDebug(option){
-        let quests      = QuestRepo.quests.filter( e  => parseInt( e.id) <= 130080 && parseInt( e.id) >= 130010);
-         // quests      = QuestRepo.quests.filter( e  =>  e.id == "130020" || e.id == "");
-        let randomEl    = _.shuffle(quests)[0];
+        let testConfigIds       = [130010,130020,130030,130040, 130050,130060,130061,130070,130080,130200
+            ,130201,130202,130203, 130204, 130205, 130206, 130207, 130208, 130209];
+        let quests              = QuestRepo.findByArray(testConfigIds);
+        //quests                = QuestRepo.quests.filter( e  => parseInt( e.id) <= 130080 && parseInt( e.id) >= 130010);
+        let randomEl            = _.shuffle(quests)[0];
         return randomEl;
     }
 

@@ -20,6 +20,17 @@ class QuestRepo {
         return this.quests.find( e  => e.id == row_id );
     }
 
+    findByArray( ids ){
+        let quests  = [];
+        for ( let id of ids){
+            let q   = this.find(id);
+            if (q){
+                quests.push(q);
+            }
+        }
+        return quests;
+    }
+
     fetchRows(){
         //注意这里会 filter 的事件
         let rows = travelConfig.events;
