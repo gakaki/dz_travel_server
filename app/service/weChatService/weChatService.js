@@ -554,16 +554,25 @@ class WeChatService extends Service {
         ctx.body = wepubMp;
     }
 
-    async wepublogin(ctx) {
-        let router = 'wepub/access/token';
-        let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
-        let scope = 'snsapi_base';
-        let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
-        this.ctx.redirect(url);
+    async iosRechargePage (ctx) {
+        if (!ctx.query.code) {
+            let router = 'wepubrecharge';
+            let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
+            let scope = 'snsapi_base';
+            let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
+            this.ctx.redirect(url);
+        }
+        else {
+
+            await ctx.render('iosPubRecharge.html', { items: sheets.pays, appid: this.config.pubid })
+            let code = ctx.query.code;
+            await this.wepubAccessToken(code);
+        }
+
     }
 
-    async wepubAccessToken(ctx) {
-
+    async wepubAccessToken(code) {
+        this.logger.info('got wepub code',code);
     }
 }
 
