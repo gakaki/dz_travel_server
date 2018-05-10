@@ -175,4 +175,3 @@ class QuestRepo {
 
 module.exports = new QuestRepo();
 
-// let n = new QuestRepo();

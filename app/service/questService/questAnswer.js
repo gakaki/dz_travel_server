@@ -26,16 +26,16 @@ class QuestAnswer {
         this.wrongs             = [];
         this.answers            = [];
 
-        this.specialKnowledge();
-        this.dealQuestionTitle();
+        this.formatData();
     }
-
 
 
     isSpecialKnowledge()
     {
-        let res = parseInt(  this.quest.topic ) > 0;
-        return res;
+        if(  this.quest.describe.includes("%s") ){
+            return true;
+        }
+        return false;
     }
 
     isPictureNeedReplace(){
@@ -43,10 +43,21 @@ class QuestAnswer {
         return res;
     }
 
-    specialKnowledge(){
-        // if ( this.isSpecialKnowledge() ) {
-        //     console.log(`quest.topic ${this.quest.topic}`)
-        // }
+    dealQuestionTitle(){ //处理s% 替换字符串
+        let dso = this.quest.describeOringal;
+        let res = dso.includes("%s") || dso.includes("s%");
+        let replaceStr      = /s%/gi;
+        if (res)
+        {
+            this.questionTitle  = this.quest.describeOringal.replace(replaceStr , this.currentCityName);
+        }else{
+            this.questionTitle  = this.quest.describeOringal;
+        }
+    }
+
+    formatData(){
+
+        this.dealQuestionTitle();
 
         let answerAndWrongs     = {};
         let KnowledgeType       = this.quest.KnowledgeKeys;
@@ -65,8 +76,10 @@ class QuestAnswer {
         }else if ( this.quest.topic == KnowledgeType.NORMAL ) {
             answerAndWrongs  = {
                 answer : this.quest.answer,
+                picture: this.quest.picture,
+                allrights:[],
                 wrongs : _.shuffle([this.quest.wrong1,this.quest.wrong2,this.quest.wrong3]),
-                picture: this.quest.picture
+                answers: []
             }
         }
 
@@ -79,25 +92,18 @@ class QuestAnswer {
         this.allrights               = answerAndWrongs.allrights;
         this.wrongs                  = answerAndWrongs.wrongs.filter( n => n );
         this.answers                 = _.shuffle([this.answer].concat(this.wrongs));
+
+
     }
 
-    dealQuestionTitle(){ //处理s% 替换字符串
-        let dso = this.quest.describeOringal;
-        let res = dso.includes("%s") || dso.includes("s%");
-        let replaceStr      = /s%/gi;
-        if (res)
-        {
-            this.questionTitle  = this.quest.describeOringal.replace(replaceStr , this.currentCityName);
-        }else{
-            this.questionTitle  = this.quest.describeOringal;
-        }
-    }
+
 
     toString() {
         let reward      = `${this.quest.getSpotRewardComment().reward}`;
         let rewardFail  = `${this.quest.getSpotErrorRewardComment().reward}`;
         let res         =
 `${this.quest.id}  问题为: ${this.questionTitle}
+ ----是否问答题： ${this.isSpecialKnowledge() ? `是`:'否'}
         答案为: ${this.answer},
      所有对的为: ${this.allrights},
         错误为: ${this.wrongs}
@@ -105,7 +111,6 @@ class QuestAnswer {
         图片为: ${this.picture}
         奖励为：${reward}
         错误奖励为：${rewardFail}`
-
         return res;
     }
 }
