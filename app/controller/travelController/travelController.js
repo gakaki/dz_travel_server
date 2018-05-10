@@ -136,18 +136,32 @@ class TravelController extends Controller {
 
 
     async gettravellog(ctx) {
-        let info = apis.TravelLog.Init(ctx);
-        let userId = info.uid;
-        if (info.playerUid) {
-            userId = info.playerUid
-        }
-        let ui = await this.ctx.model.PublicModel.User.findOne({uid: userId});
-        if (!ui) {
-            this.logger.info("用户不存在");
-            info.code = apis.Code.USER_NOT_FOUND;
-            info.submit();
+        let info = await apis.TravelLog.Init(ctx, true);
+        if(!info.ui) {
             return;
         }
+        let ui = info.ui;
+        let userId = info.uid;
+        if (info.playerUid) {
+            userId = info.playerUid;
+            ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
+            if (!ui) {
+                this.logger.info("用户不存在");
+                info.code = apis.Code.USER_NOT_FOUND;
+                info.submit();
+                return;
+            }
+            let friendsSet = new Set(info.ui.friendList);
+            if(!friendsSet.has(userId)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+            }
+
+        }
+
+
         await ctx.service.travelService.travelService.getTravelLog(info, ui);
         info.submit();
 

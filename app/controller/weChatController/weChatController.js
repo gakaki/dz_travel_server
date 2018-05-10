@@ -230,6 +230,17 @@ class WeChatController extends Controller {
         ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, "travel", "wepubpay");
     }
 
+    async showshop(ctx) {
+        let info = apis.Showshop.Init(ctx);
+        let show = await this.ctx.model.WechatModel.ShowShop.findOne({ id: 1 });
+        if(!show) {
+            await this.ctx.model.WechatModel.ShowShop.update({ id: 1 }, { $set: { id: 1, show: false } }, { upsert: true });
+            show = await this.ctx.model.WechatModel.ShowShop.findOne({ id: 1 });
+        }
+        info.isShow = show.show;
+        info.submit();
+    }
+
 
 }
 

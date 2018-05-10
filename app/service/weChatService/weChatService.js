@@ -447,7 +447,7 @@ class WeChatService extends Service {
             });
             let access_token = result.data.access_token;
             this.logger.info(access_token);
-            this.logger.info(result);
+         //   this.logger.info(result);
             await this.app.redis.set("wechatAccessToken", access_token);
             return access_token;
         }catch (e) {
@@ -699,8 +699,8 @@ class WeChatService extends Service {
             });
 
             let access_token = result.data.access_token;
-            this.logger.info("app");
-            this.logger.info(result);
+          //  this.logger.info("app");
+          //  this.logger.info(result);
             await this.app.redis.set("wepubAccessToken", access_token);
             return access_token;
         }catch (e) {
