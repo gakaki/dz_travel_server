@@ -1647,6 +1647,10 @@ class TourService extends Service {
         let uid         = info.uid;
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
         let isDouble = false;
+        if(currentCity.changeRouteing) {
+            info.code = apis.Code.ISCHANGING;
+            return
+        }
         if(currentCity.friend) {
             let fcity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend });
             if(fcity.changeRouteing) {
@@ -1654,12 +1658,13 @@ class TourService extends Service {
                 return
             }
             isDouble = true;
-        }
-        if(currentCity.changeRouteing) {
-            info.code = apis.Code.ISCHANGING;
-            return
-        }
 
+        }
+        await this.ctx.model.TravelModel.CurrentCity.update({
+            'uid'        : info.uid,
+        },{ $set: {
+                changeRouteing: currentCity.friend ? true : false,
+            }});
 
 
       //  let spotsAllTracked = Number(info.spotsAllTracked);
