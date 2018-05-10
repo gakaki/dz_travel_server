@@ -447,6 +447,7 @@ class Base{
                             title: '出错了',
                             content: '登录失败，请关闭小程序后重新打开再试',
                         })
+                        return;
                     }
                     wx.clearStorageSync('sid');
                     wx.clearStorageSync('uid');
