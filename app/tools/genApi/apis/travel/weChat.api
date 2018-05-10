@@ -20,3 +20,6 @@ api SendMockId {
     //formId
     require formId:string
 }
+api Showshop {
+    output isShow:boolean
+}
