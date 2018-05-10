@@ -1043,6 +1043,8 @@ class TourService extends Service {
             wrongs                                                       : event.wrongs,
         };
 
+
+
         this.logger.info("当前的数据信息",uid,cid,eid,event.dbId );
 
         if (questCfg.type == questCfg.EventTypeKeys.COMMON){                //若是 普通的随机事件 那么直接触发获得奖励了
