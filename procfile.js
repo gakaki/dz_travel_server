@@ -3,7 +3,7 @@
 module.exports = (pandora) => {
 
   pandora
-    .cluster('server', './index.js');
+    .fork('server', './index.js');
 
   /**
    * you can also use cluster mode to start application

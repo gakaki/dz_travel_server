@@ -1630,12 +1630,18 @@ class TourService extends Service {
 
             //加入redis 用来后期排序到达事件 发送微信小程序通知
             await this.adduserarrivedtime( finalEndTime , currentCity.friend );
+
+            await this.routerResetEventsNotReceived(uid);
+
         }
 
 
         //清理 redis key
         let KEY_EVENTSHOW        = `eventShow:${uid}`;
         await this.app.redis.del(KEY_EVENTSHOW);
+
+        //event reset
+        await this.routerResetEventsNotReceived(uid);
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
@@ -1849,7 +1855,7 @@ class TourService extends Service {
         let dbEvents           = cityEvents.events;
         let timeNow            = new Date().getTime();
         dbEvents.forEach( e => {
-            if ( e.received == false && e.triggerDate <= timeNow ){
+            if ( e.received == false ){
                 e.sended      = false;
                 e.sendedTime  = null;
             }

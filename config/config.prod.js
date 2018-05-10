@@ -13,7 +13,7 @@ module.exports = appInfo => {
     config.env = "prod";
 
     let config_redis = {
-        host: '127.0.0.1',
+        host: '172.17.16.13',
         port: '6379',
         password: 'Douzihuyu2018',
         db: '0',
@@ -35,19 +35,6 @@ module.exports = appInfo => {
     //     redis: config_redis,
     // };
 
-    //事件队列
-    config.kue = {
-        app: true,
-        agent: false,
-        client: {
-            queuePrefix: 'q',
-            redis: Object.assign({}, config_redis, {
-                auth: 'Douzihuyu2018',
-                db: 1,
-                options: {},
-            }),
-        },
-    };
 
     return config;
 };
