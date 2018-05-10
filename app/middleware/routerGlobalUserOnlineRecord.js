@@ -12,9 +12,9 @@ module.exports = () => {
         let aindex        = url.indexOf("action");
         if (aindex != -1) {
             let action    = url.substring(aindex, url.length);
-            let dindex    = action.indexOf("=");
+          //  let dindex    = action.indexOf("=");
             let xindex    = action.indexOf(".");
-            let router    = action.substring(dindex + 1, xindex);
+           // let router    = action.substring(dindex + 1, xindex);
             let inter     = action.substring(xindex + 1, action.length);
             if (inter == "playloop" || inter == "freshspots" || inter == "partnerinfo" || inter == "auth"){
                 await next();
@@ -31,9 +31,12 @@ module.exports = () => {
                     await next();
                 }
             }
+        }else{
+            await next()
         }
-        else if(/(shopdone|wepub|\.txt)/i.test(url)){
-            await next();
-        }
+        // else if(/(shopdone|wepub|\.txt)/i.test(url)){
+        //     await next();
+        // }
+
     };
 };

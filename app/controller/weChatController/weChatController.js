@@ -41,7 +41,7 @@ class WeChatController extends Controller {
     async minapppay(ctx) {
         this.logger.info("我要付款");
         let result = {};
-        const { sid, payCount, goodsId, appName, type } = ctx.query;
+        const { sid, payCount, goodsId, appName } = ctx.query;
       //  this.logger.info(ctx.query)
         if (!sid || !payCount || !goodsId || !appName) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
@@ -68,8 +68,8 @@ class WeChatController extends Controller {
 
         this.logger.info("我拿到的钱数:" + money);
 
-        this.logger.info("支付途径" + type);
-        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName, type);
+        this.logger.info("支付途径");
+        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, appName);
     }
 
     wechatsubscriptionpay(ctx) {
@@ -177,12 +177,57 @@ class WeChatController extends Controller {
     }
 
     async iosRechargePage(ctx) {
-        this.logger.info('access ios recharge page')
+        this.logger.info('access ios recharge page');
         await this.service.weChatService.weChatService.iosRechargePage(ctx);
     }
 
     async wepubTxt(ctx) {
         await this.service.weChatService.weChatService.wepubTxt(ctx);
+    }
+
+    async getsignature(ctx) {
+        this.logger.info("获取验证签名");
+        const { url } = ctx.query;
+        if(!url) {
+            let result = {};
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        ctx.body = await this.service.weChatService.weChatService.getsignature(url);
+    }
+
+    async wepubpay(ctx) {
+        this.logger.info("公众号支付");
+        const { uid, goodsId } = ctx.query;
+        let result = {};
+        if(!uid || !goodsId) {
+            this.logger.info("少参数");
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let ui = await this.ctx.model.PublicModel.WepubUser.findOne({ uid: uid });
+        if (!ui) {
+            this.logger.info("公众号用户未知");
+            result.code = constant.Code.USER_NOT_FOUND;
+            ctx.body = result;
+            return;
+        }
+
+        let goods = travelConfig.Pay.Get(goodsId);
+        if(!goods) {
+            this.logger.info("未知的商品");
+            result.code = constant.Code.PARAMETER_NOT_MATCH;
+            ctx.body = result;
+            return;
+        }
+        let money = (goods.pay) * 100;
+        if (configDebug.WECHATPAY) {
+            money = 1;
+        }
+
+        ctx.body = await this.service.weChatService.weChatService.minAppPay(ui, money, goodsId, "travel", "wepubpay");
     }
 
 
