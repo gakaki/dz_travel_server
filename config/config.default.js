@@ -86,5 +86,7 @@ module.exports = appInfo => {
 
     config.wepubToken = "wxappPUBodaoh5";
     config.wepubASEKey = "BZ2AXtbkYoN2wr7K46os9WqfcoK6AhEin1QyDllK0Lo";
+
+    config.isSlave     = false;
     return config;
 };
