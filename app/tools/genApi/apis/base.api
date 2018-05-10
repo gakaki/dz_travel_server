@@ -442,10 +442,17 @@ class Base{
                     })
                     suc(req);
                 }).catch(()=>{
+                    if (Base.LoginRetryed) {
+                        wx.showModal({
+                            title: '出错了',
+                            content: '登录失败，请关闭小程序后重新打开再试',
+                        })
+                    }
                     wx.clearStorageSync('sid');
                     wx.clearStorageSync('uid');
                     Base.UID = '';
                     Base.SID = '';
+                    Base.LoginRetryed = true;
                     wx.login({
                         success: res => {
                             console.log('login')
