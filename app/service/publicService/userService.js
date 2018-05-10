@@ -14,23 +14,25 @@ class UserService extends Service {
         let third = false;
         let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({ userid: uid });
         this.app.getLogger('debugLogger').info(`查询是否是第三方登录耗时 ${Date.now() - time} ms`);
-        //老用户登陆
-        if (sid) {
-            if(sdkui) {
-                if(!sdkui.sessionKey || !sdkui.unionid) {
-                    result.info = null;
-                    return result;
-                }
-                third = true;
-                try {
+        if(sdkui) {
+            if(!sdkui.sessionKey || !sdkui.unionid) {
+                result.info = null;
+                return result;
+            }
+            third = true;
+            try {
+                if(info.encryptedData) {
                     let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
                     info = pc.decryptData(info.encryptedData, info.iv);
                     // this.logger.info("解密的数据", info);
                     this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
-                }catch (e) {
-                    this.logger.error(e)
                 }
+            }catch (e) {
+                this.logger.error(e)
             }
+        }
+        //老用户登陆
+        if (sid) {
             let authUi = await this.collect(sid, appName, time);
             this.app.getLogger('debugLogger').info(`老用户登录耗时 ${Date.now() - time} ms`);
             if (authUi == null) {
@@ -63,17 +65,26 @@ class UserService extends Service {
                     this.app.getLogger('debugLogger').info(`添加分享用户 ${Date.now() - time} ms`);
                 }
             }
+            let updateInfo = {
+                nickName: info.nickName,
+                avatarUrl: info.avatarUrl,
+                gender: info.gender,
+                city: info.city,
+                province: info.province,
+                country: info.country,
+                lastLogin: new Date(),
+            }
             if(result.info) {
-                await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
-                    $set: {
-                        nickName: info.nickName,
-                        avatarUrl: info.avatarUrl,
-                        gender: info.gender,
-                        city: info.city,
-                        province: info.province,
-                        country: info.country,
-                        lastLogin: new Date(),
-                    },
+                if(!result.info.third && third) {
+                    updateInfo.third = true;
+                }
+              //  this.app.getLogger('debugLogger').info(`what??耗时 ${Date.now() - time} ms`);
+                this.ctx.runInBackground(async () => {
+                  //  this.app.getLogger('debugLogger').info(`会进来??耗时 ${Date.now() - time} ms`);
+                     await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                        $set: updateInfo,
+                    });
+                   // this.app.getLogger('debugLogger').info(`什么鬼??耗时 ${Date.now() - time} ms`);
                 });
                 result.info.nickName = info.nickName;
                 result.info.avatarUrl = info.avatarUrl;
@@ -100,7 +111,7 @@ class UserService extends Service {
             ui = await this.ctx.model.PublicModel.User.findOne({
                 uid: uid,
                 appName: appName,
-               // third: true,
+                //third: true,
             });
             this.app.getLogger('debugLogger').info(`sid不存在，uid存在查询用户信息耗时  ${Date.now() - time} ms`);
             if (!ui) {
@@ -113,17 +124,19 @@ class UserService extends Service {
                 this.app.getLogger('debugLogger').info(`注册刷新sid耗时  ${Date.now() - time} ms`);
             } else {
                 //更新一次userInfo
-                await this.ctx.model.PublicModel.User.update({ uid: ui.uid, appName: appName }, {
-                    $set: {
-                        nickName: info.nickName,
-                        avatarUrl: info.avatarUrl,
-                        gender: info.gender,
-                        city: info.city,
-                        province: info.province,
-                        country: info.country,
-                        lastLogin: new Date(),
-                    },
-                });
+                this.ctx.runInBackground(async () => {
+                    await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                        $set: {
+                            nickName: info.nickName,
+                            avatarUrl: info.avatarUrl,
+                            gender: info.gender,
+                            city: info.city,
+                            province: info.province,
+                            country: info.country,
+                            lastLogin: new Date(),
+                        },
+                    });
+                })
                 ui.nickName = info.nickName;
                 ui.avatarUrl = info.avatarUrl;
                 this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);

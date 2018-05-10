@@ -13,6 +13,7 @@
 	</div>
 	<div class="recharge-info">
 		<input type="hidden" value="{{appid}}" id="appid" style="display: none">
+		<input type="hidden" value="{{uid}}" id="uid" style="display: none">
 		{% for item in items %}
 		{% if item.id%3 == 0 %}
 		<div class="item nomr">
@@ -31,7 +32,7 @@
 				<img src="public/img/gold{{item.id}}.png" alt="金币" class="gold-icon">
 			</div>
 			<div class="g-count">${{item.gold}}</div>
-			<div class="money" id="pay-item-{{item.id}}" onclick="toRecharge({{item.id}})">
+			<div class="money" id="pay-item-{{item.id}}" onclick="toRecharge({{ item.id }})">
 				<b class="m-count">{{item.pay}}</b>
 				<b class="yuan">元</b>
 			</div>
@@ -42,7 +43,85 @@
 	</div>
 </div>
 <script>
-   
+   window.onload = function () {
+       console.log(window.location.href);
+	   let appid = document.getElementById('appid').value;
+       let uid = document.getElementById('uid').value ? document.getElementById('uid').value : localStorage.getItem("uid");
+       if (uid){
+           localStorage.setItem("uid",uid);
+           //传给后台的url必须encode，否则会出现非法的签名
+           Ajax.get('/getsignature?url='+encodeURIComponent(window.location.href.split("#")[0]) ,function(res) {
+               res = JSON.parse(res);
+               if(!res.code){
+                   let cfg = {
+                       debug:true,
+                       appId:appid,
+                       timestamp:Number(res.timestamp),
+                       nonceStr:res.noncestr,
+                       signature:res.signature,
+                       jsApiList: ['checkJsApi','chooseWXPay']
+                   }
+                   console.log(cfg);
+                   wx.config(cfg);
+                   wx.ready(function () {
+                       console.log('验证成功')
+                   });
+                   wx.error(function (res) {
+                       console.log('error' + res)
+                   })
+               }
+               else{
+                   alert('未知错误，请重新尝试或联系客服')
+               }
+           })
+	   }
+	   else{
+           alert('账号异常，请重新尝试或联系客服')
+	   }
+
+   }
+
+   //用户点击支付
+   function toRecharge(id) {
+       let uid = localStorage.getItem("uid");
+       console.log(id,uid);
+       if(uid){
+           let reqUrl = '/wepubpay?uid=' + uid + '&goodsId=' + id;
+           Ajax.get(reqUrl, (res)=>{
+
+               let response = JSON.parse(res);
+               if(!response.code){
+                   res = response.data.payload;
+                   console.log(res,'pay');
+                   wx.checkJsApi({
+                       jsApiList: ['chooseWXPay'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+                       success: function(res) {
+                           console.log(res,'checkApi')
+                           // 以键值对的形式返回，可用的api值true，不可用为false
+                           // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
+                       }
+				   })
+                   wx.chooseWXPay({
+                       timestamp: Number(res.timeStamp), // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+                       nonceStr: res.nonceStr, // 支付签名随机串，不长于 32 位
+                       package: res.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+                       signType: res.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+                       paySign: res.paySign, // 支付签名
+                       success: function (res) {
+                           // 支付成功后的回调函数
+                           alert('调取支付成功');
+                       }
+                   });
+			   }
+               else{
+                   alert('支付失败');
+			   }
+           })
+	   }else{
+           alert('账号异常，请重新尝试或联系客服')
+	   }
+
+   }
 
     var Ajax={
         get: function(url, fn) {
@@ -72,10 +151,7 @@
             xhr.send(data);
         }
     }
-    function toRecharge(id) {
-        console.log(id)
 
-    }
 
 </script>
 </body>

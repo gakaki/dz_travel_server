@@ -7,7 +7,6 @@ const xml2js = require('xml2js');
 const parseString = require('xml2js').parseString;
 const tenpay = require("tenpay");
 const travelConfig = require("../../../sheets/travel");
-const WXBizDataCrypt = require('./WXBizDataCrypt');
 const wepubMp = "3jnwYg9gBdJVQYtM"//require('fs').readFileSync('../../public/MP_verify_3jnwYg9gBdJVQYtM.txt', 'utf8')
 
 class WeChatService extends Service {
@@ -41,50 +40,76 @@ class WeChatService extends Service {
 
     async minAppPay(ui, payCount, good, appName, type) {
         let result = {
-            data: {}
+            data: {},
         };
-        // 规则，year/month/day 000000000
+        let appid = this.config.appid;
         let orderid = moment().format('YYYYMMDDhhmmssSS') + await this.ctx.model.WeChatModel.WechatUnifiedOrder.count();
         let payInfo = {
             price: payCount,
             //  price:1,
             goods: good,
-            pid: ui.pid,
-            uid: ui.uid,
+           // pid: ui.pid,
+           // uid: ui.uid,
             type: "recharge",
             orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
             appName: appName,
             time: new Date(),
         };
+        if(type) {
+            appid = this.config.pubid;
+            let sdkUser = await this.ctx.model.WeChatModel.SdkUser.findOne({ unionid: ui.unionid });
+            if(!sdkUser) {
+                this.logger.info("service,小程序sdk用户未知");
+                result.code = constant.Code.TARGET_NOT_FOUND;
+                return result;
+            }
+            let minUser = await this.ctx.model.PublicModel.User.findOne({ uid: sdkUser.userid });
+            if(!minUser) {
+                this.logger.info("service,小程序用户未知");
+                result.code = constant.Code.USER_NOT_FOUND;
+                return result;
+            }
+            ui = {
+                uid: ui.uid,
+                pid: minUser.pid,
+            }
+            payInfo.uid = minUser.uid;
+            payInfo.pid = minUser.pid;
+        }else{
+            payInfo.uid = ui.uid;
+            payInfo.pid = ui.pid;
+        }
+
+        this.logger.info("当前用户信息", ui);
+
+        // 规则，year/month/day 000000000
+
         this.logger.info("我准备入库的金额 ：" + payInfo.price);
 
 
-        let rcd = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: ui.uid});
-        if (!rcd) {
-            result.status = constant.Code.TARGET_NOT_FOUND;
-            return result;
-        }
+        // let rcd = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: ui.uid});
+        // if (!rcd) {
+        //     result.status = constant.Code.TARGET_NOT_FOUND;
+        //     return result;
+        // }
 
 
         await this.ctx.model.WeChatModel.RechargeRecord.create(payInfo);
-        let appid = this.config.appid;
-        if(type) {
-            appid = this.config.pubid
-        }
+
 
         let wuo = {
             appid: appid,
             body: payInfo.desc,
             mch_id: this.config.pubmchid,
             nonce_str: nonce.NonceAlDig(10),
-            notify_url: this.config.noticeurl+"/"+appName,
+            notify_url: this.config.noticeurl + "/" + appName,
             openid: ui.uid,
             out_trade_no: payInfo.orderid,
             spbill_create_ip: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
-            total_fee: payInfo.price,// 正式的价格
+            total_fee: payInfo.price, // 正式的价格
             time_start: moment(new Date()).format("YYYYMMDDHHMMSS"),
-            trade_type: "JSAPI"
+            trade_type: "JSAPI",
         };
         let fields = utils.ToMap(wuo);
         wuo.sign = this.doSignaturePay(fields, this.config.pubkey);
@@ -115,9 +140,10 @@ class WeChatService extends Service {
                 that.logger.info("微信返回的数据 ：" + returnCode);
                 if (returnCode === "SUCCESS") {
                     let prepay_id = realResult["prepay_id"][0];
+
                     let returnParam =
                         {
-                            appId: that.config.appid,
+                            appId: appid,
                             nonceStr: nonce.NonceAlDig(10),
                             package: "prepay_id=" + prepay_id,
                             signType: "MD5",
@@ -131,6 +157,9 @@ class WeChatService extends Service {
                     result.data.payload = returnParam;
                     result.code = constant.Code.OK;
                     wuo.success = true;
+                }else{
+                    result.code = constant.Code.THIRD_FAILED;
+                    wuo.success = false;
                 }
 
             })
@@ -407,38 +436,7 @@ class WeChatService extends Service {
     }
 
 
-    async freshAuthAccessToken() {
-        try {
-            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid= ${this.config.pubid} &secret=" ${this.config.pubsecret}`, {
-                method: "GET",
-                dataType: "json",
-            });
 
-            this.logger.info(result);
-
-        }catch (e) {
-            this.logger.error(e);
-        }
-    }
-
-
-
-    async getuserinfo(uid) {
-        this.logger.info("获取用户信息。。。。。");
-        let access_token = await this.freshAccess_token();
-        try {
-            let result = await this.ctx.curl(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${uid}&lang=zh_CN`, {
-                method: "GET",
-                dataType: "json",
-            });
-
-            this.logger.info(result);
-
-        }catch (e) {
-            this.logger.error(e);
-        }
-
-    }
 
 
     async freshAccess_token() {
@@ -449,6 +447,7 @@ class WeChatService extends Service {
             });
             let access_token = result.data.access_token;
             this.logger.info(access_token);
+            this.logger.info(result);
             await this.app.redis.set("wechatAccessToken", access_token);
             return access_token;
         }catch (e) {
@@ -532,7 +531,7 @@ class WeChatService extends Service {
     }
 
     async wepub(ctx) {
-        this.logger.info('got wepub token check', ctx.query)
+        this.logger.info('got wepub token check', ctx.query);
         let {signature, timestamp, nonce, echostr} = ctx.query;
         let token = this.config.wepubToken;
         let arr = [token, timestamp, nonce];
@@ -541,7 +540,7 @@ class WeChatService extends Service {
         let hashcode = utils.Sha1(arr.join(''));
         this.logger.info('wepub hash',hashcode);
         if (hashcode == signature) {
-            this.logger.info('wepub token signature ok')
+            this.logger.info('wepub token signature ok');
             ctx.body = echostr;
         }
         else {
@@ -554,26 +553,161 @@ class WeChatService extends Service {
         ctx.body = wepubMp;
     }
 
-    async iosRechargePage (ctx) {
+    async iosRechargePage(ctx) {
         if (!ctx.query.code) {
             let router = 'wepubrecharge';
             let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
-            let scope = 'snsapi_base';
+          //  let scope = 'snsapi_base';
+            let scope = 'snsapi_userinfo';
             let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
             this.ctx.redirect(url);
         }
         else {
+           let code = ctx.query.code;
+           let uid = await this.wepubAccessToken(code);
+            await ctx.render('iosPubRecharge.html', { items: travelConfig.pays, appid: this.config.pubid, uid: uid });
+        }
+    }
 
-            await ctx.render('iosPubRecharge.html', { items: sheets.pays, appid: this.config.pubid })
-            let code = ctx.query.code;
-            await this.wepubAccessToken(code);
+
+    async wepubAccessToken(code) {
+        this.logger.info('got wepub code', code);
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${this.config.pubid}&secret=${this.config.pubsecret}&code=${code}&grant_type=authorization_code`, {
+                method: "GET",
+                dataType: "json",
+            });
+            if(!result.data.errcode) {
+              //  await this.app.redis.set("wxpubloginToken", result.data.access_token);
+             //   await this.app.redis.set("wxpubloginfreshToken", result.data.refresh_token);
+                let user = await this.ctx.model.PublicModel.WepubUser.findOne({ uid: result.data.openid });
+                let uid = null;
+                if(!user) {
+                    uid = await this.getuserinfo(result.data.openid, result.data.access_token);
+                }else{
+                    uid = user.uid;
+                }
+                return uid;
+            }
+            return null;
+
+        }catch (e) {
+            this.logger.error(e);
+            return null;
+        }
+    }
+
+    async getsignature(_url) {
+        let url = encodeURI(_url);
+        this.logger.info("进来的参数", _url);
+        this.logger.info(url);
+        let resData = { code: constant.Code.OK };
+        let js_ticket = await this.app.redis.hgetall("wxjs_ticket");
+
+        this.logger.info("js_ticket", js_ticket);
+        if(!js_ticket || !js_ticket.js_ticket || js_ticket.expires_in < Date.now()) {
+            this.logger.info(js_ticket.expires_in, Date.now());
+            js_ticket = await this.getJsTicket();
+        }else{
+            js_ticket = js_ticket.js_ticket;
+        }
+        resData.timestamp = Math.floor(new Date().getTime() / 1000).toString();
+        resData.noncestr = nonce.NonceAlDig(20);
+        resData.signature = this.getSignature(resData.noncestr, js_ticket, resData.timestamp, url);
+        this.logger.info("返回的签名", resData.signature);
+        return resData;
+    }
+
+    //accesstoken 不知道小程序与公众号能不能公用
+    async getJsTicket() {
+       // let access_token = await this.app.redis.get("wxpubloginToken");
+        let access_token = await this.app.redis.get("wepubAccessToken");
+        if(!access_token) {
+            access_token = await this.freshWepubAccessToken();
+        }
+         //this.freshWepubAccessToken()
+        this.logger.info("获取accesstoken ", access_token);
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=${access_token}&type=jsapi`, {
+                method: "GET",
+                dataType: "json",
+            });
+
+            this.logger.info(result);
+            if(!result.errcode) {
+                this.app.redis.hmset("wxjs_ticket", { js_ticket: result.data.ticket, expires_in: (result.data.expires_in * 1000 + Date.now()) });
+                return result.data.ticket;
+            }
+        } catch (e) {
+            this.logger.error(e);
+            return null;
         }
 
     }
 
-    async wepubAccessToken(code) {
-        this.logger.info('got wepub code',code);
+
+    //获取签名
+    getSignature(noncestr, jsapi_ticket, timestamp, url) {
+        this.logger.info("签名参数", noncestr, jsapi_ticket, timestamp, url);
+        let signString = "jsapi_ticket=" + jsapi_ticket +
+            "&noncestr=" + noncestr +
+            "&timestamp=" + timestamp +
+            "&url=" + url;
+
+        return utils.Sha1(signString);
     }
+
+
+
+    async getuserinfo(uid, access_token) {
+        this.logger.info("获取用户信息。。。。。");
+    //    let access_token = await this.freshAccess_token();
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${uid}&lang=zh_CN`, {
+                method: "GET",
+                dataType: "json",
+            });
+            this.logger.info(result);
+            if(!result.data.errcode) {
+                this.ctx.model.PublicModel.WepubUser.create({
+                    uid: result.data.openid,
+                    nickName: result.data.nickName,
+                    sex: result.data.sex,
+                    province: result.data.province,
+                    city: result.data.city,
+                    country: result.data.country,
+                    headimgurl: result.data.headimgurl,
+                    privilege: result.data.privilege,
+                    unionid: result.data.unionid,
+                });
+                return result.data.openid;
+            }
+        }catch (e) {
+            this.logger.error(e);
+            return null;
+        }
+
+    }
+
+
+
+    async freshWepubAccessToken() {
+        try {
+            let result = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.config.pubid}&secret=${this.config.pubsecret}`, {
+                method: "GET",
+                dataType: "json",
+            });
+
+            let access_token = result.data.access_token;
+            this.logger.info("app");
+            this.logger.info(result);
+            await this.app.redis.set("wepubAccessToken", access_token);
+            return access_token;
+        }catch (e) {
+            this.logger.error(e);
+        }
+    }
+
 }
 
 
