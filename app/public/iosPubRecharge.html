@@ -16,23 +16,23 @@
 		<input type="hidden" value="{{uid}}" id="uid" style="display: none">
 		{% for item in items %}
 		{% if item.id%3 == 0 %}
-		<div class="item nomr">
+		<div class="item nomr" onclick="toRecharge({{ item.id }})">
 			<div class="item-img">
 				<img src="public/img/gold{{item.id}}.png" alt="金币" class="gold-icon">
 			</div>
 			<div class="g-count">${{item.gold}}</div>
-			<div class="money" id="pay-item-{{item.id}}" onclick="toRecharge({{item.id}})">
+			<div class="money" id="pay-item-{{item.id}}">
 				<b class="m-count">{{item.pay}}</b>
 				<b class="yuan">元</b>
 			</div>
 		</div>
 		{% else %}
-		<div class="item">
+		<div class="item" onclick="toRecharge({{ item.id }})">
 			<div class="item-img">
 				<img src="public/img/gold{{item.id}}.png" alt="金币" class="gold-icon">
 			</div>
 			<div class="g-count">${{item.gold}}</div>
-			<div class="money" id="pay-item-{{item.id}}" onclick="toRecharge({{ item.id }})">
+			<div class="money" id="pay-item-{{item.id}}">
 				<b class="m-count">{{item.pay}}</b>
 				<b class="yuan">元</b>
 			</div>
@@ -61,7 +61,6 @@
                        signature:res.signature,
                        jsApiList: ['checkJsApi','chooseWXPay']
                    }
-                   console.log(cfg);
                    wx.config(cfg);
                    wx.ready(function () {
                        console.log('验证成功')
@@ -84,7 +83,6 @@
    //用户点击支付
    function toRecharge(id) {
        let uid = localStorage.getItem("uid");
-       console.log(id,uid);
        if(uid){
            let reqUrl = '/wepubpay?uid=' + uid + '&goodsId=' + id;
            Ajax.get(reqUrl, (res)=>{
@@ -92,15 +90,14 @@
                let response = JSON.parse(res);
                if(!response.code){
                    res = response.data.payload;
-                   console.log(res,'pay');
-                   wx.checkJsApi({
-                       jsApiList: ['chooseWXPay'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
-                       success: function(res) {
-                           console.log(res,'checkApi')
-                           // 以键值对的形式返回，可用的api值true，不可用为false
-                           // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
-                       }
-				   })
+                   // wx.checkJsApi({
+                    //    jsApiList: ['chooseWXPay'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+                    //    success: function(res) {
+                    //        console.log(res,'checkApi')
+                    //        // 以键值对的形式返回，可用的api值true，不可用为false
+                    //        // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
+                    //    }
+				   // })
                    wx.chooseWXPay({
                        timestamp: Number(res.timeStamp), // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
                        nonceStr: res.nonceStr, // 支付签名随机串，不长于 32 位
@@ -109,7 +106,7 @@
                        paySign: res.paySign, // 支付签名
                        success: function (res) {
                            // 支付成功后的回调函数
-                           alert('调取支付成功');
+                           //alert('调取支付成功');
                        }
                    });
 			   }
