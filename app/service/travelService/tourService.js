@@ -893,11 +893,12 @@ class TourService extends Service {
 
         let dbEvents            = cityEvents.events;
         let eventsNoReceivedAll = dbEvents.filter( x => x.received == false && x.triggerDate <= timeNow && x.sended == false )
-        let eventsNoReceived    = eventsNoReceivedAll.slice(0,10);
+        let eventsNoReceived    = eventsNoReceivedAll.slice(0,travelConfig.Parameter.EVENTMAX);
 
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceivedAll的事件数量 ",eventsNoReceivedAll.length);
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceived的事件数量 ",eventsNoReceived.length);
 
+        let totalLimit          = travelConfig.Parameter.EVENTMAX;
         dbEvents.forEach( e => {
             if ( e.received == false && e.triggerDate <= timeNow ){
                 e.sended = true;
@@ -914,7 +915,7 @@ class TourService extends Service {
         let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
         let diff                = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
 
-        let needAddCount        = 10 - eventShow.length;
+        let needAddCount        = totalLimit - eventShow.length;
         let needAddRows         = diff.slice(0,needAddCount)
 
         needAddRows.forEach(async (e) => {
@@ -934,9 +935,9 @@ class TourService extends Service {
                 await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
             }
         }
-        // if (redisEventLength >= 10){  //若 redis中发现大于10个了那么trim掉
-        //     await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,10,-1);
-        // }
+        if (redisEventLength >= totalLimit){  //若 redis中发现大于10个了那么trim掉
+            await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,totalLimit,-1);
+        }
 
         let event              =   null;
         if ( item_first ){
@@ -981,7 +982,7 @@ class TourService extends Service {
 
         let res =  {
             'current'          : redisEventLength,
-            'total'            : 10,
+            'total'            : totalLimit,
             'event'            : event,
             'newEvent'         : newEvent,
             'latestEvent'      : event,
@@ -991,7 +992,7 @@ class TourService extends Service {
         }
         this.app.getLogger('debugLogger').info(" [debug] 最终数量 ", {
             'current'          : redisEventLength,
-            'total'            : 10,
+            'total'            : totalLimit,
             'event'            : event,
             'newEvent'         : newEvent,
             'hasNext'          : hasNext,
