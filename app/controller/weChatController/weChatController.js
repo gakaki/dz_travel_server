@@ -232,10 +232,10 @@ class WeChatController extends Controller {
 
     async showshop(ctx) {
         let info = apis.Showshop.Init(ctx);
-        let show = await this.ctx.model.WechatModel.ShowShop.findOne({ id: 1 });
+        let show = await this.ctx.model.WeChatModel.ShowShop.findOne({ id: 1 });
         if(!show) {
-            await this.ctx.model.WechatModel.ShowShop.update({ id: 1 }, { $set: { id: 1, show: false } }, { upsert: true });
-            show = await this.ctx.model.WechatModel.ShowShop.findOne({ id: 1 });
+            await this.ctx.model.WeChatModel.ShowShop.update({ id: 1 }, { $set: { id: 1, show: false } }, { upsert: true });
+            show = await this.ctx.model.WeChatModel.ShowShop.findOne({ id: 1 });
         }
         info.isShow = show.show;
         info.submit();
