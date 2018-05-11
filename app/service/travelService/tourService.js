@@ -905,11 +905,13 @@ class TourService extends Service {
         let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
         let redisDbIds         = eventShow;
 
+
+
         // for( let i = 0 ; i < 9 ; i++){
         //     await this.app.redis.zadd(KEY_EVENTSHOW, i , i );
         // }
-        let tmp1        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
-        this.app.getLogger('eventLogger').info(" [debug] ",tmp1);
+        // let tmp1        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        // this.app.getLogger('eventLogger').info(" [debug] ",tmp1);
         //循环所有的zset的数据库列
         let dbEventIds         = dbEvents.map( e =>  e.dbId.toString() );
         for ( let redisDbId of redisDbIds ){
@@ -1014,6 +1016,16 @@ class TourService extends Service {
             hasNext = false
         }
 
+        //该死的最终冒泡的问题
+        if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
+            if( !event ){
+                newEvent        = false;
+            }
+            if( event && event.triggerDate > finalEndTime ){
+                this.app.getLogger('eventLogger').info(" [debug] 达到终点 ", event.triggerDate > finalEndTime  , event.triggerDate , finalEndTime);
+                newEvent        = false;
+            }
+        }
 
         let res =  {
             'current'          : redisEventLength,
