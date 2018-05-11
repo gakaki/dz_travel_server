@@ -1450,6 +1450,9 @@ class TourService extends Service {
 
         await this.ctx.model.TravelModel.CurrentCity.update({ uid: selfInfo.uid }, { $set: { roadMap: [], efficiency: efficiency, reward: reward } });
 
+        await this.clearCityEvents( selfInfo.uid );
+
+
         return {
             score: efficiency,
             reward: reward,
@@ -1565,6 +1568,9 @@ class TourService extends Service {
      //   let cid                  = info.cid;
       //  let weather              = await this.ctx.service.publicService.thirdService.getWeather(cid);
      //   let today                = 0;
+
+        //清理事件表
+        await this.clearCityEvents(uid);
         //设置的路线
         let lines                = JSON.parse(info.line);
         //判断是否是第一次设置路线
@@ -1681,17 +1687,14 @@ class TourService extends Service {
             //加入redis 用来后期排序到达事件 发送微信小程序通知
             await this.adduserarrivedtime( finalEndTime , currentCity.friend );
 
-            await this.routerResetEventsNotReceived(uid);
+            // await this.routerResetEventsNotReceived(uid);
 
         }
 
 
-        //清理 redis key
-        let KEY_EVENTSHOW        = `eventShow:${uid}`;
-        await this.app.redis.del(KEY_EVENTSHOW);
 
-        //event reset
-        await this.routerResetEventsNotReceived(uid);
+
+        // await this.routerResetEventsNotReceived(uid);
 
         info.startTime           = startTime ? startTime.getTime() : new Date().getTime();
         info.spots               = outPMap;
@@ -1878,7 +1881,7 @@ class TourService extends Service {
         let finalEndTime = MakeRoadMap.getFinalEndTimeByRoadMap(roadMap);
         await this.adduserarrivedtime( finalEndTime , info.uid );
 
-        await this.routerResetEventsNotReceived(uid);
+        // await this.routerResetEventsNotReceived(uid);
 
         if(isDouble) {
             await this.ctx.model.TravelModel.CurrentCity.update({
@@ -1894,7 +1897,7 @@ class TourService extends Service {
 
             await this.adduserarrivedtime( finalEndTime , currentCity.friend );
 
-            await this.routerResetEventsNotReceived(currentCity.friend);
+            // await this.routerResetEventsNotReceived(currentCity.friend);
         }
     }
 
@@ -1919,6 +1922,17 @@ class TourService extends Service {
         let KEY_EVENTSHOW  = `eventShow:${uid}`;
         await this.app.redis.del(KEY_EVENTSHOW);
     }
+
+    //清理事件表
+    async clearCityEvents(uid){
+        await this.ctx.model.TravelModel.CityEvents.update(
+            { uid:uid } ,
+            { $set : {'events' : []} },
+        );
+        let KEY_EVENTSHOW  = `eventShow:${uid}`;
+        await this.app.redis.del(KEY_EVENTSHOW);
+    }
+
     // 取消组队 双人变单人
     async cancelparten(info){
         let uid         = info.uid; //注意这里的uid是那个主动离开的人的uid
