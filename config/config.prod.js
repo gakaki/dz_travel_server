@@ -34,7 +34,7 @@ module.exports = appInfo => {
     //     },
     //     redis: config_redis,
     // };
-
+    config.isSlave = true;
 
     return config;
 };
