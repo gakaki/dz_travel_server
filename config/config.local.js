@@ -2,7 +2,7 @@ const path = require("path");
 
 module.exports = appInfo => {
     const config = {};
-
+    config.env = "local";
 
     // add your config here
     config.mongoose = {
@@ -10,7 +10,6 @@ module.exports = appInfo => {
         url: 'mongodb://127.0.0.1:27017/travel',
     };
 
-    config.env = "local";
 
     const config_redis = {
             host: '10.1.70.106',

@@ -1,6 +1,6 @@
 module.exports = appInfo => {
     const config = {};
-    config.env = "prod";
+    config.env = "prodslave";
 
     config.mongoose = {
         //现网
