@@ -32,7 +32,7 @@ class refreshEventsSchedule extends Subscription {
                     cid    : cid,
                     events : f.eventsFormat,
                 }
-            }, { upsert: true });
+            });
             console.log(rowCount);
         }
     }
