@@ -12,6 +12,8 @@ module.exports = appInfo => {
 
     config.env = "prod";
 
+    config.proxy = true;
+
     let config_redis = {
         host: '172.17.16.9',
         port: '6379',
