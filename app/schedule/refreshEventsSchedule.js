@@ -26,6 +26,9 @@ class refreshEventsSchedule extends Subscription {
 
             let para         = { cid : cid };
             let f            = new MakeEvent(para);
+            f.eventsFormat.forEach( e=> {
+                e.triggerDate = new Date().getTime()
+            })
             let rowCount     = await this.ctx.model.TravelModel.CityEvents.update({ uid: uid }, {
                 $set : {
                     uid    : uid,
