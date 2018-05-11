@@ -558,7 +558,7 @@ class WeChatService extends Service {
     async iosRechargePage(ctx) {
         if (!ctx.query.code) {
             let router = 'wepubrecharge';
-            let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
+            let redirect_uri = encodeURIComponent('https://travel.ddz2018.com/' + router);
           //  let scope = 'snsapi_base';
             let scope = 'snsapi_userinfo';
             let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
