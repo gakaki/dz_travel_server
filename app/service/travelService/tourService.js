@@ -870,7 +870,9 @@ class TourService extends Service {
 
     // play loop 和 eventshow 共享的 事件处理的代码
     async eventFromDB(uid , isEventShow = false){
-        this.logger.info("--==knowEvent==--");
+
+        this.logger.info("--==knowEvent==--" , uid  );
+
 
         let currentCity        = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         if(!currentCity) {
@@ -897,6 +899,8 @@ class TourService extends Service {
 
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceivedAll的事件数量 ",eventsNoReceivedAll.length);
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceived的事件数量 ",eventsNoReceived.length);
+
+        // eventsNoReceived => mailbox
 
         dbEvents.forEach( e => {
             if ( e.received == false && e.triggerDate <= timeNow ){
@@ -946,6 +950,9 @@ class TourService extends Service {
         let hasNext            = false;
         let newEvent           = false;
 
+        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",redisEventLength);
+        this.app.getLogger('debugLogger').info(" [debug] event ",event);
+
         if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
             this.logger.info("达到终点？？？？")
             if(redisEventLength > 0 ){
@@ -961,6 +968,9 @@ class TourService extends Service {
         if (eventsNoReceived && eventsNoReceived.length > 1){
             hasNext            = true;
         }
+
+        this.app.getLogger('debugLogger').info(" [debug] event ",event);
+
         if ( event ){
             newEvent           = true;
         }
@@ -976,8 +986,6 @@ class TourService extends Service {
             hasNext = false
         }
 
-        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",redisEventLength);
-        this.app.getLogger('debugLogger').info(" [debug] event ",event);
 
         let res =  {
             'current'          : redisEventLength,
@@ -1860,6 +1868,7 @@ class TourService extends Service {
             if ( e.received == false ){
                 e.sended      = false;
                 e.sendedTime  = null;
+                e.triggerDate = new Date().getTime() - 60 * 1000;
             }
         });
         await this.ctx.model.TravelModel.CityEvents.update(

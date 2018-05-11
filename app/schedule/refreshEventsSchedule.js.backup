@@ -31,7 +31,8 @@ class refreshEventsSchedule extends Subscription {
 
 
             for ( let i =0 ;i <f.eventsFormat.length ; i++){
-                f.eventsFormat[i].triggerDate       = time + 60 * 1000 * i;
+                f.eventsFormat[i].triggerDate  = time + 60 * 1000 * i;
+                f.eventsFormat[i].sended       = false;
                 console.log(f.eventsFormat[i].triggerDate);
                 f.eventsFormat[i].triggerDateYHM    = moment(f.eventsFormat[i].triggerDate).format('YYYY-MM-DD HH:mm:ss');
             }
