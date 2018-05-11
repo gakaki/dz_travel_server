@@ -24,16 +24,16 @@ class UserService extends Service {
                     { $set: { authNumber: 1 } });
             }
             third = true;
-            try {
-                if(info.encryptedData) {
-                    let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
-                    info = pc.decryptData(info.encryptedData, info.iv);
-                    // this.logger.info("解密的数据", info);
-                    this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
-                }
-            }catch (e) {
-                this.logger.error(e)
-            }
+            // try {
+            //     if(info.encryptedData) {
+            //         let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
+            //         info = pc.decryptData(info.encryptedData, info.iv);
+            //          this.logger.info("解密的数据", info);
+            //         this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
+            //     }
+            // }catch (e) {
+            //     this.logger.error(e)
+            // }
         }
         //老用户登陆
         if (sid) {
