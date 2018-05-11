@@ -291,12 +291,17 @@ class MakeRoadMap {
             spotEnd['endtime'] = end;
             spotEnd['countdown'] = Math.round(diffTime / 1000 / 60);
             spotEnd['mileage'] = mileage;
-
+            console.log("修改 " + new Date(spotEnd['endtime']));
 
         }else{
             let nextStart = spotStart['endtime'];
+            console.log("修改 " + new Date(nextStart));
+            console.log("当前 " + new Date(now));
+            console.log("比较 " , nextStart , now, (nextStart - now));
             if(spotStart['endtime'] <= now) {
                 nextStart = now;
+            }else{
+                spotStart['startime'] = nextStart;
             }
             if(!spotStart['startime']){
                 spotStart['startime'] = nextStart;
@@ -309,7 +314,8 @@ class MakeRoadMap {
 
         }
 
-
+        console.log("开始时间 " + new Date(spotStart['startime']));
+        console.log("需要 "+  (spotEnd['endtime'] - spotStart['startime']));
         console.log("达到时间 " + new Date(spotEnd['endtime']));
 
 
