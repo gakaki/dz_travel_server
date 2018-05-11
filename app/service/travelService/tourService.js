@@ -870,7 +870,9 @@ class TourService extends Service {
 
     // play loop 和 eventshow 共享的 事件处理的代码
     async eventFromDB(uid , isEventShow = false){
-        this.logger.info("--==knowEvent==--");
+
+        this.logger.info("--==knowEvent==--" , uid  );
+
 
         let currentCity        = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
         if(!currentCity) {
@@ -898,6 +900,32 @@ class TourService extends Service {
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceivedAll的事件数量 ",eventsNoReceivedAll.length);
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceived的事件数量 ",eventsNoReceived.length);
 
+
+        let KEY_EVENTSHOW      = `eventShow:${uid}`;
+        let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        let redisDbIds         = eventShow;
+
+        // for( let i = 0 ; i < 9 ; i++){
+        //     await this.app.redis.zadd(KEY_EVENTSHOW, i , i );
+        // }
+        let tmp1        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        this.app.getLogger('eventLogger').info(" [debug] ",tmp1);
+        //循环所有的zset的数据库列
+        let dbEventIds         = dbEvents.map( e =>  e.dbId.toString() );
+        for ( let redisDbId of redisDbIds ){
+            // 如果该redis数据id 在mongodb数据库里不存在
+            if ( !dbEventIds.includes( redisDbId ) ){
+                //那么就从redis zset中删除
+                await this.app.redis.zrem(KEY_EVENTSHOW, redisDbId );
+                this.app.getLogger('eventLogger').info(" [not  includes deldelte redis] ",redisDbId);
+            }else{
+                this.app.getLogger('eventLogger').info(" [include] ",redisDbId);
+            }
+        }
+        // let tmp2        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        // this.app.getLogger('eventLogger').info(" [debug] ",tmp2);
+
+
         dbEvents.forEach( e => {
             if ( e.received == false && e.triggerDate <= timeNow ){
                 e.sended = true;
@@ -910,8 +938,7 @@ class TourService extends Service {
         );
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
-        let KEY_EVENTSHOW      = `eventShow:${uid}`;
-        let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+
         let diff                = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
 
         let needAddCount        = totalLimit - eventShow.length;
@@ -934,9 +961,14 @@ class TourService extends Service {
                 await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
             }
         }
+
+
+
         if (redisEventLength >= totalLimit){  //若 redis中发现大于10个了那么trim掉
             await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,totalLimit,-1);
         }
+
+
 
         let event              =   null;
         if ( item_first ){
@@ -945,6 +977,9 @@ class TourService extends Service {
 
         let hasNext            = false;
         let newEvent           = false;
+
+        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",redisEventLength);
+        this.app.getLogger('debugLogger').info(" [debug] event ",event);
 
         if ( finalEndTime && new Date().getTime() >= finalEndTime ){ // 已经到达终点了
             this.logger.info("达到终点？？？？")
@@ -961,6 +996,9 @@ class TourService extends Service {
         if (eventsNoReceived && eventsNoReceived.length > 1){
             hasNext            = true;
         }
+
+        this.app.getLogger('debugLogger').info(" [debug] event ",event);
+
         if ( event ){
             newEvent           = true;
         }
@@ -976,8 +1014,6 @@ class TourService extends Service {
             hasNext = false
         }
 
-        this.app.getLogger('debugLogger').info(" [debug] 剩余应该触发的事件的数量 ",redisEventLength);
-        this.app.getLogger('debugLogger').info(" [debug] event ",event);
 
         let res =  {
             'current'          : redisEventLength,
@@ -1860,12 +1896,16 @@ class TourService extends Service {
             if ( e.received == false ){
                 e.sended      = false;
                 e.sendedTime  = null;
+                e.triggerDate = new Date().getTime() - 60 * 1000;
             }
         });
         await this.ctx.model.TravelModel.CityEvents.update(
             { uid:uid } ,
             { $set : {'events' : dbEvents} },
         );
+        //清理 redis中的 事件邮箱
+        let KEY_EVENTSHOW  = `eventShow:${uid}`;
+        await this.app.redis.del(KEY_EVENTSHOW);
     }
     // 取消组队 双人变单人
     async cancelparten(info){
