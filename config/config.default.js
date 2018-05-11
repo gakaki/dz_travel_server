@@ -67,6 +67,9 @@ module.exports = appInfo => {
         mongoLogger: {
             file: path.join(appInfo.root, 'logs/debug/mongo.log'),
         },
+        eventLogger: {
+            file: path.join(appInfo.root, 'logs/debug/event.log'),
+        },
     };
 
     config.appid = "wx69595aa92bd81b00";

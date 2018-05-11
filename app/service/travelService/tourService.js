@@ -900,7 +900,31 @@ class TourService extends Service {
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceivedAll的事件数量 ",eventsNoReceivedAll.length);
         this.app.getLogger('debugLogger').info(" [debug] eventsNoReceived的事件数量 ",eventsNoReceived.length);
 
-        // eventsNoReceived => mailbox
+
+        let KEY_EVENTSHOW      = `eventShow:${uid}`;
+        let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        let redisDbIds         = eventShow.map( e => e.dbId );
+
+        // for( let i = 0 ; i < 9 ; i++){
+        //     await this.app.redis.zadd(KEY_EVENTSHOW, i , i );
+        // }
+        // let tmp1        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        // this.app.getLogger('eventLogger').info(" [debug] ",tmp1);
+        // //循环所有的zset的数据库列
+        // let dbEventIds         = dbEvents.map( e =>  e.dbId.toString() );
+        // for ( let redisDbId of redisDbIds ){
+        //     // 如果该redis数据id 在mongodb数据库里不存在
+        //     if ( !dbEventIds.includes( redisDbId ) ){
+        //         //那么就从redis zset中删除
+        //         await this.app.redis.zrem(KEY_EVENTSHOW, redisDbId );
+        //         this.app.getLogger('eventLogger').info(" [not  includes deldelte redis] ",redisDbId);
+        //     }else{
+        //         this.app.getLogger('eventLogger').info(" [include] ",redisDbId);
+        //     }
+        // }
+        // let tmp2        = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+        // this.app.getLogger('eventLogger').info(" [debug] ",tmp2);
+
 
         dbEvents.forEach( e => {
             if ( e.received == false && e.triggerDate <= timeNow ){
@@ -914,8 +938,7 @@ class TourService extends Service {
         );
         this.logger.info(" [debug] 获得的事件数量 ",eventsNoReceived.length);
 
-        let KEY_EVENTSHOW      = `eventShow:${uid}`;
-        let eventShow          = await this.app.redis.zrange(KEY_EVENTSHOW,0,-1);
+
         let diff                = _.difference(eventsNoReceived.map( e => e.dbId.toString() ), eventShow);
 
         let needAddCount        = totalLimit - eventShow.length;
@@ -938,9 +961,14 @@ class TourService extends Service {
                 await this.app.redis.zrem(KEY_EVENTSHOW,item_first[0]);
             }
         }
+
+
+
         if (redisEventLength >= totalLimit){  //若 redis中发现大于10个了那么trim掉
             await this.app.redis.zremrangebyrank(KEY_EVENTSHOW,totalLimit,-1);
         }
+
+
 
         let event              =   null;
         if ( item_first ){
@@ -1875,6 +1903,9 @@ class TourService extends Service {
             { uid:uid } ,
             { $set : {'events' : dbEvents} },
         );
+        //清理 redis中的 事件邮箱
+        let KEY_EVENTSHOW  = `eventShow:${uid}`;
+        await this.app.redis.del(KEY_EVENTSHOW);
     }
     // 取消组队 双人变单人
     async cancelparten(info){
