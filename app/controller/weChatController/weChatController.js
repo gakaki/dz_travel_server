@@ -173,7 +173,11 @@ class WeChatController extends Controller {
 
     //公众号token验证
     async wepub(ctx) {
-        await this.ctx.service.weChatService.weChatService.wepub(ctx);
+        await this.service.weChatService.weChatService.wepub(ctx);
+    }
+
+    async wepubres(ctx) {
+        await this.service.weChatService.weChatService.wepubres(ctx);
     }
 
     async iosRechargePage(ctx) {
