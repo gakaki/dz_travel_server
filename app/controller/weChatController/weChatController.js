@@ -177,8 +177,9 @@ class WeChatController extends Controller {
     }
 
     async wepubres(ctx) {
-        this.logger.info('got wepub msg')
-        await this.service.weChatService.weChatService.wepubres(ctx);
+        let str = await this.service.weChatService.weChatService.wepubres(ctx);
+        ctx.response.type = 'xml';
+        ctx.response.body = str;
     }
 
     async iosRechargePage(ctx) {
