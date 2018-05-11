@@ -19,7 +19,7 @@ module.exports = app => {
     router.get('/weChat/minappreferrer', controller.weChatController.weChatController.minappreferrer);
     router.get('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
     router.post('/weChat/shopdone/:appName', controller.weChatController.weChatController.shopdone);
-    router.post('/wepub', controller.weChatController.weChatController.wepub);
+    router.post('/wepub', controller.weChatController.weChatController.wepubres);
     router.get('/wepub', controller.weChatController.weChatController.wepub);
     router.get('/getsignature', controller.weChatController.weChatController.getsignature);
     router.get('/wepubpay', controller.weChatController.weChatController.wepubpay);

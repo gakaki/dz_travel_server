@@ -551,6 +551,30 @@ class WeChatService extends Service {
         
     }
 
+    //响应公众号消息(用户发来的消息)
+    async wepubres(ctx) {
+        parseString(ctx.body, (err, res) => {
+            let data = res.xml;
+            //see https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1472017492_58YV5
+            let userName = data.FromUserName;
+            let pubName = data.ToUserName;
+            let content = data.Content;
+
+            this.logger.info('收到公众号消息',userName, content);
+            //回复一个介绍链接
+            let back = {xml:{
+                ToUserName:userName,
+                FromUserName: pubName,
+                MsgType:'<![CDATA[text]]>',
+                Content: `<![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]>`
+            }}
+            let builder = new xml2js.Builder();
+            let xmlwxParam = builder.buildObject(back);
+            ctx.body = xmlwxParam;
+
+        })
+    }
+
     async wepubTxt(ctx) {
         ctx.body = wepubMp;
     }
