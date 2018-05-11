@@ -1,0 +1,53 @@
+{
+    "button": [
+        {
+            "name": "游戏大全",
+            "sub_button": [
+                {
+                    "type": "miniprogram",
+                    "name": "点亮足迹",
+                    "url": "http://mp.weixin.qq.com",
+                    "appid": "wx69595aa92bd81b00",
+                    "pagepath": "pages/index/index"
+                },
+                {
+                    "type": "view",
+                    "name": "点点消宝藏",
+                    "url": "http://www.ddx2018.com/diandianxiao/index.html"
+                },
+                {
+                    "type": "miniprogram",
+                    "name": "英文乐翻天",
+                    "url": "http://mp.weixin.qq.com",
+                    "appid": "wx4cdb3cbd1248ee5e",
+                    "pagepath": "pages/index/index"
+                }
+            ]
+        },
+        {
+            "name": "领取礼包",
+            "sub_button": [
+                {
+                    "type": "view",
+                    "name": "388元礼包",
+                    "url": "https://vipkid-bd.mikecrm.com/39mc6i8"
+                }
+            ]
+        },
+        {
+            "name": "联系我们",
+            "sub_button": [
+                {
+                    "type": "view",
+                    "name": "联系客服",
+                    "url": "https://gengxin.odao.com/update/h5/travel/common/kf.jpg"
+                },
+                {
+                    "type": "view",
+                    "name": "商务合作",
+                    "url": "https://gengxin.odao.com/update/h5/travel/gongzhonghao/party.jpg"
+                }
+            ]
+        }
+    ]
+}

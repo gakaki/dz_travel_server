@@ -177,6 +177,7 @@ class WeChatController extends Controller {
     }
 
     async wepubres(ctx) {
+        this.logger.info('got wepub msg')
         await this.service.weChatService.weChatService.wepubres(ctx);
     }
 
