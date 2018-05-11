@@ -357,7 +357,7 @@ class Base{
         this.SID = '';
         this.UID = '';
         this.APP_NAME = appName;
-        this.SRV = url || 'https://h5.ddz2018.com/';//https服务器链接
+        this.SRV = url || 'https://travel.ddz2018.com/';//https服务器链接
         this.AUTHED = false;
 
         //start
@@ -400,8 +400,11 @@ class Base{
         req.fetch().then( res => {
             this.UID = res.uid;
             wx.setStorageSync('uid', this.UID);
-            this.UserLogin(suc);
-        });
+            //用auth组件提示需要授权
+            let app = getApp();
+            app.globalData.showAuth = true;
+            //等待用户授权后，在业务层再走一遍start
+        })
     }
 
     func client static UserLogin(suc) {
@@ -413,57 +416,52 @@ class Base{
             req.shareUid = this.shareUid;
         }
 
-        //wx login
-        wx.getUserInfo({
-            success: info =>{
-                let app = getApp();
+        let app = getApp()
+        if (app.globalData.userInfo) {
+            //如果已经取得了授权信息，就传给后端(通过项目里的auth组件取得)
+            req.info = app.globalData.userInfo;
+        }
+        req.fetch().then(()=> {
+            this.AUTHED = true;
+            this.LOGINED = true;
+            this.shareUid = null;
 
-                //fetch srv
-                req.info = info.userInfo;
-                req.info.encryptedData = info.encryptedData;
-                req.info.iv = info.iv;
-                req.fetch().then(()=>{
-                    this.AUTHED = true;
-                    this.LOGINED = true;
-                    this.shareUid = null;
-
-                    app.globalData.userInfo = req.info;
-                    this.SID = req.sid;
-                    this._timestampD = Date.now()/1000  - req.timestamp;
-                    wx.setStorageSync('sid', this.SID);
-
-                    let referrer = new Base();
-                    referrer.action = 'weChat.minappreferrer';
-                    referrer.reqFields = [ 'referrerInfo' ];
-                    referrer.referrerInfo = app.globalData.referrerInfo
-                    referrer.fetch().then(() => {
-                        console.log('send referrer suc')
-                    }).catch(() => {
-                        console.log('send referrer fail')
-                    })
-                    suc(req);
-                }).catch(()=>{
-                    if (Base.LoginRetryed > 3) {
-                        wx.showModal({
-                            title: '出错了',
-                            content: '登录失败，请关闭小程序后重新打开再试',
-                        })
-                        return;
-                    }
-                    wx.clearStorageSync('sid');
-                    wx.clearStorageSync('uid');
-                    Base.UID = '';
-                    Base.SID = '';
-                    Base.LoginRetryed++;
-                    wx.login({
-                        success: res => {
-                            console.log('login')
-                            this.AUTHED = false;
-                            this.UserAuth(res.code, suc);
-                        }
-                    })
-                });
+            app.globalData.userInfo = req.info;
+            this.SID = req.sid;
+            wx.setStorageSync('sid', this.SID);
+            this._timestampD = Date.now()/1000  - req.timestamp;
+            let referrer = new Base();
+            referrer.action = 'weChat.minappreferrer';
+            referrer.reqFields = [ 'referrerInfo' ];
+            referrer.referrerInfo = app.globalData.referrerInfo
+            referrer.fetch().then(() => {
+                console.log('send referrer suc')
+            }).catch(() => {
+                console.log('send referrer fail')
+            })
+            suc(req);
+        }).catch(errCode=>{
+            if (Base.LoginRetryed > 3) {
+                wx.showModal({
+                    title: '出错了',
+                    content: '登录失败，请关闭小程序后重新打开再试',
+                })
+                return;
             }
+            wx.clearStorageSync('sid');
+            wx.clearStorageSync('uid');
+            Base.UID = '';
+            Base.SID = '';
+            Base.LoginRetryed++;
+            wx.login({
+                success: res => {
+                    console.log('login')
+                    this.AUTHED = false;
+                    this.UserAuth(res.code, suc);
+                }
+            })
+
+            
         });
 
     }
