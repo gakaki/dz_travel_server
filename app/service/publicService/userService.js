@@ -285,7 +285,7 @@ class UserService extends Service {
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
-        let ui = await this.ctx.model.PublicModel.User.create({
+        let ui = await this.ctx.model.PublicModel.User.update({ uid: uid }, {
             uid: uid,
             appName: appName,
             nickName: info.nickName,
@@ -299,27 +299,32 @@ class UserService extends Service {
             pid: pidStr,
             items: items,
             lastLogin: new Date(),
-        });
+        }, { upsert: true });
         this.app.getLogger('debugLogger').info(`用户创建耗时  ${Date.now() - time} ms`);
-        //TODO 测试多给点钱。正式服改回来
         this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
        // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000 }, "origin");
         this.app.getLogger('debugLogger').info(`道具初始化耗时  ${Date.now() - time} ms`);
-        //进入积分榜单
-         this.ctx.model.TravelModel.IntegralRecord.create({
-            uid: uid,
-            integral: 0,
-            updateDate: new Date(),
-        });
-        this.app.getLogger('debugLogger').info(`积分榜单生成耗时  ${Date.now() - time} ms`);
+
+        this.ctx.runInBackground(async () => {
+            //进入积分榜单
+            await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {
+                uid: uid,
+                integral: 0,
+                updateDate: new Date(),
+            }, { upsert: true });
+            //进入足迹榜
+            await this.ctx.model.TravelModel.FootRecord.update({ uid: uid}, {
+                uid: uid, //玩家uid
+                updateDate: new Date(), //更新时间
+            }, { upsert: true });
+            this.app.getLogger('debugLogger').info(`积分榜单生成耗时  ${Date.now() - time} ms`);
+            this.app.getLogger('debugLogger').info(`足迹榜单生成  ${Date.now() - time} ms`);
+        })
+
       //  let key = "lightCity" + 0;
      //   this.app.redis.setnx(key, 0);
-        //进入足迹榜
-         this.ctx.model.TravelModel.FootRecord.create({
-            uid: uid, //玩家uid
-            updateDate: new Date(), //更新时间
-        });
-        this.app.getLogger('debugLogger').info(`足迹榜单生成  ${Date.now() - time} ms`);
+
+
         //设置点亮城市段集
      //   await this.app.redis.incr(key);
         // 日志
