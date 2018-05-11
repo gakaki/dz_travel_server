@@ -628,7 +628,7 @@ class PlayerService extends Service {
         for(let index = 0; index < rankInfos.length; index++) {
           //  this.logger.info(rankInfos[index]);
             let rankItem = {
-                rank: rankInfos[index].rank || (index + 1),
+                rank: rankInfos[index].rank || ((page - 1) * limit + index + 1),
             };
 
             if(info.rankType == apis.RankType.SCORE) {
