@@ -27,7 +27,8 @@ class WeChatService extends Service {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
             let r = await this.ctx.model.WeChatModel.SdkUser.update({ userid: auResult.data.openid },
-                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key } },
+                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key },
+                $inc: { authNumber: 1 } },
                 { upsert: true });
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;

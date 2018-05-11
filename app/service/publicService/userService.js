@@ -16,8 +16,12 @@ class UserService extends Service {
         this.app.getLogger('debugLogger').info(`查询是否是第三方登录耗时 ${Date.now() - time} ms`);
         if(sdkui) {
             if(!sdkui.sessionKey || !sdkui.unionid) {
-                result.info = null;
-                return result;
+                if(sdkui.authNumber && sdkui.authNumber < 3) {
+                    result.info = null;
+                    return result;
+                }
+                await this.ctx.model.WeChatModel.SdkUser.update({ userid: uid },
+                    { $set: { authNumber: 1 } });
             }
             third = true;
             try {
