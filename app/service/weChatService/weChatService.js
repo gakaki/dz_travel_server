@@ -569,8 +569,8 @@ class WeChatService extends Service {
                     this.logger.info('收到公众号消息',userName, content);
                     //回复一个介绍链接
                     let back = {xml:{
-                        ToUserName:userName,
-                        FromUserName: pubName,
+                        ToUserName: `<![CDATA[${userName}]]>`,
+                        FromUserName: `<![CDATA[${pubName}]]>`,
                         MsgType:'<![CDATA[text]]>',
                         Content: `<![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]>`
                     }}
