@@ -1,0 +1,80 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "cnpm": "^5.2.0",
+    "date-season": "^0.0.2",
+    "dz-kue": "file:dz-kue",
+    "egg": "^2.7.1",
+    "egg-alinode": "^2.0.1",
+    "egg-logger": "^1.6.2",
+    "egg-mongoose": "^2.2.1",
+    "egg-nohm": "^1.0.1",
+    "egg-redis": "^1.0.2",
+    "egg-scripts": "^2.6.0",
+    "egg-socket.io": "^4.0.8",
+    "egg-view-assets": "^1.1.2",
+    "egg-view-nunjucks": "^2.2.0",
+    "holiday.cn": "0.0.2",
+    "ioredis": "^3.2.2",
+    "lunar-calendar": "^0.1.4",
+    "mocha": "^5.1.1",
+    "moment": "^2.22.1",
+    "pandora": "^1.8.18",
+    "request": "^2.85.0",
+    "tenpay": "^2.1.4",
+    "weather-china": "^0.0.3",
+    "ws": "^4.1.0",
+    "wxapp-socket-io": "^1.0.0",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "autod-egg": "^1.0.0",
+    "copy-to": "^2.0.1",
+    "dustjs-linkedin": "^2.7.5",
+    "egg-bin": "^4.7.0",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.17.1",
+    "eslint": "^4.11.0",
+    "eslint-config-egg": "^6.0.0",
+    "ko-sleep": "^1.0.3",
+    "mapv": "^2.0.20",
+    "mkdir-p": "^0.0.7",
+    "node-xlsx": "^0.11.2",
+    "webstorm-disable-index": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "pandoradev": "pandora dev",
+    "pandorastart": "pandora start --name dashboard `pandora-dashboard-dir`",
+    "pandorastop": "pandora stop",
+    "start": "egg-scripts start --daemon --ignore-stderr   --port=8080  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem",
+    "stop": "egg-scripts stop --title=egg-server-server",
+    "dev": "egg-bin dev  --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
+    "debug": "egg-bin debug   --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod",
+    "pic": "node ./app/tools/scenicPic/checkPic.js",
+    "sheet": "node ./app/tools/genSheet/genSheet.js",
+    "coord": "node ./app/tools/cityCoord/fixCityCoord.js",
+    "api": "node ./app/tools/genApi/genApi.js"
+  },
+  "ci": {
+    "version": "8"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "",
+  "license": "MIT"
+}

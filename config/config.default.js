@@ -86,5 +86,8 @@ module.exports = appInfo => {
 
     config.wepubToken = "wxappPUBodaoh5";
     config.wepubASEKey = "BZ2AXtbkYoN2wr7K46os9WqfcoK6AhEin1QyDllK0Lo";
+
+    config.proxy       = true;//用来做nginx支持
+    config.isSlave     = false;//在nginx主从下配置 slave为true那么不会走egg schedule 一台做schedule就够了
     return config;
 };

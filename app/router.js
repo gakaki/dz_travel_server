@@ -146,8 +146,7 @@ module.exports = app => {
     router.get('/test/testfreshspots', controller.testController.testController.testfreshspots);
     router.get('/test/dev', controller.travelController.tourController.eventshowtest);
 
-  
- 
-
+    //https://travel.ddz2018.com:443/test/hello
+    router.get('/test/hello', controller.testController.testController.hello);
     //io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
 };

@@ -6,6 +6,12 @@ const constant = require("../../utils/constant");
 const travelConfig = require("../../../sheets/travel");
 class TestController extends Controller {
 
+    async hello(ctx){
+        return ctx.body = {
+            'hello' : 'world'
+        }
+    }
+
     //起飞
     async testfly(ctx) {
         let info = apis.TestStartGame.Init(ctx);

@@ -13,7 +13,7 @@ module.exports = appInfo => {
     config.env = "prod";
 
     let config_redis = {
-        host: '172.17.16.13',
+        host: '172.17.16.9',
         port: '6379',
         password: 'Douzihuyu2018',
         db: '0',
@@ -34,7 +34,7 @@ module.exports = appInfo => {
     //     },
     //     redis: config_redis,
     // };
-
+    config.isSlave = true;
 
     return config;
 };

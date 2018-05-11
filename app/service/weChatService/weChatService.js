@@ -18,17 +18,18 @@ class WeChatService extends Service {
         let appsec = this.config.appsecret;
         let authcode = JSON.parse(sdkAuth.payload).code;
 
-        this.logger.info("我要进行微信授权登陆" +appid);
+        this.logger.info("我要进行微信授权登陆" + appid);
         let auResult = await this.doReqToken(appid, appsec, authcode);
 
         // let authtype = AuthType.MINI;
         this.logger.info("授权信息:" + JSON.stringify(auResult.data));
-        if (auResult.data != null) {
+        if (auResult && auResult.data != null) {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
-            let r = await this.ctx.model.WeChatModel.SdkUser.update({userid: auResult.data.openid},
-                {$set: {userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key } },
-                {upsert: true});
+            let r = await this.ctx.model.WeChatModel.SdkUser.update({ userid: auResult.data.openid },
+                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key },
+                $inc: { authNumber: 1 } },
+                { upsert: true });
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;
         }
@@ -138,6 +139,7 @@ class WeChatService extends Service {
                 that.logger.info(realResult);
                 let returnCode = realResult["return_code"][0];
                 that.logger.info("微信返回的数据 ：" + returnCode);
+                wuo.returnCode = returnCode;
                 if (returnCode === "SUCCESS") {
                     let prepay_id = realResult["prepay_id"][0];
 
@@ -556,7 +558,7 @@ class WeChatService extends Service {
     async iosRechargePage(ctx) {
         if (!ctx.query.code) {
             let router = 'wepubrecharge';
-            let redirect_uri = encodeURIComponent('https://tt.ddz2018.com/' + router);
+            let redirect_uri = encodeURIComponent('https://travel.ddz2018.com/' + router);
           //  let scope = 'snsapi_base';
             let scope = 'snsapi_userinfo';
             let url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${this.config.pubid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=123#wechat_redirect`
@@ -600,7 +602,7 @@ class WeChatService extends Service {
     async getsignature(_url) {
         let url = encodeURI(_url);
         this.logger.info("进来的参数", _url);
-        this.logger.info(url);
+       // this.logger.info(url);
         let resData = { code: constant.Code.OK };
         let js_ticket = await this.app.redis.hgetall("wxjs_ticket");
 
@@ -618,7 +620,7 @@ class WeChatService extends Service {
         return resData;
     }
 
-    //accesstoken 不知道小程序与公众号能不能公用
+
     async getJsTicket() {
        // let access_token = await this.app.redis.get("wxpubloginToken");
         let access_token = await this.app.redis.get("wepubAccessToken");
@@ -633,9 +635,10 @@ class WeChatService extends Service {
                 dataType: "json",
             });
 
-            this.logger.info(result);
+        //    this.logger.info(result);
             if(!result.errcode) {
-                this.app.redis.hmset("wxjs_ticket", { js_ticket: result.data.ticket, expires_in: (result.data.expires_in * 1000 + Date.now()) });
+                let expire = result.data.expires_in;
+                this.app.redis.hmset("wxjs_ticket", { js_ticket: result.data.ticket, expires_in: ((expire - 200) * 1000 + Date.now()) });
                 return result.data.ticket;
             }
         } catch (e) {

@@ -16,20 +16,24 @@ class UserService extends Service {
         this.app.getLogger('debugLogger').info(`查询是否是第三方登录耗时 ${Date.now() - time} ms`);
         if(sdkui) {
             if(!sdkui.sessionKey || !sdkui.unionid) {
-                result.info = null;
-                return result;
+                if(sdkui.authNumber && sdkui.authNumber < 3) {
+                    result.info = null;
+                    return result;
+                }
+                await this.ctx.model.WeChatModel.SdkUser.update({ userid: uid },
+                    { $set: { authNumber: 1 } });
             }
             third = true;
-            try {
-                if(info.encryptedData) {
-                    let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
-                    info = pc.decryptData(info.encryptedData, info.iv);
-                    // this.logger.info("解密的数据", info);
-                    this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
-                }
-            }catch (e) {
-                this.logger.error(e)
-            }
+            // try {
+            //     if(info.encryptedData) {
+            //         let pc = new WXBizDataCrypt(this.config.appid, sdkui.sessionKey);
+            //         info = pc.decryptData(info.encryptedData, info.iv);
+            //          this.logger.info("解密的数据", info);
+            //         this.app.getLogger('debugLogger').info(`解密耗时 ${Date.now() - time} ms`);
+            //     }
+            // }catch (e) {
+            //     this.logger.error(e)
+            // }
         }
         //老用户登陆
         if (sid) {

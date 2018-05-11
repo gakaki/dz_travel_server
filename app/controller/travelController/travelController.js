@@ -151,11 +151,14 @@ class TravelController extends Controller {
                 info.submit();
                 return;
             }
-            let friendsSet = new Set(info.ui.friendList);
-            if(!friendsSet.has(userId)) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                if(update.nModified) {
+            if(userId != info.uid) {
+                let myfriendsSet = new Set(info.ui.friendList);
+                let friendsSet = new Set(ui.friendList);
+                if(!myfriendsSet.has(userId)) {
                     await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+                if(!friendsSet.has(info.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
                 }
             }
 

@@ -21,11 +21,14 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            let friendsSet = new Set(info.ui.friendList);
-            if(!friendsSet.has(userId)) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                if(update.nModified) {
+            if(userId != info.uid) {
+                let myfriendsSet = new Set(info.ui.friendList);
+                let friendsSet = new Set(ui.friendList);
+                if(!myfriendsSet.has(userId)) {
                     await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+                if(!friendsSet.has(info.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
                 }
             }
         }
@@ -51,11 +54,14 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            let friendsSet = new Set(info.ui.friendList);
-            if(!friendsSet.has(userId)) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                if(update.nModified) {
+            if(userId != info.uid) {
+                let myfriendsSet = new Set(info.ui.friendList);
+                let friendsSet = new Set(ui.friendList);
+                if(!myfriendsSet.has(userId)) {
                     await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+                if(!friendsSet.has(info.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
                 }
             }
         }
@@ -80,11 +86,14 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            let friendsSet = new Set(info.ui.friendList);
-            if(!friendsSet.has(userId)) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                if(update.nModified) {
+            if(userId != info.uid) {
+                let myfriendsSet = new Set(info.ui.friendList);
+                let friendsSet = new Set(ui.friendList);
+                if(!myfriendsSet.has(userId)) {
                     await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+                if(!friendsSet.has(info.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
                 }
             }
         }
@@ -119,14 +128,14 @@ class PlayerController extends Controller {
             return;
         }
         let mtype = info.messageType;
-        if(mtype){
-            ctx.logger.info("接收到的消息类型 "+ typeof mtype , mtype);
-            if(mtype.constructor !== Array){
+        if(mtype) {
+            ctx.logger.info("接收到的消息类型 " + typeof mtype, mtype);
+            if(mtype.constructor !== Array) {
                 info.code = apis.Code.PARAMETER_NOT_MATCH;
                 return;
             }
         }
-        await ctx.service.travelService.playerService.getMessage(info,ui,mtype);
+        await ctx.service.travelService.playerService.getMessage(info, ui, mtype);
 
         info.submit();
     }
@@ -217,11 +226,14 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            let friendsSet = new Set(info.ui.friendList);
-            if(!friendsSet.has(userId)) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                if(update.nModified) {
+            if(userId != info.uid) {
+                let myfriendsSet = new Set(info.ui.friendList);
+                let friendsSet = new Set(ui.friendList);
+                if(!myfriendsSet.has(userId)) {
                     await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+                if(!friendsSet.has(info.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
                 }
             }
         }
@@ -248,11 +260,14 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            let friendsSet = new Set(info.ui.friendList);
-            if(!friendsSet.has(userId)) {
-                let update = await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                if(update.nModified) {
+            if(userId != info.uid) {
+                let myfriendsSet = new Set(info.ui.friendList);
+                let friendsSet = new Set(ui.friendList);
+                if(!myfriendsSet.has(userId)) {
                     await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
+                }
+                if(!friendsSet.has(info.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
                 }
             }
         }

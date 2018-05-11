@@ -9,6 +9,9 @@ module.exports = {
         //immediate: true,
     },
     async task(ctx) {
+
+        if (this.config.isSlave) return;
+
         ctx.logger.info("每日事件推送");
       let events = travelConfig.events;
       for(let event of events) {

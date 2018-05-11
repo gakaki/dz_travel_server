@@ -13,6 +13,9 @@ module.exports = {
         //immediate: true, //配置了该参数为 true 时，这个定时任务会在应用启动并 ready 后立刻执行一次这个定时任务。
     },
     async task(ctx) {
+
+        if (this.config.isSlave) return;
+
         ctx.logger.info("每一个小时更新一次天气");
        let citys = travelConfig.citys;
         let segment = 100;
