@@ -21,5 +21,7 @@ module.exports = appInfo => {
         dir: "/root/server/travel/logs/",
     };
 
+    config.isSlave = true;
+    console.log(" >>>  环境配置是 啥？！prodslave",config.redis);
     return config;
 };

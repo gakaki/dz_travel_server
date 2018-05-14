@@ -18,9 +18,10 @@ module.exports = appInfo => {
         client: config_redis,
     };
     config.logger = {
-        dir: "/root/server/travel/logs/",
+        dir: "./logs/",
     };
 
+    config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
     config.isSlave = false;
     return config;
 };

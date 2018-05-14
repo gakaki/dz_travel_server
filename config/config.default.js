@@ -4,6 +4,8 @@ const path = require('path')
 module.exports = appInfo => {
     const config = {};
 
+    config.env = "default";
+
     // use for cookie sign key, should change to your own and keep security
     config.keys = appInfo.name + '_1518087334696_5975';
 
@@ -81,8 +83,8 @@ module.exports = appInfo => {
     config.payid = "wxfc983573261a5210";
     config.paykey = "shanghaidouziwangluokejigongsih5";
     config.paymchid = "1494209122";
-    config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
-    //config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
+    // config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
+    config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
 
     config.weatherkey = "bb9b54c2840d460baa731486dee8deff";
     config.weatherusername = "HE1804101712021052";
@@ -92,5 +94,8 @@ module.exports = appInfo => {
 
     config.proxy       = true;//用来做nginx支持
     config.isSlave     = false;//在nginx主从下配置 slave为true那么不会走egg schedule 一台做schedule就够了
+
+
+
     return config;
 };

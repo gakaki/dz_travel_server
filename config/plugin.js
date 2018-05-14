@@ -14,10 +14,6 @@ exports.redis = {
 //     enable: true,
 //     package: 'egg-socket.io',
 // };
-exports.kue = {
-    enable: true,
-    package: 'dz-kue',
-};
 
 exports.assets = {
     enable: true,

@@ -1,6 +1,6 @@
 module.exports = appInfo => {
     const config = {};
-    config.env = "prod";
+    config.env = "proddebug"; //这里所有配置都应该跟服务器
 
     config.mongoose = {
         //现网
@@ -17,12 +17,11 @@ module.exports = appInfo => {
     config.redis = {
         client: config_redis,
     };
-
     config.logger = {
-        dir: "./logs/",
+        dir: "/root/server/travel/logs/",
     };
 
-    console.log(" >>>  环境配置是 啥？！prod",config.redis);
-
+    config.isSlave = true;
+    console.log(" >>>  环境配置是 啥？！prodslave",config.redis);
     return config;
 };

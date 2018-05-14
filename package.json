@@ -6,7 +6,6 @@
   "dependencies": {
     "cnpm": "^5.2.0",
     "date-season": "^0.0.2",
-    "dz-kue": "file:dz-kue",
     "egg": "^2.7.1",
     "egg-alinode": "^2.0.1",
     "egg-logger": "^1.6.2",
@@ -53,7 +52,7 @@
     "pandoradev": "pandora dev",
     "pandorastart": "pandora start --name dashboard `pandora-dashboard-dir`",
     "pandorastop": "pandora stop",
-    "start": "egg-scripts start --daemon --ignore-stderr --port=8080  --title=egg-server-server",
+    "start": "egg-scripts start  --daemon --ignore-stderr --port=8080  --title=egg-server-server",
     "startslave": "egg-scripts start --env=prodslave --daemon --ignore-stderr --port=8080  --title=egg-server-server",
     "startnd": "egg-scripts start --port=8080 --title=egg-server-server",
     "beta": "egg-scripts start --daemon --ignore-stderr --env=beta --title=dz-beta --port=443 --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
