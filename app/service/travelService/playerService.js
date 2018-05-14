@@ -625,45 +625,65 @@ class PlayerService extends Service {
         // this.logger.info(rankIndex);
         // info.selfRank.rank = rankIndex + 1;
         let out = [];
-        for(let index = 0; index < rankInfos.length; index++) {
-          //  this.logger.info(rankInfos[index]);
-            let rankItem = {
-                rank: rankInfos[index].rank || ((page - 1) * limit + index + 1),
-            };
+        if(rankInfos.length) {
+            for(let index = 0; index < rankInfos.length; index++) {
+                //  this.logger.info(rankInfos[index]);
+                let rankItem = {
+                    rank: rankInfos[index].rank || ((page - 1) * limit + index + 1),
+                };
 
-            if(info.rankType == apis.RankType.SCORE) {
-                rankItem.achievement = rankInfos[index].integral;
-            }
-            if(info.rankType == apis.RankType.FOOT) {
-                rankItem.achievement = rankInfos[index].lightCityNum;
-            }
-            if(info.rankType == apis.RankType.THUMBS) {
-                rankItem.achievement = rankInfos[index].completionDegree;
-            }
-
-
-            if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                if(info.rankType == apis.RankType.SCORE) {
+                    rankItem.achievement = rankInfos[index].integral;
+                }
                 if(info.rankType == apis.RankType.FOOT) {
-                    rankItem.weekAchievement = rankInfos[index].weekLightCityNum;
+                    rankItem.achievement = rankInfos[index].lightCityNum;
                 }
                 if(info.rankType == apis.RankType.THUMBS) {
-                    rankItem.weekAchievement = rankInfos[index].weekCompletionDegree;
+                    rankItem.achievement = rankInfos[index].completionDegree;
                 }
+
+
+                if(info.rankSubtype == apis.RankSubtype.COUNTRY) {
+                    if(info.rankType == apis.RankType.FOOT) {
+                        rankItem.weekAchievement = rankInfos[index].weekLightCityNum;
+                    }
+                    if(info.rankType == apis.RankType.THUMBS) {
+                        rankItem.weekAchievement = rankInfos[index].weekCompletionDegree;
+                    }
+                }
+
+                //   this.logger.info(rankInfos[index].integral);
+                let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({ uid: rankInfos[index].uid });
+                //  this.logger.info(rankInfos[index]);
+                //    this.logger.info(user);
+                rankItem.userInfo = {
+                    uid: user.uid,
+                    nickName: user.nickName,
+                    avatarUrl: user.avatarUrl,
+                };
+
+                //  this.logger.info(rankItem)
+                out.push(rankItem);
+            }
+        }else {
+            if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                info.selfRank = {
+                    rank: 1,
+                    achievement: 0,
+                }
+                let rankItem = info.selfRank;
+                rankItem.userInfo = {
+                    uid: info.ui.uid,
+                    nickName: info.ui.nickName,
+                    avatarUrl: info.ui.avatarUrl,
+                };
+                out.push(info.selfRank);
+
             }
 
-          //   this.logger.info(rankInfos[index].integral);
-            let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({ uid: rankInfos[index].uid });
-          //  this.logger.info(rankInfos[index]);
-          //    this.logger.info(user);
-            rankItem.userInfo = {
-                uid: user.uid,
-                nickName: user.nickName,
-                avatarUrl: user.avatarUrl,
-            };
-
-          //  this.logger.info(rankItem)
-            out.push(rankItem);
         }
+
+
       // this.logger.info(out)
         info.ranks = out
 
