@@ -2,12 +2,16 @@ const questLoop  = require("./questLoop");
 
 const intervalSecond = 2 * 1000;
 
+
 const loopFun = () => {
 
     //初始化变量
     // console.log( intervalSecond );
 
     //记录playloop上回访问的时间点
+
+
+
 
     //计算和当前时间具体差了多少来生成事件数量
 
