@@ -3,7 +3,7 @@ const sheets = require('./sheets/travel');
 module.exports = app => {
     app.beforeStart(async () => {
 
-        this.logger.error( " >>>>>>>>>>> 启动的环境配置为 " ,this.app.env );
+
 
         // 应用会等待这个函数执行完成才启动
         app.redis.setnx("travel_userid", 1000);
@@ -39,6 +39,9 @@ module.exports = app => {
             //     shops[i].codes = shops[i].code || [];
             //    await app.model.TravelModel.ExchangeItem.update({id:shops[i].id},{$set: shops[i]},{upsert:true});
             // }
+
+        app.getLogger('debugLogger').info(" [debug] ", `启动的环境配置为` ,  app.config.env );
+        // this.logger.error( " >>>>>>>>>>> 启动的环境配置为 " ,);
     });
 
 };

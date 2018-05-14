@@ -17,6 +17,7 @@ module.exports = appInfo => {
         client: config_redis,
     };
 
+    config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
 
     return config;
 };

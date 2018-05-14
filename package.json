@@ -55,7 +55,7 @@
     "start": "egg-scripts start  --daemon --ignore-stderr --port=8080  --title=server_prod",
     "prodslave": "egg-scripts start --env=prodslave --daemon --ignore-stderr --port=8080  --title=server_slave",
     "startnd": "egg-scripts start --port=8080 --title=server_prod_no_deamon",
-    "proddebug": "egg-bin dev --env=proddebug --port=9090  --title=server_debug",
+    "proddebug": "egg-bin debug --debug-port=9229 --proxy=9999 --env=proddebug --port=9090  --title=server_debug",
     "beta": "egg-scripts start --daemon --ignore-stderr --env=beta --title=dz-beta --port=443 --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "stop": "egg-scripts stop --title=egg-server-server",
     "dev": "egg-bin dev  --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",

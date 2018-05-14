@@ -17,8 +17,7 @@ module.exports = appInfo => {
     config.redis = {
         client: config_redis,
     };
-
-
+    config.noticeurl = "https://travel.ddz2018.com/weChat/shopdone";
     config.isSlave = true;
     return config;
 };
