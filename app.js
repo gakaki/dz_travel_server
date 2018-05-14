@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const sheets = require('./sheets/travel');
 module.exports = app => {
     app.beforeStart(async () => {
+
+        this.logger.error( " >>>>>>>>>>> 启动的环境配置为 " ,this.app.env );
+
         // 应用会等待这个函数执行完成才启动
         app.redis.setnx("travel_userid", 1000);
         // mongoose.set('debug', true);
