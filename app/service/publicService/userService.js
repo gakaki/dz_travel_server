@@ -158,7 +158,7 @@ class UserService extends Service {
 
             if (ses) {
                 let now = new Date().getTime();
-                if (ses.expire < now) {
+                if (ses.expire < now || !ses.pid) {
                     ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
                     this.recruitSid(ses.sid, ui.pid);
                 }
