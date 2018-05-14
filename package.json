@@ -52,15 +52,20 @@
     "pandoradev": "pandora dev",
     "pandorastart": "pandora start --name dashboard `pandora-dashboard-dir`",
     "pandorastop": "pandora stop",
-    "start": "egg-scripts start  --daemon --ignore-stderr --port=8080  --title=server_prod",
-    "prodslave": "egg-scripts start --env=prodslave --daemon --ignore-stderr --port=8080  --title=server_slave",
-    "startnd": "egg-scripts start --port=8080 --title=server_prod_no_deamon",
-    "proddebug": "EGG_SERVER_ENV=proddebug egg-bin  debug --debug-port=9229 --proxy=9999 --port=9090  --title=server_debug --env=proddebug",
-    "beta": "egg-scripts start --daemon --ignore-stderr --env=beta --title=server-beta --port=443 --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
-    "stop": "egg-scripts stop --title=server_prod",
-    "stopprodslave": "egg-scripts stop --title=server_slave",
-    "stopbeta": "egg-scripts stop --title=server-beta",
-    "stopproddebug": "egg-scripts stop --title=server_debug",
+
+    "start": "egg-scripts start  --daemon --ignore-stderr --port=8080  --title=prod",
+    "stop": "egg-scripts stop --title=prod",
+    "startnd": "egg-scripts start --port=8080 --title=prod",
+
+    "slave": "egg-scripts start --env=prodslave --daemon --ignore-stderr --port=8080  --title=slave",
+    "stopslave": "egg-scripts stop --title=slave",
+
+    "proddebug": "EGG_SERVER_ENV=proddebug egg-bin  debug --debug-port=9229 --proxy=9999 --port=9090  --title=debug",
+    "stopproddebug": "egg-scripts stop --title=debug",
+
+    "beta": "egg-scripts start --daemon --ignore-stderr --env=beta --title=beta --port=443 --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
+    "stopbeta": "egg-scripts stop --title=beta",
+
     "dev": "egg-bin dev  --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "debug": "egg-bin debug   --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "test": "npm run lint -- --fix && npm run test-local",
