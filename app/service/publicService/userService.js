@@ -4,7 +4,7 @@ const constant = require('../../utils/constant');
 const crypto = require("crypto");
 const travelConfig = require("../../../sheets/travel");
 const WXBizDataCrypt = require("../weChatService/WXBizDataCrypt");
-
+const KEY = `USER_REGISTER`;
 class UserService extends Service {
 
     async login(uid, sid, appName, shareUid, info, time) {
@@ -82,13 +82,13 @@ class UserService extends Service {
                 if(!result.info.third && third) {
                     updateInfo.third = true;
                 }
-              //  this.app.getLogger('debugLogger').info(`what??耗时 ${Date.now() - time} ms`);
+                //  this.app.getLogger('debugLogger').info(`what??耗时 ${Date.now() - time} ms`);
                 this.ctx.runInBackground(async () => {
-                  //  this.app.getLogger('debugLogger').info(`会进来??耗时 ${Date.now() - time} ms`);
-                     await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                    //  this.app.getLogger('debugLogger').info(`会进来??耗时 ${Date.now() - time} ms`);
+                    await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
                         $set: updateInfo,
                     });
-                   // this.app.getLogger('debugLogger').info(`什么鬼??耗时 ${Date.now() - time} ms`);
+                    // this.app.getLogger('debugLogger').info(`什么鬼??耗时 ${Date.now() - time} ms`);
                 });
                 result.info.nickName = info.nickName;
                 result.info.avatarUrl = info.avatarUrl;
@@ -100,17 +100,6 @@ class UserService extends Service {
         //第三方登陆
         let ui = null;
         if (uid) {
-            // let sdkui = await this.ctx.model.WeChatModel.SdkUser.findOne({userid: uid});
-            // let third = false;
-            // if (!sdkui) {
-            //     this.logger.error(uid + " 尝试无效的第三方登陆");
-            //     // result.info = null;
-            //     // return result;
-            // }else{
-            //     this.logger.info("第三方登陆 ：" + JSON.stringify(sdkui));
-            //     third = true;
-            // }
-
             // 因为以后登陆仅仅通过sid，所以安全问题能得以提高
             ui = await this.ctx.model.PublicModel.User.findOne({
                 uid: uid,
@@ -120,12 +109,17 @@ class UserService extends Service {
             this.app.getLogger('debugLogger').info(`sid不存在，uid存在查询用户信息耗时  ${Date.now() - time} ms`);
             if (!ui) {
                 // 自动注册
-                ui = await this.register(uid, info, third, appName, shareUid, time);
-                this.app.getLogger('debugLogger').info(`注册耗时  ${Date.now() - time} ms`);
-                let sid = this.GEN_SID(ui.pid);
-                this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
-                this.recruitSid(sid, ui.pid);
-                this.app.getLogger('debugLogger').info(`注册刷新sid耗时  ${Date.now() - time} ms`);
+                let setkey = await this.app.redis.hsetnx(KEY, uid, JSON.stringify(ui));
+                if(setkey) {
+                    ui = await this.register(uid, info, third, appName, shareUid, time);
+                    this.app.getLogger('debugLogger').info(`注册耗时  ${Date.now() - time} ms`);
+                    sid = this.GEN_SID(ui.pid);
+                    this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
+                    this.recruitSid(sid, ui.pid);
+                    this.app.getLogger('debugLogger').info(`注册刷新sid耗时  ${Date.now() - time} ms`);
+                    this.app.redis.hdel(KEY, uid);
+                }
+
             } else {
                 //更新一次userInfo
                 this.ctx.runInBackground(async () => {
@@ -140,7 +134,7 @@ class UserService extends Service {
                             lastLogin: new Date(),
                         },
                     });
-                })
+                });
                 ui.nickName = info.nickName;
                 ui.avatarUrl = info.avatarUrl;
                 this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);
@@ -152,16 +146,12 @@ class UserService extends Service {
         if (ses) {
             let now = new Date().getTime();
             if (ses.expire < now) {
-                ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
+                sid = ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
                 this.recruitSid(ses.sid, ui.pid);
             }
             this.app.getLogger('debugLogger').info(`检验sid时效耗时  ${Date.now() - time} ms`);
+            this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
         }
-
-        //this.logger.info(JSON.stringify(ses));
-
-
-        this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
 
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
@@ -176,7 +166,7 @@ class UserService extends Service {
             createDate: new Date(),
         });
 
-        result.sid = ses.sid;
+        result.sid = sid;
         result.info = ui;
 
 
@@ -285,7 +275,9 @@ class UserService extends Service {
         // 新建用户
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
-        let ui = await this.ctx.model.PublicModel.User.update({ uid: uid }, {
+        let originMoney = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
+        items[travelConfig.Item.GOLD ] = originMoney;
+        let ui = {
             uid: uid,
             appName: appName,
             nickName: info.nickName,
@@ -299,34 +291,30 @@ class UserService extends Service {
             pid: pidStr,
             items: items,
             lastLogin: new Date(),
-        }, { upsert: true });
+        };
+        this.ctx.model.PublicModel.User.create(ui);
         this.app.getLogger('debugLogger').info(`用户创建耗时  ${Date.now() - time} ms`);
-        this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
-       // this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: 100000 }, "origin");
+        //  this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
+        this.ctx.model.PublicModel.UserItemCounter.create({
+            uid: uid,
+            index: travelConfig.Item.GOLD,
+            appName: appName,
+            delta: originMoney,
+            addup: originMoney,
+            cost: 0,
+        });
+
+        this.ctx.model.PublicModel.ItemRecord.create({
+            uid: uid,
+            index: travelConfig.Item.GOLD,
+            appName: appName,
+            delta: originMoney,
+            type: "origin",
+            time: new Date(),
+
+        });
         this.app.getLogger('debugLogger').info(`道具初始化耗时  ${Date.now() - time} ms`);
 
-        this.ctx.runInBackground(async () => {
-            //进入积分榜单
-            await this.ctx.model.TravelModel.IntegralRecord.update({ uid: uid }, {
-                uid: uid,
-                integral: 0,
-                updateDate: new Date(),
-            }, { upsert: true });
-            //进入足迹榜
-            await this.ctx.model.TravelModel.FootRecord.update({ uid: uid}, {
-                uid: uid, //玩家uid
-                updateDate: new Date(), //更新时间
-            }, { upsert: true });
-            this.app.getLogger('debugLogger').info(`积分榜单生成耗时  ${Date.now() - time} ms`);
-            this.app.getLogger('debugLogger').info(`足迹榜单生成  ${Date.now() - time} ms`);
-        })
-
-      //  let key = "lightCity" + 0;
-     //   this.app.redis.setnx(key, 0);
-
-
-        //设置点亮城市段集
-     //   await this.app.redis.incr(key);
         // 日志
         this.ctx.model.PublicModel.UserActionRecord.create({
             pid: pid,
@@ -344,7 +332,6 @@ class UserService extends Service {
             }
             this.app.getLogger('debugLogger').info(`注册加好友耗时  ${Date.now() - time} ms`);
         }
-
         return ui;
     }
 
@@ -367,7 +354,9 @@ class UserService extends Service {
             if (ses == null) {
                 return null;
             }
+            //    this.logger.info(ses);
             this.logger.info("用户PID: " + ses.pid);
+            //return await this.ctx.model.PublicModel.User.findOne({ pid: ses.pid });
             return await this.ctx.model.PublicModel.User.findOne({ pid: ses.pid });
         }catch(err) {
             this.logger.error(err);
