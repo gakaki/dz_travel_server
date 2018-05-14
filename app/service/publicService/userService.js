@@ -88,7 +88,6 @@ class UserService extends Service {
                     await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
                         $set: updateInfo,
                     });
-                    // this.app.getLogger('debugLogger').info(`什么鬼??耗时 ${Date.now() - time} ms`);
                 });
                 result.info.nickName = info.nickName;
                 result.info.avatarUrl = info.avatarUrl;
@@ -113,63 +112,75 @@ class UserService extends Service {
                 if(setkey) {
                     ui = await this.register(uid, info, third, appName, shareUid, time);
                     this.app.getLogger('debugLogger').info(`注册耗时  ${Date.now() - time} ms`);
-                    sid = this.GEN_SID(ui.pid);
-                    this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + sid);
-                    this.recruitSid(sid, ui.pid);
+                    let newsid = this.GEN_SID(ui.pid);
+                    this.logger.info("使用第三方凭据注册账号 " + ui.pid + " sid : " + newsid);
+                    this.recruitSid(newsid, ui.pid);
                     this.app.getLogger('debugLogger').info(`注册刷新sid耗时  ${Date.now() - time} ms`);
                     this.app.redis.hdel(KEY, uid);
-                }
-
-            } else {
-                //更新一次userInfo
-                this.ctx.runInBackground(async () => {
-                    await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
-                        $set: {
-                            nickName: info.nickName,
-                            avatarUrl: info.avatarUrl,
-                            gender: info.gender,
-                            city: info.city,
-                            province: info.province,
-                            country: info.country,
-                            lastLogin: new Date(),
+                    result.info = ui;
+                    result.sid = newsid;
+                    // 日志
+                    this.ctx.model.PublicModel.UserActionRecord.create({
+                        pid: ui.pid,
+                        appName: appName,
+                        type: constant.UserActionRecordType.LOGIN,
+                        data: {
+                            agent: this.ctx.request.header['user-agent'],
+                            host: this.ctx.request.header.host,
+                            addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
                         },
+                        createDate: new Date(),
                     });
+                }else{
+                    result.info = ui;
+                }
+                return result
+
+            }
+            //更新一次userInfo
+            this.ctx.runInBackground(async () => {
+                await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                    $set: {
+                        nickName: info.nickName,
+                        avatarUrl: info.avatarUrl,
+                        gender: info.gender,
+                        city: info.city,
+                        province: info.province,
+                        country: info.country,
+                        lastLogin: new Date(),
+                    },
                 });
-                ui.nickName = info.nickName;
-                ui.avatarUrl = info.avatarUrl;
-                this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);
+            });
+            ui.nickName = info.nickName;
+            ui.avatarUrl = info.avatarUrl;
+            this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);
+            let ses = JSON.parse(await this.app.redis.get(ui.pid));
+
+            if (ses) {
+                let now = new Date().getTime();
+                if (ses.expire < now) {
+                    ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
+                    this.recruitSid(ses.sid, ui.pid);
+                }
+                this.app.getLogger('debugLogger').info(`检验sid时效耗时  ${Date.now() - time} ms`);
+                this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
+                result.sid = ses.sid;
             }
+
+            // 日志
+            this.ctx.model.PublicModel.UserActionRecord.create({
+                pid: ui.pid,
+                appName: appName,
+                type: constant.UserActionRecordType.LOGIN,
+                data: {
+                    agent: this.ctx.request.header['user-agent'],
+                    host: this.ctx.request.header.host,
+                    addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
+                },
+                createDate: new Date(),
+            });
         }
-
-        let ses = JSON.parse(await this.app.redis.get(ui.pid));
-
-        if (ses) {
-            let now = new Date().getTime();
-            if (ses.expire < now) {
-                sid = ses.sid = this.GEN_SID(ui.pid); // 过期重新生成
-                this.recruitSid(ses.sid, ui.pid);
-            }
-            this.app.getLogger('debugLogger').info(`检验sid时效耗时  ${Date.now() - time} ms`);
-            this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
-        }
-
-        // 日志
-        this.ctx.model.PublicModel.UserActionRecord.create({
-            pid: ui.pid,
-            appName: appName,
-            type: constant.UserActionRecordType.LOGIN,
-            data: {
-                agent: this.ctx.request.header['user-agent'],
-                host: this.ctx.request.header.host,
-                addr: (this.ctx.request.socket.remoteAddress).replace("::ffff:", ""),
-            },
-            createDate: new Date(),
-        });
-
-        result.sid = sid;
         result.info = ui;
-
-
 
         return result;
     }
@@ -276,6 +287,7 @@ class UserService extends Service {
         let items = constant.AppItem[appName] || {};
         let pidStr = constant.PID_INIT[appName] + pid;
         let originMoney = travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value;
+        this.app.getLogger('debugLogger').info(`初始金币耗时  ${Date.now() - time} ms`);
         items[travelConfig.Item.GOLD ] = originMoney;
         let ui = {
             uid: uid,
@@ -292,6 +304,7 @@ class UserService extends Service {
             items: items,
             lastLogin: new Date(),
         };
+
         this.ctx.model.PublicModel.User.create(ui);
         this.app.getLogger('debugLogger').info(`用户创建耗时  ${Date.now() - time} ms`);
         //  this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
@@ -332,6 +345,7 @@ class UserService extends Service {
             }
             this.app.getLogger('debugLogger').info(`注册加好友耗时  ${Date.now() - time} ms`);
         }
+
         return ui;
     }
 
@@ -352,6 +366,9 @@ class UserService extends Service {
             // 通过sid查找pid，再通过pid查找info
             let ses = JSON.parse(await this.app.redis.get(sid));
             if (ses == null) {
+                return null;
+            }
+            if(!ses.pid) {
                 return null;
             }
             //    this.logger.info(ses);
