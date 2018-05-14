@@ -40,7 +40,7 @@ module.exports = app => {
             //    await app.model.TravelModel.ExchangeItem.update({id:shops[i].id},{$set: shops[i]},{upsert:true});
             // }
 
-        // app.getLogger('debugLogger').info(" [debug] ", `启动的环境配置为` ,  app.config.env );
+          // app.getLogger('debugLogger').info(" [debug] ", `环境env为`, process.env.EGG_SERVER_ENV, `启动的环境配置为` ,  app.config.env  );
         // this.logger.error( " >>>>>>>>>>> 启动的环境配置为 " ,);
     });
 
