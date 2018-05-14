@@ -165,6 +165,10 @@ class UserService extends Service {
                 this.app.getLogger('debugLogger').info(`检验sid时效耗时  ${Date.now() - time} ms`);
                 this.logger.info("{{=it.user}}@{{=it.sid}} 登陆成功", { user: ui.pid, sid: ses.sid });
                 result.sid = ses.sid;
+            }else{
+                let newsid = this.GEN_SID(ui.pid); // 过期重新生成
+                this.recruitSid(newsid, ui.pid);
+                result.sid = newsid;
             }
 
             // 日志
