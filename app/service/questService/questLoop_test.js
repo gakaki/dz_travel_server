@@ -5,7 +5,7 @@ const intervalSecond = 2 * 1000;
 const loopFun = () => {
 
     //初始化变量
-    console.log( intervalSecond );
+    // console.log( intervalSecond );
 
     //记录playloop上回访问的时间点
 
