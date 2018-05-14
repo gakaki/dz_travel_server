@@ -7,7 +7,6 @@ module.exports = appInfo => {
         url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp13164b905191a41176-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
     };
 
-
     let config_redis = {
         host: '127.0.0.1',
         port: '6379',
@@ -17,9 +16,7 @@ module.exports = appInfo => {
     config.redis = {
         client: config_redis,
     };
-    config.logger = {
-        dir: "./logs/",
-    };
+
 
     config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
     config.isSlave = false;

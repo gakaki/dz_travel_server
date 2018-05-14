@@ -17,11 +17,8 @@ module.exports = appInfo => {
     config.redis = {
         client: config_redis,
     };
-    config.logger = {
-        dir: "/root/server/travel/logs/",
-    };
+
 
     config.isSlave = true;
-    console.log(" >>>  环境配置是 啥？！prodslave",config.redis);
     return config;
 };

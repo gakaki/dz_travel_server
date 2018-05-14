@@ -33,8 +33,6 @@ module.exports = appInfo => {
 
     config.REDISKEY = {
         KEY_USER_ARRIVE_TIME : 'arrive_time',
-
-
     }
 
     config.view = {
@@ -60,6 +58,11 @@ module.exports = appInfo => {
             debug: true
         }
     }
+
+    config.logger = {
+        dir: "./logs/",
+    };
+
 
     //app.getLogger('debugLogger') / ctx.getLogger('debugLogger')
     config.customLogger =  {
@@ -94,6 +97,18 @@ module.exports = appInfo => {
 
     config.proxy       = true;//用来做nginx支持
     config.isSlave     = false;//在nginx主从下配置 slave为true那么不会走egg schedule 一台做schedule就够了
+
+
+
+    // config.io = {
+    //     namespace: {
+    //         '/travel': {
+    //             connectionMiddleware: ['connection'],
+    //             packetMiddleware: [],
+    //         },
+    //     },
+    //     redis: config_redis
+    // };
 
 
 

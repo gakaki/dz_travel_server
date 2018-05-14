@@ -7,7 +7,6 @@ module.exports = appInfo => {
         url: 'mongodb://travel:' + encodeURIComponent('travel#h5group') + '@' + encodeURIComponent('dds-bp1e2587818be0d41156-pub.mongodb.rds.aliyuncs.com') + ':3717/travel',
     };
 
-
     let config_redis = {
         host: '172.17.16.9',
         port: '6379',
@@ -18,11 +17,6 @@ module.exports = appInfo => {
         client: config_redis,
     };
 
-    config.logger = {
-        dir: "./logs/",
-    };
-
-    console.log(" >>>  环境配置是 啥？！prod",config.redis);
 
     return config;
 };
