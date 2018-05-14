@@ -10,6 +10,11 @@ exports.redis = {
     enable: true,
     package: 'egg-redis',
 };
+exports.nohm = {
+    enable: true,
+    package: 'egg-nohm',
+};
+
 // exports.io = {
 //     enable: true,
 //     package: 'egg-socket.io',
@@ -24,3 +29,4 @@ exports.nunjucks = {
     enable: true,
     package: 'egg-view-nunjucks',
 };
+

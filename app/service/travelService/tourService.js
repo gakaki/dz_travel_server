@@ -14,7 +14,9 @@ const ShortPath     = require("../pathService/shortPath");
 const moment        = require("moment");
 const _             = require("lodash");
 const  mongoose     = require('mongoose');
-const  utils     = require('../../utils/utils');
+const  utils        = require('../../utils/utils');
+const QuestLoop     = require('../questService/questLoop');
+
 class TourService extends Service {
 
     // 邀请码 查询当前队友
@@ -1559,6 +1561,59 @@ class TourService extends Service {
         }
         info.changeRouteing                                           = changeRouteing;
         // info.newEvent               = true;
+    }
+
+
+    //轮询访问地址Redis方法编写
+    async playloopNew(info){
+
+        let uid                                                       = info.uid;
+        let currentCity                                               = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid  });
+        if (!currentCity ) {
+            info.code                                                 = apis.Code.NOT_FOUND;
+            info.submit();
+            return;
+        }
+
+
+        let qp                                                        = new QuestLoop(uid,cid,spotId);
+        qp.runIfNotPause();
+        let currentEvents                                             = qp.getEvents();
+        info.newEvent                                                 = qp.hasNewEvent();
+        info.latestEvent                                              = qp.latestEvent();
+        if (!currentEvents ) {
+            currentEvents                                             = {events :[]}
+        }
+
+        let changeRouteing                                            = currentCity.changeRouteing;
+        let cid                                                       = currentCity.cid;
+        let timeNow                                                   = new Date().getTime();
+        let spots                                                     = currentCity['roadMap'];
+        let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
+        if ( spotsHasArrived ){  //主要计算时间看景点是不是比已经到了 景点是否点亮 还有装备是否加了
+            info.freshSpots                                           = true;
+        }
+
+        let spotsAllTrackedNum = spots.filter(  r =>  r.tracked || (r.arriveStamp && r.arriveStamp  <= timeNow) ).length;
+        this.logger.info(spotsAllTrackedNum)
+        this.logger.info("当前 spotsHasArrived ",spotsHasArrived.length);
+        info.spotsTracked                                             = spotsHasArrived ? spotsHasArrived.length : 0;
+        let citySpotsLength                                           = travelConfig.City.Get(cid).scenicspot.length;
+        info.spotsAllTracked                                          = spotsAllTrackedNum == citySpotsLength;
+        this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
+
+        //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
+        this.logger.info("friend roadmap ",currentCity['friend'] !    = "0" , currentCity['roadMap'].length > 0);
+        if (!currentCity.friend){
+            info.doubleState                                          = false;
+        }else{
+            info.doubleState                                          = true;
+            let fcurrentCity                                          = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: currentCity.friend  });
+            if(fcurrentCity.changeRouteing) {
+                changeRouteing                                        = true;
+            }
+        }
+        info.changeRouteing                                           = changeRouteing;
     }
 
 

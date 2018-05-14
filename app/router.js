@@ -110,8 +110,6 @@ module.exports = app => {
    // router.get('/tour/changerouter',  routerUserInfo,  controller.travelController.tourController.changerouter);
     //游玩界面 进入景点->定时获取是否有新的随机事件。
     router.get('/tour/playloop',   routerUserInfo,  controller.travelController.tourController.playloop);
-    //游玩界面 进入景点->展示报告例如最后的最短路径效率。
-    router.get('/tour/showquestreport', routerUserInfo, controller.travelController.tourController.showquestreport);
 
     //游玩界面 进入景点->展示报告例如最后的最短路径效率。
     router.get('/tour/freshspots', routerUserInfo, controller.travelController.tourController.freshspots);
@@ -120,7 +118,6 @@ module.exports = app => {
     router.get('/tour/cancelparten', controller.travelController.tourController.cancelparten);
     //游玩界面 进入景点->取消组队循环
     router.get('/tour/cancelpartenloop', controller.travelController.tourController.cancelpartenloop);
-
 
 
     //游玩界面 进入景点->离开游玩界面。
@@ -147,5 +144,8 @@ module.exports = app => {
 
     //https://travel.ddz2018.com:443/test/hello
     router.get('/test/hello', controller.testController.testController.hello);
-    //io.of('/travel').route('testsend', io.controller.travelIOController.travelIOController.test);
+    router.get('/test/testnohm', controller.testController.testController.testnohm);
+
+    //https://local.ddz2018.com:443/test/nohm
+    // router.get('/test/testnohm', controller.testController.testController.testnohm);
 };

@@ -60,7 +60,7 @@
     "slave": "egg-scripts start --env=prodslave --daemon --ignore-stderr --port=8080  --title=slave",
     "stopslave": "egg-scripts stop --title=slave",
 
-    "proddebug": "EGG_SERVER_ENV=proddebug egg-bin  debug --debug-port=9229 --proxy=9999 --port=9090  --title=debug",
+    "proddebug": "EGG_SERVER_ENV=proddebug egg-bin dev --port=9090  --title=debug",
     "stopproddebug": "egg-scripts stop --title=debug",
 
     "beta": "egg-scripts start --daemon --ignore-stderr --env=beta --title=beta --port=443 --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",

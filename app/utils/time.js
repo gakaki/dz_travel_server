@@ -7,6 +7,9 @@ currentTimestamp = () => {
 formatYMDHMS = (timestamp) => {
     return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
 }
+currentYMDHMS = () => {
+    return moment(new Date().getTime()).format('YYYY-MM-DD HH:mm:ss');
+}
 addHour = (currentTime,hours) => {
     let secondAfter  = currentTime + hours * 60 * 60 * 1000;
     return secondAfter;
@@ -14,5 +17,6 @@ addHour = (currentTime,hours) => {
 
 module.exports.currentTimestamp = formatYMDHMS;
 module.exports.formatYMDHMS     = formatYMDHMS;
+module.exports.currentYMDHMS    = currentYMDHMS;
 module.exports.addHour          = addHour;
 

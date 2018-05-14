@@ -98,8 +98,6 @@ module.exports = appInfo => {
     config.proxy       = true;//用来做nginx支持
     config.isSlave     = false;//在nginx主从下配置 slave为true那么不会走egg schedule 一台做schedule就够了
 
-
-
     // config.io = {
     //     namespace: {
     //         '/travel': {
@@ -111,6 +109,6 @@ module.exports = appInfo => {
     // };
 
 
-
+    config.nohm = {};
     return config;
 };

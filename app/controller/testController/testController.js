@@ -12,6 +12,31 @@ class TestController extends Controller {
         }
     }
 
+    async testnohm(ctx){
+        // 行程途中访问是否有随机事件 这是一个轮询接口 用来访问任务的随机事件的
+            try{
+                const questPool     = this.app.nohmModel.questPool;
+                const ps            = new questPool();
+
+                let uid             = "abc";
+
+                ps.p({
+                    id : uid,
+                    uid : uid,
+                    prevtime         : 12312313
+                });
+
+                await ps.save$();
+                const data          = await questPool.load(ps.uid);
+                console.log(data);
+                return ctx.body = data;
+                // await questPool.remove$(ps.id);
+            }catch(e){
+                console.log(e);
+            }
+
+            // info.submit();
+    }
     //起飞
     async testfly(ctx) {
         let info = apis.TestStartGame.Init(ctx);
