@@ -21,7 +21,7 @@ module.exports = options => {
             return ctx.body;
         }
         else {
-            ctx.session.ui  = ui;
+            // ctx.session.ui  = ui;
             // ctx.session.sid = res.sid;
         }
         

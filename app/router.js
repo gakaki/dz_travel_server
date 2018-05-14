@@ -89,7 +89,6 @@ module.exports = app => {
     router.get('/tour/checkguide',                      controller.travelController.tourController.checkguide);
     router.get('/tour/finishguide',                     controller.travelController.tourController.finishguide);
 
-    router.get('/tour/tourindexinfor', routerUserInfo,  controller.travelController.tourController.tourindexinfor);
 
     //游玩界面 首页
     router.get('/tour/tourindexinfo', routerUserInfo,  controller.travelController.tourController.tourindexinfo);

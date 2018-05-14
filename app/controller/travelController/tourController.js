@@ -26,42 +26,12 @@ class TourController extends Controller {
         info.submit();
     }
 
-    async tourindexinfor(ctx) {
-        // http://127.0.0.1:7001/tour/tourindexinfor?uid=1000001&cid=1
-        let info          = apis.TourIndexInfo.Init(ctx);
-        let cid           = info.cid;
-        let uid           = info.uid;
 
-      //  let userInfo      = await ctx.service.publicService.userService.findUserBySid(uid);
-        let weatherId     = await this.ctx.service.publicService.thirdService.getWeather(cid);
-        //需要check下面的
-        let friends       = await this.ctx.service.publicService.friendService.findMyFriends(uid,cid);
-        
-        let startPos      = ScenicPos.Get(cid).cfg;
-        let firstPlay     = false;
-
-        let taskSpots     = await this.ctx.service.travelService.tourService.taskSpots(uid,cid);
-        let task          = taskSpots['task'];
-        let spots         = taskSpots['spots'];
-
-        info.task         = task;
-        info.startPos     = startPos;
-        info.weather      = weatherId;
-        info.friendList   = friends;
-        info.task         = task;
-        info.spots        = spots;
-
-     
-        let user_info     = ctx.session.ui;
-      //  await this.service.travelService.tourService.fillIndexInfo(info,user_info);
-        info.firstPlay    = user_info.firstPlay;
-
-        info.submit();
-    }
 
     async tourindexinfo(ctx) {
-        let info            = apis.TourIndexInfo.Init(ctx);
-        let user_info       = ctx.session.ui;
+        let info            = await apis.TourIndexInfo.Init(ctx,true);
+        if (!info.ui){ return; }
+        let user_info       = info.ui;
         await this.service.travelService.tourService.tourindexinfo(info,user_info);
         info.submit();
     }
@@ -94,11 +64,9 @@ class TourController extends Controller {
      //   info.submit();
     //    return;
 
-        let info = apis.ModifyRouter.Init(ctx);
-
-        let user_info = ctx.session.ui;
-      //  this.logger.info(user_info);
-
+        let info      = await apis.ModifyRouter.Init(ctx,true);
+        if ( !info.ui ) { return; }
+        let user_info = info.ui;
 
         if(!Number(info.planedAllTracked)) {
             if(user_info.items[travelConfig.Item.GOLD] < travelConfig.Parameter.Get(travelConfig.Parameter.CHANGELINE).value) {
@@ -136,8 +104,9 @@ class TourController extends Controller {
             每个景点仅可拍照一次。
             部分明信片需要在特定季节获得。
         */
-        let info            = apis.Photography.Init(ctx);
-        let user_info       = ctx.session.ui;
+        let info            = await apis.Photography.Init(ctx,true);
+        if (!info.ui) return;
+        let user_info       = info.ui;
         await this.service.travelService.tourService.photography(info, user_info);
         info.submit();
     }
@@ -184,8 +153,9 @@ class TourController extends Controller {
         // };
 
         // 观光消耗金币，并会触发随机事件。（事件类型见文档随机事件部分）。
-        let info            = apis.SpotTour.Init(ctx);
-        let user_info       = ctx.session.ui;
+        let info            = await apis.SpotTour.Init(ctx , true);
+        if ( !info.ui )  return;
+        let user_info       = info.ui;
         await this.service.travelService.tourService.spotTour(info,user_info);
        // info.userinfo       = user_info;
         //await this.service.travelService.travelService.fillIndexInfo(info,user_info);
