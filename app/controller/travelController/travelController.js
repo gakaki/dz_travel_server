@@ -151,7 +151,7 @@ class TravelController extends Controller {
                 info.submit();
                 return;
             }
-            if(userId != info.uid) {
+            if(userId != info.uid && !info.fromWhere) {
                 let myfriendsSet = new Set(info.ui.friendList);
                 let friendsSet = new Set(ui.friendList);
                 if(!myfriendsSet.has(userId)) {

@@ -5,7 +5,7 @@ const apis = require('../../../apis/travel');
 
 class PlayerService extends Service {
 
-    async showPlayerInfo(info, ui) {
+    async showPlayerInfo(info, ui, other) {
         let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
 
      //   let total = await this.app.redis.get("travel_userid");
@@ -25,7 +25,7 @@ class PlayerService extends Service {
 
         //this.logger.info(specialty);
 
-        if(visit) {
+        if(visit && !other) {
            await this.ctx.service.travelService.tourService.queryTaskProgress(ui.uid, visit);
            ui = await this.ctx.model.PublicModel.User.findOne({ uid: ui.uid })
         }
