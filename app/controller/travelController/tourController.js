@@ -374,8 +374,8 @@ class TourController extends Controller {
     async playloop(ctx){
         this.logger.info("[playloop]");
         let info                    = apis.PlayLoop.Init(ctx);
-        await this.ctx.service.travelService.tourService.playloopNew(info);
-        // await this.ctx.service.travelService.tourService.playloop(info);
+        // await this.ctx.service.travelService.tourService.playloopNew(info);
+        await this.ctx.service.travelService.tourService.playloop(info);
         info.submit();
     }
 
