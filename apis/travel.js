@@ -1193,9 +1193,10 @@ class TravelLog extends Base {
         this._playerUid = null;
         this._page = null;
         this._length = null;
+        this._fromWhere = null;
         this._allLogs = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid","page","length"];
+        this.reqFields = ["playerUid","page","length","fromWhere"];
         this.resFields = ["allLogs"];
     }
     //client input, optional, type: string
@@ -1207,6 +1208,9 @@ class TravelLog extends Base {
     //client input, optional, type: number
     get length() {return this._length}
     set length(v) {this._length = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: Log[]
     get allLogs() {return this._allLogs}
     set allLogs(v) {this._allLogs = v}
@@ -2991,6 +2995,7 @@ class TravelFootprint extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._userInfo = null;
         this._items = null;
         this._reachrovince = null;
@@ -2998,12 +3003,15 @@ class TravelFootprint extends Base {
         this._totalArrivePercent = null;
         this._travelPercent = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: UserBriefInfo
     get userInfo() {return this._userInfo}
     set userInfo(v) {this._userInfo = v}
@@ -3044,15 +3052,19 @@ class TraveledPlaces extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._provinces = null;
         this._citys = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["provinces","citys"];
     }
     //client input, optional, type: string//用户uid，不传则是自己的
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: string[]//点亮的省名数组,如[‘江苏’]
     get provinces() {return this._provinces}
     set provinces(v) {this._provinces = v}
@@ -3240,14 +3252,18 @@ class MyPostcards extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._postcardInfo = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["postcardInfo"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: ProvincePostcardInfo[]
     get postcardInfo() {return this._postcardInfo}
     set postcardInfo(v) {this._postcardInfo = v}
