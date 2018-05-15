@@ -28,7 +28,15 @@ class UserController extends Controller {
                 nickName: uid,
             }
         }else{
-            userInfo = JSON.parse(info);
+            try{
+                userInfo = JSON.parse(info);
+            }catch (e) {
+                this.logger.error("登录失败 ", e);
+                result.code = constant.Code.LOGIN_FAILED;
+                ctx.body = result;
+                return;
+            }
+
         }
         let now = new Date();
      //  this.logger.info(`${uid} 本次登录开始时间 ${now}`);

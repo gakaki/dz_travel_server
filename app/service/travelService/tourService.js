@@ -356,30 +356,27 @@ class TourService extends Service {
                     if(spot.endtime && spot.endtime <= new Date().getTime()) {
                         spot.roundTracked = true;
                         needUpdate = true;
-                    }
-                }
-                if(spot.roundTracked) {
-                    if(spotId) {
-                        if(spotId == spot.id) {
-                            update = true;
-                            isOver = true;
-                            //break;
-                        }
-                    }else {
-                        this.logger.info("需要更新游玩进度");
-                        let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
-                      //  this.logger.info(footPrints);
-                        let count = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, scenicspot: spot.name });
-                        if(!footPrints) {
-                            update = true;
-                        }
-                        if(count > 0) {
-                            this.logger.info(spot.name + '已经来过了。。。');
-                            hascome = true;
-                        }
+                        if(spotId) {
+                            if(spotId == spot.id) {
+                                update = true;
+                                isOver = true;
+                                //break;
+                            }
+                        }else {
+                            this.logger.info("需要更新游玩进度");
+                            let footPrints = await this.ctx.model.TravelModel.Footprints.findOne({ uid: uid, fid: currentCity.fid, scenicspot: spot.name });
+                            //  this.logger.info(footPrints);
+                            let count = await this.ctx.model.TravelModel.Footprints.count({ uid: uid, scenicspot: spot.name });
+                            if(!footPrints) {
+                                update = true;
+                            }
+                            if(count > 0) {
+                                this.logger.info(spot.name + '已经来过了。。。');
+                                hascome = true;
+                            }
 
+                        }
                     }
-
                 }
 
             }
