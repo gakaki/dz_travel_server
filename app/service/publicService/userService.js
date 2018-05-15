@@ -110,7 +110,7 @@ class UserService extends Service {
                 if(setkey) {
                     if(!info) {
                         result.info = null;
-                        return;
+                        return result;
                     }
                     ui = await this.register(uid, info, third, appName, shareUid, time);
                     this.app.getLogger('debugLogger').info(`注册耗时  ${Date.now() - time} ms`);
