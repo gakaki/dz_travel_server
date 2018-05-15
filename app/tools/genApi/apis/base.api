@@ -342,7 +342,7 @@ class Base{
             this.shareUid = shareUid;
         return new Promise((resolve,reject) => {
             let app = getApp();
-            if (this.LOGINED) {
+            if (this.LOGINED && !shareUid) {
                 //已经有用户数据
                 resolve();
             }
