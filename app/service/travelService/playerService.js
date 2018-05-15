@@ -466,6 +466,26 @@ class PlayerService extends Service {
             detailLiveMessages.push(detailLiveMessage);
         }
         info.lastestMessage = detailLiveMessages;
+
+        let masterUid = postcard.uid;
+        if(info.uid != masterUid) {
+            let master = await this.ctx.model.PublicModel.User.findOne({ uid: masterUid });
+            if(master) {
+                let myfriendsSet = new Set(ui.friendList);
+                let masterfriendsSet = new Set(master.friendList);
+                if(!myfriendsSet.has(masterUid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: masterUid } });
+                }
+
+                if(!masterfriendsSet.has(ui.uid)) {
+                    await this.ctx.model.PublicModel.User.update({ uid: masterUid }, { $addToSet: { friendList: ui.uid } });
+                }
+            }
+        }
+
+
+
+
     }
 
     async sendPostcardMsg(info, ui, postcard) {

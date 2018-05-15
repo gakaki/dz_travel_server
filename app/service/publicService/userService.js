@@ -16,7 +16,7 @@ class UserService extends Service {
         this.app.getLogger('debugLogger').info(`查询是否是第三方登录耗时 ${Date.now() - time} ms`);
         if(sdkui) {
             if(!sdkui.sessionKey || !sdkui.unionid) {
-                if(sdkui.authNumber && sdkui.authNumber < 3) {
+                if(sdkui.authNumber && sdkui.authNumber < 2) {
                     result.info = null;
                     return result;
                 }
@@ -35,6 +35,7 @@ class UserService extends Service {
             //     this.logger.error(e)
             // }
         }
+
         //老用户登陆
         if (sid) {
             let authUi = await this.collect(sid, appName, time);
@@ -59,40 +60,37 @@ class UserService extends Service {
                     result.info = authUi;
                 }
             }
-            if(shareUid && uid != shareUid && result.info) {
-                let friendsSet = new Set(result.info.friendList);
-                if(!friendsSet.has(shareUid)) {
-                    let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: result.info.uid } });
-                    if(update.nModified) {
-                        await this.ctx.model.PublicModel.User.update({ uid: result.info.uid }, { $addToSet: { friendList: shareUid } });
-                    }
-                    this.app.getLogger('debugLogger').info(`添加分享用户 ${Date.now() - time} ms`);
-                }
-            }
-            let updateInfo = {
-                nickName: info.nickName,
-                avatarUrl: info.avatarUrl,
-                gender: info.gender,
-                city: info.city,
-                province: info.province,
-                country: info.country,
-                lastLogin: new Date(),
-            }
-            if(result.info) {
-                if(!result.info.third && third) {
-                    updateInfo.third = true;
-                }
-                //  this.app.getLogger('debugLogger').info(`what??耗时 ${Date.now() - time} ms`);
-                this.ctx.runInBackground(async () => {
-                    //  this.app.getLogger('debugLogger').info(`会进来??耗时 ${Date.now() - time} ms`);
-                    await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
-                        $set: updateInfo,
+            if(info) {
+                let updateInfo = {
+                    nickName: info.nickName,
+                    avatarUrl: info.avatarUrl,
+                    gender: info.gender,
+                    city: info.city,
+                    province: info.province,
+                    country: info.country,
+                    lastLogin: new Date(),
+                };
+                if(result.info) {
+                    //  this.app.getLogger('debugLogger').info(`what??耗时 ${Date.now() - time} ms`);
+                    this.ctx.runInBackground(async () => {
+                        //  this.app.getLogger('debugLogger').info(`会进来??耗时 ${Date.now() - time} ms`);
+                        await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                            $set: updateInfo,
+                        });
                     });
-                });
-                result.info.nickName = info.nickName;
-                result.info.avatarUrl = info.avatarUrl;
-                this.app.getLogger('debugLogger').info(`sid 老用户信息更新耗时 ${Date.now() - time} ms`);
+                    result.info.nickName = info.nickName;
+                    result.info.avatarUrl = info.avatarUrl;
+                    this.app.getLogger('debugLogger').info(`sid 老用户信息更新耗时 ${Date.now() - time} ms`);
+                }
             }
+            this.addFriend(shareUid, uid, result.info);
+
+            if(result.info && !result.info.third && third) {
+                await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                    $set: { third: third },
+                });
+            }
+
             return result;
 
         }
@@ -110,6 +108,10 @@ class UserService extends Service {
                 // 自动注册
                 let setkey = await this.app.redis.hsetnx(KEY, uid, JSON.stringify(ui));
                 if(setkey) {
+                    if(!info) {
+                        result.info = null;
+                        return;
+                    }
                     ui = await this.register(uid, info, third, appName, shareUid, time);
                     this.app.getLogger('debugLogger').info(`注册耗时  ${Date.now() - time} ms`);
                     let newsid = this.GEN_SID(ui.pid);
@@ -134,11 +136,13 @@ class UserService extends Service {
                 }else{
                     result.info = ui;
                 }
+                this.addFriend(shareUid, uid, result.info);
                 return result
 
             }
             //更新一次userInfo
-            this.ctx.runInBackground(async () => {
+
+            if(info) {
                 await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
                     $set: {
                         nickName: info.nickName,
@@ -150,10 +154,12 @@ class UserService extends Service {
                         lastLogin: new Date(),
                     },
                 });
-            });
-            ui.nickName = info.nickName;
-            ui.avatarUrl = info.avatarUrl;
-            this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);
+
+                ui.nickName = info.nickName;
+                ui.avatarUrl = info.avatarUrl;
+                this.app.getLogger('debugLogger').info(`刷新用户信息耗时  ${Date.now() - time} ms`);
+            }
+
             let ses = JSON.parse(await this.app.redis.get(ui.pid));
 
             if (ses) {
@@ -185,9 +191,24 @@ class UserService extends Service {
             });
         }
         result.info = ui;
-
+        this.addFriend(shareUid, uid, result.info);
         return result;
     }
+
+
+    async addFriend(shareUid, uid, info) {
+        if(shareUid && uid != shareUid && info) {
+            let friendsSet = new Set(info.friendList);
+            if(!friendsSet.has(shareUid)) {
+                let update = await this.ctx.model.PublicModel.User.update({ uid: shareUid }, { $addToSet: { friendList: info.uid } });
+                if(update.nModified) {
+                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: shareUid } });
+                }
+            }
+        }
+    }
+
+
     //每日首次分享奖励
     async dayShareReward(ui, itemId, itemCnt) {
         let uid = ui.uid;
