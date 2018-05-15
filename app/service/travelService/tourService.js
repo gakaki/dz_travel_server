@@ -1603,7 +1603,7 @@ class TourService extends Service {
         this.logger.info(`[debug] spotsHasArrived is ${spotsHasArrived.length} , spotsAllTracked ${info.spotsTracked} citySpotsLength is ${citySpotsLength}`);
 
         //路线是否已经规划完成，双人模式下，被邀请方规划路线完成后，通过此标记通知邀请方
-        this.logger.info("friend roadmap ",currentCity['friend'] !    = "0" , currentCity['roadMap'].length > 0);
+        this.logger.info("friend roadmap ",currentCity['friend'] != "0" , currentCity['roadMap'].length > 0);
         if (!currentCity.friend){
             info.doubleState                                          = false;
         }else{
