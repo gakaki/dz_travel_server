@@ -4,21 +4,28 @@ const utils = require("../../utils/utils");
 const apis = require("../../../apis/travel");
 const ShortPath = require("../pathService/shortPath");
 class TravelService extends Service {
-    async fillIndexInfo(info, ui) {
+    async fillIndexInfo(info, ui, time) {
         info.isFirst = ui.isFirst;
         info.gold = ui.items[travelConfig.Item.GOLD];
-        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
+        this.app.getLogger('debugLogger').info(`获取个人信息耗时 ${Date.now() - time} ms`);
         info.season = await this.ctx.service.publicService.thirdService.getSeason();
+        this.app.getLogger('debugLogger').info(`获取季节耗时 ${Date.now() - time} ms`);
         info.weather = 1;
+        let visit = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: ui.uid });
+        this.app.getLogger('debugLogger').info(`获取当前城市耗时 ${Date.now() - time} ms`);
         if (visit && visit.cid) {
             let outw = await this.ctx.service.publicService.thirdService.getWeather(visit.cid);
+            this.app.getLogger('debugLogger').info(`获取天气耗时 ${Date.now() - time} ms`);
             info.weather = outw;
             info.location = visit.cid;
         }
 
         info.playerCnt = await this.app.redis.get("travel_userid");
-        info.friends = await this.ctx.service.publicService.friendService.findMyFriends(ui.friendList, info.uid);
+        this.app.getLogger('debugLogger').info(`获取游玩人数耗时 ${Date.now() - time} ms`);
+        info.friends = await this.ctx.service.publicService.friendService.findMyFriends(ui.friendList, info.uid, time);
+        this.app.getLogger('debugLogger').info(`获取全国好友耗时 ${Date.now() - time} ms`);
         info.unreadMsgCnt = await this.ctx.service.travelService.msgService.unreadMsgCnt(ui.uid);
+        this.app.getLogger('debugLogger').info(`获取未读信息耗时 ${Date.now() - time} ms`);
     }
 
     async selectCity(info, ui) {
