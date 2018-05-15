@@ -69,11 +69,8 @@ class UserService extends Service {
                     province: info.province,
                     country: info.country,
                     lastLogin: new Date(),
-                }
+                };
                 if(result.info) {
-                    if(!result.info.third && third) {
-                        updateInfo.third = true;
-                    }
                     //  this.app.getLogger('debugLogger').info(`what??耗时 ${Date.now() - time} ms`);
                     this.ctx.runInBackground(async () => {
                         //  this.app.getLogger('debugLogger').info(`会进来??耗时 ${Date.now() - time} ms`);
@@ -87,6 +84,13 @@ class UserService extends Service {
                 }
             }
             this.addFriend(shareUid, uid, result.info);
+
+            if(result.info && !result.info.third && third) {
+                await this.ctx.model.PublicModel.User.update({ uid: uid, appName: appName }, {
+                    $set: { third: third },
+                });
+            }
+
             return result;
 
         }
