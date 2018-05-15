@@ -10,7 +10,7 @@ module.exports = {
     },
     async task(ctx) {
 
-        if (this.config.isSlave) return;
+        if (ctx.app.config.isSlave) return;
 
         ctx.logger.info("每日事件推送");
       let events = travelConfig.events;
