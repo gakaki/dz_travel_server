@@ -51,7 +51,7 @@ class WeChatService extends Service {
             goods: good,
            // pid: ui.pid,
            // uid: ui.uid,
-            type: "recharge",
+            type: "android",
             orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
             appName: appName,
@@ -77,6 +77,7 @@ class WeChatService extends Service {
             }
             payInfo.uid = minUser.uid;
             payInfo.pid = minUser.pid;
+            payInfo.type = "ios";
         }else{
             payInfo.uid = ui.uid;
             payInfo.pid = ui.pid;

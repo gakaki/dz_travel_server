@@ -13,8 +13,10 @@ class TravelController extends Controller {
             info.submit();
             return;
         }
-
-        await this.service.travelService.travelService.fillIndexInfo(info, ui);
+        let time = new Date();
+        this.app.getLogger('debugLogger').info(`获取主页信息${time}`);
+        await this.service.travelService.travelService.fillIndexInfo(info, ui, time.getTime());
+        this.app.getLogger('debugLogger').info(`接口相应耗时 ${Date.now() - time} ms`);
         //send data
         info.submit();
     }
