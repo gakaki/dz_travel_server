@@ -98,7 +98,7 @@ class TestController extends Controller {
 
 
         let qp               = new QuestLoop(this.app,uid,cid);
-        qp.clear();
+         // qp.clear();
         // qp.pause();
         // qp.resume();
         // let prevEvents       = qp.getEvents();

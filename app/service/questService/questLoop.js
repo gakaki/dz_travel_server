@@ -73,11 +73,17 @@ class QuestLoop {
         }
         return status;
     }
-
+    async setPrevTimeCurrent(){
+        //然后设置一下当前记录时间 更新prevtime
+        await this.app.redis.set( this.KEY_EVENT_PREV_TIME ,this.currentTime );
+    }
     async getPrevTime(){
         let prevTime = await this.app.redis.get( this.KEY_EVENT_PREV_TIME );
         this.app.getLogger('debugLogger').info(" [questLoop] ","上回的事件触发时间", timeUtil.formatYMDHMS(prevTime) , `当前时间`, timeUtil.currentYMDHMS());
-        if (!prevTime || prevTime <= 0 ) prevTime = 0;
+        if (!prevTime || prevTime <= 0 ) { //说明是初次进入系统
+            prevTime = 0;
+            // await this.setPrevTimeCurrent();
+        }
         return parseInt(prevTime);
     }
     async isStatusPause(){
@@ -185,6 +191,7 @@ class QuestLoop {
 
         if (  this.prevTime <= 0 && this.events.length <= 0){ //应该送一个事件 prevTime为空说明是第一次来 那么就送一个事件
             event            = await this.genOneEvent();
+            await this.setPrevTimeCurrent();
         }else{
             let startMinute  = this.startMinute;
             let endMinute    = this.endMinute;
@@ -207,8 +214,7 @@ class QuestLoop {
             else if ( isInRange ) {
                 this.app.getLogger('debugLogger').info(" [questLoop] ", "在事件范围内 startMinute <= diffTimeMinute && diffTimeMinute <= randomMinute", startMinute , diffTimeMinute , randomMinute ,isInRange );
                 event           = await this.genOneEvent();
-                //然后设置一下当前记录时间 更新prevtime
-                this.app.redis.set( this.KEY_EVENT_PREV_TIME ,this.currentTime );
+                await this.setPrevTimeCurrent();
             }else if ( diffTimeMinute > endMinute ) {
                 //生成n个事件哦
                 this.app.getLogger('debugLogger').info(" [questLoop] ", "事件范围大于最长时间 end", endMinute  );
@@ -228,10 +234,11 @@ class QuestLoop {
                         this.app.getLogger('debugLogger').info(" [questLoop] ", "剩余时间不够", diffTimeMinute ,'不生成' );
                         event                   = null;
                     }
+
                     this.app.getLogger('debugLogger').info(" [questLoop] ", "剩余时间为", diffTimeMinute  );
+                    await this.setPrevTimeCurrent();
                 }
                 //然后设置一下当前记录时间 更新prevtime
-                this.app.redis.set( this.KEY_EVENT_PREV_TIME ,this.currentTime );
             }
         }
 
