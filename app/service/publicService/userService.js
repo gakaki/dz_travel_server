@@ -109,6 +109,7 @@ class UserService extends Service {
                 let setkey = await this.app.redis.hsetnx(KEY, uid, JSON.stringify(ui));
                 if(setkey) {
                     if(!info) {
+                        this.app.redis.hdel(KEY, uid);
                         result.info = null;
                         return result;
                     }
@@ -330,7 +331,7 @@ class UserService extends Service {
             lastLogin: new Date(),
         };
 
-        this.ctx.model.PublicModel.User.create(ui);
+        await this.ctx.model.PublicModel.User.create(ui);
         this.app.getLogger('debugLogger').info(`用户创建耗时  ${Date.now() - time} ms`);
         //  this.ctx.service.publicService.itemService.itemChange(ui.uid, { ["items." + travelConfig.Item.GOLD ]: travelConfig.Parameter.Get(travelConfig.Parameter.USERGOLD).value }, "origin");
         this.ctx.model.PublicModel.UserItemCounter.create({
