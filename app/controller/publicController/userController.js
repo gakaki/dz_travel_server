@@ -21,7 +21,12 @@ class UserController extends Controller {
         }
         let userInfo = null;
         if(!utils.isEmptyObject(info)) {
-            userInfo = JSON.parse(info);
+            try {
+                userInfo = JSON.parse(info);
+            }catch (e) {
+                this.logger.info("请求对象", info);
+            }
+
         }
         if(test && test == "wanghaibo") {
             userInfo = {
