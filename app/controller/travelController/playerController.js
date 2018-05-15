@@ -12,6 +12,7 @@ class PlayerController extends Controller {
         let ui = info.ui;
         let userId = info.uid;
 
+        let other = false;
         if (info.playerUid) {
             userId = info.playerUid;
             ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
@@ -21,7 +22,8 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            if(userId != info.uid) {
+            if(userId != info.uid && !info.fromWhere) {
+                other = true;
                 let myfriendsSet = new Set(info.ui.friendList);
                 let friendsSet = new Set(ui.friendList);
                 if(!myfriendsSet.has(userId)) {
@@ -32,7 +34,7 @@ class PlayerController extends Controller {
                 }
             }
         }
-        await ctx.service.travelService.playerService.showPlayerInfo(info, ui);
+        await ctx.service.travelService.playerService.showPlayerInfo(info, ui, other);
         //send data
         info.submit();
     }
@@ -54,7 +56,7 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            if(userId != info.uid) {
+            if(userId != info.uid && !info.fromWhere) {
                 let myfriendsSet = new Set(info.ui.friendList);
                 let friendsSet = new Set(ui.friendList);
                 if(!myfriendsSet.has(userId)) {
@@ -86,7 +88,7 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            if(userId != info.uid) {
+            if(userId != info.uid && !info.fromWhere) {
                 let myfriendsSet = new Set(info.ui.friendList);
                 let friendsSet = new Set(ui.friendList);
                 if(!myfriendsSet.has(userId)) {
@@ -106,7 +108,7 @@ class PlayerController extends Controller {
     async showflyticket(ctx) {
         let info = apis.LookTicket.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
-        if(!ui){
+        if(!ui) {
             this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -118,10 +120,10 @@ class PlayerController extends Controller {
     }
 
 
-    async getmessage(ctx){
+    async getmessage(ctx) {
         let info = apis.GetMessage.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
-        if(!ui){
+        if(!ui) {
             this.logger.info("用户不存在");
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
@@ -140,22 +142,22 @@ class PlayerController extends Controller {
         info.submit();
     }
 
-    async clearmsg(ctx){
+    async clearmsg(ctx) {
         let info = apis.ClearMsg.Init(ctx);
         let ui = await ctx.service.publicService.userService.findUserBySid(info.sid);
-        if(!ui){
+        if(!ui) {
             info.code = apis.Code.USER_NOT_FOUND;
             info.submit();
             return;
         }
         let msg = await this.ctx.service.travelService.msgService.readMsg(info.mid);
-        if(!msg){
+        if(!msg) {
             info.code = apis.Code.NOT_FOUND;
             info.submit();
             return;
         }
         this.logger.info("清除已读信息");
-        await ctx.service.travelService.playerService.clearMsg(info,ui,msg);
+        await ctx.service.travelService.playerService.clearMsg(info, ui, msg);
 
         info.submit();
     }
@@ -226,7 +228,7 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            if(userId != info.uid) {
+            if(userId != info.uid && !info.fromWhere) {
                 let myfriendsSet = new Set(info.ui.friendList);
                 let friendsSet = new Set(ui.friendList);
                 if(!myfriendsSet.has(userId)) {
@@ -250,7 +252,6 @@ class PlayerController extends Controller {
         }
         let ui = info.ui;
         let userId = info.uid;
-
         if (info.playerUid) {
             userId = info.playerUid;
             ui = await this.ctx.model.PublicModel.User.findOne({ uid: userId });
@@ -260,18 +261,8 @@ class PlayerController extends Controller {
                 info.submit();
                 return;
             }
-            if(userId != info.uid) {
-                let myfriendsSet = new Set(info.ui.friendList);
-                let friendsSet = new Set(ui.friendList);
-                if(!myfriendsSet.has(userId)) {
-                    await this.ctx.model.PublicModel.User.update({ uid: info.uid }, { $addToSet: { friendList: userId } });
-                }
-                if(!friendsSet.has(info.uid)) {
-                    await this.ctx.model.PublicModel.User.update({ uid: userId }, { $addToSet: { friendList: info.uid } });
-                }
-            }
         }
-        await ctx.service.travelService.playerService.showCityPostcards(info,ui);
+        await ctx.service.travelService.playerService.showCityPostcards(info, ui);
         info.submit();
     }
 
@@ -284,7 +275,7 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
-        await ctx.service.travelService.playerService.showDetailPostcard(info,ui);
+        await ctx.service.travelService.playerService.showDetailPostcard(info, ui);
         info.submit();
     }
 

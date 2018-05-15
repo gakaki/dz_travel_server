@@ -62,6 +62,8 @@ class DetailLiveMessage extends  OneBriefMessage {
 api MyPostcards {
     //好友uid
     optional playerUid:string
+    //从哪进的self页面
+    optional fromWhere:string
     //所有的省明信片简略信息
     output postcardInfo:ProvincePostcardInfo[]
 }

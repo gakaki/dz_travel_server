@@ -22,7 +22,12 @@ class RewardRankSchedule extends Subscription {
         //发放奖励
         let context = travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).content;
         let createDate = new Date();
+        let comhasreward = false;
         for(let completionDegree of completionDegreeRankList) {
+           if(completionDegree.rank == 1 && comhasreward) {
+               break;
+           }
+            comhasreward = true;
             let reward = this.ctx.service.travelService.rankService.getReward(apis.RankType.THUMBS, completionDegree.rank);
             this.ctx.service.publicService.itemService.itemChange(completionDegree.uid, { ["items." + travelConfig.Item.GOLD]: reward }, "rank");
             await this.ctx.model.TravelModel.UserMsg.create({
@@ -48,7 +53,12 @@ class RewardRankSchedule extends Subscription {
         await this.ctx.model.TravelModel.CompletionDegreeCountryRecord.update({}, { $set: { weekCompletionDegree: 0 } }, { multi: true });
         let footRankList = await this.ctx.service.travelService.rankService.getFootRankList();
         let content = travelConfig.Message.Get(travelConfig.Message.RANKMESSAGE).content;
+        let foothasreward = false;
         for(let foot of footRankList) {
+            if(foot.rank == 1 && foothasreward) {
+                break;
+            }
+            foothasreward = true;
             let reward = this.ctx.service.travelService.rankService.getReward(apis.RankType.FOOT, foot.rank);
             this.ctx.service.publicService.itemService.itemChange(foot.uid, { ["items." + travelConfig.Item.GOLD]: reward }, "rank");
             await this.ctx.model.TravelModel.UserMsg.create({

@@ -34,7 +34,11 @@ class SpecialityService extends Service {
                 s.propId = o.id;
                 s.price = o.localprice;
                 if (sps) {
-                    s.limitNum = o.limit == -1 ? o.limit : o.limit - sps.number;
+                    let canBuy = o.limit;
+                    if (o.limit != -1) {
+                        canBuy = Math.max(o.limit - sps.number, 0);
+                    }
+                    s.limitNum = canBuy;
                 } else {
                     s.limitNum = o.limit
                 }
