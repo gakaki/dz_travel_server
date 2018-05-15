@@ -146,6 +146,12 @@ module.exports = app => {
     router.get('/test/hello', controller.testController.testController.hello);
     router.get('/test/testnohm', controller.testController.testController.testnohm);
 
+
+    //https://travel.ddz2018.com:443/test/testquestloop
+    router.get('/test/testquestloop', controller.testController.testController.testquestloop);
+    //https://travel.ddz2018.com:443/test/testquestpool
+    router.get('/test/testquestpool', controller.testController.testController.testquestpool);
+
     //https://local.ddz2018.com:443/test/nohm
     // router.get('/test/testnohm', controller.testController.testController.testnohm);
 };
