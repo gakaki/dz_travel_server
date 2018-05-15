@@ -625,12 +625,18 @@ class PlayerService extends Service {
         // this.logger.info(rankIndex);
         // info.selfRank.rank = rankIndex + 1;
         let out = [];
+        let hassort = false;
         if(rankInfos.length) {
             for(let index = 0; index < rankInfos.length; index++) {
                 //  this.logger.info(rankInfos[index]);
                 let rankItem = {
                     rank: rankInfos[index].rank || ((page - 1) * limit + index + 1),
                 };
+                if(rankItem.rank == 1 && hassort) {
+                    break;
+                }
+
+                hassort = true;
 
                 if(info.rankType == apis.RankType.SCORE) {
                     rankItem.achievement = rankInfos[index].integral;
@@ -670,7 +676,7 @@ class PlayerService extends Service {
                 info.selfRank = {
                     rank: 1,
                     achievement: 0,
-                }
+                };
                 let rankItem = info.selfRank;
                 rankItem.userInfo = {
                     uid: info.ui.uid,
