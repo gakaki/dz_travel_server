@@ -19,7 +19,7 @@ module.exports = appInfo => {
 
 
     config.noticeurl = "https://tt.ddz2018.com/weChat/shopdone";
-    config.isSlave = false;
+    config.isSlave = true;
     return config;
 };
 
