@@ -133,6 +133,8 @@ api ToSign {
 
 api TravelFootprint {
     optional playerUid:string
+    //从哪进的self页面
+    optional fromWhere:string
     output userInfo:UserBriefInfo
     output items:KV[]
     //用户去过了多少个省份
