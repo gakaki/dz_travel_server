@@ -19,27 +19,27 @@ const timeUtil           = require("../../utils/time");
 class QuestLoop {
 
     constructor( appInstance, uid , cid = null , spotId = null ) {
-        this.uid    = uid;
-        this.cid    = cid;
-        this.spotId = spotId;
-        this.events = [];
-        this.app    = appInstance;
+        this.uid                    = uid;
+        this.cid                    = cid;
+        this.spotId                 = spotId;
+        this.events                 = [];
+        this.app                    = appInstance;
 
-        this.EVENT_STATUS_NORMAL = 'normal';
-        this.EVENT_STATUS_PAUSE  = 'pause';
+        this.EVENT_STATUS_NORMAL    = 'normal';
+        this.EVENT_STATUS_PAUSE     = 'pause';
 
         //只有调用了pause 那么就是到达终点的时候是pause了
-        this.totalLimit          = travelConfig.Parameter.Get(travelConfig.Parameter.EVENTMAX).cfg.value;
-        this.KEY_EVENT_PREV_TIME = `${this.uid}:event:prevtime`;
-        this.KEY_EVENT_LIST      = `${this.uid}:event:list`;
-        this.KEY_EVENT_STATUS    = `${this.uid}:event:status`;
+        this.totalLimit             = travelConfig.Parameter.Get(travelConfig.Parameter.EVENTMAX).cfg.value;
+        this.KEY_EVENT_PREV_TIME    = `${this.uid}:event:prevtime`;
+        this.KEY_EVENT_LIST         = `${this.uid}:event:list`;
+        this.KEY_EVENT_STATUS       = `${this.uid}:event:status`;
 
-        this.currentTime         = new Date().getTime();
-        this.startMinute         = 1;
-        this.endMinute           = 5;
-        this.event               = {};
+        this.currentTime            = new Date().getTime();
+        this.startMinute            = 1;
+        this.endMinute              = 5;
+        this.event                  = {};
 
-        this.prevCount           = 0;
+        this.prevCount              = 0;
     }
 
     async init(){
@@ -55,9 +55,9 @@ class QuestLoop {
 
     async clear(){ //完全clear这次的数据
         this.app.getLogger('debugLogger').info(" [questLoop] ","事件循环 清除");
-        await this.app.redis.delete( this.KEY_EVENT_STATUS );
-        await this.app.redis.delete( this.KEY_EVENT_PREV_TIME );
-        await this.app.redis.delete( this.KEY_EVENT_LIST );
+        await this.app.redis.del( this.KEY_EVENT_STATUS );
+        await this.app.redis.del( this.KEY_EVENT_PREV_TIME );
+        await this.app.redis.del( this.KEY_EVENT_LIST );
     }
 
     async resume(){ //从暂停的事件中恢复
@@ -82,7 +82,8 @@ class QuestLoop {
     }
     async isStatusPause(){
         //从redis 读取当前状态
-        if ( this.getStatus() == this.EVENT_STATUS_PAUSE ){
+        let status = await  this.getStatus();
+        if ( status == this.EVENT_STATUS_PAUSE ){
             this.status  = this.EVENT_STATUS_PAUSE;
         }
         let isStatusPause =  this.status == this.EVENT_STATUS_PAUSE;
@@ -92,7 +93,8 @@ class QuestLoop {
 
     async isExceedLimit(){
         //从redis 读取事件数量
-        let events = await this.getEvents();
+        let events          = await this.getEvents();
+        this.prevCount      = await this.events.length;
         let res    = false;
         if ( events &&  Array.isArray(events) && events.length >= this.totalLimit ){
             res    =  true;
@@ -102,7 +104,10 @@ class QuestLoop {
     }
 
     async hasNewEvent(){
-        let currLength   = await this.getEvents().length;
+        let currLength   = (await this.getEvents()).length;
+        // if (this.prevCount >=  this.totalLimit){
+        //     return false;
+        // }
         if ( currLength > 0 && this.prevCount != currLength ){
             return true;
         }
@@ -145,11 +150,13 @@ class QuestLoop {
     //生成一个事件的过程代码
     async genOneEvent(){
         let qp       = new QuestPool({
-            cid : this.cid
+            cid : this.cid,
+            uid : this.uid,
+            spotId : this.spotId
         }); //生成事件加入队列
         let event    = qp.genEvent();
         event        = JSON.stringify(event);
-        this.app.redis.rpush( this.KEY_EVENT_LIST , event );    //增加到事件队列
+        await this.app.redis.rpush( this.KEY_EVENT_LIST , event );    //增加到事件队列
         return event;
     }
 
@@ -172,12 +179,12 @@ class QuestLoop {
         let isExceedLimit   = await this.isExceedLimit();
         if ( isExceedLimit ) return; //超过最大值 啥都不做
 
-        this.prevCount      = await this.events.length;
 
         let event           = null;
 
-        if (  this.prevTime <= 0 && this.events){ //应该送一个事件 prevTime为空说明是第一次来 那么就送一个事件
-            event            = this.genOneEvent();
+
+        if (  this.prevTime <= 0 && this.events.length <= 0){ //应该送一个事件 prevTime为空说明是第一次来 那么就送一个事件
+            event            = await this.genOneEvent();
         }else{
             let startMinute  = this.startMinute;
             let endMinute    = this.endMinute;
@@ -193,6 +200,7 @@ class QuestLoop {
             let diffTimeMinute  = await this.getDiffMinute();
             let isInRange       = startMinute <= diffTimeMinute && diffTimeMinute <= randomMinute;
 
+            // diffTimeMinute      = 25;
             if (diffTimeMinute <= startMinute){
                 this.app.getLogger('debugLogger').info(" [questLoop] ", "事件范围小于等于最小时间", startMinute );
             }
@@ -201,18 +209,25 @@ class QuestLoop {
                 event           = await this.genOneEvent();
                 //然后设置一下当前记录时间 更新prevtime
                 this.app.redis.set( this.KEY_EVENT_PREV_TIME ,this.currentTime );
-            }else if ( diffTimeMinute >= endMinute ) {
+            }else if ( diffTimeMinute > endMinute ) {
                 //生成n个事件哦
                 this.app.getLogger('debugLogger').info(" [questLoop] ", "事件范围大于最长时间 end", endMinute  );
                 while ( diffTimeMinute > 0 ) {
+
                     let minuteLength        =  _.ceil(_.random( this.startMinute, this.endMinute, true) ) // 随机个1到5分钟的时间出来 4.xx
                     this.app.getLogger('debugLogger').info(" [questLoop] ", "随机分钟为", minuteLength  );
                     // if (configDebug.EVENTGENTimeShort){
                     //     minuteLength        =  _.random( 1 / 24 , 1/ 12 );
                     //     // minuteLength        =  _.random( 0, 0 );
                     // }
-                    event                   = this.genOneEvent();
                     diffTimeMinute          = diffTimeMinute - minuteLength;
+                    if ( diffTimeMinute >= 0){
+                        this.app.getLogger('debugLogger').info(" [questLoop] ", "剩余时间为", diffTimeMinute ,'生成中' );
+                        event                   = await this.genOneEvent();
+                    }else{
+                        this.app.getLogger('debugLogger').info(" [questLoop] ", "剩余时间不够", diffTimeMinute ,'不生成' );
+                        event                   = null;
+                    }
                     this.app.getLogger('debugLogger').info(" [questLoop] ", "剩余时间为", diffTimeMinute  );
                 }
                 //然后设置一下当前记录时间 更新prevtime
@@ -221,6 +236,8 @@ class QuestLoop {
         }
 
         this.app.getLogger('debugLogger').info(" [questLoop] ", "生成的新事件", event );
+        let eventsLength = (await this.getEvents()).length;
+        this.app.getLogger('debugLogger').info(" [questLoop] ", "上回的事件数量", this.prevCount , `这回的事件数量`,eventsLength  );
         await this.getPrevTime();
     }
 

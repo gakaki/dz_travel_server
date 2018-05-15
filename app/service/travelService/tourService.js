@@ -1579,18 +1579,21 @@ class TourService extends Service {
             return;
         }
 
+        let cid                                                       = currentCity.cid;
+        let qp                                                        = new QuestLoop(this.app,uid,cid);
+        await qp.init();
+        let isPause                                                   = await qp.getStatus();
+        info.newEvent                                                 = await qp.hasNewEvent();
+        info.latestEvent                                              = await qp.latestEvent();
 
-        let qp                                                        = new QuestLoop(uid,cid,spotId);
-        qp.runIfNotPause();
-        let currentEvents                                             = qp.getEvents();
-        info.newEvent                                                 = qp.hasNewEvent();
-        info.latestEvent                                              = qp.latestEvent();
-        if (!currentEvents ) {
-            currentEvents                                             = {events :[]}
-        }
+        this.app.getLogger('debugLogger').info("[playloopNew]","是否暂停",isPause,'newEvent', info.newEvent , '事件为', info.latestEvent);
+        this.app.getLogger('debugLogger').info("[playloopNew]",{
+            isPause : isPause,
+            newEvent: info.newEvent,
+            lastestEvent: info.latestEvent
+        });
 
         let changeRouteing                                            = currentCity.changeRouteing;
-        let cid                                                       = currentCity.cid;
         let timeNow                                                   = new Date().getTime();
         let spots                                                     = currentCity['roadMap'];
         let spotsHasArrived                                           = spots.filter(  r =>  r.arriveStamp && r.arriveStamp  <= timeNow );
