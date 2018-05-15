@@ -1384,14 +1384,18 @@ class PlayerInfo extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._info = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["info"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: UserInfo
     get info() {return this._info}
     set info(v) {this._info = v}
