@@ -275,7 +275,7 @@ class PlayerController extends Controller {
             info.submit();
             return;
         }
-        await ctx.service.travelService.playerService.showDetailPostcard(info,ui);
+        await ctx.service.travelService.playerService.showDetailPostcard(info, ui);
         info.submit();
     }
 

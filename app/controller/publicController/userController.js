@@ -1,6 +1,8 @@
+
 const Controller = require('egg').Controller;
 
 const constant = require("../../utils/constant");
+const utils = require("../../utils/utils");
 
 
 class UserController extends Controller {
@@ -10,34 +12,23 @@ class UserController extends Controller {
 
         const { sid, uid, info, appName, shareUid, test } = ctx.query;
         let result = {
-            data: {}
+            data: {},
         };
-        if ( !appName ||(!sid && !uid )) {
+        if (!appName || (!sid && !uid)) {
             result.code = constant.Code.PARAMETER_NOT_MATCH;
             ctx.body = result;
             return;
         }
-        let userInfo = {};
-        if(!info) {
-            if(!test || test != "wanghaibo") {
-                result.code = constant.Code.PARAMETER_NOT_MATCH;
-                ctx.body = result;
-                return;
-            }
+        let userInfo = null;
+        if(!utils.isEmptyObject(info)) {
+            userInfo = JSON.parse(info);
+        }
+        if(test && test == "wanghaibo") {
             userInfo = {
                 nickName: uid,
             }
-        }else{
-            try{
-                userInfo = JSON.parse(info);
-            }catch (e) {
-                this.logger.error("登录失败 ", e);
-                result.code = constant.Code.LOGIN_FAILED;
-                ctx.body = result;
-                return;
-            }
-
         }
+
         let now = new Date();
      //  this.logger.info(`${uid} 本次登录开始时间 ${now}`);
         this.app.getLogger('debugLogger').info(`${uid} 准备开始登录 ${now}`);
