@@ -50,8 +50,28 @@ class RankService extends Service {
      * @param page 页码
      * @param limit 查询条数
      * */
-    async getUserFriendScoreRankList(friendList, page, limit) {
-        return await this.ctx.model.TravelModel.IntegralRecord.find({ uid: friendList }).sort({ integral: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
+    async getUserFriendScoreRankList(friendList, page, limit, uid) {
+      //  let friendRankList = await this.ctx.model.TravelModel.IntegralRecord.find({ uid: friendList }).sort({ integral: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
+        let out = [];
+        for(let friend of friendList) {
+            let friendScore = await this.ctx.model.TravelModel.IntegralRecord.findOne({ uid: friend });
+            if(!friendScore) {
+                friendScore = {
+                    uid: friend,
+                    integral: 0,
+                    updateDate: new Date(),
+                }
+            }
+            out.push(friendScore);
+        }
+        out = utils.multisort(out,
+            (a, b) => b.integral - a.integral,
+            (a, b) => a.updateDate - b.updateDate
+        );
+        return {
+            friendsRank: out.slice((page - 1) * limit, page * limit),
+            selfRank: out.findIndex(n => n.uid == uid) + 1,
+        };
     }
 
 
@@ -142,8 +162,30 @@ class RankService extends Service {
      * @param page 页码
      * @param limit 查询条数
      * */
-    async getUserFriendFootRankList(friendList, page, limit) {
-        return await this.ctx.model.TravelModel.FootRecord.find({ uid: friendList }).sort({ lightCityNum: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
+    async getUserFriendFootRankList(friendList, page, limit, uid) {
+       // await this.ctx.model.TravelModel.FootRecord.find({ uid: friendList }).sort({ lightCityNum: -1, updateDate: 1 }).skip((page - 1) * limit).limit(limit);
+        let out = [];
+        for (let friend of friendList) {
+            let friendFoot = await this.ctx.model.TravelModel.FootRecord.findOne({ uid: friend } );
+            if(!friendFoot) {
+                friendFoot = {
+                    uid: friend,
+                    updateDate: new Date(),
+                    lightCityNum: 0,
+                    weekLightCityNum: 0,
+                }
+            }
+            out.push(friendFoot);
+        }
+
+        out = utils.multisort(out,
+            (a, b) => b.lightCityNum - a.lightCityNum,
+            (a, b) => a.updateDate - b.updateDate
+        );
+        return {
+            friendsRank: out.slice((page - 1) * limit, page * limit),
+            selfRank: out.findIndex(n => n.uid == uid) + 1,
+        };
     }
 
     async getUserFriendFootRank(friendList, uid) {
@@ -314,7 +356,7 @@ class RankService extends Service {
      * @param page 页码
      * @param limit 查询条数
      * */
-    async getUserFriendCompletionDegreeRankList(friendList, page, limit) {
+    async getUserFriendCompletionDegreeRankList(friendList, page, limit, uid) {
         let out = [];
         //let outFriendList = friendList.slice((page - 1) * limit, page * limit);
         for(let friend of friendList) {
@@ -327,37 +369,18 @@ class RankService extends Service {
                     updateDate: new Date(),
                 }
             }
-            this.logger.info(friendCom);
             out.push(friendCom);
         }
         out = utils.multisort(out,
             (a, b) => b.completionDegree - a.completionDegree,
             (a, b) => a.updateDate - b.updateDate
         );
-        return out.slice((page - 1) * limit, page * limit);
+        return {
+            friendsRank: out.slice((page - 1) * limit, page * limit),
+            selfRank: out.findIndex(n => n.uid == uid) + 1,
+        };
     }
 
-    async getUserFriendCompletionDegreeRank(friendList, uid) {
-        let out = [];
-        //let outFriendList = friendList.slice((page - 1) * limit, page * limit);
-        for(let friend of friendList) {
-            let friendCom = await this.getUserCompletionDegree(friend);
-            if(!friendCom) {
-                friendCom = {
-                    uid: friend,
-                    completionDegree: 0,
-                    weekCompletionDegree: 0,
-                    updateDate: new Date(),
-                }
-            }
-            out.push(friendCom);
-        }
-        out = utils.multisort(out,
-            (a, b) => b.completionDegree - a.completionDegree,
-            (a, b) => a.updateDate - b.updateDate
-        );
-        return out.findIndex(n => n.uid == uid) + 1;
-    }
 
     /**
      * 获取榜单奖励

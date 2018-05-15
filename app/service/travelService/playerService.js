@@ -574,8 +574,9 @@ class PlayerService extends Service {
                // this.logger.info(rankInfos);
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
-                rankInfos = await this.ctx.service.travelService.rankService.getUserFriendScoreRankList(friendList, page, limit);
-                info.selfRank.rank = await this.ctx.service.travelService.rankService.getUserFriendScoreRank(friendList, info.ui.uid);
+                let friendScoreRank = await this.ctx.service.travelService.rankService.getUserFriendScoreRankList(friendList, page, limit, info.uid);
+                rankInfos = friendScoreRank.friendsRank;
+                info.selfRank.rank = friendScoreRank.selfRank;
             }
 
         }
@@ -591,11 +592,12 @@ class PlayerService extends Service {
 
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                let friendsComDRList = await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList, page, limit, info.uid);
                 info.selfRank = {
                     achievement: selfCompletionDegree ? selfCompletionDegree.completionDegree : 0,
-                    rank: await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRank(friendList, info.ui.uid),
+                    rank: friendsComDRList.selfRank,
                 };
-                rankInfos = await this.ctx.service.travelService.rankService.getUserFriendCompletionDegreeRankList(friendList, page, limit);
+                rankInfos = friendsComDRList.friendsRank;
             }
         }
 
@@ -610,15 +612,15 @@ class PlayerService extends Service {
                 rankInfos = await this.ctx.service.travelService.rankService.getFootRankList(page, limit);
             }
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
+                let friendFootRankList = await this.ctx.service.travelService.rankService.getUserFriendFootRankList(friendList, page, limit, info.uid);
                 info.selfRank = {
                     achievement: selfFoot ? selfFoot.lightCityNum : 0,
-                    rank: await this.ctx.service.travelService.rankService.getUserFriendFootRank(friendList, info.ui.uid),
+                    rank: friendFootRankList.selfRank,
                 };
-                rankInfos = await this.ctx.service.travelService.rankService.getUserFriendFootRankList(friendList, page, limit);
+                rankInfos = friendFootRankList.friendsRank;
             }
         }
 
-        //this.logger.info(rankInfos);
 
         // let rankIndex = rankInfos.findIndex((n) => n.uid == info.ui.uid);
         // this.logger.info("weizhi ========");
@@ -662,6 +664,13 @@ class PlayerService extends Service {
                 let user = rankInfos[index].uid == info.ui.uid ? info.ui : await this.ctx.model.PublicModel.User.findOne({ uid: rankInfos[index].uid });
                 //  this.logger.info(rankInfos[index]);
                 //    this.logger.info(user);
+                if(!user) {
+                    user = {
+                        uid: rankInfos[index].uid,
+                        nickName: "",
+                        avatarUrl: "",
+                    }
+                }
                 rankItem.userInfo = {
                     uid: user.uid,
                     nickName: user.nickName,
