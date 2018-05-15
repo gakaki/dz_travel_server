@@ -700,7 +700,7 @@ class PlayerService extends Service {
                 //  this.logger.info(rankItem)
                 out.push(rankItem);
             }
-        }else {
+        }/*else {
             if(info.rankSubtype == apis.RankSubtype.FRIEND) {
                 info.selfRank = {
                     rank: 1,
@@ -716,7 +716,7 @@ class PlayerService extends Service {
 
             }
 
-        }
+        }*/
 
 
       // this.logger.info(out)

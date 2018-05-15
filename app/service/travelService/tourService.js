@@ -20,12 +20,17 @@ const QuestLoop     = require('../questService/questLoop');
 class TourService extends Service {
 
     // 邀请码 查询当前队友
-    async findAnotherPlayer(myUid){
-        let curCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: myUid });
-        if(!curCity) {
-            throw new Error("not found currentcity table");
-            return;
+    async findAnotherPlayer(myUid,curCity){
+        if(curCity) {
+            let curCity         = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: myUid });
+            if(!curCity) {
+                // throw new Error("not found currentcity table");
+                // return;
+                return null;
+            }
         }
+
+
         let friendId        = curCity['friend'];
         let isInviter       = curCity['isInviter'];
         if ( !friendId ){
@@ -34,7 +39,7 @@ class TourService extends Service {
         this.logger.info("[double guide]查询双人信息" + myUid + ` isInviter ${isInviter}`, "好友id是" + friendId + ` isInviter ${!isInviter}`);
 
         // partener 就是另一个玩家
-        let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: friendId })
+        let partnetObj      = await this.ctx.model.PublicModel.User.findOne({ uid: friendId });
         if ( !partnetObj )  return null;
         this.logger.info(`查询队友信息 ${friendId}` + partnetObj['nickName']);
 
@@ -53,24 +58,27 @@ class TourService extends Service {
 
        // this.ctx.session.info                                        = info;
 
-        info.partener                                                = await this.findAnotherPlayer(uid);
+
         // info.display        = currentCity['4'] > 0 ? "1":'0';  //开车还是行走的逻辑要补充下 从rentitems
 
 
         let currentCity = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: info.uid });
+        if(!currentCity) {
+            info.code = apis.Code.NO_CURRENTCITY;
+            return;
+        }
         let cid                                                      = currentCity.cid;
         let cityConfig                                               = travelConfig.City.Get( cid );
         if(!cityConfig) {
             info.code                                                = apis.Code.PARAMETER_NOT_MATCH;
-            info.submit();
             return;
         }
-
+        info.partener                                                = await this.findAnotherPlayer(uid, currentCity);
         info.spots          = [];
         let spot_map        = {};
 
-        let lng             = cityConfig['coordinate'][0];
-        let lat             = cityConfig['coordinate'][1];
+      //  let lng             = cityConfig['coordinate'][0];
+      //  let lat             = cityConfig['coordinate'][1];
 
 
 
@@ -124,19 +132,26 @@ class TourService extends Service {
                     break;
                 }
                 if(spot.index != -1) {
-                    if(!spot.tracked) {
-                        if(spot.endtime && spot.endtime <= new Date().getTime()) {
-                            spot.roundTracked = true;
-                            spot.tracked                             = true;
-                            spot.countdown                           = 0
-                        }
-                    }else{
-                        if(spot.endtime && spot.endtime <= new Date().getTime()) {
-                            this.logger.info(">>>>>>>>>>>没进来？？？")
-                            spot.roundTracked = true;
-                            spot.countdown                               = 0
-                        }
+                    if(spot.endtime && spot.endtime <= new Date().getTime()) {
+                        spot.roundTracked = true;
+                        spot.tracked                             = true;
+                        spot.countdown                               = 0
                     }
+
+
+                    // if(!spot.tracked) {
+                    //     if(spot.endtime && spot.endtime <= new Date().getTime()) {
+                    //         spot.roundTracked = true;
+                    //         spot.tracked                             = true;
+                    //         spot.countdown                           = 0
+                    //     }
+                    // }else{
+                    //     if(spot.endtime && spot.endtime <= new Date().getTime()) {
+                    //         spot.roundTracked = true;
+                    //         spot.tracked                             = true;
+                    //         spot.countdown                               = 0
+                    //     }
+                    // }
 
                 }
                 spot_map[spot.id]                                    = spot;
@@ -233,16 +248,8 @@ class TourService extends Service {
         info.startPos = ScenicPos.Get(cid).cfg;
         info.weather = await this.ctx.service.publicService.thirdService.getWeather(cid);
         // info.others = await this.ctx.service.publicService.friendService.findMySameCityFriends(ui.friendList, cid, uid, currentCity.friend);
-
-
-
-
-
-
-
         info.task = await this.queryTaskProgress(ui.uid, currentCity);
         info.mileage = ui.mileage;
-
     }
 
 
