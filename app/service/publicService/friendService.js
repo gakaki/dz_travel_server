@@ -4,6 +4,53 @@ const travelConfig = require("../../../sheets/travel");
 
 
 class FriendService extends Service {
+
+    async findTourPal(friendList, uid, time, cid) {
+        let friendCurrentCitys = [];
+        let friends = [];
+        if(friendList.length) {
+            friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList });
+            this.app.getLogger('debugLogger').info(`获取好友地理位置耗时 ${Date.now() - time} ms`);
+            friends = await this.getUsersInfo(friendCurrentCitys);
+            this.app.getLogger('debugLogger').info(`获取好友信息耗时 ${Date.now() - time} ms`);
+        }
+
+        let limit = travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value;
+        if(cid) {
+            limit = travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value;
+        }
+
+        if (friends.length < limit) {
+            let number = limit - friends.length;
+            // 人员不足的时候全国来几个
+            friendList.push(uid);
+            let friendCurrentCitys = [];
+            if (!cid) {
+                friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.aggregate([
+                    { $match: { uid: { $nin: friends } } },
+                    { $sample: { size: number } },
+                ]);
+            }else {
+                friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.aggregate([
+                    { $match: { cid: cid, uid: { $nin: friends } } },
+                    { $sample: { size: number } },
+                ]);
+            }
+            this.app.getLogger('debugLogger').info(`获取非好友地理位置耗时 ${Date.now() - time} ms`);
+            let tourpalFriends = await this.getUsersInfo(friendCurrentCitys);
+            this.app.getLogger('debugLogger').info(`获取非好友信息耗时 ${Date.now() - time} ms`);
+            friends = friends.concat(tourpalFriends);
+        }
+        // this.logger.info(friends);
+        return friends;
+    }
+
+
+
+
+
+
+
     /**
      * 获取我的全部好友
      * @param {friendList<Array>} 我的好友列表

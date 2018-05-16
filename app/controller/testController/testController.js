@@ -96,18 +96,16 @@ class TestController extends Controller {
         let cid              = 3;
         let spotId           = 11211;
 
-        let qp               = new QuestLoop(this.app,uid,cid,spotId);
-        // qp.clear();
-        qp.pause();
-        qp.resume();
-        await qp.init();
-        let prevEvents    = await qp.getEvents();
-        this.app.getLogger('debugLogger').info(" [testquestloop] ", prevEvents);
-        let latestEvent      = await qp.latestEvent();
 
-        this.app.getLogger('debugLogger').info(" [testquestloop] ", latestEvent);
+        let qp               = new QuestLoop(this.app,uid,cid);
+         // qp.clear();
+        // qp.pause();
+        // qp.resume();
+        // let prevEvents       = qp.getEvents();
+        let prevEvents       = [];
+        await qp.init();
+        let latestEvent      = await qp.latestEvent();
         let hasNewEvent      = await qp.hasNewEvent();
-        this.app.getLogger('debugLogger').info(" [testquestloop] ", hasNewEvent);
 
         // let popEvent      = await qp.popEvent();
         let currEvents    = await qp.getEvents();

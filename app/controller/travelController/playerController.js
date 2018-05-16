@@ -39,6 +39,20 @@ class PlayerController extends Controller {
         info.submit();
     }
 
+
+    async gettourpal(ctx) {
+        let info = apis.Tourpal.Init(ctx);
+        let friendList = [];
+        let ui = await this.ctx.model.PublicModel.User.findOne({uid: info.uid });
+        if(ui) {
+            friendList = ui.friendList;
+        }
+        let time = new Date();
+        this.app.getLogger('debugLogger').info(`获取全国好友${time}`);
+        info.companions = await this.ctx.service.publicService.friendService.findTourPal(friendList, info.uid, time.getTime(), info.cid);
+        info.submit();
+    }
+
     async travelfootprint(ctx) {
         let info = await apis.TravelFootprint.Init(ctx, true);
         if(!info.ui) {
