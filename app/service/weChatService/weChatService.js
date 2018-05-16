@@ -569,20 +569,27 @@ class WeChatService extends Service {
                     let content = data.Content;
         
                     this.logger.info('收到公众号消息',userName, content);
-                    //回复一个介绍链接
-                    let back = {xml:{
-                        ToUserName: `<![CDATA[${userName}]]>`,
-                        FromUserName: `<![CDATA[${pubName}]]>`,
-                        MsgType:'<![CDATA[text]]>',
-                        CreateTime:`${Date.now()}`,
-                        Content: `<![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]>`
-                    }}
-                    let builder = new xml2js.Builder();
-                    let xmlwxParam = builder.buildObject(back);
-                    xmlwxParam = xmlwxParam.split('\n').slice(1).join('');
-        
-                    console.log('response>>',xmlwxParam)
-                    resolve(xmlwxParam)
+                    let result = ''
+                    if (/(点亮|足迹)/.test(content)) {
+                        result = `<xml>
+                            <ToUserName><![CDATA[${userName}]]></ToUserName>
+                            <FromUserName><![CDATA[${pubName}]]></FromUserName>
+                            <MsgType><![CDATA[text]]></MsgType>
+                            <CreateTime>${Date.now()}</CreateTime>
+                            <Content><![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]></Content>
+                        </xml>`
+                    }
+                    else {
+                        //转到客服
+                        result = `<xml>
+                            <ToUserName><![CDATA[${userName}]]></ToUserName>
+                            <FromUserName><![CDATA[${pubName}]]></FromUserName>
+                            <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+                            <CreateTime>${Date.now()}</CreateTime>
+                        </xml>`
+                    }
+
+                    resolve(result)
                 })
             })
         });

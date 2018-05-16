@@ -21,6 +21,11 @@
                     "url": "http://mp.weixin.qq.com",
                     "appid": "wx4cdb3cbd1248ee5e",
                     "pagepath": "pages/index/index"
+                },
+                {
+                    "type": "view",
+                    "name": "万人斗地主",
+                    "url": "http://gengxin.douzi.com/mlobby/market/wanrenddz/xcxgzh/index.html"
                 }
             ]
         },
