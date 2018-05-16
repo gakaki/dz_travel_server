@@ -54,7 +54,7 @@ api IndexInfo {
     //旅行人数
     output playerCnt:number
     //好友uid
-    //output friends:FriendInfo[]
+    output friends:FriendInfo[]
     //未读系统信息条数
     output unreadMsgCnt:number
     //当前所在城市
