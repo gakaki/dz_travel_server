@@ -27,8 +27,7 @@ class WeChatService extends Service {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
             let r = await this.ctx.model.WeChatModel.SdkUser.update({ userid: auResult.data.openid },
-                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key },
-                $inc: { authNumber: 1 } },
+                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key, authNumber: 2 } },
                 { upsert: true });
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;
@@ -44,7 +43,7 @@ class WeChatService extends Service {
             data: {},
         };
         let appid = this.config.appid;
-        let orderid = moment().format('YYYYMMDDhhmmssSS') + await this.ctx.model.WeChatModel.WechatUnifiedOrder.count();
+
         let payInfo = {
             price: payCount,
             //  price:1,
@@ -52,7 +51,7 @@ class WeChatService extends Service {
            // pid: ui.pid,
            // uid: ui.uid,
             type: "android",
-            orderid: orderid,
+           // orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
             appName: appName,
             time: new Date(),
@@ -74,7 +73,7 @@ class WeChatService extends Service {
             ui = {
                 uid: ui.uid,
                 pid: minUser.pid,
-            }
+            };
             payInfo.uid = minUser.uid;
             payInfo.pid = minUser.pid;
             payInfo.type = "ios";
@@ -83,7 +82,9 @@ class WeChatService extends Service {
             payInfo.pid = ui.pid;
         }
 
-        this.logger.info("当前用户信息", ui);
+        let orderid = payInfo.pid + moment().format('YYYYMMDDhhmmssSS');
+        payInfo.orderid = orderid;
+        //this.logger.info("当前用户信息", ui);
 
         // 规则，year/month/day 000000000
 
