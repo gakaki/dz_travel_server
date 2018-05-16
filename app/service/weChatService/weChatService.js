@@ -573,6 +573,7 @@ class WeChatService extends Service {
                         ToUserName: `<![CDATA[${userName}]]>`,
                         FromUserName: `<![CDATA[${pubName}]]>`,
                         MsgType:'<![CDATA[text]]>',
+                        CreateTime:`${Date.now()}`,
                         Content: `<![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]>`
                     }}
                     let builder = new xml2js.Builder();
