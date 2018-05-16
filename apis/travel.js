@@ -1165,12 +1165,13 @@ class IndexInfo extends Base {
         this._season = null;
         this._weather = null;
         this._playerCnt = null;
+        this._friends = null;
         this._unreadMsgCnt = null;
         this._location = null;
         this._gold = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["isFirst","season","weather","playerCnt","unreadMsgCnt","location","gold"];
+        this.resFields = ["isFirst","season","weather","playerCnt","friends","unreadMsgCnt","location","gold"];
     }
     //server output, type: Boolean
     get isFirst() {return this._isFirst}
@@ -1184,6 +1185,9 @@ class IndexInfo extends Base {
     //server output, type: number
     get playerCnt() {return this._playerCnt}
     set playerCnt(v) {this._playerCnt = v}
+    //server output, type: FriendInfo[]
+    get friends() {return this._friends}
+    set friends(v) {this._friends = v}
     //server output, type: number
     get unreadMsgCnt() {return this._unreadMsgCnt}
     set unreadMsgCnt(v) {this._unreadMsgCnt = v}
