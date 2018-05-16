@@ -49,7 +49,7 @@ class PlayerController extends Controller {
         }
         let time = new Date();
         this.app.getLogger('debugLogger').info(`获取全国好友${time}`);
-        info.friends = await this.ctx.service.publicService.friendService.findTourPal(friendList, info.uid, time.getTime(), info.cid);
+        info.companions = await this.ctx.service.publicService.friendService.findTourPal(friendList, info.uid, time.getTime(), info.cid);
         info.submit();
     }
 
