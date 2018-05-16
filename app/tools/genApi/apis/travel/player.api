@@ -163,3 +163,9 @@ api ShareInfo {
     output isFirst:boolean
 }
 
+
+api Tourpal {
+    //当前城市,默认获取全国
+    optional cid:string
+    output companions:UserInfo[]
+}
