@@ -1044,15 +1044,38 @@ class TourService extends Service {
         //所以查cid的cityevent表
         let cid                                                          = info.cid;
         let uid                                                          = info.uid;
-        let knowEvent                                                    = await this.eventFromDB(uid ,true);
-        info.current                                                     = knowEvent.current;
-        info.total                                                       = knowEvent.total;
-        info.hasNext                                                     = knowEvent.hasNext;
-        info.event                                                       = knowEvent.event;
-        let  event                                                       = knowEvent.event;
-        let currentCity                                                  = knowEvent.currentCity;
+        // let knowEvent                                                    = await this.eventFromDB(uid ,true);
+        // info.current                                                     = knowEvent.current;
+        // info.total                                                       = knowEvent.total;
+        // info.hasNext                                                     = knowEvent.hasNext;
+        // info.event                                                       = knowEvent.event;
+        // let  event                                                       = knowEvent.event;
 
-        if ( !event ) {
+        let qp                                                          = new QuestLoop(this.app,uid,cid);
+        await qp.init();
+        let event                                                       = await qp.popEvent();
+        let isPause                                                     = await qp.getStatus();
+        info.current                                                    = await qp.getCurrentLength();
+        info.total                                                      = await qp.totalLimit;
+        info.hasNext                                                    = await qp.hasNext();
+        info.newEvent                                                   = await qp.hasNewEvent();
+        info.event                                                      = event;
+        this.app.getLogger('debugLogger').info("[playloopNew]","是否暂停",isPause,'newEvent', info.newEvent , '事件为', info.latestEvent);
+        this.app.getLogger('debugLogger').info("[playloopNew]",{
+            isPause : isPause,
+            newEvent: info.newEvent,
+            lastestEvent: info.latestEvent
+        });
+
+
+        let currentCity                                                 = await this.ctx.model.TravelModel.CurrentCity.findOne({ uid: uid });
+        if(!currentCity) {
+            this.logger.info("城市没找到");
+            throw new Error("NOT FOUND CURRENTCITY 城市没找到");
+            return;
+        }
+
+        if ( !info.event ) {
             info.current = 0;
             info.quest   = {};
             info.total   = 10;
@@ -1562,11 +1585,11 @@ class TourService extends Service {
 
         let cid                                                       = currentCity.cid;
         let qp                                                        = new QuestLoop(this.app,uid,cid);
+        await qp.clear();
         await qp.init();
         let isPause                                                   = await qp.getStatus();
         info.newEvent                                                 = await qp.hasNewEvent();
         info.latestEvent                                              = await qp.latestEvent();
-
         this.app.getLogger('debugLogger').info("[playloopNew]","是否暂停",isPause,'newEvent', info.newEvent , '事件为', info.latestEvent);
         this.app.getLogger('debugLogger').info("[playloopNew]",{
             isPause : isPause,

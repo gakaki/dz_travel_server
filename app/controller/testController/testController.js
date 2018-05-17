@@ -84,55 +84,61 @@ class TestController extends Controller {
         info.submit();
     }
 
-
+    async testquestpop(ctx){
+        this.app.getLogger('debugLogger').info(" [testquestpop] ","》》》》》》》》》》》testquestpop");
+        let uid            = 123456;
+        let cid            = 3;
+        let spotId         = 11211;
+        let isEventShow    = true;
+        let qp             = new QuestLoop(this.app,isEventShow ,uid,cid);
+        qp.init();
+        let res           = await qp.popEventThanGetFormat();
+        return ctx.body   = res;
+    }
 
     //测试新版事件生成
     async testquestloop(ctx) {
-
-
-        const intervalSecond = 2 * 1000;
-        console.log( time.currentYMDHMS()  );
+        this.app.getLogger('debugLogger').info(" [testquestloop] ","》》》》》》》》》》》testquestloop");
         let uid              = 123456;
         let cid              = 3;
         let spotId           = 11211;
+        let isEventShow      = false;
+        let qp               = new QuestLoop(this.app, isEventShow ,uid,cid);
 
-
-        let qp               = new QuestLoop(this.app,uid,cid);
-         // qp.clear();
+        qp.clear();
         // qp.pause();
         // qp.resume();
         // let prevEvents       = qp.getEvents();
+        await qp.init();
+        await qp.randomForDebugByCount(10);
+        let res           = await qp.getFormat();
+        return ctx.body   = res;
+    };
+
+    async testquestloopclear(ctx) {
+        this.app.getLogger('debugLogger').info(" [testquestloopclear] ","》》》》》》》》》》》testquestloopclear");
+        let uid              = 123456;
+        let cid              = 3;
+        let spotId           = 11211;
+        let isEventShow      = false;
+        let qp               = new QuestLoop(this.app, isEventShow ,uid,cid);
+        qp.clear();
+        let res              = await qp.getFormat();
+        return ctx.body      = res;
+    };
+    async testquestloopstepaddevent(ctx) {
+        this.app.getLogger('debugLogger').info(" [testquestloopstepaddevent] ","》》》》》》》》》》》testquestloopstepaddevent");
+        let uid              = 123456;
+        let cid              = 3;
+        let spotId           = 11211;
+        let isEventShow      = false;
+        let qp               = new QuestLoop(this.app, isEventShow ,uid,cid);
         let prevEvents       = [];
         await qp.init();
-        let latestEvent      = await qp.latestEvent();
-        let hasNewEvent      = await qp.hasNewEvent();
-
-        // let popEvent      = await qp.popEvent();
-        let currEvents    = await qp.getEvents();
-        let isPause       = await qp.getStatus();
-        return ctx.body = {
-            isPause        : isPause,
-            popEvent       : null,
-            prevEvents     : prevEvents,
-            currentEvents  : currEvents,
-            latestEvent    : latestEvent,
-            hasNewEvent    : hasNewEvent
-        }
-
-        //记录playloop上回访问的时间点
-
-
-        //计算和当前时间具体差了多少来生成事件数量
-
-        //推送到redis中
-
-        ///每次取栈顶的事件
-
-        //同时要注意还有暂停的功能
-
-        //redis model save
-
+        let res              = await qp.getFormat();
+        return ctx.body      = res;
     };
+
 
     //测试事件pool
     async testquestpool(ctx) {
@@ -153,7 +159,6 @@ class TestController extends Controller {
 // // return;
 //
 // // 100次测试生成抽奖的概率计算查看 上海的
-
         let objParametes   = {
             cid:3,
             weather: 0,
@@ -171,10 +176,7 @@ class TestController extends Controller {
             console.log(`${ev.eid} : ${ev.questionTitle}`);
         }
         console.timeEnd('test 事件生成');
-
 // https://local.ddz2018.com/?sid=042e9de15ad6a0688e040eb7b1b27f9d&uid=ov5W35R-9V5h7f0gpZOJVNJuyabE&cid=101&line=[100107,100102,100109]&appName=travel&action=tour.tourstart
-
-
 
     }
 

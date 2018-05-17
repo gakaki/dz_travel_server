@@ -148,10 +148,18 @@ module.exports = app => {
     router.get('/test/testnohm', controller.testController.testController.testnohm);
 
 
-    //https://travel.ddz2018.com:443/test/testquestloop
+    //https://local.ddz2018.com:443/test/testquestloop
     router.get('/test/testquestloop', controller.testController.testController.testquestloop);
-    //https://travel.ddz2018.com:443/test/testquestpool
+    //https://local.ddz2018.com:443/test/testquestpool
     router.get('/test/testquestpool', controller.testController.testController.testquestpool);
+    //https://local.ddz2018.com:443/test/testquestpop
+    router.get('/test/testquestpop', controller.testController.testController.testquestpop);
+
+    //https://local.ddz2018.com:443/test/testquestloopstepaddevent
+    router.get('/test/testquestloopstepaddevent', controller.testController.testController.testquestloopstepaddevent);
+    //https://local.ddz2018.com:443/test/testquestloopclear
+    router.get('/test/testquestloopclear', controller.testController.testController.testquestloopclear);
+
 
     //https://local.ddz2018.com:443/test/nohm
     // router.get('/test/testnohm', controller.testController.testController.testnohm);

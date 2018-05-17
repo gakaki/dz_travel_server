@@ -56,15 +56,19 @@
     "start": "egg-scripts start  --daemon --ignore-stderr --port=8080  --title=prod",
     "stop": "egg-scripts stop --title=prod",
     "startnd": "egg-scripts start --port=8080 --title=prod",
+    "restart": "npm run stop && npm run start",
 
     "slave": "egg-scripts start --env=prodslave --daemon --ignore-stderr --port=8080  --title=slave",
     "stopslave": "egg-scripts stop --title=slave",
+    "restartlave": "npm run stopslave && npm run slave",
 
     "proddebug": "EGG_SERVER_ENV=proddebug egg-bin dev --port=9090  --title=debug",
     "stopproddebug": "egg-scripts stop --title=debug",
+    "restartproddebug": "npm run stopproddebug && npm run proddebug",
 
     "beta": "egg-scripts start --daemon --ignore-stderr --env=beta --title=beta --port=443 --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "stopbeta": "egg-scripts stop --title=beta",
+    "restartbeta": "npm run stopbeta && npm run beta",
 
     "dev": "egg-bin dev  --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
     "debug": "egg-bin debug   --env=local  --sticky  --port=443  --title=egg-server-server --https.key=./config/server.key --https.cert=./config/server.pem --logs=./logs/server",
