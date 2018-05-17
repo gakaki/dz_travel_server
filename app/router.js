@@ -45,6 +45,7 @@ module.exports = app => {
     router.get('/player/modifyrealinfo', controller.travelController.playerController.setrealinfo);
     router.get('/player/getrealinfo', controller.travelController.playerController.getrealinfo);
     router.get('/player/shareinfo', controller.travelController.playerController.shareInfo);
+    router.get('/player/tourpal', controller.travelController.playerController.gettourpal);
 
     router.get('/postcard/mypostcards', controller.travelController.playerController.showmypostcards);
     router.get('/postcard/citypostcards', controller.travelController.playerController.showcitypostcards);
@@ -145,6 +146,12 @@ module.exports = app => {
     //https://travel.ddz2018.com:443/test/hello
     router.get('/test/hello', controller.testController.testController.hello);
     router.get('/test/testnohm', controller.testController.testController.testnohm);
+
+
+    //https://travel.ddz2018.com:443/test/testquestloop
+    router.get('/test/testquestloop', controller.testController.testController.testquestloop);
+    //https://travel.ddz2018.com:443/test/testquestpool
+    router.get('/test/testquestpool', controller.testController.testController.testquestpool);
 
     //https://local.ddz2018.com:443/test/nohm
     // router.get('/test/testnohm', controller.testController.testController.testnohm);

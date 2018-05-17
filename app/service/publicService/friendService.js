@@ -4,19 +4,69 @@ const travelConfig = require("../../../sheets/travel");
 
 
 class FriendService extends Service {
+
+    async findTourPal(friendList, uid, time, cid) {
+        let friendCurrentCitys = [];
+        let friends = [];
+        if(friendList.length) {
+            friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList });
+            this.app.getLogger('debugLogger').info(`获取好友地理位置耗时 ${Date.now() - time} ms`);
+            friends = await this.getUsersInfo(friendCurrentCitys);
+            this.app.getLogger('debugLogger').info(`获取好友信息耗时 ${Date.now() - time} ms`);
+        }
+
+        let limit = travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value;
+        if(cid) {
+            limit = travelConfig.Parameter.Get(travelConfig.Parameter.PLAYFRIEND).value;
+        }
+
+        if (friends.length < limit) {
+            let number = limit - friends.length;
+            // 人员不足的时候全国来几个
+            friendList.push(uid);
+            let friendCurrentCitys = [];
+            if (!cid) {
+                friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.aggregate([
+                    { $match: { uid: { $nin: friends } } },
+                    { $sample: { size: number } },
+                ]);
+            }else {
+                friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.aggregate([
+                    { $match: { cid: cid, uid: { $nin: friends } } },
+                    { $sample: { size: number } },
+                ]);
+            }
+            this.app.getLogger('debugLogger').info(`获取非好友地理位置耗时 ${Date.now() - time} ms`);
+            let tourpalFriends = await this.getUsersInfo(friendCurrentCitys);
+            this.app.getLogger('debugLogger').info(`获取非好友信息耗时 ${Date.now() - time} ms`);
+            friends = friends.concat(tourpalFriends);
+        }
+        // this.logger.info(friends);
+        return friends;
+    }
+
+
+
+
+
+
+
     /**
      * 获取我的全部好友
      * @param {friendList<Array>} 我的好友列表
      * @param uid
      * @return {Promise<Array>}
      */
-    async findMyFriends(friendList, uid) {
+    async findMyFriends(friendList, uid, time) {
         let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: friendList });
+        this.app.getLogger('debugLogger').info(`获取好友地理位置耗时 ${Date.now() - time} ms`);
         let friends = await this.getUsersInfo(friendCurrentCitys);
+        this.app.getLogger('debugLogger').info(`获取好友信息耗时 ${Date.now() - time} ms`);
         if (friends.length < travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value) {
             // 人员不足的时候全国来几个
             friendList.push(uid);
-            let cityFriends = await this.findCountryFriends(friendList, (travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value - friends.length));
+            let cityFriends = await this.findCountryFriends(friendList, (travelConfig.Parameter.Get(travelConfig.Parameter.MAINFRIEND).value - friends.length), time);
+            this.app.getLogger('debugLogger').info(`获取非好友信息耗时 ${Date.now() - time} ms`);
             friends = friends.concat(cityFriends);
         }
        // this.logger.info(friends);
@@ -79,11 +129,19 @@ class FriendService extends Service {
      * @param number
      * @return {Promise<*>}
      */
-    async findCountryFriends(myFriendList, number) {
-        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: { $nin: myFriendList } });
-        if(number) {
-            friendCurrentCitys = utils.shuffle(friendCurrentCitys).slice(0, number);
+    async findCountryFriends(myFriendList, number, time) {
+        if(!number) {
+            return [];
         }
+        //let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.find({ uid: { $nin: myFriendList } }).limit(number);
+        let friendCurrentCitys = await this.ctx.model.TravelModel.CurrentCity.aggregate([
+            { $match: { uid: { $nin: myFriendList } } },
+            { $sample: { size: number } },
+            ]);
+        this.app.getLogger('debugLogger').info(`获取非好友地理位置耗时 ${Date.now() - time} ms`);
+        // if(number) {
+        //     friendCurrentCitys = utils.shuffle(friendCurrentCitys).slice(0, number);
+        // }
         return await this.getUsersInfo(friendCurrentCitys);
     }
 

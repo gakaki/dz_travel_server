@@ -178,7 +178,6 @@ class WeChatController extends Controller {
 
     async wepubres(ctx) {
         let str = await this.service.weChatService.weChatService.wepubres(ctx);
-        ctx.response.type = 'xml';
         ctx.response.body = str;
     }
 

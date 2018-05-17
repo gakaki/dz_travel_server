@@ -27,8 +27,7 @@ class WeChatService extends Service {
             //暂时用空信息，后面根据客户端汇报的信息再更新进来
             // 插入到数据库中
             let r = await this.ctx.model.WeChatModel.SdkUser.update({ userid: auResult.data.openid },
-                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key },
-                $inc: { authNumber: 1 } },
+                { $set: { userid: auResult.data.openid, unionid: auResult.data.unionid, appName: appName, sessionKey: auResult.data.session_key, authNumber: 2 } },
                 { upsert: true });
             this.logger.info("sdk用户入库更新:" + JSON.stringify(r));
             return auResult.data;
@@ -44,15 +43,15 @@ class WeChatService extends Service {
             data: {},
         };
         let appid = this.config.appid;
-        let orderid = moment().format('YYYYMMDDhhmmssSS') + await this.ctx.model.WeChatModel.WechatUnifiedOrder.count();
+
         let payInfo = {
             price: payCount,
             //  price:1,
             goods: good,
            // pid: ui.pid,
            // uid: ui.uid,
-            type: "recharge",
-            orderid: orderid,
+            type: "android",
+           // orderid: orderid,
             desc: "豆子网络-" + appName + "游戏",
             appName: appName,
             time: new Date(),
@@ -74,15 +73,18 @@ class WeChatService extends Service {
             ui = {
                 uid: ui.uid,
                 pid: minUser.pid,
-            }
+            };
             payInfo.uid = minUser.uid;
             payInfo.pid = minUser.pid;
+            payInfo.type = "ios";
         }else{
             payInfo.uid = ui.uid;
             payInfo.pid = ui.pid;
         }
 
-        this.logger.info("当前用户信息", ui);
+        let orderid = payInfo.pid + moment().format('YYYYMMDDhhmmssSS');
+        payInfo.orderid = orderid;
+        //this.logger.info("当前用户信息", ui);
 
         // 规则，year/month/day 000000000
 
@@ -567,19 +569,27 @@ class WeChatService extends Service {
                     let content = data.Content;
         
                     this.logger.info('收到公众号消息',userName, content);
-                    //回复一个介绍链接
-                    let back = {xml:{
-                        ToUserName: `<![CDATA[${userName}]]>`,
-                        FromUserName: `<![CDATA[${pubName}]]>`,
-                        MsgType:'<![CDATA[text]]>',
-                        Content: `<![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]>`
-                    }}
-                    let builder = new xml2js.Builder();
-                    let xmlwxParam = builder.buildObject(back);
-                    xmlwxParam = xmlwxParam.split('\n').slice(1).join('');
-        
-                    console.log('response>>',xmlwxParam)
-                    resolve(xmlwxParam)
+                    let result = ''
+                    if (/(点亮|足迹)/.test(content)) {
+                        result = `<xml>
+                            <ToUserName><![CDATA[${userName}]]></ToUserName>
+                            <FromUserName><![CDATA[${pubName}]]></FromUserName>
+                            <MsgType><![CDATA[text]]></MsgType>
+                            <CreateTime>${Date.now()}</CreateTime>
+                            <Content><![CDATA[https://mp.weixin.qq.com/s/qUdeoIFiIxiw9IionIPYuA]]></Content>
+                        </xml>`
+                    }
+                    else {
+                        //转到客服
+                        result = `<xml>
+                            <ToUserName><![CDATA[${userName}]]></ToUserName>
+                            <FromUserName><![CDATA[${pubName}]]></FromUserName>
+                            <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+                            <CreateTime>${Date.now()}</CreateTime>
+                        </xml>`
+                    }
+
+                    resolve(result)
                 })
             })
         });

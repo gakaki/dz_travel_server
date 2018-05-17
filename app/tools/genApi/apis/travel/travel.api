@@ -72,6 +72,8 @@ api TravelLog {
     optional page:number
     //获取日志的长度，默认为20
     optional length:number
+    //从哪进的self页面
+    optional fromWhere:string
     //旅行日志
     output allLogs:Log[]
 }

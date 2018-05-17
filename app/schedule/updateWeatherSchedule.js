@@ -14,7 +14,7 @@ module.exports = {
     },
     async task(ctx) {
 
-        if (this.config.isSlave) return;
+        if (ctx.app.config.isSlave) return;
 
         ctx.logger.info("每一个小时更新一次天气");
        let citys = travelConfig.citys;

@@ -1127,6 +1127,34 @@ class Shop {
         
     }
 }
+class Spot extends RouterSpot {
+    constructor() {
+        super();
+        
+    
+        //prop type: number
+        this.cid = null;
+    
+        //prop type: number
+        this.id = null;
+    
+        //prop type: number
+        this.x = null;
+    
+        //prop type: number
+        this.y = null;
+    
+        //prop type: string
+        this.name = null;
+    
+        //prop type: string[]
+        this.building = null;
+    
+        
+        
+        
+    }
+}
 class IndexInfo extends Base {
     constructor() {
         super();
@@ -1193,9 +1221,10 @@ class TravelLog extends Base {
         this._playerUid = null;
         this._page = null;
         this._length = null;
+        this._fromWhere = null;
         this._allLogs = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid","page","length"];
+        this.reqFields = ["playerUid","page","length","fromWhere"];
         this.resFields = ["allLogs"];
     }
     //client input, optional, type: string
@@ -1207,6 +1236,9 @@ class TravelLog extends Base {
     //client input, optional, type: number
     get length() {return this._length}
     set length(v) {this._length = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: Log[]
     get allLogs() {return this._allLogs}
     set allLogs(v) {this._allLogs = v}
@@ -1384,14 +1416,18 @@ class PlayerInfo extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._info = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["info"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: UserInfo
     get info() {return this._info}
     set info(v) {this._info = v}
@@ -1895,39 +1931,6 @@ class BuyPostcardList extends Base {
         }
     }
 }
-class BuyPostcard extends Base {
-    constructor() {
-        super();
-        this.action = 'tour.buypostcard';
-        
-    
-        this._ptid = null;
-        this._goldNum = null;
-        this.requireFileds = ["ptid"];
-        this.reqFields = ["ptid"];
-        this.resFields = ["goldNum"];
-    }
-    //client input, require, type: number
-    get ptid() {return this._ptid}
-    set ptid(v) {this._ptid = v}
-    //server output, type: number
-    get goldNum() {return this._goldNum}
-    set goldNum(v) {this._goldNum = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new BuyPostcard();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
 class getPayItems extends Base {
     constructor() {
         super();
@@ -1944,6 +1947,51 @@ class getPayItems extends Base {
     set items(v) {this._items = v}
     static Init(ctx, checkLogin = false) {
         let o = new getPayItems();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
+class SetRouter extends Base {
+    constructor() {
+        super();
+        this.action = 'tour.setrouter';
+        
+    
+        this._cid = null;
+        this._line = null;
+        this._spots = null;
+        this._startTime = null;
+        this._display = null;
+        this.requireFileds = ["cid","line"];
+        this.reqFields = ["cid","line"];
+        this.resFields = ["spots","startTime","display"];
+    }
+    //client input, require, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
+    get line() {return this._line}
+    set line(v) {this._line = v}
+    //server output, type: RouterSpot[]//不包括起点
+    get spots() {return this._spots}
+    set spots(v) {this._spots = v}
+    //server output, type: 
+    get startTime() {return this._startTime}
+    set startTime(v) {this._startTime = v}
+    //server output, type: 
+    get display() {return this._display}
+    set display(v) {this._display = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new SetRouter();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -2987,6 +3035,7 @@ class TravelFootprint extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._userInfo = null;
         this._items = null;
         this._reachrovince = null;
@@ -2994,12 +3043,15 @@ class TravelFootprint extends Base {
         this._totalArrivePercent = null;
         this._travelPercent = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["userInfo","items","reachrovince","totalArrive","totalArrivePercent","travelPercent"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: UserBriefInfo
     get userInfo() {return this._userInfo}
     set userInfo(v) {this._userInfo = v}
@@ -3040,15 +3092,19 @@ class TraveledPlaces extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._provinces = null;
         this._citys = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["provinces","citys"];
     }
     //client input, optional, type: string//用户uid，不传则是自己的
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: string[]//点亮的省名数组,如[‘江苏’]
     get provinces() {return this._provinces}
     set provinces(v) {this._provinces = v}
@@ -3148,6 +3204,39 @@ class ShareInfo extends Base {
         }
     }
 }
+class Tourpal extends Base {
+    constructor() {
+        super();
+        this.action = 'player.tourpal';
+        
+    
+        this._cid = null;
+        this._companions = null;
+        this.requireFileds = [];
+        this.reqFields = ["cid"];
+        this.resFields = ["companions"];
+    }
+    //client input, optional, type: string
+    get cid() {return this._cid}
+    set cid(v) {this._cid = v}
+    //server output, type: UserInfo[]
+    get companions() {return this._companions}
+    set companions(v) {this._companions = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new Tourpal();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class Minapppay extends Base {
     constructor() {
         super();
@@ -3195,24 +3284,6 @@ class WsSend extends Base {
         
     }
 }
-class WsReceive extends Base {
-    constructor() {
-        super();
-        
-    
-        
-        
-        
-    }
-   submit() {
-        let tmp ={};
-        tmp.action=this.action;
-        this.resFields.forEach(k => {
-            tmp[k]=this[k]
-        });
-        this.ctx.socket.emit(this.action, {data: tmp, code: this.code});
-    }
-}
 class DetailLiveMessage extends OneBriefMessage {
     constructor() {
         super();
@@ -3236,14 +3307,18 @@ class MyPostcards extends Base {
         
     
         this._playerUid = null;
+        this._fromWhere = null;
         this._postcardInfo = null;
         this.requireFileds = [];
-        this.reqFields = ["playerUid"];
+        this.reqFields = ["playerUid","fromWhere"];
         this.resFields = ["postcardInfo"];
     }
     //client input, optional, type: string
     get playerUid() {return this._playerUid}
     set playerUid(v) {this._playerUid = v}
+    //client input, optional, type: string
+    get fromWhere() {return this._fromWhere}
+    set fromWhere(v) {this._fromWhere = v}
     //server output, type: ProvincePostcardInfo[]
     get postcardInfo() {return this._postcardInfo}
     set postcardInfo(v) {this._postcardInfo = v}
@@ -3389,6 +3464,24 @@ class SendPostcard extends Base {
         }
     }
 }
+class WsReceive extends Base {
+    constructor() {
+        super();
+        
+    
+        
+        
+        
+    }
+   submit() {
+        let tmp ={};
+        tmp.action=this.action;
+        this.resFields.forEach(k => {
+            tmp[k]=this[k]
+        });
+        this.ctx.socket.emit(this.action, {data: tmp, code: this.code});
+    }
+}
 class SendMockId extends Base {
     constructor() {
         super();
@@ -3405,35 +3498,6 @@ class SendMockId extends Base {
     set formId(v) {this._formId = v}
     static Init(ctx, checkLogin = false) {
         let o = new SendMockId();
-        o.ctx = ctx;
-        o.code = 0;
-        o.parse(ctx.query, true);
-        if (checkLogin) {
-            return new Promise(resolve => {
-                Base.checkLogin(o).then(()=>{resolve(o)});
-            });
-        }
-        else {
-            return o;
-        }
-    }
-}
-class Showshop extends Base {
-    constructor() {
-        super();
-        this.action = 'weChat.showshop';
-        
-    
-        this._isShow = null;
-        this.requireFileds = [];
-        this.reqFields = [];
-        this.resFields = ["isShow"];
-    }
-    //server output, type: boolean
-    get isShow() {return this._isShow}
-    set isShow(v) {this._isShow = v}
-    static Init(ctx, checkLogin = false) {
-        let o = new Showshop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3639,22 +3703,22 @@ class ThumbComment extends Base {
         }
     }
 }
-class CityListPer extends Base {
+class Showshop extends Base {
     constructor() {
         super();
-        this.action = 'city.citylistper';
+        this.action = 'weChat.showshop';
         
     
-        this._data = null;
+        this._isShow = null;
         this.requireFileds = [];
         this.reqFields = [];
-        this.resFields = ["data"];
+        this.resFields = ["isShow"];
     }
-    //server output, type: ProvencePer[]
-    get data() {return this._data}
-    set data(v) {this._data = v}
+    //server output, type: boolean
+    get isShow() {return this._isShow}
+    set isShow(v) {this._isShow = v}
     static Init(ctx, checkLogin = false) {
-        let o = new CityListPer();
+        let o = new Showshop();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -3767,6 +3831,35 @@ class ClearMsg extends Base {
         }
     }
 }
+class CityListPer extends Base {
+    constructor() {
+        super();
+        this.action = 'city.citylistper';
+        
+    
+        this._data = null;
+        this.requireFileds = [];
+        this.reqFields = [];
+        this.resFields = ["data"];
+    }
+    //server output, type: ProvencePer[]
+    get data() {return this._data}
+    set data(v) {this._data = v}
+    static Init(ctx, checkLogin = false) {
+        let o = new CityListPer();
+        o.ctx = ctx;
+        o.code = 0;
+        o.parse(ctx.query, true);
+        if (checkLogin) {
+            return new Promise(resolve => {
+                Base.checkLogin(o).then(()=>{resolve(o)});
+            });
+        }
+        else {
+            return o;
+        }
+    }
+}
 class UserInfo extends UserBriefInfo {
     constructor() {
         super();
@@ -3801,34 +3894,6 @@ class UserInfo extends UserBriefInfo {
     
         //prop type: OtherUserInfo
         this.otherUserInfo = null;
-    
-        
-        
-        
-    }
-}
-class Spot extends RouterSpot {
-    constructor() {
-        super();
-        
-    
-        //prop type: number
-        this.cid = null;
-    
-        //prop type: number
-        this.id = null;
-    
-        //prop type: number
-        this.x = null;
-    
-        //prop type: number
-        this.y = null;
-    
-        //prop type: string
-        this.name = null;
-    
-        //prop type: string[]
-        this.building = null;
     
         
         
@@ -3979,38 +4044,26 @@ class ExchangeShop extends Base {
         }
     }
 }
-class SetRouter extends Base {
+class BuyPostcard extends Base {
     constructor() {
         super();
-        this.action = 'tour.setrouter';
+        this.action = 'tour.buypostcard';
         
     
-        this._cid = null;
-        this._line = null;
-        this._spots = null;
-        this._startTime = null;
-        this._display = null;
-        this.requireFileds = ["cid","line"];
-        this.reqFields = ["cid","line"];
-        this.resFields = ["spots","startTime","display"];
+        this._ptid = null;
+        this._goldNum = null;
+        this.requireFileds = ["ptid"];
+        this.reqFields = ["ptid"];
+        this.resFields = ["goldNum"];
     }
-    //client input, require, type: string
-    get cid() {return this._cid}
-    set cid(v) {this._cid = v}
-    //client input, require, type: array//景点id数组,每次传的都市完整的路线（包含已走过的）
-    get line() {return this._line}
-    set line(v) {this._line = v}
-    //server output, type: RouterSpot[]//不包括起点
-    get spots() {return this._spots}
-    set spots(v) {this._spots = v}
-    //server output, type: 
-    get startTime() {return this._startTime}
-    set startTime(v) {this._startTime = v}
-    //server output, type: 
-    get display() {return this._display}
-    set display(v) {this._display = v}
+    //client input, require, type: number
+    get ptid() {return this._ptid}
+    set ptid(v) {this._ptid = v}
+    //server output, type: number
+    get goldNum() {return this._goldNum}
+    set goldNum(v) {this._goldNum = v}
     static Init(ctx, checkLogin = false) {
-        let o = new SetRouter();
+        let o = new BuyPostcard();
         o.ctx = ctx;
         o.code = 0;
         o.parse(ctx.query, true);
@@ -4200,6 +4253,7 @@ exports.Comment = Comment;
 exports.MessageItem = MessageItem;
 exports.ExchangeShopDetail = ExchangeShopDetail;
 exports.Shop = Shop;
+exports.Spot = Spot;
 exports.IndexInfo = IndexInfo;
 exports.TravelLog = TravelLog;
 exports.CheckGuide = CheckGuide;
@@ -4220,8 +4274,8 @@ exports.LeaveTour = LeaveTour;
 exports.RentProp = RentProp;
 exports.RentedProp = RentedProp;
 exports.BuyPostcardList = BuyPostcardList;
-exports.BuyPostcard = BuyPostcard;
 exports.getPayItems = getPayItems;
+exports.SetRouter = SetRouter;
 exports.ModifyRouter = ModifyRouter;
 exports.FreshSpots = FreshSpots;
 exports.PlayLoop = PlayLoop;
@@ -4250,31 +4304,31 @@ exports.TravelFootprint = TravelFootprint;
 exports.TraveledPlaces = TraveledPlaces;
 exports.RankInfo = RankInfo;
 exports.ShareInfo = ShareInfo;
+exports.Tourpal = Tourpal;
 exports.Minapppay = Minapppay;
 exports.WsSend = WsSend;
-exports.WsReceive = WsReceive;
 exports.DetailLiveMessage = DetailLiveMessage;
 exports.MyPostcards = MyPostcards;
 exports.CityPostcards = CityPostcards;
 exports.DetailPostcard = DetailPostcard;
 exports.SendPostcard = SendPostcard;
+exports.WsReceive = WsReceive;
 exports.SendMockId = SendMockId;
-exports.Showshop = Showshop;
 exports.PostList = PostList;
 exports.CommentPost = CommentPost;
 exports.PostComments = PostComments;
 exports.ThumbComment = ThumbComment;
-exports.CityListPer = CityListPer;
+exports.Showshop = Showshop;
 exports.GetMessage = GetMessage;
 exports.CheckMsgCnt = CheckMsgCnt;
 exports.ClearMsg = ClearMsg;
+exports.CityListPer = CityListPer;
 exports.UserInfo = UserInfo;
-exports.Spot = Spot;
 exports.IntegralShop = IntegralShop;
 exports.ShopDetail = ShopDetail;
 exports.ExchangeDetail = ExchangeDetail;
 exports.ExchangeShop = ExchangeShop;
-exports.SetRouter = SetRouter;
+exports.BuyPostcard = BuyPostcard;
 exports.SellSpe = SellSpe;
 exports.BuySpe = BuySpe;
 exports.SysMessage = SysMessage;
